@@ -367,6 +367,16 @@ export function SavingsCalculator() {
         : null;
     }
     if (!isValidBirthDate(calculator.birthDate)) {
+      const age = deriveAgeFromBirthDate(calculator.birthDate);
+      if (age !== null && age > 110) {
+        return "L’âge maximum accepté est de 110 ans.";
+      }
+      if (age !== null && age < MIN_SENIOR_AGE && age >= 35) {
+        return `Ce calculateur s’adresse aux personnes de ${MIN_SENIOR_AGE} ans et plus.`;
+      }
+      if (age !== null && age < 35) {
+        return "Vous devez avoir au moins 35 ans.";
+      }
       return "Date invalide ou future.";
     }
     const age = deriveAgeFromBirthDate(calculator.birthDate);

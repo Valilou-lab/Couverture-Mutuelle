@@ -18,7 +18,6 @@ import { StepInsurer } from "./StepInsurer";
 import { StepAnalyzing } from "./StepAnalyzing";
 import { StepContact } from "./StepContact";
 import { StepConfirmation } from "./StepConfirmation";
-import { LiveComparisonsBadge } from "./LiveComparisonsBadge";
 import { useQuoteJourney } from "@/context/QuoteJourneyContext";
 import { buildCompleteSavingsLead } from "@/lib/savings-lead";
 
@@ -249,10 +248,6 @@ export function SavingsQuoteForm() {
       id="formulaire-devis-economies"
       className="form-glow-pulse rounded-[1.75rem] border-2 border-brand/40 bg-white p-5 sm:p-7 lg:p-8"
     >
-      <div className="flex justify-center">
-        <LiveComparisonsBadge />
-      </div>
-
       <p className="mb-4 text-center font-manrope text-base font-bold leading-snug text-brand sm:mb-5 sm:text-lg">
         Complétez pour recevoir vos devis personnalisés{" "}
         <span aria-hidden="true">⏱️</span>

@@ -14,7 +14,11 @@ function nextCount(current: number): number {
   return next;
 }
 
-export function LiveComparisonsBadge() {
+type Props = {
+  compact?: boolean;
+};
+
+export function LiveComparisonsBadge({ compact = false }: Props) {
   const [count, setCount] = useState(19);
 
   useEffect(() => {
@@ -26,7 +30,11 @@ export function LiveComparisonsBadge() {
 
   return (
     <div
-      className="mx-auto mb-4 inline-flex max-w-full items-center justify-center gap-2 rounded-full border border-sky-200 bg-sky-50 px-3.5 py-1.5 text-sm sm:mb-5"
+      className={`inline-flex max-w-full items-center justify-center gap-2 rounded-full border border-sky-200 bg-sky-50 ${
+        compact
+          ? "px-2.5 py-1 text-xs sm:px-3.5 sm:py-1.5 sm:text-sm"
+          : "mx-auto mb-4 px-3.5 py-1.5 text-sm sm:mb-5"
+      }`}
       aria-live="polite"
     >
       <span className="relative flex h-2.5 w-2.5 shrink-0" aria-hidden="true">
@@ -35,7 +43,10 @@ export function LiveComparisonsBadge() {
       </span>
       <p className="text-center leading-snug text-foreground">
         <strong className="font-bold text-sky-600">{count} personnes</strong>{" "}
-        comparent en ce moment
+        <span className={compact ? "hidden sm:inline" : undefined}>
+          comparent en ce moment
+        </span>
+        <span className={compact ? "sm:hidden" : "hidden"}>comparent</span>
       </p>
     </div>
   );

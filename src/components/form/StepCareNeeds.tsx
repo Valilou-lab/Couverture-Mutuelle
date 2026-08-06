@@ -43,10 +43,10 @@ export function StepCareNeeds({
   return (
     <div>
       <h2 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
-        Vos soins prioritaires
+        Que souhaitez-vous couvrir en priorité&nbsp;?
       </h2>
       <p className="mt-2 text-sm text-zinc-600 sm:text-base">
-        Sélectionnez un ou plusieurs postes importants pour vous.
+        (multi-choix possible)
       </p>
       <div className="mt-5 grid grid-cols-2 gap-2.5">
         {mainNeeds.map((item) => (

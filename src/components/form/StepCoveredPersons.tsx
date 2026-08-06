@@ -39,11 +39,8 @@ export function StepCoveredPersons({
   return (
     <div>
       <h2 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
-        Souhaitez-vous assurer…
+        Qui souhaitez-vous assurer&nbsp;?
       </h2>
-      <p className="mt-2 text-sm text-zinc-600 sm:text-base">
-        Indiquez les personnes à couvrir dans votre devis.
-      </p>
       <div className="mt-5 grid gap-2.5">
         {COVERED_PERSONS.map((item) => (
           <OptionCard

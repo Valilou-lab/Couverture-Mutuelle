@@ -160,13 +160,13 @@ export function deriveAgeFromBirthDate(
     age -= 1;
   }
 
-  if (age < 0 || age > 120) return null;
+  if (age < 0 || age > 110) return null;
   return age;
 }
 
 export function isSeniorEligibleBirthDate(birthDate: string): boolean {
   const age = deriveAgeFromBirthDate(birthDate);
-  return age !== null && age >= MIN_SENIOR_AGE;
+  return age !== null && age >= MIN_SENIOR_AGE && age <= 110;
 }
 
 export function resolveAgeBand(age: number | null): SavingsAgeBandId {

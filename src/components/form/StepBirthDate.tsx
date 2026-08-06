@@ -27,7 +27,7 @@ export function StepBirthDate({
         Quelle est votre date de naissance ?
       </h2>
       <p className="mt-2 text-sm text-zinc-600 sm:text-base">
-        Format attendu : JJ/MM/AAAA
+        Format attendu : JJ/MM/AAAA — de 35 à 110 ans
       </p>
       <input
         id="birthDate"

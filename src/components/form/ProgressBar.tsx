@@ -8,19 +8,41 @@ type ProgressBarProps = {
 export function ProgressBar({ current, total }: ProgressBarProps) {
   const percent = Math.min(100, Math.round((current / total) * 100));
 
+  // Couleurs plus “peps” à mesure que l’on avance
+  const gradient =
+    percent < 35
+      ? "linear-gradient(105deg, #7c3aed 0%, #8b5cf6 35%, #a855f7 70%, #c084fc 100%)"
+      : percent < 70
+        ? "linear-gradient(105deg, #7c3aed 0%, #9333ea 30%, #d946ef 65%, #f472b6 100%)"
+        : "linear-gradient(105deg, #6d28d9 0%, #a855f7 25%, #d946ef 55%, #f472b6 80%, #fb7185 100%)";
+
   return (
     <div className="mb-6">
-      <div className="mb-2 flex items-center justify-between text-xs text-zinc-500 sm:text-sm">
-        <span>
-          Étape {current} sur {total}
-        </span>
-        <span>{percent} %</span>
-      </div>
-      <div className="h-2 overflow-hidden rounded-full bg-brand-soft">
+      <div
+        className="relative h-7 overflow-hidden rounded-full bg-brand-soft shadow-inner sm:h-8"
+        role="progressbar"
+        aria-valuenow={percent}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label={`Progression : ${percent} %`}
+      >
         <div
-          className="h-full rounded-full bg-brand transition-all duration-300 ease-out"
-          style={{ width: `${percent}%` }}
-        />
+          className="progress-liquid relative h-full overflow-hidden rounded-full transition-[width] duration-500 ease-out"
+          style={{
+            width: `${percent}%`,
+            backgroundImage: gradient,
+          }}
+        >
+          <span className="progress-liquid-shine" aria-hidden="true" />
+          <span className="progress-liquid-wave" aria-hidden="true" />
+        </div>
+        <span
+          className={`pointer-events-none absolute inset-0 z-10 flex items-center justify-center text-xs font-bold tabular-nums sm:text-sm ${
+            percent >= 45 ? "text-white drop-shadow-sm" : "text-[#3b0764]"
+          }`}
+        >
+          {percent}&nbsp;%
+        </span>
       </div>
     </div>
   );

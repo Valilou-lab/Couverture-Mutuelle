@@ -1,53 +1,17 @@
 import { QuoteForm } from "@/components/form/QuoteForm";
 
-const trustPills = [
-  "Gratuit",
-  "Sans engagement",
-  "Conseillers spécialisés",
-  "Courtiers France ORIAS",
-];
-
-function CheckIcon() {
-  return (
-    <span
-      className="inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-600"
-      aria-hidden="true"
-    >
-      <svg
-        viewBox="0 0 16 16"
-        className="h-3 w-3"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2.2"
-      >
-        <path d="M3.5 8.5 6.5 11.5 12.5 4.5" strokeLinecap="round" strokeLinejoin="round" />
-      </svg>
-    </span>
-  );
-}
-
 function HeroCopy() {
   return (
     <>
       <h1 className="font-manrope text-[1.75rem] font-semibold leading-tight tracking-tight text-foreground sm:text-4xl lg:text-[2.35rem] lg:leading-[1.15] xl:text-[2.5rem]">
-        <span className="font-bold text-brand">Comparez gratuitement</span>{" "}
-        les meilleures mutuelles et trouvez votre couverture adaptée.
+        Trouvez votre nouvelle mutuelle{" "}
+        <span className="font-bold text-brand">gratuitement</span> et{" "}
+        <span className="font-bold text-brand">sans engagement</span>
       </h1>
       <p className="mx-auto mt-4 max-w-xl rounded-2xl bg-white/80 px-4 py-3.5 text-lg font-medium leading-snug text-foreground ring-1 ring-brand/15 sm:mt-5 sm:px-5 sm:py-4 sm:text-xl lg:mx-0 lg:bg-white lg:text-[1.25rem] lg:leading-snug xl:text-[1.35rem]">
         Une économie moyenne de{" "}
         <strong className="font-bold text-brand">380&nbsp;€ à l’année</strong>.
       </p>
-      <ul className="mt-4 flex flex-wrap items-center justify-center gap-2.5 lg:mt-5 lg:justify-start">
-        {trustPills.map((label) => (
-          <li
-            key={label}
-            className="inline-flex items-center gap-2 rounded-full border border-border bg-white px-3.5 py-2 text-sm font-medium text-foreground shadow-sm"
-          >
-            <CheckIcon />
-            {label}
-          </li>
-        ))}
-      </ul>
     </>
   );
 }

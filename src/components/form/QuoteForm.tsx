@@ -21,7 +21,6 @@ import { StepInsurer } from "./StepInsurer";
 import { StepAnalyzing } from "./StepAnalyzing";
 import { StepContact } from "./StepContact";
 import { StepConfirmation } from "./StepConfirmation";
-import { LiveComparisonsBadge } from "./LiveComparisonsBadge";
 import { useQuoteJourney } from "@/context/QuoteJourneyContext";
 
 const ADVANCE_DELAY_MS = 320;
@@ -286,10 +285,6 @@ export function QuoteForm() {
       id="formulaire-devis"
       className="form-glow-pulse rounded-[1.75rem] border-2 border-brand/40 bg-white p-5 sm:p-7 lg:p-8"
     >
-      <div className="flex justify-center">
-        <LiveComparisonsBadge />
-      </div>
-
       <p className="mb-4 text-center font-manrope text-xl font-extrabold leading-snug tracking-tight text-[#3b0764] sm:mb-5 sm:text-2xl lg:text-[1.7rem]">
         VOTRE DEVIS EN{" "}
         <span className="bg-gradient-to-r from-[#a855f7] via-[#d946ef] to-[#f472b6] bg-clip-text text-transparent">
