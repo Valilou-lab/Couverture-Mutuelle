@@ -283,9 +283,9 @@ export function QuoteForm() {
   return (
     <div
       id="formulaire-devis"
-      className="form-glow-pulse rounded-[1.75rem] border-2 border-brand/40 bg-white p-5 sm:p-7 lg:p-8"
+      className="form-glow-pulse rounded-[1.75rem] border-2 border-brand/40 bg-white p-3.5 sm:p-5 lg:p-8"
     >
-      <p className="mb-4 text-center font-manrope text-xl font-extrabold leading-snug tracking-tight text-[#3b0764] sm:mb-5 sm:text-2xl lg:text-[1.7rem]">
+      <p className="mb-4 hidden text-center font-manrope text-xl font-extrabold leading-snug tracking-tight text-[#3b0764] sm:mb-5 sm:text-2xl lg:mb-5 lg:block lg:text-[1.7rem]">
         VOTRE DEVIS EN{" "}
         <span className="bg-gradient-to-r from-[#a855f7] via-[#d946ef] to-[#f472b6] bg-clip-text text-transparent">
           1&nbsp;MINUTE

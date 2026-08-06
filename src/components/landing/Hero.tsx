@@ -1,6 +1,15 @@
+import { type ReactNode } from "react";
 import { QuoteForm } from "@/components/form/QuoteForm";
 
-function HeroCopy() {
+function Highlight({ children }: { children: ReactNode }) {
+  return (
+    <span className="bg-gradient-to-r from-[#a855f7] via-[#d946ef] to-[#f472b6] bg-clip-text font-bold text-transparent">
+      {children}
+    </span>
+  );
+}
+
+function HeroCopyDesktop() {
   return (
     <>
       <h1 className="font-manrope text-[1.75rem] font-semibold leading-tight tracking-tight text-foreground sm:text-4xl lg:text-[2.35rem] lg:leading-[1.15] xl:text-[2.5rem]">
@@ -16,6 +25,21 @@ function HeroCopy() {
   );
 }
 
+function HeroCopyMobile() {
+  return (
+    <div className="text-center">
+      <h1 className="font-manrope text-lg font-extrabold leading-snug tracking-tight text-[#3b0764]">
+        Recevez votre devis en <Highlight>1&nbsp;minute</Highlight>{" "}
+        <span aria-hidden="true">⏱️</span>
+      </h1>
+      <p className="mt-1 text-sm leading-snug text-zinc-600">
+        Une économie moyenne de <Highlight>380&nbsp;€ par an</Highlight> selon
+        votre profil.
+      </p>
+    </div>
+  );
+}
+
 export function Hero() {
   return (
     <section
@@ -24,14 +48,15 @@ export function Hero() {
     >
       <div className="pointer-events-none absolute inset-x-0 top-0 h-80 bg-[radial-gradient(circle_at_top,rgba(196,181,253,0.55),transparent_60%)]" />
 
-      <div className="relative mx-auto grid max-w-6xl items-center gap-8 px-4 py-8 sm:px-6 sm:py-10 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:items-start lg:gap-12 lg:py-14 xl:gap-16">
+      <div className="relative mx-auto grid max-w-6xl items-center gap-3 px-4 py-3 sm:px-6 sm:py-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:items-start lg:gap-12 lg:py-14 xl:gap-16">
         {/* Colonne texte */}
         <div className="text-center lg:text-left">
-          {/* Mobile / tablette */}
+          {/* Mobile / tablette — intro compacte */}
           <div className="lg:hidden">
-            <HeroCopy />
+            <HeroCopyMobile />
           </div>
 
+          {/* Desktop — mascotte + titre complet */}
           <div className="relative hidden lg:block">
             <div className="relative z-10 mt-[14.5rem] rounded-[1.75rem] bg-gradient-to-b from-white/55 via-white/92 to-white px-6 pb-7 pt-8 shadow-[0_-10px_28px_-16px_rgba(109,40,217,0.22),0_16px_40px_-28px_rgba(15,15,20,0.25)] backdrop-blur-[1.5px] xl:px-8 xl:pb-8 xl:pt-9">
               <div className="pointer-events-none absolute bottom-[calc(100%-0.75rem)] left-1/2 z-0 w-[240px] -translate-x-[calc(50%+12px)]">
@@ -43,7 +68,7 @@ export function Hero() {
                 />
               </div>
 
-              <HeroCopy />
+              <HeroCopyDesktop />
             </div>
           </div>
         </div>

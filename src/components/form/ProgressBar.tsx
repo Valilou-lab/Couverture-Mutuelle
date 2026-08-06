@@ -17,7 +17,7 @@ export function ProgressBar({ current, total }: ProgressBarProps) {
         : "linear-gradient(105deg, #6d28d9 0%, #a855f7 25%, #d946ef 55%, #f472b6 80%, #fb7185 100%)";
 
   return (
-    <div className="mb-6">
+    <div className="mb-4 lg:mb-6">
       <div
         className="relative h-7 overflow-hidden rounded-full bg-brand-soft shadow-inner sm:h-8"
         role="progressbar"
