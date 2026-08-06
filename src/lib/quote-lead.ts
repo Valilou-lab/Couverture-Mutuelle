@@ -86,7 +86,6 @@ export function buildQuoteLeadPreview(
     lastName: form.lastName,
     phone: form.phone,
     email: form.email,
-    callbackSlot: form.callbackSlot,
     consent: form.consent,
   };
 }

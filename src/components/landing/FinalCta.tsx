@@ -8,7 +8,7 @@ export function FinalCta() {
           </h2>
           <p className="mt-3 text-sm leading-relaxed text-violet-100 sm:text-base">
             Remplissez le formulaire en quelques minutes. Un conseiller pourra
-            ensuite vous rappeler sur le créneau choisi.
+            ensuite vous recontacter.
           </p>
           <a
             href="#devis"

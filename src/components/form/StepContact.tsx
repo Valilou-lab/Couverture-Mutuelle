@@ -1,9 +1,7 @@
 "use client";
 
 import {
-  CALLBACK_SLOTS,
   CIVILITIES,
-  type CallbackSlotId,
   type CivilityId,
   type QuoteFormData,
 } from "./types";
@@ -33,7 +31,11 @@ export function StepContact({
         Vos coordonnées
       </h2>
       <p className="mt-2 text-sm text-zinc-600 sm:text-base">
-        Un conseiller pourra vous rappeler sur le créneau choisi.
+        Bonne nouvelle,{" "}
+        <span className="font-bold text-fuchsia-600">vous êtes éligible</span> à
+        une meilleure offre de mutuelle et de meilleures garanties.
+        <br />
+        Afin de finaliser votre dossier, remplissez vos coordonnées.
       </p>
 
       <fieldset className="mt-5">
@@ -138,33 +140,6 @@ export function StepContact({
           </p>
         ) : null}
       </div>
-
-      <fieldset className="mt-4">
-        <legend className="text-sm font-medium">Créneau de rappel</legend>
-        <div className="mt-2 grid gap-2">
-          {CALLBACK_SLOTS.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() =>
-                onPatch({ callbackSlot: item.id as CallbackSlotId })
-              }
-              className={`min-h-12 rounded-2xl border-2 px-4 text-center text-sm font-semibold transition duration-200 ${
-                data.callbackSlot === item.id
-                  ? "border-brand bg-brand text-white shadow-md"
-                  : "border-brand/45 bg-[#ede9fe] text-[#3b0764] shadow-sm hover:border-brand hover:bg-[#ddd6fe] hover:shadow-md"
-              }`}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
-        {errors.callbackSlot ? (
-          <p className="mt-2 text-sm text-error" role="alert">
-            {errors.callbackSlot}
-          </p>
-        ) : null}
-      </fieldset>
 
       <label className="mt-5 flex items-start gap-3 rounded-2xl border border-border bg-surface px-4 py-3.5 text-sm leading-relaxed text-zinc-700">
         <input

@@ -122,9 +122,6 @@ export function validateStep(
       } else if (!isValidEmail(data.email)) {
         errors.email = "Adresse e-mail invalide.";
       }
-      if (!data.callbackSlot) {
-        errors.callbackSlot = "Choisissez un créneau de rappel.";
-      }
       if (!data.consent) {
         errors.consent =
           "Le consentement est nécessaire pour être recontacté(e).";

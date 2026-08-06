@@ -26,18 +26,15 @@ export function StepBirthDate({
       <h2 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
         Quelle est votre date de naissance ?
       </h2>
-      <p className="mt-2 text-sm text-zinc-600 sm:text-base">
-        Format attendu : JJ/MM/AAAA — de 35 à 110 ans
-      </p>
       <input
         id="birthDate"
         inputMode="numeric"
         autoComplete="bday"
-        placeholder="JJ/MM/AAAA"
+        placeholder="01/01/1960"
         value={data.birthDate}
         disabled={disabled}
         onChange={(event) => onChange(formatBirthDateInput(event.target.value))}
-        className="mt-5 min-h-14 w-full rounded-2xl border border-border bg-white px-4 py-3.5 text-base outline-none ring-brand/30 focus:ring-2"
+        className="mt-5 min-h-14 w-full rounded-2xl border border-border bg-white px-4 py-3.5 text-base outline-none ring-brand/30 placeholder:text-zinc-300 focus:ring-2"
       />
       {errors.birthDate ? (
         <p className="mt-2 text-sm text-error" role="alert">

@@ -121,22 +121,19 @@ export function StepPostalCode({
         Quel est votre code postal ?
       </h2>
       <p className="mt-2 text-sm text-zinc-600 sm:text-base">
-        La ville est détectée automatiquement. Si plusieurs communes
-        correspondent, choisissez la vôtre.
+        Si plusieurs communes correspondent, choisissez la vôtre.
       </p>
 
-      <label htmlFor="postalCode" className="mt-5 block text-sm font-medium">
-        Code postal
-      </label>
       <input
         id="postalCode"
         inputMode="numeric"
         autoComplete="postal-code"
         maxLength={5}
         placeholder="75001"
+        aria-label="Code postal"
         value={data.postalCode}
         onChange={(event) => handlePostalCodeChange(event.target.value)}
-        className="mt-2 w-full rounded-2xl border border-border bg-white px-4 py-3.5 text-base outline-none ring-brand/30 focus:ring-2"
+        className="mt-5 w-full rounded-2xl border border-border bg-white px-4 py-3.5 text-base outline-none ring-brand/30 focus:ring-2"
       />
       {errors.postalCode ? (
         <p className="mt-2 text-sm text-error" role="alert">

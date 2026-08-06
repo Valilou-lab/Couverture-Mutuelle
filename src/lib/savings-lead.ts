@@ -36,7 +36,6 @@ export type CompleteSavingsLead = {
   lastName: string;
   phone: string;
   email: string;
-  callbackSlot: QuoteFormData["callbackSlot"];
   consent: boolean;
 
   source: "savings-calculator";
@@ -75,7 +74,6 @@ export function buildCompleteSavingsLead(input: {
     lastName: form.lastName,
     phone: form.phone,
     email: form.email,
-    callbackSlot: form.callbackSlot,
     consent: form.consent,
 
     source: "savings-calculator",

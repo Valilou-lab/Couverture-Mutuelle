@@ -97,25 +97,20 @@ export function CalculatorLocationFields({ questionNumber = 2 }: Props) {
         {questionNumber}. Où habitez-vous&nbsp;?
       </p>
 
-      <label
-        htmlFor="calculator-postalCode"
-        className="mt-3 block text-sm font-medium text-zinc-700"
-      >
-        Code postal
-      </label>
       <input
         id="calculator-postalCode"
         inputMode="numeric"
         autoComplete="postal-code"
         placeholder="75001"
         maxLength={5}
+        aria-label="Code postal"
         value={postalCode}
         onChange={(event) => handlePostalCodeChange(event.target.value)}
         aria-invalid={Boolean(lookupError)}
         aria-describedby={
           lookupError ? "calculator-postalCode-error" : undefined
         }
-        className={`mt-2 min-h-14 w-full rounded-2xl border bg-white px-4 py-3.5 text-base text-foreground outline-none ring-brand/30 placeholder:text-brand-muted focus:ring-2 ${
+        className={`mt-3 min-h-14 w-full rounded-2xl border bg-white px-4 py-3.5 text-base text-foreground outline-none ring-brand/30 placeholder:text-brand-muted focus:ring-2 ${
           lookupError ? "border-error/50" : "border-border"
         }`}
       />

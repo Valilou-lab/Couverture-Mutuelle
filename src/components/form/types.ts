@@ -61,19 +61,11 @@ export const CIVILITIES = [
   { id: "m", label: "Monsieur" },
 ] as const;
 
-export const CALLBACK_SLOTS = [
-  { id: "matin", label: "Matin (9h – 12h)" },
-  { id: "midi", label: "Midi (12h – 14h)" },
-  { id: "apres-midi", label: "Après-midi (14h – 18h)" },
-  { id: "soir", label: "Soir (18h – 20h)" },
-] as const;
-
 export type CareNeedId = (typeof CARE_NEEDS)[number]["id"];
 export type CoveredPersonId = (typeof COVERED_PERSONS)[number]["id"];
 export type FamilyStatusId = (typeof FAMILY_STATUSES)[number]["id"];
 export type HealthRegimeId = (typeof HEALTH_REGIMES)[number]["id"];
 export type CivilityId = (typeof CIVILITIES)[number]["id"];
-export type CallbackSlotId = (typeof CALLBACK_SLOTS)[number]["id"];
 
 export type QuoteFormData = {
   careNeeds: CareNeedId[];
@@ -92,7 +84,6 @@ export type QuoteFormData = {
   lastName: string;
   phone: string;
   email: string;
-  callbackSlot: CallbackSlotId | "";
   consent: boolean;
 };
 
@@ -113,7 +104,6 @@ export const initialFormData: QuoteFormData = {
   lastName: "",
   phone: "",
   email: "",
-  callbackSlot: "",
   consent: false,
 };
 

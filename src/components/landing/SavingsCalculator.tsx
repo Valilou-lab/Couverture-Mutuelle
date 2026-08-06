@@ -521,7 +521,7 @@ export function SavingsCalculator() {
                   id="calculator-birthDate"
                   inputMode="numeric"
                   autoComplete="bday"
-                  placeholder="14/06/1956"
+                  placeholder="01/01/1960"
                   maxLength={10}
                   value={calculator.birthDate}
                   onChange={(event) =>
@@ -532,7 +532,7 @@ export function SavingsCalculator() {
                   aria-describedby={
                     birthError ? "calculator-birthDate-error" : undefined
                   }
-                  className={`mt-3 min-h-14 w-full rounded-2xl border bg-white px-4 py-3.5 text-base text-foreground outline-none ring-brand/30 placeholder:text-brand-muted focus:ring-2 ${
+                  className={`mt-3 min-h-14 w-full rounded-2xl border bg-white px-4 py-3.5 text-base text-foreground outline-none ring-brand/30 placeholder:text-zinc-300 focus:ring-2 ${
                     birthError ? "border-error/50" : "border-border"
                   }`}
                 />
@@ -544,11 +544,7 @@ export function SavingsCalculator() {
                   >
                     {birthError}
                   </p>
-                ) : (
-                  <p className="mt-2 text-xs text-zinc-500">
-                    Format&nbsp;: JJ/MM/AAAA
-                  </p>
-                )}
+                ) : null}
               </div>
 
               <CalculatorLocationFields questionNumber={2} />
