@@ -242,6 +242,42 @@ body {
   mix-blend-mode: soft-light;
 }
 
+@keyframes calc-chrono-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 0 rgba(109, 40, 217, 0.28),
+      0 0 0 0 rgba(217, 70, 239, 0);
+    border-color: rgba(109, 40, 217, 0.25);
+    transform: scale(1);
+  }
+  50% {
+    box-shadow:
+      0 0 0 6px rgba(109, 40, 217, 0),
+      0 0 18px 2px rgba(217, 70, 239, 0.22);
+    border-color: rgba(168, 85, 247, 0.55);
+    transform: scale(1.03);
+  }
+}
+
+@keyframes calc-chrono-text {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+.calc-chrono-badge {
+  animation: calc-chrono-pulse 1.8s ease-in-out infinite;
+}
+
+.calc-chrono-text {
+  animation: calc-chrono-text 1.8s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .calc-btn-ready:not(:disabled):hover {
     animation: none;
@@ -289,6 +325,11 @@ body {
 
   .progress-liquid-shine,
   .progress-liquid-wave {
+    animation: none;
+  }
+
+  .calc-chrono-badge,
+  .calc-chrono-text {
     animation: none;
   }
 }

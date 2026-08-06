@@ -5,7 +5,6 @@ import { Advantages } from "@/components/landing/Advantages";
 import { MascotAdvice } from "@/components/landing/MascotAdvice";
 import { PricingGuide } from "@/components/landing/PricingGuide";
 import { SavingsCalculator } from "@/components/landing/SavingsCalculator";
-import { SavingsQuoteSection } from "@/components/landing/SavingsQuoteSection";
 import { HowItWorks } from "@/components/landing/HowItWorks";
 import { CoverageShowcase } from "@/components/landing/CoverageShowcase";
 import { Articles } from "@/components/landing/Articles";
@@ -25,7 +24,6 @@ export default function Home() {
         <MascotAdvice />
         <PricingGuide />
         <SavingsCalculator />
-        <SavingsQuoteSection />
         <CoverageShowcase />
         <Faq />
         <Articles />

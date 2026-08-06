@@ -1,10 +1,3 @@
-const factors = [
-  "Votre âge",
-  "Votre département",
-  "Niveau de garanties",
-  "Votre profil médical",
-];
-
 const tariffRows = [
   { age: "55 – 59 ans", price: "≈ 45 à 70 €" },
   { age: "60 – 64 ans", price: "≈ 55 à 90 €" },
@@ -12,29 +5,6 @@ const tariffRows = [
   { age: "70 – 74 ans", price: "≈ 80 à 140 €" },
   { age: "75 ans et +", price: "≈ 95 à 180 €" },
 ];
-
-function CheckIcon() {
-  return (
-    <span
-      className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-soft text-brand"
-      aria-hidden="true"
-    >
-      <svg
-        viewBox="0 0 16 16"
-        className="h-3 w-3"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2.4"
-      >
-        <path
-          d="M3.5 8.5 6.5 11.5 12.5 4.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    </span>
-  );
-}
 
 export function PricingGuide() {
   return (
@@ -54,18 +24,6 @@ export function PricingGuide() {
             Ces prix sont donnés à titre indicatif. Ils varient selon votre âge,
             votre département, le niveau de garanties souhaité et votre profil.
           </p>
-
-          <ul className="mt-6 space-y-3">
-            {factors.map((item) => (
-              <li
-                key={item}
-                className="flex items-start gap-3 text-sm font-medium text-zinc-700 sm:text-base"
-              >
-                <CheckIcon />
-                {item}
-              </li>
-            ))}
-          </ul>
 
           <a
             href="#devis"

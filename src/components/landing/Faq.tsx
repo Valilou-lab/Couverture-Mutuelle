@@ -31,7 +31,7 @@ const faqs = [
   {
     question: "Combien de temps prend le formulaire ?",
     answer:
-      "En général moins de 2 minutes sur mobile. Vous pouvez ensuite choisir un créneau de rappel adapté.",
+      "La moyenne des utilisateurs est de moins de 2 minutes.",
   },
 ];
 

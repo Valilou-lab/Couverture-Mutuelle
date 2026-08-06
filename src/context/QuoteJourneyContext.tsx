@@ -116,6 +116,7 @@ type QuoteJourneyContextValue = {
   resetCalculator: () => void;
   estimate: CalculatorEstimateSnapshot | null;
   setEstimateFromEngine: (result: SavingsEngineResult) => void;
+  restoreEstimateSnapshot: (snapshot: CalculatorEstimateSnapshot) => void;
   clearEstimate: () => void;
   /** API-ready calculator fields (not sent yet). */
   calculatorLeadFields: CalculatorLeadFields;
@@ -162,6 +163,13 @@ export function QuoteJourneyProvider({ children }: { children: ReactNode }) {
   const setEstimateFromEngine = useCallback((result: SavingsEngineResult) => {
     setEstimate(toEstimateSnapshot(result));
   }, []);
+
+  const restoreEstimateSnapshot = useCallback(
+    (snapshot: CalculatorEstimateSnapshot) => {
+      setEstimate(snapshot);
+    },
+    [],
+  );
 
   const clearEstimate = useCallback(() => {
     setEstimate(null);
@@ -216,6 +224,7 @@ export function QuoteJourneyProvider({ children }: { children: ReactNode }) {
       resetCalculator,
       estimate,
       setEstimateFromEngine,
+      restoreEstimateSnapshot,
       clearEstimate,
       calculatorLeadFields,
       hasBirthDateFromCalculator,
@@ -234,6 +243,7 @@ export function QuoteJourneyProvider({ children }: { children: ReactNode }) {
       resetCalculator,
       estimate,
       setEstimateFromEngine,
+      restoreEstimateSnapshot,
       clearEstimate,
       calculatorLeadFields,
       hasBirthDateFromCalculator,

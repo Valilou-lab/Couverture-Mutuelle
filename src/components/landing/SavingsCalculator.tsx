@@ -2,6 +2,7 @@
 
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   MONTHLY_BUDGET_MAX,
   MONTHLY_BUDGET_MIN,
@@ -24,6 +25,7 @@ import {
   type SavingsProtectionLevelId,
   type SavingsTenureId,
 } from "@/lib/savings-engine";
+import { saveSavingsJourneySnapshot } from "@/lib/savings-journey-storage";
 import { CalculatorLocationFields } from "@/components/landing/CalculatorLocationFields";
 
 const ANALYSIS_STEPS = [
@@ -342,6 +344,7 @@ function TenureChip({
 }
 
 export function SavingsCalculator() {
+  const router = useRouter();
   const {
     calculator,
     setCalculator,
@@ -470,10 +473,10 @@ export function SavingsCalculator() {
   }
 
   function goToQuoteForm() {
+    if (!estimate) return;
+    saveSavingsJourneySnapshot({ calculator, estimate });
     requestSavingsQuoteFocus();
-    document
-      .getElementById("savings-devis")
-      ?.scrollIntoView({ behavior: "smooth" });
+    router.push("/devis-economies");
   }
 
   return (
@@ -481,22 +484,28 @@ export function SavingsCalculator() {
       id="calculateur-economies"
       className="scroll-mt-24 bg-surface px-4 py-14 sm:px-6 sm:py-20"
     >
-      <div className="mx-auto max-w-3xl">
+      <div className="mx-auto max-w-3xl rounded-[2rem] border-2 border-brand/35 bg-gradient-to-b from-white via-white to-[#f8f5ff] p-5 shadow-[0_22px_50px_-24px_rgba(109,40,217,0.45)] ring-4 ring-brand/10 sm:p-7 lg:p-8">
         <div className="text-center">
-          <p className="mx-auto inline-flex items-center gap-2 rounded-full border border-brand/25 bg-white px-3.5 py-1.5 text-xs font-semibold text-brand sm:text-sm">
+          <p className="calc-chrono-badge mx-auto inline-flex items-center gap-2 rounded-full border border-brand/25 bg-white px-3.5 py-1.5 text-xs font-semibold text-brand sm:text-sm">
             <ClockIcon />
-            60 secondes chrono — sans inscription
+            <span className="calc-chrono-text">60 secondes chrono</span>
+            <span aria-hidden="true">—</span> Calculateur
           </p>
-          <h2 className="mt-4 font-manrope text-2xl font-bold tracking-tight text-[#3b0764] sm:text-3xl lg:text-[2.1rem] lg:leading-tight">
-            Estimez votre économie potentielle
+          <h2 className="mt-4 inline-flex flex-wrap items-center justify-center gap-2.5 font-manrope text-2xl font-bold tracking-tight text-[#3b0764] sm:gap-3 sm:text-3xl lg:text-[2.1rem] lg:leading-tight">
+            <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-soft text-brand sm:h-11 sm:w-11">
+              <span className="scale-125">
+                <CalculatorIcon />
+              </span>
+            </span>
+            Découvrez combien vous pourriez économiser
           </h2>
           <p className="mx-auto mt-3 max-w-xl text-sm leading-relaxed text-zinc-600 sm:text-base">
-            Répondez à quelques questions simples et découvrez immédiatement
-            votre économie potentielle.
+            Répondez à quelques questions et obtenez immédiatement votre
+            estimation personnalisée.
           </p>
         </div>
 
-        <div className="mt-8 rounded-[1.75rem] border border-border bg-white p-5 shadow-[0_18px_40px_-24px_rgba(76,29,149,0.35)] sm:p-7 lg:p-8">
+        <div className="mt-8 rounded-[1.5rem] border border-border/80 bg-white/90 p-4 sm:p-6">
           {isLoading ? (
             <CalculatorAnalyzing visibleCount={analysisVisibleCount} />
           ) : !showResult ? (
