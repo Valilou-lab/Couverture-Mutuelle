@@ -38,7 +38,7 @@ export function StepCoveredPersons({
 
   return (
     <div>
-      <h2 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+      <h2 className="text-center text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
         Qui souhaitez-vous assurer&nbsp;?
       </h2>
       <div className="mt-5 grid gap-2.5">

@@ -93,7 +93,7 @@ export function CalculatorLocationFields({ questionNumber = 2 }: Props) {
 
   return (
     <div>
-      <p className="font-manrope text-base font-semibold text-[#3b0764] sm:text-lg">
+      <p className="text-center font-manrope text-base font-semibold text-[#3b0764] sm:text-lg">
         {questionNumber}. Où habitez-vous&nbsp;?
       </p>
 

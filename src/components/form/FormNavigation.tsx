@@ -26,7 +26,7 @@ export function FormNavigation({
           type="button"
           onClick={onBack}
           disabled={disabled}
-          className="min-h-12 flex-1 rounded-full border border-border bg-white px-4 text-sm font-semibold text-foreground transition duration-200 hover:border-brand hover:bg-brand-soft hover:text-brand hover:shadow-sm disabled:opacity-50 sm:flex-none sm:min-w-[7.5rem] sm:px-6"
+          className="min-h-12 flex-1 rounded-full border border-border bg-white px-4 font-sora text-sm font-semibold text-foreground transition duration-200 hover:border-brand hover:bg-brand-soft hover:text-brand hover:shadow-sm disabled:opacity-50 sm:flex-none sm:min-w-[7.5rem] sm:px-6"
         >
           Retour
         </button>
@@ -36,7 +36,7 @@ export function FormNavigation({
           type="button"
           onClick={onNext}
           disabled={disabled}
-          className="min-h-12 flex-[1.6] rounded-full bg-brand px-4 text-sm font-semibold text-white shadow-sm transition duration-200 hover:bg-[#5b21b6] hover:shadow-lg hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none sm:min-w-[10rem] sm:px-8"
+          className="min-h-12 flex-[1.6] rounded-full bg-brand px-4 font-sora text-sm font-semibold text-white shadow-sm transition duration-200 hover:bg-[#5b21b6] hover:shadow-lg hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-50 sm:flex-none sm:min-w-[10rem] sm:px-8"
         >
           {nextLabel}
         </button>

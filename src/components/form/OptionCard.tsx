@@ -9,35 +9,9 @@ type OptionCardProps = {
   description?: string;
   disabled?: boolean;
   icon?: ReactNode;
+  /** Kept for compatibility — checkboxes are no longer shown. */
   showCheckbox?: boolean;
 };
-
-function CheckBox({ selected }: { selected: boolean }) {
-  return (
-    <span
-      className={`hidden h-5 w-5 shrink-0 items-center justify-center rounded-md border-2 transition sm:inline-flex ${
-        selected
-          ? "border-white bg-white text-brand"
-          : "border-brand/50 bg-white text-transparent"
-      }`}
-      aria-hidden="true"
-    >
-      <svg
-        viewBox="0 0 16 16"
-        className="h-3 w-3"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2.4"
-      >
-        <path
-          d="M3.5 8.5 6.5 11.5 12.5 4.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    </span>
-  );
-}
 
 export function OptionCard({
   label,
@@ -46,44 +20,41 @@ export function OptionCard({
   description,
   disabled = false,
   icon,
-  showCheckbox = false,
 }: OptionCardProps) {
+  const hasIcon = Boolean(icon);
+
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
       aria-pressed={selected}
-      className={`relative flex h-full min-h-[3.75rem] w-full items-center justify-center rounded-2xl border-2 px-4 py-3.5 text-center transition duration-200 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 sm:min-h-14 sm:px-4 sm:py-4 sm:text-left ${
+      className={`relative flex h-full min-h-[3.75rem] w-full flex-col items-center justify-center overflow-hidden rounded-2xl border-2 py-3 text-center transition duration-200 active:scale-[0.99] disabled:cursor-not-allowed disabled:opacity-60 sm:min-h-14 sm:py-3.5 ${
+        hasIcon ? "px-10 sm:px-11" : "px-4"
+      } ${
         selected
-          ? "border-brand bg-brand text-white shadow-md ring-2 ring-brand/30"
+          ? "border-brand bg-[#c4b5fd] text-[#3b0764] shadow-md ring-2 ring-brand/40"
           : "border-brand/45 bg-[#ede9fe] text-foreground shadow-sm hover:-translate-y-0.5 hover:border-brand hover:bg-[#ddd6fe] hover:shadow-md"
       }`}
     >
-      <span
-        className={`flex w-full flex-row items-center justify-center gap-2.5 ${
-          showCheckbox ? "sm:justify-start sm:text-left" : ""
-        }`}
-      >
-        {showCheckbox ? <CheckBox selected={selected} /> : null}
-        {icon ? (
-          <span className="inline-flex shrink-0" aria-hidden="true">
-            {icon}
-          </span>
-        ) : null}
+      {icon ? (
         <span
-          className={`max-w-full text-pretty text-[15px] font-semibold leading-snug sm:text-base ${
-            selected ? "text-white" : "text-[#3b0764]"
-          }`}
+          className="pointer-events-none absolute left-2.5 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center sm:left-3 sm:h-8 sm:w-8"
+          aria-hidden="true"
         >
-          {label}
+          {icon}
         </span>
+      ) : null}
+
+      <span className="w-full max-w-full text-balance text-[13px] font-semibold leading-snug text-[#3b0764] sm:text-[15px]">
+        {label}
       </span>
+
       {description ? (
         <span
-          className={`mt-1 block w-full text-pretty text-xs leading-snug sm:text-sm ${
-            showCheckbox ? "sm:pl-7" : ""
-          } ${selected ? "text-violet-100" : "text-zinc-600"}`}
+          className={`mt-1 block w-full max-w-full text-pretty text-xs leading-snug sm:text-sm ${
+            selected ? "text-[#4c1d95]/90" : "text-zinc-600"
+          }`}
         >
           {description}
         </span>

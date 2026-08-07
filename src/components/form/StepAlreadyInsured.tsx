@@ -22,10 +22,10 @@ export function StepAlreadyInsured({
 }: Props) {
   return (
     <div>
-      <h2 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+      <h2 className="text-center text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
         Êtes-vous déjà assuré(e) ?
       </h2>
-      <p className="mt-2 text-sm text-zinc-600 sm:text-base">
+      <p className="mt-2 text-center text-sm text-zinc-600 sm:text-base">
         Même si vous avez déjà une mutuelle, vous pouvez comparer.
       </p>
       <div className="mt-5 grid gap-2.5">

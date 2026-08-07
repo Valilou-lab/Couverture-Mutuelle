@@ -10,7 +10,7 @@ import {
 } from "react";
 import { isValidBirthDate } from "@/components/form/validation";
 import {
-  isSeniorEligibleBirthDate,
+  isEligibleBirthDate,
   type SavingsEngineResult,
 } from "@/lib/savings-engine";
 import {
@@ -192,7 +192,7 @@ export function QuoteJourneyProvider({ children }: { children: ReactNode }) {
 
   const hasBirthDateFromCalculator =
     isValidBirthDate(calculator.birthDate) &&
-    isSeniorEligibleBirthDate(calculator.birthDate);
+    isEligibleBirthDate(calculator.birthDate);
 
   const hasLocationFromCalculator =
     /^\d{5}$/.test(calculator.postalCode) && Boolean(calculator.city.trim());

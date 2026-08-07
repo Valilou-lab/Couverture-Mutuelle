@@ -3,10 +3,15 @@
 type ProgressBarProps = {
   current: number;
   total: number;
+  /** When set, overrides current/total percentage (used for narrative progress). */
+  percent?: number;
 };
 
-export function ProgressBar({ current, total }: ProgressBarProps) {
-  const percent = Math.min(100, Math.round((current / total) * 100));
+export function ProgressBar({ current, total, percent: percentOverride }: ProgressBarProps) {
+  const percent =
+    percentOverride != null
+      ? Math.min(100, Math.max(0, Math.round(percentOverride)))
+      : Math.min(100, Math.round((current / total) * 100));
 
   // Couleurs plus “peps” à mesure que l’on avance
   const gradient =

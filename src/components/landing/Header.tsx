@@ -23,7 +23,7 @@ export function Header() {
 
         <a
           href="#devis"
-          className="inline-flex min-h-10 shrink-0 items-center rounded-full bg-brand px-3.5 text-sm font-semibold text-white transition hover:bg-[#5b21b6] sm:px-5"
+          className="inline-flex min-h-10 shrink-0 items-center rounded-full bg-brand px-3.5 font-sora text-sm font-semibold text-white transition hover:bg-[#5b21b6] sm:px-5"
         >
           Comparer
         </a>

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Baloo_2, DM_Sans, Manrope } from "next/font/google";
+import { Baloo_2, DM_Sans, Manrope, Sora } from "next/font/google";
 import { ChatbotSlot } from "@/components/chatbot/ChatbotSlot";
 import { QuoteJourneyProvider } from "@/context/QuoteJourneyContext";
 import "./globals.css";
@@ -22,6 +22,12 @@ const baloo2 = Baloo_2({
   weight: ["400", "500", "600", "700"],
 });
 
+const sora = Sora({
+  variable: "--font-sora-family",
+  subsets: ["latin"],
+  weight: ["500", "600", "700", "800"],
+});
+
 export const metadata: Metadata = {
   title: "Couverture Mutuelle — Comparez les mutuelles santé",
   description:
@@ -32,7 +38,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="fr"
-      className={`${dmSans.variable} ${manrope.variable} ${baloo2.variable} h-full antialiased`}
+      className={`${dmSans.variable} ${manrope.variable} ${baloo2.variable} ${sora.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col font-sans">
         <QuoteJourneyProvider>

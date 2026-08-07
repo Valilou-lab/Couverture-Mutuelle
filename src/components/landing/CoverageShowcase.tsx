@@ -92,7 +92,7 @@ function GuaranteeCard({
       }`}
       style={{ animationDelay: visible ? `${index * 90}ms` : undefined }}
     >
-      <span className="mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-soft">
+      <span className="mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center">
         {icon}
       </span>
       <div className="min-w-0">
@@ -237,7 +237,7 @@ function ShowcaseCopy({ visible }: { visible: boolean }) {
       <div className="mt-6 flex justify-center sm:mt-7">
         <a
           href="#devis"
-          className="inline-flex min-h-14 w-full max-w-md items-center justify-center rounded-full bg-gradient-to-r from-[#7c3aed] to-brand px-8 text-base font-semibold text-white shadow-[0_14px_32px_-10px_rgba(109,40,217,0.6)] transition hover:brightness-105 sm:min-h-[3.75rem] sm:px-10 sm:text-lg"
+          className="inline-flex min-h-14 w-full max-w-md items-center justify-center rounded-full bg-gradient-to-r from-[#7c3aed] to-brand px-8 font-sora text-base font-semibold text-white shadow-[0_14px_32px_-10px_rgba(109,40,217,0.6)] transition hover:brightness-105 sm:min-h-[3.75rem] sm:px-10 sm:text-lg"
         >
           Comparer mes garanties
         </a>

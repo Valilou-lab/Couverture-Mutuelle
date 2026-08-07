@@ -83,6 +83,11 @@ export interface SavingsProfile {
 export const COMPETITIVE_PREMIUM_THRESHOLD = 50;
 export const PREMIUM_INPUT_MIN = 20;
 export const PREMIUM_INPUT_MAX = 300;
+/** Minimum age allowed to submit a quote / use the calculator. */
+export const MIN_ELIGIBLE_AGE = 35;
+/** Maximum age allowed to submit a quote / use the calculator. */
+export const MAX_ELIGIBLE_AGE = 110;
+/** Lowest age band in the savings reference grid. */
 export const MIN_SENIOR_AGE = 55;
 export const LOW_POTENTIAL_YEARLY_THRESHOLD = 60;
 export const MAX_YEARLY_SAVING = 500;
@@ -160,17 +165,28 @@ export function deriveAgeFromBirthDate(
     age -= 1;
   }
 
-  if (age < 0 || age > 110) return null;
+  if (age < 0 || age > 150) return null;
   return age;
 }
 
-export function isSeniorEligibleBirthDate(birthDate: string): boolean {
+export function isEligibleBirthDate(birthDate: string): boolean {
   const age = deriveAgeFromBirthDate(birthDate);
-  return age !== null && age >= MIN_SENIOR_AGE && age <= 110;
+  return (
+    age !== null && age >= MIN_ELIGIBLE_AGE && age <= MAX_ELIGIBLE_AGE
+  );
+}
+
+/** @deprecated Prefer isEligibleBirthDate — kept for existing imports. */
+export function isSeniorEligibleBirthDate(birthDate: string): boolean {
+  return isEligibleBirthDate(birthDate);
 }
 
 export function resolveAgeBand(age: number | null): SavingsAgeBandId {
-  if (age === null || age < MIN_SENIOR_AGE) return "unknown";
+  if (age === null || age < MIN_ELIGIBLE_AGE || age > MAX_ELIGIBLE_AGE) {
+    return "unknown";
+  }
+  // Under 55: use the nearest (lowest) reference band for indicative estimates.
+  if (age < MIN_SENIOR_AGE) return "55-59";
   if (age <= 59) return "55-59";
   if (age <= 64) return "60-64";
   if (age <= 69) return "65-69";
@@ -229,8 +245,10 @@ export function validateSavingsInput(
   const age = deriveAgeFromBirthDate(input.birthDate);
   if (age === null) {
     errors.push("Date de naissance invalide ou future.");
-  } else if (age < MIN_SENIOR_AGE) {
-    errors.push("Ce calculateur s’adresse aux personnes de 55 ans et plus.");
+  } else if (age < MIN_ELIGIBLE_AGE) {
+    errors.push(`Vous devez avoir au moins ${MIN_ELIGIBLE_AGE} ans.`);
+  } else if (age > MAX_ELIGIBLE_AGE) {
+    errors.push(`L’âge maximum accepté est de ${MAX_ELIGIBLE_AGE} ans.`);
   }
 
   if (
@@ -256,8 +274,12 @@ export function validateSavingsInput(
 
 export function buildSavingsProfile(input: SavingsEngineInput): SavingsProfile {
   const age = deriveAgeFromBirthDate(input.birthDate);
-  if (age === null || age < MIN_SENIOR_AGE) {
-    throw new Error("Cannot build profile without a valid senior age.");
+  if (
+    age === null ||
+    age < MIN_ELIGIBLE_AGE ||
+    age > MAX_ELIGIBLE_AGE
+  ) {
+    throw new Error("Cannot build profile without a valid eligible age.");
   }
 
   const ageBand = resolveAgeBand(age);

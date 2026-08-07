@@ -1,17 +1,20 @@
 "use client";
 
+import { useState } from "react";
 import {
   CIVILITIES,
   type CivilityId,
   type QuoteFormData,
 } from "./types";
 import { FormNavigation } from "./FormNavigation";
+import { PartnersModal } from "./PartnersModal";
 import type { FieldErrors } from "./validation";
 
 type Props = {
   data: QuoteFormData;
   errors: FieldErrors;
   disabled?: boolean;
+  offersCount?: number | null;
   onPatch: (patch: Partial<QuoteFormData>) => void;
   onBack: () => void;
   onNext: () => void;
@@ -21,22 +24,35 @@ export function StepContact({
   data,
   errors,
   disabled = false,
+  offersCount = null,
   onPatch,
   onBack,
   onNext,
 }: Props) {
+  const [partnersOpen, setPartnersOpen] = useState(false);
+
   return (
     <div>
-      <h2 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+      <h2 className="text-center text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
         Vos coordonnées
       </h2>
-      <p className="mt-2 text-sm text-zinc-600 sm:text-base">
-        Bonne nouvelle,{" "}
-        <span className="font-bold text-fuchsia-600">vous êtes éligible</span> à
-        une meilleure offre de mutuelle et de meilleures garanties.
-        <br />
-        Afin de finaliser votre dossier, remplissez vos coordonnées.
-      </p>
+
+      <div className="mt-4 rounded-2xl bg-brand-soft/70 px-4 py-3.5 text-center sm:mt-5 sm:px-5 sm:py-4">
+        <p className="font-manrope text-base font-bold text-brand sm:text-lg">
+          Bonne nouvelle{" "}
+          <span aria-hidden="true">🎉</span>
+        </p>
+        <p className="mt-1.5 text-sm leading-snug text-[#3b0764] sm:text-[0.9375rem]">
+          Nous avons trouvé{" "}
+          <strong className="font-bold text-brand tabular-nums">
+            {offersCount ?? "…"}
+          </strong>{" "}
+          offres plus intéressantes
+        </p>
+        <p className="mt-1.5 text-sm leading-snug text-zinc-600 sm:text-[0.9375rem]">
+          Dernière étape pour recevoir vos devis.
+        </p>
+      </div>
 
       <fieldset className="mt-5">
         <legend className="text-sm font-medium">Civilité</legend>
@@ -141,19 +157,52 @@ export function StepContact({
         ) : null}
       </div>
 
-      <label className="mt-5 flex items-start gap-3 rounded-2xl border border-border bg-surface px-4 py-3.5 text-sm leading-relaxed text-zinc-700">
-        <input
-          type="checkbox"
-          checked={data.consent}
-          onChange={(event) => onPatch({ consent: event.target.checked })}
-          className="mt-1 h-4 w-4 accent-brand"
-        />
-        <span>
-          J’accepte d’être recontacté(e) par un conseiller Couverture Mutuelle
-          au sujet de ma demande de devis. Mes données ne seront pas réutilisées
-          à des fins commerciales tierces.
-        </span>
-      </label>
+      <div className="mt-5 rounded-2xl border border-border bg-surface px-4 py-3.5 text-sm leading-relaxed text-zinc-700">
+        <div className="flex items-start gap-3">
+          <input
+            id="consent-opt-in"
+            type="checkbox"
+            checked={data.consent}
+            onChange={(event) => onPatch({ consent: event.target.checked })}
+            className="mt-1 h-4 w-4 shrink-0 accent-brand"
+          />
+          <div className="min-w-0 space-y-2">
+            <p>
+              <label htmlFor="consent-opt-in" className="cursor-pointer">
+                J’accepte d’être contacté(e) par téléphone, SMS, whatsapp et
+                email par Couverture Mutuelle et{" "}
+              </label>
+              <button
+                type="button"
+                onClick={() => setPartnersOpen(true)}
+                className="font-semibold text-brand underline underline-offset-2 hover:text-[#5b21b6]"
+              >
+                ses partenaires
+              </button>
+              <label htmlFor="consent-opt-in" className="cursor-pointer">
+                {" "}
+                afin de recevoir des offres de complémentaire santé.
+              </label>
+            </p>
+            <p>
+              Mon consentement est valable 12 mois et peut être retiré à tout
+              moment. En savoir plus / Retirer mon consentement.
+            </p>
+            <p>
+              Mes données sont traitées conformément à la{" "}
+              <a
+                href="/politique-de-confidentialite"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-brand underline underline-offset-2 hover:text-[#5b21b6]"
+              >
+                Politique de confidentialité
+              </a>
+              .
+            </p>
+          </div>
+        </div>
+      </div>
       {errors.consent ? (
         <p className="mt-2 text-sm text-error" role="alert">
           {errors.consent}
@@ -165,6 +214,11 @@ export function StepContact({
         onNext={onNext}
         nextLabel="Valider ma demande"
         disabled={disabled}
+      />
+
+      <PartnersModal
+        open={partnersOpen}
+        onClose={() => setPartnersOpen(false)}
       />
     </div>
   );

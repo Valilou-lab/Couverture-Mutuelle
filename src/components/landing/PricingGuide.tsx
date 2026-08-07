@@ -25,12 +25,14 @@ export function PricingGuide() {
             votre département, le niveau de garanties souhaité et votre profil.
           </p>
 
-          <a
-            href="#devis"
-            className="mt-8 inline-flex min-h-12 items-center justify-center rounded-full bg-gradient-to-r from-[#7c3aed] to-brand px-7 text-sm font-semibold text-white shadow-[0_12px_28px_-10px_rgba(109,40,217,0.55)] transition hover:brightness-105"
-          >
-            Recevoir un tarif personnalisé →
-          </a>
+          <div className="mt-8 flex justify-center">
+            <a
+              href="#devis"
+              className="inline-flex min-h-12 items-center justify-center rounded-full bg-gradient-to-r from-[#7c3aed] to-brand px-7 font-sora text-sm font-semibold text-white shadow-[0_12px_28px_-10px_rgba(109,40,217,0.55)] transition hover:brightness-105"
+            >
+              Recevoir un tarif personnalisé
+            </a>
+          </div>
         </div>
 
         <div className="overflow-hidden rounded-[1.5rem] border border-border bg-white shadow-[0_18px_40px_-24px_rgba(76,29,149,0.35)]">

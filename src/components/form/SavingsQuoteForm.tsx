@@ -18,8 +18,14 @@ import { StepInsurer } from "./StepInsurer";
 import { StepAnalyzing } from "./StepAnalyzing";
 import { StepContact } from "./StepContact";
 import { StepConfirmation } from "./StepConfirmation";
+import { FormMascotGuide } from "./FormMascotGuide";
+import {
+  getFormProgressPercent,
+  randomOffersCount,
+} from "./mascotGuideConfig";
 import { useQuoteJourney } from "@/context/QuoteJourneyContext";
 import { buildCompleteSavingsLead } from "@/lib/savings-lead";
+import { scrollQuoteFormIntoView } from "./scrollQuoteFormIntoView";
 
 const ADVANCE_DELAY_MS = 320;
 
@@ -87,9 +93,11 @@ export function SavingsQuoteForm() {
   const [step, setStep] = useState<FormStepId>("careNeeds");
   const [errors, setErrors] = useState<FieldErrors>({});
   const [isAdvancing, setIsAdvancing] = useState(false);
+  const [offersCount, setOffersCount] = useState<number | null>(null);
   const advanceLock = useRef(false);
   const timers = useRef<number[]>([]);
   const lastFocusToken = useRef(0);
+  const formRootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     setData((current) => withCalculatorDefaults(current, calculator));
@@ -121,6 +129,7 @@ export function SavingsQuoteForm() {
   const goTo = useCallback((next: FormStepId) => {
     setErrors({});
     setStep(next);
+    scrollQuoteFormIntoView(formRootRef.current);
   }, []);
 
   useEffect(() => {
@@ -136,6 +145,7 @@ export function SavingsQuoteForm() {
       const nextData = withCalculatorDefaults(current, calculator);
       setErrors({});
       setStep(findFirstNeededStep(nextData));
+      scrollQuoteFormIntoView(formRootRef.current);
       return nextData;
     });
   }, [calculator, savingsQuoteFocusToken]);
@@ -242,11 +252,32 @@ export function SavingsQuoteForm() {
   }, [calculator, clearTimers, setCompleteSavingsLead]);
 
   const showProgress = step !== "analyzing" && step !== "confirmation";
+  const showMascotGuide =
+    step !== "analyzing" && step !== "confirmation" && step !== "contact";
+
+  useEffect(() => {
+    if (step !== "contact") {
+      setOffersCount(null);
+      return;
+    }
+
+    const target = randomOffersCount();
+    setOffersCount(0);
+    let value = 0;
+    const id = window.setInterval(() => {
+      value += 1;
+      setOffersCount(value);
+      if (value >= target) window.clearInterval(id);
+    }, 70);
+
+    return () => window.clearInterval(id);
+  }, [step]);
 
   return (
     <div
+      ref={formRootRef}
       id="formulaire-devis-economies"
-      className="form-glow-pulse rounded-[1.75rem] border-2 border-brand/40 bg-white p-5 sm:p-7 lg:p-8"
+      className="form-glow-pulse relative z-10 scroll-mt-28 overflow-visible rounded-[1.75rem] border-2 border-brand/40 bg-white p-5 pb-2 sm:p-7 sm:pb-3 lg:p-8 lg:pb-4"
     >
       <p className="mb-4 text-center font-manrope text-base font-bold leading-snug text-brand sm:mb-5 sm:text-lg">
         Complétez pour recevoir vos devis personnalisés{" "}
@@ -254,7 +285,11 @@ export function SavingsQuoteForm() {
       </p>
 
       {showProgress ? (
-        <ProgressBar current={progressCurrent} total={progressTotal} />
+        <ProgressBar
+          current={progressCurrent}
+          total={progressTotal}
+          percent={getFormProgressPercent(step)}
+        />
       ) : null}
 
       <div key={step} className="form-step-enter">
@@ -351,6 +386,7 @@ export function SavingsQuoteForm() {
             data={data}
             errors={errors}
             disabled={isAdvancing}
+            offersCount={offersCount}
             onPatch={patch}
             onBack={goBack}
             onNext={goNext}
@@ -361,6 +397,13 @@ export function SavingsQuoteForm() {
           <StepConfirmation onRestart={restart} />
         ) : null}
       </div>
+
+      {showMascotGuide ? (
+        <FormMascotGuide
+          step={step}
+          offersCount={step === "contact" ? offersCount : null}
+        />
+      ) : null}
     </div>
   );
 }

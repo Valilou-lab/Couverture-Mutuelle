@@ -3,9 +3,7 @@ import { QuoteForm } from "@/components/form/QuoteForm";
 
 function Highlight({ children }: { children: ReactNode }) {
   return (
-    <span className="bg-gradient-to-r from-[#a855f7] via-[#d946ef] to-[#f472b6] bg-clip-text font-bold text-transparent">
-      {children}
-    </span>
+    <span className="font-bold text-[#c026d3]">{children}</span>
   );
 }
 
@@ -14,12 +12,10 @@ function HeroCopyDesktop() {
     <>
       <h1 className="font-manrope text-[1.75rem] font-semibold leading-tight tracking-tight text-foreground sm:text-4xl lg:text-[2.35rem] lg:leading-[1.15] xl:text-[2.5rem]">
         Trouvez votre nouvelle mutuelle{" "}
-        <span className="font-bold text-brand">gratuitement</span> et{" "}
-        <span className="font-bold text-brand">sans engagement</span>
+        <Highlight>gratuitement</Highlight> et <Highlight>sans engagement</Highlight>
       </h1>
       <p className="mx-auto mt-4 max-w-xl rounded-2xl bg-white/80 px-4 py-3.5 text-lg font-medium leading-snug text-foreground ring-1 ring-brand/15 sm:mt-5 sm:px-5 sm:py-4 sm:text-xl lg:mx-0 lg:bg-white lg:text-[1.25rem] lg:leading-snug xl:text-[1.35rem]">
-        Une économie moyenne de{" "}
-        <strong className="font-bold text-brand">380&nbsp;€ à l’année</strong>.
+        Une économie moyenne de <Highlight>380&nbsp;€ à l’année</Highlight>.
       </p>
     </>
   );
@@ -28,13 +24,12 @@ function HeroCopyDesktop() {
 function HeroCopyMobile() {
   return (
     <div className="text-center">
-      <h1 className="font-manrope text-lg font-extrabold leading-snug tracking-tight text-[#3b0764]">
+      <h1 className="font-manrope text-[1.375rem] font-extrabold leading-snug tracking-tight text-[#3b0764] sm:text-2xl">
         Recevez votre devis en <Highlight>1&nbsp;minute</Highlight>{" "}
         <span aria-hidden="true">⏱️</span>
       </h1>
-      <p className="mt-1 text-sm leading-snug text-zinc-600">
-        Une économie moyenne de <Highlight>380&nbsp;€ par an</Highlight> selon
-        votre profil.
+      <p className="mt-1.5 text-sm leading-snug text-zinc-600 sm:text-base">
+        Une économie moyenne de <Highlight>380&nbsp;€ par an</Highlight>.
       </p>
     </div>
   );
@@ -74,7 +69,7 @@ export function Hero() {
         </div>
 
         {/* Formulaire */}
-        <div className="w-full lg:justify-self-stretch">
+        <div className="relative z-10 w-full overflow-visible pb-14 lg:justify-self-stretch lg:pb-16">
           <QuoteForm />
         </div>
       </div>

@@ -1,5 +1,10 @@
 import type { FormStepId, QuoteFormData } from "./types";
 import { COVERED_PERSONS } from "./types";
+import {
+  deriveAgeFromBirthDate,
+  MAX_ELIGIBLE_AGE,
+  MIN_ELIGIBLE_AGE,
+} from "@/lib/savings-engine";
 
 export type FieldErrors = Partial<Record<keyof QuoteFormData, string>>;
 
@@ -24,6 +29,28 @@ export function isValidBirthDate(value: string): boolean {
   if (date > now) return false;
   if (year < 1900) return false;
   return true;
+}
+
+export function getBirthDateAgeError(value: string): string | null {
+  if (!isValidBirthDate(value)) {
+    return "Date de naissance invalide.";
+  }
+
+  const age = deriveAgeFromBirthDate(value);
+  if (age === null) {
+    return "Date de naissance invalide.";
+  }
+  if (age < MIN_ELIGIBLE_AGE) {
+    return `Vous devez avoir au moins ${MIN_ELIGIBLE_AGE} ans.`;
+  }
+  if (age > MAX_ELIGIBLE_AGE) {
+    return `L’âge maximum accepté est de ${MAX_ELIGIBLE_AGE} ans.`;
+  }
+  return null;
+}
+
+export function isEligibleFormBirthDate(value: string): boolean {
+  return getBirthDateAgeError(value) === null;
 }
 
 function isValidPhone(value: string): boolean {
@@ -60,8 +87,9 @@ export function validateStep(
         if (!data.spouseBirthDate) {
           errors.spouseBirthDate =
             "Indiquez la date de naissance de votre conjoint.";
-        } else if (!isValidBirthDate(data.spouseBirthDate)) {
-          errors.spouseBirthDate = "Format attendu : JJ/MM/AAAA.";
+        } else {
+          const ageError = getBirthDateAgeError(data.spouseBirthDate);
+          if (ageError) errors.spouseBirthDate = ageError;
         }
       }
       break;
@@ -69,8 +97,9 @@ export function validateStep(
     case "birthDate":
       if (!data.birthDate) {
         errors.birthDate = "Indiquez votre date de naissance.";
-      } else if (!isValidBirthDate(data.birthDate)) {
-        errors.birthDate = "Format attendu : JJ/MM/AAAA.";
+      } else {
+        const ageError = getBirthDateAgeError(data.birthDate);
+        if (ageError) errors.birthDate = ageError;
       }
       break;
 
@@ -124,7 +153,7 @@ export function validateStep(
       }
       if (!data.consent) {
         errors.consent =
-          "Le consentement est nécessaire pour être recontacté(e).";
+          "Le consentement est nécessaire pour être contacté(e).";
       }
       break;
 

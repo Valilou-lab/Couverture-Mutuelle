@@ -8,7 +8,11 @@ import {
   type FormStepId,
   type QuoteFormData,
 } from "./types";
-import { isValidBirthDate, validateStep, type FieldErrors } from "./validation";
+import {
+  isEligibleFormBirthDate,
+  validateStep,
+  type FieldErrors,
+} from "./validation";
 import { ProgressBar } from "./ProgressBar";
 import { StepCareNeeds } from "./StepCareNeeds";
 import { StepCoveredPersons } from "./StepCoveredPersons";
@@ -21,7 +25,13 @@ import { StepInsurer } from "./StepInsurer";
 import { StepAnalyzing } from "./StepAnalyzing";
 import { StepContact } from "./StepContact";
 import { StepConfirmation } from "./StepConfirmation";
+import { FormMascotGuide } from "./FormMascotGuide";
+import {
+  getFormProgressPercent,
+  randomOffersCount,
+} from "./mascotGuideConfig";
 import { useQuoteJourney } from "@/context/QuoteJourneyContext";
+import { scrollQuoteFormIntoView } from "./scrollQuoteFormIntoView";
 
 const ADVANCE_DELAY_MS = 320;
 
@@ -87,7 +97,7 @@ export function QuoteForm() {
   } = useQuoteJourney();
 
   const skipBirthDate =
-    hasBirthDateFromCalculator && isValidBirthDate(calculator.birthDate);
+    hasBirthDateFromCalculator && isEligibleFormBirthDate(calculator.birthDate);
   const skipPostalCode = hasLocationFromCalculator;
 
   const [data, setData] = useState<QuoteFormData>(() =>
@@ -99,9 +109,11 @@ export function QuoteForm() {
   const [step, setStep] = useState<FormStepId>("careNeeds");
   const [errors, setErrors] = useState<FieldErrors>({});
   const [isAdvancing, setIsAdvancing] = useState(false);
+  const [offersCount, setOffersCount] = useState<number | null>(null);
   const advanceLock = useRef(false);
   const timers = useRef<number[]>([]);
   const lastFocusToken = useRef(0);
+  const formRootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!skipBirthDate && !skipPostalCode) return;
@@ -163,6 +175,7 @@ export function QuoteForm() {
   const goTo = useCallback((next: FormStepId) => {
     setErrors({});
     setStep(next);
+    scrollQuoteFormIntoView(formRootRef.current);
   }, []);
 
   useEffect(() => {
@@ -176,6 +189,7 @@ export function QuoteForm() {
       const target = findFirstNeededStep(nextData, stepOptions);
       setErrors({});
       setStep(target);
+      scrollQuoteFormIntoView(formRootRef.current);
       return nextData;
     });
   }, [calculator, formFocusToken, stepOptions]);
@@ -270,6 +284,24 @@ export function QuoteForm() {
 
   // Jump past prefilled steps if we land on them.
   useEffect(() => {
+    if (step !== "contact") {
+      setOffersCount(null);
+      return;
+    }
+
+    const target = randomOffersCount();
+    setOffersCount(0);
+    let value = 0;
+    const id = window.setInterval(() => {
+      value += 1;
+      setOffersCount(value);
+      if (value >= target) window.clearInterval(id);
+    }, 70);
+
+    return () => window.clearInterval(id);
+  }, [step]);
+
+  useEffect(() => {
     if (
       (skipBirthDate && step === "birthDate") ||
       (skipPostalCode && step === "postalCode")
@@ -279,22 +311,27 @@ export function QuoteForm() {
   }, [data, goTo, skipBirthDate, skipPostalCode, step, stepOptions]);
 
   const showProgress = step !== "analyzing" && step !== "confirmation";
+  const showMascotGuide =
+    step !== "analyzing" && step !== "confirmation" && step !== "contact";
 
   return (
     <div
+      ref={formRootRef}
       id="formulaire-devis"
-      className="form-glow-pulse rounded-[1.75rem] border-2 border-brand/40 bg-white p-3.5 sm:p-5 lg:p-8"
+      className="form-glow-pulse relative z-10 scroll-mt-28 overflow-visible rounded-[1.75rem] border-2 border-brand/40 bg-white p-3.5 pb-2 sm:p-5 sm:pb-3 lg:p-8 lg:pb-4"
     >
       <p className="mb-4 hidden text-center font-manrope text-xl font-extrabold leading-snug tracking-tight text-[#3b0764] sm:mb-5 sm:text-2xl lg:mb-5 lg:block lg:text-[1.7rem]">
         VOTRE DEVIS EN{" "}
-        <span className="bg-gradient-to-r from-[#a855f7] via-[#d946ef] to-[#f472b6] bg-clip-text text-transparent">
-          1&nbsp;MINUTE
-        </span>{" "}
+        <span className="font-extrabold text-[#c026d3]">1&nbsp;MINUTE</span>{" "}
         <span aria-hidden="true">⏱️</span>
       </p>
 
       {showProgress ? (
-        <ProgressBar current={progressCurrent} total={progressTotal} />
+        <ProgressBar
+          current={progressCurrent}
+          total={progressTotal}
+          percent={getFormProgressPercent(step)}
+        />
       ) : null}
 
       <div key={step} className="form-step-enter">
@@ -415,6 +452,7 @@ export function QuoteForm() {
             data={data}
             errors={errors}
             disabled={isAdvancing}
+            offersCount={offersCount}
             onPatch={patch}
             onBack={goBack}
             onNext={goNext}
@@ -425,6 +463,13 @@ export function QuoteForm() {
           <StepConfirmation onRestart={restart} />
         ) : null}
       </div>
+
+      {showMascotGuide ? (
+        <FormMascotGuide
+          step={step}
+          offersCount={step === "contact" ? offersCount : null}
+        />
+      ) : null}
     </div>
   );
 }

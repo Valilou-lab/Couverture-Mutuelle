@@ -10,12 +10,14 @@ export function FinalCta() {
             Remplissez le formulaire en quelques minutes. Un conseiller pourra
             ensuite vous recontacter.
           </p>
-          <a
-            href="#devis"
-            className="mt-6 inline-flex min-h-12 items-center justify-center rounded-full bg-white px-7 text-sm font-semibold text-brand transition hover:bg-violet-50"
-          >
-            Comparer les offres
-          </a>
+          <div className="mt-6 flex justify-center">
+            <a
+              href="#devis"
+              className="inline-flex min-h-12 items-center justify-center rounded-full bg-white px-7 font-sora text-sm font-semibold text-brand transition hover:bg-violet-50"
+            >
+              Comparer les offres
+            </a>
+          </div>
         </div>
       </div>
     </section>

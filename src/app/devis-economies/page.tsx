@@ -88,7 +88,7 @@ export default function SavingsQuotePage() {
               ← Retour au calculateur
             </Link>
           </p>
-          <div className="mt-8">
+          <div className="relative z-10 mt-8 overflow-visible pb-14 sm:pb-16">
             <SavingsQuoteForm />
           </div>
         </div>

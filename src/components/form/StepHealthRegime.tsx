@@ -26,10 +26,10 @@ export function StepHealthRegime({
 }: Props) {
   return (
     <div>
-      <h2 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+      <h2 className="text-center text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
         Quel est votre régime de santé ?
       </h2>
-      <p className="mt-2 text-sm text-zinc-600 sm:text-base">
+      <p className="mt-2 text-center text-sm text-zinc-600 sm:text-base">
         Votre régime influence les remboursements de base.
       </p>
       <div className="mt-5 grid gap-2.5">

@@ -15,13 +15,10 @@ import {
 } from "@/context/QuoteJourneyContext";
 import {
   formatBirthDateInput,
-  isValidBirthDate,
+  getBirthDateAgeError,
 } from "@/components/form/validation";
 import {
   estimateSavings,
-  deriveAgeFromBirthDate,
-  isSeniorEligibleBirthDate,
-  MIN_SENIOR_AGE,
   type SavingsProtectionLevelId,
   type SavingsTenureId,
 } from "@/lib/savings-engine";
@@ -54,7 +51,6 @@ const PROTECTION_GREEN_TONES = [
     title: "text-emerald-800",
     titleSelected: "text-emerald-900",
     textSelected: "text-emerald-800/80",
-    check: "bg-emerald-500",
   },
   {
     idle: "border-emerald-200 bg-gradient-to-br from-[#dcfce7] to-[#bbf7d0]",
@@ -67,7 +63,6 @@ const PROTECTION_GREEN_TONES = [
     title: "text-emerald-900",
     titleSelected: "text-emerald-950",
     textSelected: "text-emerald-900/80",
-    check: "bg-emerald-600",
   },
   {
     idle: "border-emerald-300 bg-gradient-to-br from-[#bbf7d0] to-[#86efac]",
@@ -80,7 +75,6 @@ const PROTECTION_GREEN_TONES = [
     title: "text-emerald-950",
     titleSelected: "text-emerald-950",
     textSelected: "text-emerald-950/85",
-    check: "bg-emerald-700",
   },
   {
     idle: "border-emerald-400 bg-gradient-to-br from-[#86efac] to-[#4ade80]",
@@ -93,7 +87,6 @@ const PROTECTION_GREEN_TONES = [
     title: "text-emerald-950",
     titleSelected: "text-white",
     textSelected: "text-emerald-50",
-    check: "bg-emerald-800",
   },
 ] as const;
 
@@ -166,29 +159,6 @@ function RefreshIcon() {
       <path d="M16.5 8A6.5 6.5 0 1 0 15 14.8" strokeLinecap="round" />
       <path d="M16.5 4.5V8H13" strokeLinecap="round" strokeLinejoin="round" />
     </svg>
-  );
-}
-
-function CheckBadge() {
-  return (
-    <span
-      className="absolute -right-1 -top-1 inline-flex h-5 w-5 items-center justify-center rounded-full bg-brand text-white shadow-sm"
-      aria-hidden="true"
-    >
-      <svg
-        viewBox="0 0 16 16"
-        className="h-3 w-3"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2.4"
-      >
-        <path
-          d="M3.5 8.5 6.5 11.5 12.5 4.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    </span>
   );
 }
 
@@ -331,13 +301,12 @@ function TenureChip({
       type="button"
       onClick={onClick}
       aria-pressed={selected}
-      className={`relative min-h-11 rounded-full border-2 px-4 pr-5 text-sm font-semibold transition duration-200 ${
+      className={`min-h-11 rounded-full border-2 px-4 text-sm font-semibold transition duration-200 ${
         selected
-          ? "calc-chip-selected border-brand bg-brand-soft text-brand shadow-sm"
+          ? "border-brand bg-brand text-white shadow-md"
           : "border-border bg-white text-foreground hover:border-brand hover:bg-brand-soft/60 hover:text-brand"
       }`}
     >
-      {selected ? <CheckBadge /> : null}
       {children}
     </button>
   );
@@ -366,30 +335,10 @@ export function SavingsCalculator() {
     if (!calculator.birthDate) return null;
     if (calculator.birthDate.length < 10) {
       return calculator.birthDate.length >= 8
-        ? "Format attendu : JJ/MM/AAAA"
+        ? "Date de naissance invalide."
         : null;
     }
-    if (!isValidBirthDate(calculator.birthDate)) {
-      const age = deriveAgeFromBirthDate(calculator.birthDate);
-      if (age !== null && age > 110) {
-        return "L’âge maximum accepté est de 110 ans.";
-      }
-      if (age !== null && age < MIN_SENIOR_AGE && age >= 35) {
-        return `Ce calculateur s’adresse aux personnes de ${MIN_SENIOR_AGE} ans et plus.`;
-      }
-      if (age !== null && age < 35) {
-        return "Vous devez avoir au moins 35 ans.";
-      }
-      return "Date invalide ou future.";
-    }
-    const age = deriveAgeFromBirthDate(calculator.birthDate);
-    if (age !== null && age < MIN_SENIOR_AGE) {
-      return `Ce calculateur s’adresse aux personnes de ${MIN_SENIOR_AGE} ans et plus.`;
-    }
-    if (!isSeniorEligibleBirthDate(calculator.birthDate)) {
-      return "Date invalide ou future.";
-    }
-    return null;
+    return getBirthDateAgeError(calculator.birthDate);
   }, [birthTouched, calculator.birthDate]);
 
   const budgetError = useMemo(() => {
@@ -513,7 +462,7 @@ export function SavingsCalculator() {
               <div>
                 <label
                   htmlFor="calculator-birthDate"
-                  className="block font-manrope text-base font-semibold text-[#3b0764] sm:text-lg"
+                  className="block text-center font-manrope text-base font-semibold text-[#3b0764] sm:text-lg"
                 >
                   1. Quelle est votre date de naissance&nbsp;?
                 </label>
@@ -552,7 +501,7 @@ export function SavingsCalculator() {
               <div>
                 <label
                   htmlFor="calculator-monthlyBudget"
-                  className="block font-manrope text-base font-semibold text-[#3b0764] sm:text-lg"
+                  className="block text-center font-manrope text-base font-semibold text-[#3b0764] sm:text-lg"
                 >
                   3. Combien payez-vous aujourd’hui par mois&nbsp;?
                 </label>
@@ -595,7 +544,7 @@ export function SavingsCalculator() {
               </div>
 
               <div>
-                <p className="font-manrope text-base font-semibold text-[#3b0764] sm:text-lg">
+                <p className="text-center font-manrope text-base font-semibold text-[#3b0764] sm:text-lg">
                   4. Depuis combien de temps êtes-vous chez votre mutuelle
                   actuelle&nbsp;?
                 </p>
@@ -617,7 +566,7 @@ export function SavingsCalculator() {
               </div>
 
               <div>
-                <p className="font-manrope text-base font-semibold text-[#3b0764] sm:text-lg">
+                <p className="text-center font-manrope text-base font-semibold text-[#3b0764] sm:text-lg">
                   5. Quel niveau de protection recherchez-vous&nbsp;?
                 </p>
                 <div className="mt-3 grid grid-cols-2 gap-2 sm:gap-2.5">
@@ -641,26 +590,6 @@ export function SavingsCalculator() {
                             : `${tone.idle} ${tone.hover}`
                         }`}
                       >
-                        {selected ? (
-                          <span
-                            className={`absolute -right-1 -top-1 inline-flex h-5 w-5 items-center justify-center rounded-full text-white shadow-sm ${tone.check}`}
-                            aria-hidden="true"
-                          >
-                            <svg
-                              viewBox="0 0 16 16"
-                              className="h-3 w-3"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2.4"
-                            >
-                              <path
-                                d="M3.5 8.5 6.5 11.5 12.5 4.5"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                              />
-                            </svg>
-                          </span>
-                        ) : null}
                         <span className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-3">
                           <span
                             className={`inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl sm:h-10 sm:w-10 ${
@@ -701,7 +630,7 @@ export function SavingsCalculator() {
                 type="button"
                 disabled={!canCalculate}
                 onClick={handleCalculate}
-                className="calc-btn-ready inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#7c3aed] to-brand px-7 text-sm font-semibold text-white shadow-[0_12px_28px_-10px_rgba(109,40,217,0.55)] transition duration-200 disabled:cursor-not-allowed disabled:opacity-45 disabled:shadow-none"
+                className="calc-btn-ready inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#7c3aed] to-brand px-7 font-sora text-sm font-semibold text-white shadow-[0_12px_28px_-10px_rgba(109,40,217,0.55)] transition duration-200 disabled:cursor-not-allowed disabled:opacity-45 disabled:shadow-none"
               >
                 <CalculatorIcon />
                 Calculer mon économie
@@ -789,18 +718,18 @@ export function SavingsCalculator() {
                 </ul>
               ) : null}
 
-              <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:justify-center">
+              <div className="mt-8 flex flex-col items-center gap-3 sm:flex-row sm:justify-center">
                 <button
                   type="button"
                   onClick={goToQuoteForm}
-                  className="inline-flex min-h-12 items-center justify-center rounded-full bg-gradient-to-r from-[#7c3aed] to-brand px-7 text-sm font-semibold text-white shadow-[0_12px_28px_-10px_rgba(109,40,217,0.55)] transition hover:brightness-105"
+                  className="inline-flex min-h-12 items-center justify-center rounded-full bg-gradient-to-r from-[#7c3aed] to-brand px-7 font-sora text-sm font-semibold text-white shadow-[0_12px_28px_-10px_rgba(109,40,217,0.55)] transition hover:brightness-105"
                 >
                   {estimate.ctaLabel}
                 </button>
                 <button
                   type="button"
                   onClick={handleReset}
-                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border-2 border-border bg-white px-6 text-sm font-semibold text-foreground transition hover:border-brand hover:bg-brand-soft/60 hover:text-brand"
+                  className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border-2 border-border bg-white px-6 font-sora text-sm font-semibold text-foreground transition hover:border-brand hover:bg-brand-soft/60 hover:text-brand"
                 >
                   <RefreshIcon />
                   Refaire le calcul

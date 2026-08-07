@@ -117,10 +117,10 @@ export function StepPostalCode({
 
   return (
     <div>
-      <h2 className="text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
+      <h2 className="text-center text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
         Quel est votre code postal ?
       </h2>
-      <p className="mt-2 text-sm text-zinc-600 sm:text-base">
+      <p className="mt-2 text-center text-sm text-zinc-600 sm:text-base">
         Si plusieurs communes correspondent, choisissez la vôtre.
       </p>
 

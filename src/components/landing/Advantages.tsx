@@ -113,13 +113,12 @@ export function Advantages() {
           </article>
         </div>
 
-        <div className="mt-8 flex justify-center sm:justify-start">
+        <div className="mt-8 flex justify-center">
           <a
             href="#devis"
-            className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full bg-brand px-7 text-sm font-semibold text-white transition hover:bg-[#5b21b6]"
+            className="inline-flex min-h-12 items-center justify-center rounded-full bg-brand px-7 font-sora text-sm font-semibold text-white transition hover:bg-[#5b21b6]"
           >
             Je compare gratuitement
-            <span aria-hidden="true">→</span>
           </a>
         </div>
       </div>
