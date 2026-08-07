@@ -17,11 +17,11 @@ export function Footer() {
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1.2fr_0.8fr_0.8fr]">
         <div>
           <Image
-            src="/logo-couverture-mutuelle.png"
+            src="/logo-couverture-mutuelle-footer.png?v=2"
             alt="Couverture Mutuelle"
-            width={220}
-            height={100}
-            className="h-12 w-auto brightness-0 invert"
+            width={320}
+            height={320}
+            className="h-28 w-auto object-contain sm:h-32"
           />
           <p className="mt-4 max-w-sm text-sm leading-relaxed text-zinc-300">
             Couverture Mutuelle vous aide à comparer des offres de mutuelle

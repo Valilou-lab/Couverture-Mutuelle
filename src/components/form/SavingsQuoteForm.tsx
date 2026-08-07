@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   initialFormData,
+  COVERED_PERSONS,
   type CoveredPersonId,
   type FormStepId,
   type QuoteFormData,
@@ -300,8 +301,11 @@ export function SavingsQuoteForm() {
             onSelectAndAdvance={(coveredPersons: CoveredPersonId) =>
               selectAndAdvance({
                 coveredPersons,
-                spouseBirthDate:
-                  coveredPersons === "moi" ? "" : data.spouseBirthDate,
+                spouseBirthDate: COVERED_PERSONS.find(
+                  (item) => item.id === coveredPersons,
+                )?.needsSpouseDob
+                  ? data.spouseBirthDate
+                  : "",
               })
             }
             onBack={goBack}

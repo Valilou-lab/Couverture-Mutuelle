@@ -10,6 +10,11 @@ export const CARE_NEEDS = [
 
 export const COVERED_PERSONS = [
   { id: "moi", label: "Moi", needsSpouseDob: false },
+  {
+    id: "moi-enfants",
+    label: "Moi et enfant(s)",
+    needsSpouseDob: false,
+  },
   { id: "moi-conjoint", label: "Moi et mon conjoint", needsSpouseDob: true },
   {
     id: "moi-conjoint-enfants",
