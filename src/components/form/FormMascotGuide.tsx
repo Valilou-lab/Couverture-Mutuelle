@@ -67,7 +67,7 @@ export function FormMascotGuide({
       <div
         className={`relative flex items-center transition-all duration-300 ease-out ${
           featured
-            ? "min-h-[10.5rem] py-3 sm:min-h-[12rem] sm:py-3.5"
+            ? "min-h-[10.5rem] gap-3 py-3 sm:min-h-[12rem] sm:gap-2 sm:py-3.5"
             : "h-[8.75rem] sm:h-[10.5rem]"
         } ${
           visible
@@ -76,13 +76,19 @@ export function FormMascotGuide({
         }`}
       >
         {/* Moitié gauche — personnage entier, dépasse légèrement haut/bas */}
-        <div className="relative flex w-[42%] shrink-0 items-center justify-center self-stretch overflow-visible sm:w-1/2">
+        <div
+          className={`relative flex shrink-0 items-center justify-center self-stretch overflow-visible ${
+            featured
+              ? "w-[38%] sm:w-[46%]"
+              : "w-1/2"
+          }`}
+        >
           {/* eslint-disable-next-line @next/next/no-img-element -- mascot PNGs */}
           <img
             src={getMascotPoseSrc(display.pose)}
             alt=""
             className={`form-mascot-pose relative z-10 -mt-2 ml-1 block h-[10.75rem] w-auto max-w-none select-none object-contain drop-shadow-[0_10px_18px_rgba(15,15,20,0.16)] sm:-mt-2.5 sm:ml-1.5 sm:h-[12.5rem] ${
-              featured ? "h-[11.75rem] sm:h-[13.5rem]" : ""
+              featured ? "h-[10.5rem] sm:h-[13.5rem]" : ""
             } ${step === "analyzing" ? "form-mascot-searching" : ""} ${
               visible ? "form-mascot-pop" : ""
             }`}
@@ -90,11 +96,11 @@ export function FormMascotGuide({
           />
         </div>
 
-        {/* Texte compact — collé à la mascotte */}
+        {/* Texte — bien séparé de la mascotte sur mobile */}
         <div
           className={`relative z-[1] flex min-w-0 items-center pr-2.5 sm:pr-3 ${
             featured
-              ? "w-[58%] -translate-x-3 -translate-y-1 sm:w-1/2 sm:-translate-x-5 sm:-translate-y-2"
+              ? "w-[62%] translate-x-0 pl-1 sm:w-[54%] sm:-translate-x-3 sm:pl-0 sm:-translate-y-1"
               : "w-1/2 -translate-x-5 -translate-y-2 sm:-translate-x-7 sm:-translate-y-2.5"
           }`}
         >

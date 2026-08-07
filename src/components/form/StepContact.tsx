@@ -47,7 +47,7 @@ export function StepContact({
           <strong className="offers-count-blink font-extrabold text-brand tabular-nums">
             {offersCount ?? "…"} offres
           </strong>{" "}
-          plus intéressantes
+          susceptibles de vous intéresser.
         </p>
         <p className="mt-1.5 text-sm leading-snug text-zinc-600 sm:text-[0.9375rem]">
           Dernière étape pour recevoir vos devis.
@@ -125,15 +125,19 @@ export function StepContact({
           type="tel"
           autoComplete="tel"
           inputMode="tel"
-          placeholder="06 12 34 56 78"
           value={data.phone}
           onChange={(event) => onPatch({ phone: event.target.value })}
           className="mt-2 w-full rounded-2xl border border-border bg-white px-4 py-3.5 text-base outline-none ring-brand/30 focus:ring-2"
         />
         {errors.phone ? (
-          <p className="mt-2 text-sm text-error" role="alert">
-            {errors.phone}
-          </p>
+          <div className="mt-2 space-y-1" role="alert">
+            <p className="text-sm text-error">{errors.phone}</p>
+            {data.phone.trim() ? (
+              <p className="text-sm text-error/80">
+                Format attendu&nbsp;: 06&nbsp;XX&nbsp;XX&nbsp;XX&nbsp;XX
+              </p>
+            ) : null}
+          </div>
         ) : null}
 
         <label
@@ -164,7 +168,7 @@ export function StepContact({
                 className="h-6 w-6 shrink-0"
                 draggable={false}
               />
-              Ce numéro est disponible sur WhatsApp
+              J’ai WhatsApp via ce numéro
             </span>
             <span className="mt-1 block text-xs italic leading-snug text-[#166534]/80 sm:text-[0.8125rem]">
               Recevez également le suivi de votre demande sur WhatsApp
@@ -181,7 +185,6 @@ export function StepContact({
           id="email"
           type="email"
           autoComplete="email"
-          placeholder="vous@email.fr"
           value={data.email}
           onChange={(event) => onPatch({ email: event.target.value })}
           className="mt-2 w-full rounded-2xl border border-border bg-white px-4 py-3.5 text-base outline-none ring-brand/30 focus:ring-2"
