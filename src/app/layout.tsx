@@ -48,7 +48,7 @@ export const metadata: Metadata = {
       "Comparez gratuitement les mutuelles santé et obtenez un accompagnement personnalisé. Service sans engagement.",
     images: [
       {
-        url: "/og-share.jpg",
+        url: "/og-share.jpg?v=3",
         width: 1200,
         height: 630,
         alt: "Couverture Mutuelle",
@@ -60,7 +60,7 @@ export const metadata: Metadata = {
     title: "Couverture Mutuelle — Comparez les mutuelles santé",
     description:
       "Comparez gratuitement les mutuelles santé et obtenez un accompagnement personnalisé. Service sans engagement.",
-    images: ["/og-share.jpg"],
+    images: ["/og-share.jpg?v=3"],
   },
 };
 
