@@ -79,10 +79,8 @@ export function FormMascotGuide({
           <img
             src={getMascotPoseSrc(display.pose)}
             alt=""
-            className={`form-mascot-pose relative z-10 -mt-1.5 ml-1.5 block w-auto max-w-none select-none object-contain drop-shadow-[0_10px_18px_rgba(15,15,20,0.16)] sm:-mt-2 sm:ml-2 ${
-              featured
-                ? "h-[11.75rem] sm:h-[13.25rem]"
-                : "h-[10.75rem] sm:h-[12.25rem]"
+            className={`form-mascot-pose relative z-10 -mt-1.5 ml-1.5 block h-[10.75rem] w-auto max-w-full select-none object-contain drop-shadow-[0_10px_18px_rgba(15,15,20,0.16)] sm:-mt-2 sm:ml-2 sm:h-[12.25rem] ${
+              featured ? "h-[11.75rem] sm:h-[13.25rem]" : ""
             } ${step === "analyzing" ? "form-mascot-searching" : ""} ${
               visible ? "form-mascot-pop" : ""
             }`}

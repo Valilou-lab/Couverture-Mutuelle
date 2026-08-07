@@ -43,9 +43,9 @@ export function Hero() {
     >
       <div className="pointer-events-none absolute inset-x-0 top-0 h-80 bg-[radial-gradient(circle_at_top,rgba(196,181,253,0.55),transparent_60%)]" />
 
-      <div className="relative mx-auto grid max-w-6xl items-center gap-3 px-4 py-3 sm:px-6 sm:py-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:items-start lg:gap-12 lg:py-14 xl:gap-16">
+      <div className="relative mx-auto grid w-full max-w-6xl min-w-0 items-center gap-3 px-4 py-3 sm:px-6 sm:py-4 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)] lg:items-start lg:gap-12 lg:py-14 xl:gap-16">
         {/* Colonne texte */}
-        <div className="text-center lg:text-left">
+        <div className="min-w-0 text-center lg:text-left">
           {/* Mobile / tablette — intro compacte */}
           <div className="lg:hidden">
             <HeroCopyMobile />
@@ -69,7 +69,7 @@ export function Hero() {
         </div>
 
         {/* Formulaire */}
-        <div className="relative z-10 w-full overflow-visible pb-14 lg:justify-self-stretch lg:pb-16">
+        <div className="relative z-10 w-full min-w-0 overflow-x-clip pb-14 lg:justify-self-stretch lg:pb-16">
           <QuoteForm />
         </div>
       </div>

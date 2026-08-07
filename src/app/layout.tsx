@@ -40,7 +40,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       lang="fr"
       className={`${dmSans.variable} ${manrope.variable} ${baloo2.variable} ${sora.variable} h-full antialiased`}
     >
-      <body className="min-h-full flex flex-col font-sans">
+      <body className="min-h-full flex max-w-[100vw] flex-col overflow-x-hidden font-sans">
         <QuoteJourneyProvider>
           {children}
           <ChatbotSlot />

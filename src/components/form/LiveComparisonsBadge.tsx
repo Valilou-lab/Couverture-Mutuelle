@@ -78,25 +78,35 @@ export function LiveComparisonsBadge({ compact = false }: Props) {
       </span>
       <p
         key={showWin ? "win" : "count"}
-        className="text-center leading-snug text-foreground animate-[form-step-in_280ms_ease-out]"
+        className="min-w-0 truncate text-center leading-snug text-foreground animate-[form-step-in_280ms_ease-out]"
       >
         {showWin ? (
-          <>
-            <strong className="font-bold text-emerald-700">1 personne</strong>{" "}
-            <span className={compact ? "hidden sm:inline" : undefined}>
+          compact ? (
+            <>
+              <strong className="font-bold text-emerald-700">1</strong>{" "}
+              <span className="sm:hidden">mieux&nbsp;!</span>
+              <span className="hidden sm:inline">
+                personne a trouvé mieux&nbsp;!
+              </span>
+            </>
+          ) : (
+            <>
+              <strong className="font-bold text-emerald-700">1 personne</strong>{" "}
               vient de trouver mieux&nbsp;!
-            </span>
-            <span className={compact ? "sm:hidden" : "hidden"}>
-              a trouvé mieux&nbsp;!
+            </>
+          )
+        ) : compact ? (
+          <>
+            <strong className="font-bold text-sky-600 tabular-nums">{count}</strong>{" "}
+            <span className="sm:hidden">en ligne</span>
+            <span className="hidden sm:inline">
+              personnes comparent en ce moment
             </span>
           </>
         ) : (
           <>
             <strong className="font-bold text-sky-600">{count} personnes</strong>{" "}
-            <span className={compact ? "hidden sm:inline" : undefined}>
-              comparent en ce moment
-            </span>
-            <span className={compact ? "sm:hidden" : "hidden"}>comparent</span>
+            comparent en ce moment
           </>
         )}
       </p>
