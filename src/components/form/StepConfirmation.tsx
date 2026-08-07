@@ -1,52 +1,87 @@
 "use client";
 
+import { useEffect } from "react";
+import confetti from "canvas-confetti";
 import { FormMascotGuide } from "./FormMascotGuide";
 
-type Props = {
-  onRestart: () => void;
-};
+const CONFETTI_COLORS = [
+  "#6d28d9",
+  "#a855f7",
+  "#c4b5fd",
+  "#f472b6",
+  "#fbbf24",
+  "#34d399",
+  "#ffffff",
+];
 
-function PhoneIcon() {
-  return (
-    <svg
-      viewBox="0 0 20 20"
-      className="h-4 w-4"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      aria-hidden="true"
-    >
-      <path
-        d="M3.5 4.5c0-.8.7-1.5 1.5-1.5h1.4c.6 0 1.1.4 1.3 1l.7 2.2c.2.5 0 1.1-.4 1.4L6.8 8.8a9.5 9.5 0 0 0 4.4 4.4l1.2-1.2c.3-.4.9-.6 1.4-.4l2.2.7c.6.2 1 .7 1 1.3V16c0 .8-.7 1.5-1.5 1.5C8.8 17.5 2.5 11.2 2.5 4.5Z"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+function fireConfirmationConfetti() {
+  const defaults = {
+    colors: CONFETTI_COLORS,
+    disableForReducedMotion: true,
+    zIndex: 80,
+  };
+
+  confetti({
+    ...defaults,
+    particleCount: 90,
+    spread: 72,
+    startVelocity: 38,
+    origin: { x: 0.5, y: 0.28 },
+  });
+
+  window.setTimeout(() => {
+    confetti({
+      ...defaults,
+      particleCount: 55,
+      angle: 60,
+      spread: 58,
+      startVelocity: 42,
+      origin: { x: 0.08, y: 0.55 },
+    });
+    confetti({
+      ...defaults,
+      particleCount: 55,
+      angle: 120,
+      spread: 58,
+      startVelocity: 42,
+      origin: { x: 0.92, y: 0.55 },
+    });
+  }, 180);
 }
 
-export function StepConfirmation({ onRestart }: Props) {
+export function StepConfirmation() {
+  useEffect(() => {
+    const reduced =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) return;
+
+    const id = window.setTimeout(() => {
+      fireConfirmationConfetti();
+    }, 120);
+
+    return () => window.clearTimeout(id);
+  }, []);
+
   return (
-    <div className="py-4 text-center sm:py-6">
+    <div className="relative py-4 text-center sm:py-6">
       <FormMascotGuide step="confirmation" featured />
 
-      <div className="mx-auto mt-5 flex max-w-md items-center justify-center gap-2.5 rounded-2xl border border-brand/20 bg-brand-soft/60 px-4 py-3 text-sm text-[#3b0764]">
-        <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand text-white">
-          <PhoneIcon />
-        </span>
-        <p className="text-left font-medium leading-snug">
-          Délai de rappel&nbsp;:{" "}
-          <strong className="font-bold">1 à 5 minutes</strong>
+      <div className="mx-auto mt-5 max-w-md rounded-2xl border border-brand/20 bg-brand-soft/60 px-4 py-4 text-left text-[#3b0764] sm:px-5">
+        <p className="font-nunito text-sm font-bold leading-snug sm:text-base">
+          📞 Gardez votre téléphone à proximité
+        </p>
+        <p className="mt-1.5 font-nunito text-sm font-medium leading-snug text-zinc-700">
+          Votre conseiller vous appellera dans les{" "}
+          <strong className="font-bold text-[#3b0764]">1 à 5 minutes</strong>,
+          depuis un numéro de téléphone français classique (pas de 08, 09)
         </p>
       </div>
 
-      <button
-        type="button"
-        onClick={onRestart}
-        className="mt-8 min-h-12 rounded-full bg-brand px-8 font-sora text-sm font-semibold text-white transition hover:bg-[#5b21b6]"
-      >
-        Recommencer le formulaire
-      </button>
+      <p className="mx-auto mt-3 max-w-md px-1 text-center text-xs font-medium leading-snug text-zinc-500 sm:text-[0.8125rem]">
+        Pensez à décrocher même si le numéro n’est pas enregistré dans vos
+        contacts.
+      </p>
     </div>
   );
 }

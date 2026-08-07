@@ -86,6 +86,7 @@ export function buildQuoteLeadPreview(
     lastName: form.lastName,
     phone: form.phone,
     email: form.email,
+    whatsappAvailable: form.whatsappAvailable,
     consent: form.consent,
   };
 }

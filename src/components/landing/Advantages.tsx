@@ -4,7 +4,7 @@ export function Advantages() {
   return (
     <section
       id="pourquoi-comparer"
-      className="scroll-mt-24 bg-surface px-4 py-14 sm:px-6 sm:py-20"
+      className="scroll-mt-24 bg-surface px-4 py-8 sm:px-6 sm:py-12"
     >
       <div className="mx-auto max-w-6xl">
         <div className="max-w-3xl">

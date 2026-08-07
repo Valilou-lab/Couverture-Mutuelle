@@ -10,7 +10,7 @@ export function PricingGuide() {
   return (
     <section
       id="tarifs-moyens"
-      className="scroll-mt-24 bg-white px-4 py-14 sm:px-6 sm:py-20"
+      className="scroll-mt-24 bg-white px-4 py-8 sm:px-6 sm:py-12"
     >
       <div className="mx-auto grid max-w-6xl items-center gap-10 lg:grid-cols-2 lg:gap-14">
         <div>

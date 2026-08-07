@@ -10,6 +10,7 @@ import {
 } from "./types";
 import {
   isEligibleFormBirthDate,
+  needsSpouseBirthDate,
   validateStep,
   type FieldErrors,
 } from "./validation";
@@ -17,11 +18,9 @@ import { ProgressBar } from "./ProgressBar";
 import { StepCareNeeds } from "./StepCareNeeds";
 import { StepCoveredPersons } from "./StepCoveredPersons";
 import { StepBirthDate } from "./StepBirthDate";
-import { StepFamilyStatus } from "./StepFamilyStatus";
 import { StepPostalCode } from "./StepPostalCode";
 import { StepHealthRegime } from "./StepHealthRegime";
 import { StepAlreadyInsured } from "./StepAlreadyInsured";
-import { StepInsurer } from "./StepInsurer";
 import { StepAnalyzing } from "./StepAnalyzing";
 import { StepContact } from "./StepContact";
 import { StepConfirmation } from "./StepConfirmation";
@@ -40,8 +39,14 @@ function getVisibleSteps(
   options: { skipBirthDate: boolean; skipPostalCode: boolean },
 ): FormStepId[] {
   return FORM_STEPS.filter((step) => {
-    if (step === "insurer" && data.alreadyInsured !== "oui") return false;
-    if (step === "birthDate" && options.skipBirthDate) return false;
+    // Skip own-DOB step only when already known AND no spouse DOB is needed.
+    if (
+      step === "birthDate" &&
+      options.skipBirthDate &&
+      !needsSpouseBirthDate(data)
+    ) {
+      return false;
+    }
     if (step === "postalCode" && options.skipPostalCode) return false;
     return true;
   });
@@ -268,20 +273,6 @@ export function QuoteForm() {
     goTo("contact");
   }, [goTo]);
 
-  const restart = useCallback(() => {
-    clearTimers();
-    advanceLock.current = false;
-    setIsAdvancing(false);
-    setData(
-      applyCalculatorDefaults(initialFormData, calculator, {
-        skipBirthDate,
-        skipPostalCode,
-      }),
-    );
-    setErrors({});
-    setStep("careNeeds");
-  }, [calculator, clearTimers, skipBirthDate, skipPostalCode]);
-
   // Jump past prefilled steps if we land on them.
   useEffect(() => {
     if (step !== "contact") {
@@ -350,23 +341,14 @@ export function QuoteForm() {
             data={data}
             errors={errors}
             disabled={isAdvancing}
-            onSelect={(coveredPersons: CoveredPersonId) =>
-              patch({
-                coveredPersons,
-                spouseBirthDate: "",
-              })
-            }
             onSelectAndAdvance={(coveredPersons: CoveredPersonId) =>
               selectAndAdvance({
                 coveredPersons,
-                spouseBirthDate: "",
+                spouseBirthDate:
+                  coveredPersons === "moi" ? "" : data.spouseBirthDate,
               })
             }
-            onSpouseBirthDate={(spouseBirthDate) =>
-              patch({ spouseBirthDate })
-            }
             onBack={goBack}
-            onNext={goNext}
           />
         ) : null}
 
@@ -375,21 +357,13 @@ export function QuoteForm() {
             data={data}
             errors={errors}
             disabled={isAdvancing}
-            onChange={(birthDate) => patch({ birthDate })}
-            onBack={goBack}
-            onNext={goNext}
-          />
-        ) : null}
-
-        {step === "familyStatus" ? (
-          <StepFamilyStatus
-            data={data}
-            errors={errors}
-            disabled={isAdvancing}
-            onSelectAndAdvance={(familyStatus) =>
-              selectAndAdvance({ familyStatus })
+            hideOwnBirthDate={skipBirthDate}
+            onChangeBirthDate={(birthDate) => patch({ birthDate })}
+            onChangeSpouseBirthDate={(spouseBirthDate) =>
+              patch({ spouseBirthDate })
             }
             onBack={goBack}
+            onNext={goNext}
           />
         ) : null}
 
@@ -426,19 +400,9 @@ export function QuoteForm() {
             onSelectAndAdvance={(alreadyInsured) =>
               selectAndAdvance({
                 alreadyInsured,
-                insurer: alreadyInsured === "non" ? "" : data.insurer,
+                insurer: "",
               })
             }
-            onBack={goBack}
-          />
-        ) : null}
-
-        {step === "insurer" ? (
-          <StepInsurer
-            data={data}
-            errors={errors}
-            disabled={isAdvancing}
-            onSelectAndAdvance={(insurer) => selectAndAdvance({ insurer })}
             onBack={goBack}
           />
         ) : null}
@@ -459,9 +423,7 @@ export function QuoteForm() {
           />
         ) : null}
 
-        {step === "confirmation" ? (
-          <StepConfirmation onRestart={restart} />
-        ) : null}
+        {step === "confirmation" ? <StepConfirmation /> : null}
       </div>
 
       {showMascotGuide ? <FormMascotGuide step={step} /> : null}

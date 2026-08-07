@@ -41,7 +41,7 @@ export function InsurersLogoCarousel() {
   return (
     <section
       id="acteurs-du-marche"
-      className="overflow-hidden bg-white px-4 py-12 sm:px-6 sm:py-16"
+      className="overflow-hidden bg-white px-4 pb-6 pt-0 sm:px-6 sm:pb-8 sm:pt-0"
       aria-label="Les offres des principaux acteurs du marché"
     >
       <div className="mx-auto max-w-6xl">
@@ -50,7 +50,7 @@ export function InsurersLogoCarousel() {
         </h2>
       </div>
 
-      <div className="relative mt-8 sm:mt-10">
+      <div className="relative mt-4 sm:mt-5">
         <div className="insurers-marquee group">
           <div className="insurers-marquee-track">
             <LogoTrack />

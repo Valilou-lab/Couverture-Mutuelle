@@ -69,7 +69,7 @@ export function Hero() {
         </div>
 
         {/* Formulaire */}
-        <div className="relative z-10 w-full min-w-0 overflow-x-clip pb-14 lg:justify-self-stretch lg:pb-16">
+        <div className="relative z-10 w-full min-w-0 overflow-x-clip pb-6 lg:justify-self-stretch lg:pb-8">
           <QuoteForm />
         </div>
       </div>

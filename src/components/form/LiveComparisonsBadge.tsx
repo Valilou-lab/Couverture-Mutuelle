@@ -53,13 +53,13 @@ export function LiveComparisonsBadge({ compact = false }: Props) {
 
   return (
     <div
-      className={`inline-flex max-w-full items-center justify-center gap-2 rounded-full border transition-colors duration-300 ${
+      className={`inline-flex max-w-full items-center justify-center gap-1.5 rounded-full border transition-colors duration-300 sm:gap-2 ${
         showWin
           ? "border-emerald-200 bg-emerald-50"
           : "border-sky-200 bg-sky-50"
       } ${
         compact
-          ? "px-2.5 py-1 text-xs sm:px-3.5 sm:py-1.5 sm:text-sm"
+          ? "px-2 py-1 text-[0.6875rem] leading-tight sm:px-3.5 sm:py-1.5 sm:text-sm sm:leading-snug"
           : "mx-auto mb-4 px-3.5 py-1.5 text-sm sm:mb-5"
       }`}
       aria-live="polite"
@@ -78,34 +78,18 @@ export function LiveComparisonsBadge({ compact = false }: Props) {
       </span>
       <p
         key={showWin ? "win" : "count"}
-        className="min-w-0 truncate text-center leading-snug text-foreground animate-[form-step-in_280ms_ease-out]"
+        className="min-w-0 text-center text-foreground animate-[form-step-in_280ms_ease-out]"
       >
         {showWin ? (
-          compact ? (
-            <>
-              <strong className="font-bold text-emerald-700">1</strong>{" "}
-              <span className="sm:hidden">mieux&nbsp;!</span>
-              <span className="hidden sm:inline">
-                personne a trouvé mieux&nbsp;!
-              </span>
-            </>
-          ) : (
-            <>
-              <strong className="font-bold text-emerald-700">1 personne</strong>{" "}
-              vient de trouver mieux&nbsp;!
-            </>
-          )
-        ) : compact ? (
           <>
-            <strong className="font-bold text-sky-600 tabular-nums">{count}</strong>{" "}
-            <span className="sm:hidden">en ligne</span>
-            <span className="hidden sm:inline">
-              personnes comparent en ce moment
-            </span>
+            <strong className="font-bold text-emerald-700">1 personne</strong> a
+            trouvé mieux&nbsp;!
           </>
         ) : (
           <>
-            <strong className="font-bold text-sky-600">{count} personnes</strong>{" "}
+            <strong className="font-bold text-sky-600 tabular-nums">
+              {count} personnes
+            </strong>{" "}
             comparent en ce moment
           </>
         )}

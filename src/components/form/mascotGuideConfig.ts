@@ -26,8 +26,8 @@ const POSE_SRC: Record<FormMascotPose, string> = {
   satisfaite: "/images/mascotte-satisfaite.png",
   travaille: "/images/mascotte-travaille.png",
   curieuse: "/images/mascotte-curieuse.png",
-  enveloppe: "/images/mascotte-enveloppe.png",
-  "bras-leves": "/images/mascotte-bras-leves.png",
+  enveloppe: "/images/mascotte-enveloppe.png?v=3",
+  "bras-leves": "/images/mascotte-bras-leves.png?v=2",
 };
 
 export function getMascotPoseSrc(pose: FormMascotPose): string {
@@ -60,16 +60,6 @@ const GUIDE_BY_STEP: Partial<Record<FormStepId, FormMascotContent>> = {
     ],
     bubbleTone: "sky",
   },
-  familyStatus: {
-    pose: "satisfaite",
-    title: "Très bien !",
-    lines: [
-      "Je continue à filtrer les",
-      "contrats qui correspondent",
-      "à votre profil.",
-    ],
-    bubbleTone: "violet",
-  },
   postalCode: {
     pose: "loupe",
     title: "Super !",
@@ -100,15 +90,6 @@ const GUIDE_BY_STEP: Partial<Record<FormStepId, FormMascotContent>> = {
     ],
     bubbleTone: "mint",
   },
-  insurer: {
-    pose: "loupe",
-    title: "Merci !",
-    lines: [
-      "Je vérifie si je peux trouver",
-      "une couverture plus avantageuse.",
-    ],
-    bubbleTone: "sky",
-  },
   analyzing: {
     pose: "travaille",
     title: "⏳ Analyse en cours…",
@@ -132,13 +113,9 @@ const GUIDE_BY_STEP: Partial<Record<FormStepId, FormMascotContent>> = {
       "🔒 Vos infos restent confidentielles et ne serviront qu’à votre demande.",
   },
   confirmation: {
-    pose: "bras-leves",
-    title: "Bravo !",
-    lines: [
-      "Votre demande est validée.",
-      "Nos conseillers vous appelleront",
-      "pour vous présenter vos mutuelles.",
-    ],
+    pose: "enveloppe",
+    title: "Félicitation, votre dossier est envoyé.",
+    lines: [],
     bubbleTone: "cream",
   },
 };
@@ -154,12 +131,10 @@ export function getFormProgressPercent(step: FormStepId): number {
   const map: Partial<Record<FormStepId, number>> = {
     careNeeds: 12,
     coveredPersons: 25,
-    birthDate: 38,
-    familyStatus: 50,
-    postalCode: 62,
-    healthRegime: 72,
-    alreadyInsured: 82,
-    insurer: 90,
+    birthDate: 40,
+    postalCode: 55,
+    healthRegime: 70,
+    alreadyInsured: 85,
     analyzing: 94,
     contact: 97,
     confirmation: 100,

@@ -14,7 +14,7 @@ export function MascotAdvice() {
   return (
     <section
       id="conseil-mascotte"
-      className="scroll-mt-24 bg-white px-4 py-12 sm:px-6 sm:py-16"
+      className="scroll-mt-24 bg-white px-4 py-8 sm:px-6 sm:py-12"
     >
       <div className="mx-auto flex max-w-5xl flex-col items-center gap-6 sm:gap-8 md:flex-row md:items-center md:justify-center md:gap-5 lg:gap-10">
         <div className="shrink-0">

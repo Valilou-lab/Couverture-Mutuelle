@@ -280,7 +280,7 @@ export function CoverageShowcase() {
     <section
       ref={sectionRef}
       id="garanties"
-      className="scroll-mt-24 overflow-x-hidden px-4 py-14 sm:px-6 sm:py-20"
+      className="scroll-mt-24 overflow-x-hidden px-4 py-8 sm:px-6 sm:py-12"
     >
       <div className="mx-auto max-w-6xl">
         {/* Mobile: photo on top + white card below */}

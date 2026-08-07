@@ -86,7 +86,6 @@ export default function ConfidentialitePage() {
         <li>nom et prénom&nbsp;;</li>
         <li>date de naissance&nbsp;;</li>
         <li>date de naissance du conjoint lorsque nécessaire&nbsp;;</li>
-        <li>situation familiale&nbsp;;</li>
         <li>code postal et ville&nbsp;;</li>
         <li>régime de santé&nbsp;;</li>
         <li>personnes à assurer&nbsp;;</li>

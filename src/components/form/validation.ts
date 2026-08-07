@@ -83,14 +83,6 @@ export function validateStep(
     case "coveredPersons":
       if (!data.coveredPersons) {
         errors.coveredPersons = "Indiquez qui vous souhaitez assurer.";
-      } else if (needsSpouseBirthDate(data)) {
-        if (!data.spouseBirthDate) {
-          errors.spouseBirthDate =
-            "Indiquez la date de naissance de votre conjoint.";
-        } else {
-          const ageError = getBirthDateAgeError(data.spouseBirthDate);
-          if (ageError) errors.spouseBirthDate = ageError;
-        }
       }
       break;
 
@@ -101,11 +93,14 @@ export function validateStep(
         const ageError = getBirthDateAgeError(data.birthDate);
         if (ageError) errors.birthDate = ageError;
       }
-      break;
-
-    case "familyStatus":
-      if (!data.familyStatus) {
-        errors.familyStatus = "Sélectionnez votre situation familiale.";
+      if (needsSpouseBirthDate(data)) {
+        if (!data.spouseBirthDate) {
+          errors.spouseBirthDate =
+            "Indiquez la date de naissance de votre conjoint.";
+        } else {
+          const spouseAgeError = getBirthDateAgeError(data.spouseBirthDate);
+          if (spouseAgeError) errors.spouseBirthDate = spouseAgeError;
+        }
       }
       break;
 
@@ -128,12 +123,6 @@ export function validateStep(
     case "alreadyInsured":
       if (!data.alreadyInsured) {
         errors.alreadyInsured = "Indiquez si vous êtes déjà assuré(e).";
-      }
-      break;
-
-    case "insurer":
-      if (data.alreadyInsured === "oui" && !data.insurer) {
-        errors.insurer = "Sélectionnez votre assureur actuel.";
       }
       break;
 

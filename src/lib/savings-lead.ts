@@ -36,6 +36,7 @@ export type CompleteSavingsLead = {
   lastName: string;
   phone: string;
   email: string;
+  whatsappAvailable: boolean;
   consent: boolean;
 
   source: "savings-calculator";
@@ -74,6 +75,7 @@ export function buildCompleteSavingsLead(input: {
     lastName: form.lastName,
     phone: form.phone,
     email: form.email,
+    whatsappAvailable: form.whatsappAvailable,
     consent: form.consent,
 
     source: "savings-calculator",

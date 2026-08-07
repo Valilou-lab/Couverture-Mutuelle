@@ -72,10 +72,10 @@ export function HowItWorks() {
   return (
     <section
       id="fonctionnement"
-      className="scroll-mt-24 bg-white px-4 py-14 sm:px-6 sm:py-20"
+      className="scroll-mt-24 bg-white px-4 py-8 sm:px-6 sm:py-12"
     >
       <div className="mx-auto max-w-6xl">
-        <div className="mb-8 text-center lg:mb-10 lg:text-left">
+        <div className="mb-6 text-center lg:mb-8 lg:text-left">
           <p className="text-sm font-semibold uppercase tracking-[0.14em] text-brand">
             Comment ça marche
           </p>

@@ -7,14 +7,13 @@ import {
   type FormStepId,
   type QuoteFormData,
 } from "./types";
-import { validateStep, type FieldErrors } from "./validation";
+import { validateStep, needsSpouseBirthDate, type FieldErrors } from "./validation";
 import { ProgressBar } from "./ProgressBar";
 import { StepCareNeeds } from "./StepCareNeeds";
 import { StepCoveredPersons } from "./StepCoveredPersons";
-import { StepFamilyStatus } from "./StepFamilyStatus";
+import { StepBirthDate } from "./StepBirthDate";
 import { StepHealthRegime } from "./StepHealthRegime";
 import { StepAlreadyInsured } from "./StepAlreadyInsured";
-import { StepInsurer } from "./StepInsurer";
 import { StepAnalyzing } from "./StepAnalyzing";
 import { StepContact } from "./StepContact";
 import { StepConfirmation } from "./StepConfirmation";
@@ -29,14 +28,13 @@ import { scrollQuoteFormIntoView } from "./scrollQuoteFormIntoView";
 
 const ADVANCE_DELAY_MS = 320;
 
-/** Steps for users coming from the savings calculator (no DOB / postal). */
+/** Steps for users coming from the savings calculator (postal already known). */
 const SAVINGS_FORM_STEPS: FormStepId[] = [
   "careNeeds",
   "coveredPersons",
-  "familyStatus",
+  "birthDate",
   "healthRegime",
   "alreadyInsured",
-  "insurer",
   "analyzing",
   "contact",
   "confirmation",
@@ -44,7 +42,8 @@ const SAVINGS_FORM_STEPS: FormStepId[] = [
 
 function getVisibleSteps(data: QuoteFormData): FormStepId[] {
   return SAVINGS_FORM_STEPS.filter((step) => {
-    if (step === "insurer" && data.alreadyInsured !== "oui") return false;
+    // Own DOB already collected in calculator — only keep this step for spouse DOB.
+    if (step === "birthDate" && !needsSpouseBirthDate(data)) return false;
     return true;
   });
 }
@@ -241,16 +240,6 @@ export function SavingsQuoteForm() {
     goTo("contact");
   }, [goTo]);
 
-  const restart = useCallback(() => {
-    clearTimers();
-    advanceLock.current = false;
-    setIsAdvancing(false);
-    setCompleteSavingsLead(null);
-    setData(withCalculatorDefaults(initialFormData, calculator));
-    setErrors({});
-    setStep("careNeeds");
-  }, [calculator, clearTimers, setCompleteSavingsLead]);
-
   const showProgress = step !== "analyzing" && step !== "confirmation";
   const showMascotGuide =
     step !== "analyzing" && step !== "confirmation" && step !== "contact";
@@ -308,35 +297,29 @@ export function SavingsQuoteForm() {
             data={data}
             errors={errors}
             disabled={isAdvancing}
-            onSelect={(coveredPersons: CoveredPersonId) =>
-              patch({
-                coveredPersons,
-                spouseBirthDate: "",
-              })
-            }
             onSelectAndAdvance={(coveredPersons: CoveredPersonId) =>
               selectAndAdvance({
                 coveredPersons,
-                spouseBirthDate: "",
+                spouseBirthDate:
+                  coveredPersons === "moi" ? "" : data.spouseBirthDate,
               })
             }
-            onSpouseBirthDate={(spouseBirthDate) =>
+            onBack={goBack}
+          />
+        ) : null}
+
+        {step === "birthDate" ? (
+          <StepBirthDate
+            data={data}
+            errors={errors}
+            disabled={isAdvancing}
+            hideOwnBirthDate
+            onChangeBirthDate={(birthDate) => patch({ birthDate })}
+            onChangeSpouseBirthDate={(spouseBirthDate) =>
               patch({ spouseBirthDate })
             }
             onBack={goBack}
             onNext={goNext}
-          />
-        ) : null}
-
-        {step === "familyStatus" ? (
-          <StepFamilyStatus
-            data={data}
-            errors={errors}
-            disabled={isAdvancing}
-            onSelectAndAdvance={(familyStatus) =>
-              selectAndAdvance({ familyStatus })
-            }
-            onBack={goBack}
           />
         ) : null}
 
@@ -360,19 +343,9 @@ export function SavingsQuoteForm() {
             onSelectAndAdvance={(alreadyInsured) =>
               selectAndAdvance({
                 alreadyInsured,
-                insurer: alreadyInsured === "non" ? "" : data.insurer,
+                insurer: "",
               })
             }
-            onBack={goBack}
-          />
-        ) : null}
-
-        {step === "insurer" ? (
-          <StepInsurer
-            data={data}
-            errors={errors}
-            disabled={isAdvancing}
-            onSelectAndAdvance={(insurer) => selectAndAdvance({ insurer })}
             onBack={goBack}
           />
         ) : null}
@@ -393,9 +366,7 @@ export function SavingsQuoteForm() {
           />
         ) : null}
 
-        {step === "confirmation" ? (
-          <StepConfirmation onRestart={restart} />
-        ) : null}
+        {step === "confirmation" ? <StepConfirmation /> : null}
       </div>
 
       {showMascotGuide ? <FormMascotGuide step={step} /> : null}

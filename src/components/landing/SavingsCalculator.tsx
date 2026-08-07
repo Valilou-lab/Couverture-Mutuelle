@@ -431,7 +431,7 @@ export function SavingsCalculator() {
   return (
     <section
       id="calculateur-economies"
-      className="scroll-mt-24 bg-surface px-4 py-14 sm:px-6 sm:py-20"
+      className="scroll-mt-24 bg-surface px-4 py-8 sm:px-6 sm:py-12"
     >
       <div className="mx-auto max-w-3xl rounded-[2rem] border-2 border-brand/35 bg-gradient-to-b from-white via-white to-[#f8f5ff] p-5 shadow-[0_22px_50px_-24px_rgba(109,40,217,0.45)] ring-4 ring-brand/10 sm:p-7 lg:p-8">
         <div className="text-center">

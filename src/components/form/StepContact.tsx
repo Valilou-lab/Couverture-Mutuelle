@@ -135,6 +135,38 @@ export function StepContact({
             {errors.phone}
           </p>
         ) : null}
+
+        <div className="mt-3">
+          <label
+            htmlFor="whatsapp-available"
+            className="flex cursor-pointer items-start gap-2.5"
+          >
+            <input
+              id="whatsapp-available"
+              type="checkbox"
+              checked={data.whatsappAvailable}
+              onChange={(event) =>
+                onPatch({ whatsappAvailable: event.target.checked })
+              }
+              className="mt-0.5 h-4 w-4 shrink-0 accent-brand"
+            />
+            <span className="inline-flex items-center gap-1.5 text-sm font-medium leading-snug text-foreground">
+              {/* eslint-disable-next-line @next/next/no-img-element -- brand asset */}
+              <img
+                src="/images/whatsapp-logo.png"
+                alt=""
+                width={22}
+                height={22}
+                className="h-[1.375rem] w-[1.375rem] shrink-0"
+                draggable={false}
+              />
+              Ce numéro est disponible sur WhatsApp
+            </span>
+          </label>
+          <p className="mt-1.5 pl-[1.625rem] text-xs italic leading-snug text-zinc-500">
+            Recevez également le suivi de votre demande sur WhatsApp
+          </p>
+        </div>
       </div>
 
       <div className="mt-4">
@@ -186,7 +218,7 @@ export function StepContact({
             </p>
             <p>
               Mon consentement est valable 12 mois et peut être retiré à tout
-              moment. En savoir plus / Retirer mon consentement.
+              moment. En savoir plus.
             </p>
             <p>
               Mes données sont traitées conformément à la{" "}

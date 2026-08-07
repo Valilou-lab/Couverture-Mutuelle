@@ -39,7 +39,7 @@ export function Faq() {
   const [openIndex, setOpenIndex] = useState<number | null>(0);
 
   return (
-    <section id="faq" className="scroll-mt-24 bg-surface px-4 py-14 sm:px-6 sm:py-20">
+    <section id="faq" className="scroll-mt-24 bg-surface px-4 py-8 sm:px-6 sm:py-12">
       <div className="mx-auto max-w-3xl">
         <div className="text-center">
           <p className="text-sm font-semibold uppercase tracking-[0.14em] text-brand">

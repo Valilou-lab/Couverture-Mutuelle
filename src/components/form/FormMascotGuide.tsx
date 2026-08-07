@@ -66,7 +66,9 @@ export function FormMascotGuide({
 
       <div
         className={`relative flex items-center transition-all duration-300 ease-out ${
-          featured ? "h-[9.5rem] sm:h-[11rem]" : "h-[8.75rem] sm:h-[10.5rem]"
+          featured
+            ? "min-h-[10.5rem] py-3 sm:min-h-[12rem] sm:py-3.5"
+            : "h-[8.75rem] sm:h-[10.5rem]"
         } ${
           visible
             ? "translate-y-0 scale-100 opacity-100"
@@ -74,13 +76,13 @@ export function FormMascotGuide({
         }`}
       >
         {/* Moitié gauche — personnage entier, dépasse légèrement haut/bas */}
-        <div className="relative flex w-1/2 shrink-0 items-center justify-center self-stretch overflow-visible">
+        <div className="relative flex w-[42%] shrink-0 items-center justify-center self-stretch overflow-visible sm:w-1/2">
           {/* eslint-disable-next-line @next/next/no-img-element -- mascot PNGs */}
           <img
             src={getMascotPoseSrc(display.pose)}
             alt=""
-            className={`form-mascot-pose relative z-10 -mt-1.5 ml-1.5 block h-[10.75rem] w-auto max-w-full select-none object-contain drop-shadow-[0_10px_18px_rgba(15,15,20,0.16)] sm:-mt-2 sm:ml-2 sm:h-[12.25rem] ${
-              featured ? "h-[11.75rem] sm:h-[13.25rem]" : ""
+            className={`form-mascot-pose relative z-10 -mt-2 ml-1 block h-[10.75rem] w-auto max-w-none select-none object-contain drop-shadow-[0_10px_18px_rgba(15,15,20,0.16)] sm:-mt-2.5 sm:ml-1.5 sm:h-[12.5rem] ${
+              featured ? "h-[11.75rem] sm:h-[13.5rem]" : ""
             } ${step === "analyzing" ? "form-mascot-searching" : ""} ${
               visible ? "form-mascot-pop" : ""
             }`}
@@ -89,15 +91,33 @@ export function FormMascotGuide({
         </div>
 
         {/* Texte compact — collé à la mascotte */}
-        <div className="relative z-[1] flex min-w-0 w-1/2 -translate-x-5 -translate-y-2 items-center pr-2.5 sm:-translate-x-7 sm:-translate-y-2.5 sm:pr-3">
-          <div className="max-w-[13rem] text-left sm:max-w-[15rem]">
-            <p className="text-base font-bold leading-tight text-[#3b0764] sm:text-lg">
+        <div
+          className={`relative z-[1] flex min-w-0 items-center pr-2.5 sm:pr-3 ${
+            featured
+              ? "w-[58%] -translate-x-3 -translate-y-1 sm:w-1/2 sm:-translate-x-5 sm:-translate-y-2"
+              : "w-1/2 -translate-x-5 -translate-y-2 sm:-translate-x-7 sm:-translate-y-2.5"
+          }`}
+        >
+          <div
+            className={`text-left font-nunito ${
+              featured
+                ? "max-w-none pr-1"
+                : "max-w-[13rem] sm:max-w-[15rem]"
+            }`}
+          >
+            <p
+              className={`font-bold leading-tight text-[#3b0764] ${
+                featured
+                  ? "text-[0.9375rem] sm:text-base"
+                  : "text-base sm:text-lg"
+              }`}
+            >
               {display.title}
             </p>
             {step === "contact" && offersCount != null ? (
-              <p className="mt-0.5 text-sm leading-snug text-zinc-700 sm:text-[0.9375rem]">
+              <p className="mt-0.5 text-sm font-semibold leading-snug text-zinc-700 sm:text-[0.9375rem]">
                 J’ai trouvé{" "}
-                <strong className="font-bold text-brand tabular-nums">
+                <strong className="font-extrabold text-brand tabular-nums">
                   {offersCount}
                 </strong>{" "}
                 offres dans
@@ -105,16 +125,25 @@ export function FormMascotGuide({
                 votre région.
               </p>
             ) : null}
-            {display.lines.map((line) => (
-              <p
-                key={line}
-                className="mt-0.5 text-sm leading-snug text-zinc-700 sm:text-[0.9375rem]"
-              >
-                {line}
+            {step === "confirmation" ? (
+              <p className="mt-1 text-[0.8125rem] font-semibold leading-snug text-zinc-700 sm:text-sm">
+                Un conseiller Couverture Mutuelle va vous appeler dans quelques
+                minutes pour finaliser votre comparaison et vous présenter{" "}
+                <strong className="font-extrabold text-brand">vos offres</strong>
+                .
               </p>
-            ))}
+            ) : (
+              display.lines.map((line) => (
+                <p
+                  key={line}
+                  className="mt-0.5 text-sm font-semibold leading-snug text-zinc-700 sm:text-[0.9375rem]"
+                >
+                  {line}
+                </p>
+              ))
+            )}
             {display.reassurance ? (
-              <p className="mt-1 text-xs leading-snug text-zinc-500 sm:text-sm">
+              <p className="mt-1 text-xs font-medium leading-snug text-zinc-500 sm:text-sm">
                 {display.reassurance}
               </p>
             ) : null}

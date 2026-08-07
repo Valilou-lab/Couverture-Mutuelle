@@ -26,7 +26,7 @@ const articles = [
 
 export function Articles() {
   return (
-    <section id="articles" className="scroll-mt-24 px-4 py-14 sm:px-6 sm:py-20">
+    <section id="articles" className="scroll-mt-24 px-4 py-8 sm:px-6 sm:py-12">
       <div className="mx-auto max-w-6xl">
         <div className="max-w-2xl">
           <p className="text-sm font-semibold uppercase tracking-[0.14em] text-brand">
