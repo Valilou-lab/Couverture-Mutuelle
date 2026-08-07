@@ -398,12 +398,7 @@ export function SavingsQuoteForm() {
         ) : null}
       </div>
 
-      {showMascotGuide ? (
-        <FormMascotGuide
-          step={step}
-          offersCount={step === "contact" ? offersCount : null}
-        />
-      ) : null}
+      {showMascotGuide ? <FormMascotGuide step={step} /> : null}
     </div>
   );
 }
