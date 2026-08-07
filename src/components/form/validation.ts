@@ -53,9 +53,80 @@ export function isEligibleFormBirthDate(value: string): boolean {
   return getBirthDateAgeError(value) === null;
 }
 
+function normalizeFrenchPhoneDigits(value: string): string | null {
+  let digits = value.replace(/\D/g, "");
+  if (digits.startsWith("33") && digits.length >= 11) {
+    digits = `0${digits.slice(2)}`;
+  }
+  if (!/^(?:0[1-9]\d{8})$/.test(digits)) return null;
+  return digits;
+}
+
+/** Max 4 zeros in a row — 5+ consecutive zeros is blocked. */
+function hasTooManyConsecutiveZeros(digits: string): boolean {
+  return /0{5,}/.test(digits);
+}
+
+/** Ascending/descending runs of 5+ digits, e.g. 0612345678. */
+function hasLogicalDigitSequence(digits: string): boolean {
+  let ascending = 1;
+  let descending = 1;
+
+  for (let i = 1; i < digits.length; i += 1) {
+    const prev = Number(digits[i - 1]);
+    const curr = Number(digits[i]);
+
+    if (curr === prev + 1) {
+      ascending += 1;
+    } else {
+      ascending = 1;
+    }
+
+    if (curr === prev - 1) {
+      descending += 1;
+    } else {
+      descending = 1;
+    }
+
+    if (ascending >= 5 || descending >= 5) return true;
+  }
+
+  return false;
+}
+
+/** Repeated blocks like 0676767676 or 0612121212. */
+function hasRepeatedDigitPattern(digits: string): boolean {
+  for (let period = 1; period <= 3; period += 1) {
+    for (let start = 0; start <= digits.length - period * 3; start += 1) {
+      const unit = digits.slice(start, start + period);
+      let end = start + period;
+      while (
+        end + period <= digits.length &&
+        digits.slice(end, end + period) === unit
+      ) {
+        end += period;
+      }
+      const runLength = end - start;
+      // At least 3 repeats and 6 chars (e.g. ababab / 000000 handled separately)
+      if (runLength >= period * 3 && runLength >= 6) return true;
+    }
+  }
+  return false;
+}
+
+function isSuspiciousPhone(digits: string): boolean {
+  return (
+    hasTooManyConsecutiveZeros(digits) ||
+    hasLogicalDigitSequence(digits) ||
+    hasRepeatedDigitPattern(digits)
+  );
+}
+
 function isValidPhone(value: string): boolean {
-  const digits = value.replace(/\D/g, "");
-  return /^(?:0[1-9]\d{8}|33[1-9]\d{8})$/.test(digits);
+  const digits = normalizeFrenchPhoneDigits(value);
+  if (!digits) return false;
+  if (isSuspiciousPhone(digits)) return false;
+  return true;
 }
 
 function isValidEmail(value: string): boolean {
@@ -127,13 +198,12 @@ export function validateStep(
       break;
 
     case "contact":
-      if (!data.civility) errors.civility = "Sélectionnez votre civilité.";
       if (!data.firstName.trim()) errors.firstName = "Indiquez votre prénom.";
       if (!data.lastName.trim()) errors.lastName = "Indiquez votre nom.";
       if (!data.phone.trim()) {
         errors.phone = "Indiquez votre numéro de téléphone.";
       } else if (!isValidPhone(data.phone)) {
-        errors.phone = "Numéro de téléphone invalide.";
+        errors.phone = "Merci de renseigner un numéro valide.";
       }
       if (!data.email.trim()) {
         errors.email = "Indiquez votre adresse e-mail.";

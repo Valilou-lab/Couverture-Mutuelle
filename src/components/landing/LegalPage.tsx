@@ -13,12 +13,27 @@ export function LegalPage({ title, titleClassName, children }: LegalPageProps) {
   return (
     <>
       <Header />
-      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-12 sm:px-6 sm:py-16">
-        <Link href="/" className="text-sm font-semibold text-brand hover:underline">
-          ← Retour à l’accueil
+      <main className="relative mx-auto w-full max-w-3xl flex-1 px-4 py-12 sm:px-6 sm:py-16">
+        <Link
+          href="/"
+          aria-label="Fermer et retourner à l’accueil"
+          className="absolute right-3 top-4 inline-flex h-10 w-10 items-center justify-center rounded-full text-zinc-500 transition hover:bg-brand-soft hover:text-brand sm:right-4 sm:top-6"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            className="h-5 w-5"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.2"
+            strokeLinecap="round"
+            aria-hidden="true"
+          >
+            <path d="M6 6l12 12M18 6L6 18" />
+          </svg>
         </Link>
+
         <h1
-          className={`mt-6 text-3xl font-semibold tracking-tight ${
+          className={`pr-12 text-3xl font-semibold tracking-tight ${
             titleClassName ?? "text-foreground"
           }`}
         >

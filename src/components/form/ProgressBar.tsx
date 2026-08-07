@@ -32,15 +32,12 @@ export function ProgressBar({ current, total, percent: percentOverride }: Progre
         aria-label={`Progression : ${percent} %`}
       >
         <div
-          className="progress-liquid relative h-full overflow-hidden rounded-full transition-[width] duration-500 ease-out"
+          className="relative h-full overflow-hidden rounded-full transition-[width] duration-500 ease-out"
           style={{
             width: `${percent}%`,
             backgroundImage: gradient,
           }}
-        >
-          <span className="progress-liquid-shine" aria-hidden="true" />
-          <span className="progress-liquid-wave" aria-hidden="true" />
-        </div>
+        />
         <span
           className={`pointer-events-none absolute inset-0 z-10 flex items-center justify-center text-xs font-bold tabular-nums sm:text-sm ${
             percent >= 45 ? "text-white drop-shadow-sm" : "text-[#3b0764]"

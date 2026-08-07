@@ -7,7 +7,8 @@ const legalLinks = [
     href: "/politique-de-confidentialite",
     label: "Politique de confidentialité",
   },
-  { href: "/cookies", label: "Gestion des cookies" },
+  { href: "/cookies", label: "Politique de cookies" },
+  { href: "/retirer-mon-consentement", label: "Retirer mon consentement" },
   { href: "/partenaires", label: "Partenaires" },
 ];
 
@@ -17,7 +18,7 @@ export function Footer() {
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1.2fr_0.8fr_0.8fr]">
         <div>
           <Image
-            src="/logo-couverture-mutuelle-footer.png?v=2"
+            src="/logo-couverture-mutuelle-footer.png"
             alt="Couverture Mutuelle"
             width={320}
             height={320}
@@ -60,11 +61,6 @@ export function Footer() {
             <li>
               <a href="#devis" className="hover:text-white">
                 Demander un devis
-              </a>
-            </li>
-            <li>
-              <a href="#articles" className="hover:text-white">
-                Articles
               </a>
             </li>
           </ul>

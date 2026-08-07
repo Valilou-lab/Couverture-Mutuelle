@@ -344,11 +344,15 @@ export default function ConfidentialitePage() {
 
       <SubTitle>En ligne</SubTitle>
       <p>
-        Lorsque cette fonctionnalité est disponible, vous pouvez utiliser le
-        lien&nbsp;:
+        Vous pouvez utiliser la page dédiée&nbsp;:{" "}
+        <a
+          href="/retirer-mon-consentement"
+          className="font-medium text-brand hover:underline"
+        >
+          Retirer mon consentement
+        </a>
+        .
       </p>
-      <p>«&nbsp;Retirer mon consentement&nbsp;»</p>
-      <p>présent sur Couverture Mutuelle.</p>
 
       <SubTitle>Pour les SMS, WhatsApp et emails</SubTitle>
       <p>

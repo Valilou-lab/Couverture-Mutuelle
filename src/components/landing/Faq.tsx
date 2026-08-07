@@ -14,6 +14,15 @@ const faqs = [
       "Non. Couverture Mutuelle est un service d’orientation qui vous aide à comparer des offres via des partenaires spécialisés. Nous ne sommes pas un assureur.",
   },
   {
+    question: "Pourquoi Couverture Mutuelle n’est pas une arnaque ?",
+    answer: [
+      "Nous mettons naturellement en avant certaines offres afin de présenter les solutions les plus recherchées et les plus compétitives du moment.",
+      "Cependant, notre objectif n’est jamais de proposer la même mutuelle à tout le monde. Chaque situation est différente : une offre très intéressante pour une personne peut être totalement inadaptée à une autre.",
+      "Nos partenaires recherchent donc la solution correspondant réellement à votre budget et aux garanties que vous souhaitez.",
+      "Nous ne vendons pas une mutuelle unique. Nous aidons simplement à trouver celle qui vous correspond.",
+    ],
+  },
+  {
     question: "Puis-je comparer si j’ai déjà une mutuelle ?",
     answer:
       "Oui. Beaucoup de demandes concernent un changement ou une optimisation de couverture existante, sans engagement de votre part.",
@@ -52,6 +61,9 @@ export function Faq() {
         <div className="mt-8 space-y-3">
           {faqs.map((item, index) => {
             const open = openIndex === index;
+            const paragraphs = Array.isArray(item.answer)
+              ? item.answer
+              : [item.answer];
             return (
               <div
                 key={item.question}
@@ -71,9 +83,11 @@ export function Faq() {
                   </span>
                 </button>
                 {open ? (
-                  <p className="border-t border-border px-4 py-4 text-sm leading-relaxed text-zinc-600 sm:px-5">
-                    {item.answer}
-                  </p>
+                  <div className="space-y-3 border-t border-border px-4 py-4 text-sm leading-relaxed text-zinc-600 sm:px-5">
+                    {paragraphs.map((paragraph) => (
+                      <p key={paragraph}>{paragraph}</p>
+                    ))}
+                  </div>
                 ) : null}
               </div>
             );

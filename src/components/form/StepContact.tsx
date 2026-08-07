@@ -44,10 +44,10 @@ export function StepContact({
         </p>
         <p className="mt-1.5 text-sm leading-snug text-[#3b0764] sm:text-[0.9375rem]">
           Nous avons trouvé{" "}
-          <strong className="font-bold text-brand tabular-nums">
-            {offersCount ?? "…"}
+          <strong className="offers-count-blink font-extrabold text-brand tabular-nums">
+            {offersCount ?? "…"} offres
           </strong>{" "}
-          offres plus intéressantes
+          plus intéressantes
         </p>
         <p className="mt-1.5 text-sm leading-snug text-zinc-600 sm:text-[0.9375rem]">
           Dernière étape pour recevoir vos devis.
@@ -79,7 +79,7 @@ export function StepContact({
         ) : null}
       </fieldset>
 
-      <div className="mt-4 grid gap-4 sm:grid-cols-2">
+      <div className="mt-4 grid grid-cols-2 gap-3 sm:gap-4">
         <div>
           <label htmlFor="firstName" className="block text-sm font-medium">
             Prénom
@@ -136,37 +136,41 @@ export function StepContact({
           </p>
         ) : null}
 
-        <div className="mt-3">
-          <label
-            htmlFor="whatsapp-available"
-            className="flex cursor-pointer items-start gap-2.5"
-          >
-            <input
-              id="whatsapp-available"
-              type="checkbox"
-              checked={data.whatsappAvailable}
-              onChange={(event) =>
-                onPatch({ whatsappAvailable: event.target.checked })
-              }
-              className="mt-0.5 h-4 w-4 shrink-0 accent-brand"
-            />
-            <span className="inline-flex items-center gap-1.5 text-sm font-medium leading-snug text-foreground">
+        <label
+          htmlFor="whatsapp-available"
+          className={`mt-3 flex cursor-pointer items-start gap-3 rounded-2xl border-2 px-3.5 py-3.5 transition sm:px-4 ${
+            data.whatsappAvailable
+              ? "border-[#25D366] bg-[#ecfdf3] shadow-sm"
+              : "border-[#25D366]/45 bg-[#f0fdf4] hover:border-[#25D366] hover:bg-[#ecfdf3]"
+          }`}
+        >
+          <input
+            id="whatsapp-available"
+            type="checkbox"
+            checked={data.whatsappAvailable}
+            onChange={(event) =>
+              onPatch({ whatsappAvailable: event.target.checked })
+            }
+            className="mt-1 h-5 w-5 shrink-0 accent-[#25D366]"
+          />
+          <span className="min-w-0">
+            <span className="inline-flex items-center gap-2 text-sm font-bold leading-snug text-[#14532d] sm:text-[0.9375rem]">
               {/* eslint-disable-next-line @next/next/no-img-element -- brand asset */}
               <img
                 src="/images/whatsapp-logo.png"
                 alt=""
-                width={22}
-                height={22}
-                className="h-[1.375rem] w-[1.375rem] shrink-0"
+                width={24}
+                height={24}
+                className="h-6 w-6 shrink-0"
                 draggable={false}
               />
               Ce numéro est disponible sur WhatsApp
             </span>
-          </label>
-          <p className="mt-1.5 pl-[1.625rem] text-xs italic leading-snug text-zinc-500">
-            Recevez également le suivi de votre demande sur WhatsApp
-          </p>
-        </div>
+            <span className="mt-1 block text-xs italic leading-snug text-[#166534]/80 sm:text-[0.8125rem]">
+              Recevez également le suivi de votre demande sur WhatsApp
+            </span>
+          </span>
+        </label>
       </div>
 
       <div className="mt-4">
@@ -218,7 +222,16 @@ export function StepContact({
             </p>
             <p>
               Mon consentement est valable 12 mois et peut être retiré à tout
-              moment. En savoir plus.
+              moment.{" "}
+              <a
+                href="/retirer-mon-consentement"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-semibold text-brand underline underline-offset-2 hover:text-[#5b21b6]"
+              >
+                En savoir plus
+              </a>
+              .
             </p>
             <p>
               Mes données sont traitées conformément à la{" "}

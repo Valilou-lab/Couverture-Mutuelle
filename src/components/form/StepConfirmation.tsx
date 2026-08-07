@@ -74,7 +74,11 @@ export function StepConfirmation() {
         <p className="mt-1.5 font-nunito text-sm font-medium leading-snug text-zinc-700">
           Votre conseiller vous appellera dans les{" "}
           <strong className="font-bold text-[#3b0764]">1 à 5 minutes</strong>,
-          depuis un numéro de téléphone français classique (pas de 08, 09)
+          depuis{" "}
+          <span className="underline underline-offset-2">
+            un numéro de téléphone français
+          </span>{" "}
+          classique (pas de 08, 09)
         </p>
       </div>
 
