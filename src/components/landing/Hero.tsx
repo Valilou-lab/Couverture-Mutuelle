@@ -25,7 +25,7 @@ function HeroCopyMobile() {
   return (
     <div className="text-center">
       <h1 className="font-manrope text-[1.375rem] font-extrabold leading-snug tracking-tight text-[#3b0764] sm:text-2xl">
-        Recevez votre devis en <Highlight>1&nbsp;minute</Highlight>{" "}
+        Votre devis en <Highlight>1&nbsp;minute</Highlight>{" "}
         <span aria-hidden="true">⏱️</span>
       </h1>
       <p className="mt-1.5 text-sm leading-snug text-zinc-600 sm:text-base">

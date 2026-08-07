@@ -45,7 +45,7 @@ export function StepCareNeeds({
       <h2 className="text-center text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
         Que souhaitez-vous couvrir en priorité&nbsp;?
       </h2>
-      <p className="mt-2 text-center text-sm text-zinc-600 sm:text-base">
+      <p className="mt-0.5 text-center text-sm text-zinc-600 sm:mt-2 sm:text-base">
         (multi-choix possible)
       </p>
       <div className="mt-5 grid grid-cols-2 gap-2.5">
