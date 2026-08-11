@@ -15,6 +15,7 @@ export const PARTNERS: Partner[] = [
   { name: "Santiane", orias: "07006282" },
   { name: "IKI / FDM", orias: "10056778" },
   { name: "ECG Assurances", orias: "07009027" },
+  { name: "Assurances de l’Adour", orias: "14005826" },
 ];
 
 export const PARTNERS_INTRO =

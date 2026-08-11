@@ -224,8 +224,8 @@ export function StepContact({
               </label>
             </p>
             <p>
-              Mon consentement est valable 12 mois et peut être retiré à tout
-              moment.{" "}
+              Mon consentement est accessible et valable 12 mois et peut être
+              retiré à tout moment.{" "}
               <a
                 href="/retirer-mon-consentement"
                 target="_blank"

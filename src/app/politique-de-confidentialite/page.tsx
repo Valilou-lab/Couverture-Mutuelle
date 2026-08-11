@@ -349,7 +349,7 @@ export default function ConfidentialitePage() {
           href="/retirer-mon-consentement"
           className="font-medium text-brand hover:underline"
         >
-          Retirer mon consentement
+          Gérer mon consentement
         </a>
         .
       </p>

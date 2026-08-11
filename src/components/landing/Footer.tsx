@@ -8,7 +8,7 @@ const legalLinks = [
     label: "Politique de confidentialité",
   },
   { href: "/cookies", label: "Politique de cookies" },
-  { href: "/retirer-mon-consentement", label: "Retirer mon consentement" },
+  { href: "/retirer-mon-consentement", label: "Gérer mon consentement" },
   { href: "/partenaires", label: "Partenaires" },
 ];
 
