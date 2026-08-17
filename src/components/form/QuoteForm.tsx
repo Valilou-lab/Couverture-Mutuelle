@@ -31,9 +31,12 @@ import {
   randomOffersCount,
 } from "./mascotGuideConfig";
 import { useQuoteJourney } from "@/context/QuoteJourneyContext";
+import { readAcquisitionParams } from "@/lib/acquisition";
 import { scrollQuoteFormIntoView } from "./scrollQuoteFormIntoView";
 
 const ADVANCE_DELAY_MS = 320;
+const SUBMIT_ERROR_MESSAGE =
+  "Une erreur est survenue lors de l’envoi de votre demande. Merci de réessayer.";
 
 function getVisibleSteps(
   data: QuoteFormData,
@@ -115,6 +118,8 @@ export function QuoteForm() {
   const [step, setStep] = useState<FormStepId>("careNeeds");
   const [errors, setErrors] = useState<FieldErrors>({});
   const [isAdvancing, setIsAdvancing] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [offersCount, setOffersCount] = useState<number | null>(null);
   const advanceLock = useRef(false);
   const timers = useRef<number[]>([]);
@@ -166,6 +171,7 @@ export function QuoteForm() {
   const patch = useCallback((partial: Partial<QuoteFormData>) => {
     setData((current) => ({ ...current, ...partial }));
     setErrors({});
+    setSubmitError(null);
   }, []);
 
   const setPostalCode = useCallback(
@@ -229,12 +235,67 @@ export function QuoteForm() {
     [goTo, stepOptions, unlockLater],
   );
 
+  const submitLead = useCallback(async () => {
+    if (advanceLock.current || isSubmitting) return;
+
+    const validation = validateStep("contact", data);
+    if (Object.keys(validation).length > 0) {
+      setErrors(validation);
+      return;
+    }
+
+    advanceLock.current = true;
+    setIsSubmitting(true);
+    setIsAdvancing(true);
+    setSubmitError(null);
+    setErrors({});
+
+    try {
+      const response = await fetch("/api/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          form: data,
+          meta: {
+            landingPageUrl: window.location.href,
+            referrer: document.referrer || "",
+            acquisition: readAcquisitionParams(),
+          },
+        }),
+      });
+
+      let payload: { success?: boolean } | null = null;
+      try {
+        payload = (await response.json()) as { success?: boolean };
+      } catch {
+        payload = null;
+      }
+
+      if (!response.ok || payload?.success !== true) {
+        setSubmitError(SUBMIT_ERROR_MESSAGE);
+        return;
+      }
+
+      goTo("confirmation");
+    } catch {
+      setSubmitError(SUBMIT_ERROR_MESSAGE);
+    } finally {
+      setIsSubmitting(false);
+      setIsAdvancing(false);
+      advanceLock.current = false;
+    }
+  }, [data, goTo, isSubmitting]);
+
   const goNext = useCallback(() => {
-    if (advanceLock.current) return;
+    if (advanceLock.current || isSubmitting) return;
+    if (step === "contact") {
+      void submitLead();
+      return;
+    }
     advanceLock.current = true;
     setIsAdvancing(true);
     goNextFrom(step, data);
-  }, [data, goNextFrom, step]);
+  }, [data, goNextFrom, isSubmitting, step, submitLead]);
 
   const selectAndAdvance = useCallback(
     (partial: Partial<QuoteFormData>) => {
@@ -255,10 +316,11 @@ export function QuoteForm() {
   );
 
   const goBack = useCallback(() => {
-    if (advanceLock.current) return;
+    if (advanceLock.current || isSubmitting) return;
     clearTimers();
     advanceLock.current = false;
     setIsAdvancing(false);
+    setSubmitError(null);
 
     const currentIndex = visibleSteps.indexOf(step);
     for (let index = currentIndex - 1; index >= 0; index -= 1) {
@@ -268,7 +330,7 @@ export function QuoteForm() {
         return;
       }
     }
-  }, [clearTimers, goTo, step, visibleSteps]);
+  }, [clearTimers, goTo, isSubmitting, step, visibleSteps]);
 
   const handleAnalyzingDone = useCallback(() => {
     goTo("contact");
@@ -419,8 +481,9 @@ export function QuoteForm() {
           <StepContact
             data={data}
             errors={errors}
-            disabled={isAdvancing}
+            disabled={isAdvancing || isSubmitting}
             offersCount={offersCount}
+            submitError={submitError}
             onPatch={patch}
             onBack={goBack}
             onNext={goNext}

@@ -9,12 +9,21 @@ import {
 import { FormNavigation } from "./FormNavigation";
 import { PartnersModal } from "./PartnersModal";
 import type { FieldErrors } from "./validation";
+import {
+  CONSENT_OPTIN_TEXT,
+  CONSENT_VALIDITY_TEXT,
+} from "@/lib/consent";
+
+const PARTNERS_MARKER = "ses partenaires";
+const [consentOptinBeforePartners, consentOptinAfterPartners] =
+  CONSENT_OPTIN_TEXT.split(PARTNERS_MARKER);
 
 type Props = {
   data: QuoteFormData;
   errors: FieldErrors;
   disabled?: boolean;
   offersCount?: number | null;
+  submitError?: string | null;
   onPatch: (patch: Partial<QuoteFormData>) => void;
   onBack: () => void;
   onNext: () => void;
@@ -25,6 +34,7 @@ export function StepContact({
   errors,
   disabled = false,
   offersCount = null,
+  submitError = null,
   onPatch,
   onBack,
   onNext,
@@ -208,24 +218,21 @@ export function StepContact({
           <div className="min-w-0 space-y-2">
             <p>
               <label htmlFor="consent-opt-in" className="cursor-pointer">
-                J’accepte d’être contacté(e) par téléphone, SMS, whatsapp et
-                email par Couverture Mutuelle et{" "}
+                {consentOptinBeforePartners}
               </label>
               <button
                 type="button"
                 onClick={() => setPartnersOpen(true)}
                 className="font-semibold text-brand underline underline-offset-2 hover:text-[#5b21b6]"
               >
-                ses partenaires
+                {PARTNERS_MARKER}
               </button>
               <label htmlFor="consent-opt-in" className="cursor-pointer">
-                {" "}
-                afin de recevoir des offres de complémentaire santé.
+                {consentOptinAfterPartners}
               </label>
             </p>
             <p>
-              Mon consentement est accessible et valable 12 mois et peut être
-              retiré à tout moment.{" "}
+              {CONSENT_VALIDITY_TEXT}{" "}
               <a
                 href="/retirer-mon-consentement"
                 target="_blank"
@@ -256,11 +263,16 @@ export function StepContact({
           {errors.consent}
         </p>
       ) : null}
+      {submitError ? (
+        <p className="mt-3 text-sm text-error" role="alert">
+          {submitError}
+        </p>
+      ) : null}
 
       <FormNavigation
         onBack={onBack}
         onNext={onNext}
-        nextLabel="Valider ma demande"
+        nextLabel={disabled ? "Envoi en cours…" : "Valider ma demande"}
         disabled={disabled}
       />
 
