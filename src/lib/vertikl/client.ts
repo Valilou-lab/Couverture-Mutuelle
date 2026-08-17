@@ -19,16 +19,20 @@ function getApiMode(): string {
 }
 
 /**
- * TEST-only endpoint. Production is intentionally not enabled yet.
+ * Resolve Vertikl endpoint from VERTIKL_API_MODE.
+ * Default remains "test" when the env var is absent.
  */
 function resolveEndpoint(): string {
   const mode = getApiMode();
-  if (mode !== "test") {
-    throw new Error(
-      `VERTIKL_API_MODE="${mode}" is not enabled. Only "test" is allowed for now.`,
-    );
+  if (mode === "test") {
+    return `${VERTIKL_BASE_URL}/api/leads/test`;
   }
-  return `${VERTIKL_BASE_URL}/api/leads/test`;
+  if (mode === "production") {
+    return `${VERTIKL_BASE_URL}/api/leads`;
+  }
+  throw new Error(
+    `Invalid VERTIKL_API_MODE="${mode}". Use "test" or "production".`,
+  );
 }
 
 function summarizeReturnedFields(
