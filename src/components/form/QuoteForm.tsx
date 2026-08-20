@@ -281,7 +281,9 @@ export function QuoteForm() {
       // Meta Lead only after backend success — no form/questionnaire params.
       if (!metaLeadSentRef.current) {
         metaLeadSentRef.current = true;
-        trackMetaEvent("Lead");
+        console.log("[META DEBUG] backend success, attempting Lead");
+        const leadTracked = trackMetaEvent("Lead");
+        console.log("[META DEBUG] trackMetaEvent(Lead) returned", leadTracked);
       }
 
       goTo("confirmation");

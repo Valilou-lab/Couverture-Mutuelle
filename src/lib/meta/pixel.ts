@@ -69,10 +69,31 @@ export function trackMetaEvent(
   event: MetaAllowedEvent,
   pathKey?: string,
 ): boolean {
-  if (!isMetaAllowedEvent(event)) return false;
-  if (!hasMarketingConsent(readConsentFromStorage())) return false;
-  if (!hasMetaPixelStub()) return false;
-  if (!initMetaPixel()) return false;
+  if (!isMetaAllowedEvent(event)) {
+    console.log("[META DEBUG] trackMetaEvent aborted: event not allowed", {
+      event,
+    });
+    return false;
+  }
+
+  const marketingActive = hasMarketingConsent(readConsentFromStorage());
+  console.log("[META DEBUG] marketing consent active", marketingActive);
+  if (!marketingActive) {
+    console.log("[META DEBUG] trackMetaEvent aborted: marketing consent off");
+    return false;
+  }
+
+  const fbqExists = hasMetaPixelStub();
+  console.log("[META DEBUG] window.fbq exists", fbqExists);
+  if (!fbqExists) {
+    console.log("[META DEBUG] trackMetaEvent aborted: fbq missing");
+    return false;
+  }
+
+  if (!initMetaPixel()) {
+    console.log("[META DEBUG] trackMetaEvent aborted: initMetaPixel failed");
+    return false;
+  }
 
   if (event === "PageView") {
     const key =
@@ -83,12 +104,17 @@ export function trackMetaEvent(
   }
 
   if (event === "Lead") {
-    if (leadEventSent) return false;
+    if (leadEventSent) {
+      console.log("[META DEBUG] trackMetaEvent aborted: Lead already sent");
+      return false;
+    }
     leadEventSent = true;
   }
 
   // Standard event only — never pass custom parameters / form fields.
+  console.log("[META DEBUG] calling fbq('track', event)", { event });
   window.fbq!("track", event);
+  console.log("[META DEBUG] fbq('track') executed", { event });
   return true;
 }
 
