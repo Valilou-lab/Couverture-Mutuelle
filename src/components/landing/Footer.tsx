@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
+import { useCookieConsent } from "@/context/CookieConsentContext";
 
 const legalLinks = [
   { href: "/mentions-legales", label: "Mentions légales" },
@@ -13,6 +16,8 @@ const legalLinks = [
 ];
 
 export function Footer() {
+  const { openPreferences } = useCookieConsent();
+
   return (
     <footer className="border-t border-border bg-[#0f0f14] text-white">
       <div className="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1.2fr_0.8fr_0.8fr]">
@@ -44,6 +49,15 @@ export function Footer() {
                 </Link>
               </li>
             ))}
+            <li>
+              <button
+                type="button"
+                onClick={openPreferences}
+                className="text-sm text-zinc-300 transition hover:text-white"
+              >
+                Gérer mes cookies
+              </button>
+            </li>
           </ul>
         </div>
 
