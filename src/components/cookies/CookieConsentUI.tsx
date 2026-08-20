@@ -138,12 +138,12 @@ export function CookieConsentUI() {
     <>
       {bannerOpen ? (
         <div
-          className="pointer-events-none fixed inset-x-0 bottom-0 z-[80] p-3 sm:p-4"
+          className="pointer-events-none fixed inset-0 z-[80] flex items-center justify-center bg-black/25 p-4 backdrop-blur-[1px] sm:p-6"
           role="region"
           aria-labelledby="cookie-banner-title"
           aria-describedby="cookie-banner-desc"
         >
-          <div className="pointer-events-auto relative mx-auto max-w-2xl rounded-2xl border border-brand/15 bg-white/95 p-3.5 shadow-[0_-10px_32px_rgba(15,15,20,0.12)] backdrop-blur-sm sm:max-w-3xl sm:p-4">
+          <div className="pointer-events-auto relative w-full max-w-md rounded-2xl border border-brand/20 bg-white p-4 shadow-[0_18px_50px_-12px_rgba(59,7,100,0.28)] sm:max-w-lg sm:p-5">
             <button
               type="button"
               onClick={refuseOptional}
@@ -164,7 +164,7 @@ export function CookieConsentUI() {
               </p>
               <p
                 id="cookie-banner-desc"
-                className="mt-1 text-[0.8125rem] leading-snug text-zinc-600 sm:text-sm sm:leading-relaxed"
+                className="mt-1.5 text-[0.8125rem] leading-snug text-zinc-600 sm:text-sm sm:leading-relaxed"
               >
                 Les cookies publicitaires nous permettent de mesurer nos
                 campagnes et de vous proposer des contenus plus pertinents. Vous
@@ -174,24 +174,24 @@ export function CookieConsentUI() {
               <button
                 type="button"
                 onClick={openPreferences}
-                className="mt-1.5 text-[0.75rem] font-medium text-brand/80 underline underline-offset-2 transition hover:text-brand sm:text-[0.8125rem]"
+                className="mt-2 text-[0.75rem] font-medium text-brand/80 underline underline-offset-2 transition hover:text-brand sm:text-[0.8125rem]"
               >
                 Gérer mes cookies
               </button>
             </div>
 
-            <div className="mt-3 grid grid-cols-2 gap-2 sm:mt-3.5 sm:flex sm:justify-end sm:gap-2.5">
+            <div className="mt-4 grid grid-cols-2 gap-2 sm:gap-2.5">
               <button
                 type="button"
                 onClick={refuseOptional}
-                className="min-h-10 rounded-full border border-zinc-300 bg-white px-3 font-sora text-[0.8125rem] font-semibold text-foreground transition hover:border-brand hover:bg-brand-soft hover:text-brand sm:min-h-11 sm:min-w-[8.5rem] sm:px-5 sm:text-sm"
+                className="min-h-10 rounded-full border border-zinc-300 bg-white px-3 font-sora text-[0.8125rem] font-semibold text-foreground transition hover:border-brand hover:bg-brand-soft hover:text-brand sm:min-h-11 sm:text-sm"
               >
                 Tout refuser
               </button>
               <button
                 type="button"
                 onClick={acceptAll}
-                className="min-h-10 rounded-full border border-brand bg-brand px-3 font-sora text-[0.8125rem] font-semibold text-white transition hover:bg-[#5b21b6] sm:min-h-11 sm:min-w-[8.5rem] sm:px-5 sm:text-sm"
+                className="min-h-10 rounded-full border border-brand bg-brand px-3 font-sora text-[0.8125rem] font-semibold text-white transition hover:bg-[#5b21b6] sm:min-h-11 sm:text-sm"
               >
                 Tout accepter
               </button>
