@@ -5,10 +5,15 @@
  * Never pass care needs, DOB, health regime, insurer, family status, etc.
  */
 
+import {
+  hasMarketingConsent,
+  readConsentFromStorage,
+} from "@/lib/cookie-consent";
+
 export const META_PIXEL_ID = "4246816345581334";
 
 /** Events allowed to be fired explicitly from app code. */
-export const META_ALLOWED_EVENTS = ["PageView"] as const;
+export const META_ALLOWED_EVENTS = ["PageView", "Lead"] as const;
 
 export type MetaAllowedEvent = (typeof META_ALLOWED_EVENTS)[number];
 
@@ -30,6 +35,8 @@ declare global {
 
 let pixelInitialized = false;
 let lastPageViewPath: string | null = null;
+/** Prevents duplicate Lead fires for the same page lifetime. */
+let leadEventSent = false;
 
 export function isMetaAllowedEvent(event: string): event is MetaAllowedEvent {
   return (META_ALLOWED_EVENTS as readonly string[]).includes(event);
@@ -63,15 +70,24 @@ export function trackMetaEvent(
   pathKey?: string,
 ): boolean {
   if (!isMetaAllowedEvent(event)) return false;
+  if (!hasMarketingConsent(readConsentFromStorage())) return false;
   if (!hasMetaPixelStub()) return false;
   if (!initMetaPixel()) return false;
 
   if (event === "PageView") {
-    const key = pathKey ?? (typeof window !== "undefined" ? window.location.pathname : "");
+    const key =
+      pathKey ??
+      (typeof window !== "undefined" ? window.location.pathname : "");
     if (lastPageViewPath === key) return false;
     lastPageViewPath = key;
   }
 
+  if (event === "Lead") {
+    if (leadEventSent) return false;
+    leadEventSent = true;
+  }
+
+  // Standard event only — never pass custom parameters / form fields.
   window.fbq!("track", event);
   return true;
 }
@@ -80,6 +96,7 @@ export function trackMetaEvent(
 export function resetMetaPixelState(): void {
   pixelInitialized = false;
   lastPageViewPath = null;
+  // Keep leadEventSent to avoid re-firing Lead after revoke/re-accept.
 }
 
 /**

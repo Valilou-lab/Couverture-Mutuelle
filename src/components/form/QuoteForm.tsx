@@ -32,6 +32,7 @@ import {
 } from "./mascotGuideConfig";
 import { useQuoteJourney } from "@/context/QuoteJourneyContext";
 import { readAcquisitionParams } from "@/lib/acquisition";
+import { trackMetaEvent } from "@/lib/meta/pixel";
 import { scrollQuoteFormIntoView } from "./scrollQuoteFormIntoView";
 
 const ADVANCE_DELAY_MS = 320;
@@ -125,6 +126,7 @@ export function QuoteForm() {
   const timers = useRef<number[]>([]);
   const lastFocusToken = useRef(0);
   const formRootRef = useRef<HTMLDivElement>(null);
+  const metaLeadSentRef = useRef(false);
 
   useEffect(() => {
     if (!skipBirthDate && !skipPostalCode) return;
@@ -274,6 +276,12 @@ export function QuoteForm() {
       if (!response.ok || payload?.success !== true) {
         setSubmitError(SUBMIT_ERROR_MESSAGE);
         return;
+      }
+
+      // Meta Lead only after backend success — no form/questionnaire params.
+      if (!metaLeadSentRef.current) {
+        metaLeadSentRef.current = true;
+        trackMetaEvent("Lead");
       }
 
       goTo("confirmation");
