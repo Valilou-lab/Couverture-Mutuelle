@@ -4,6 +4,7 @@ import {
   createContext,
   useCallback,
   useContext,
+  useEffect,
   useMemo,
   useState,
   useSyncExternalStore,
@@ -20,6 +21,7 @@ import {
   type CookieConsentChoice,
   type CookieConsentPreferences,
 } from "@/lib/cookie-consent";
+import { pushCookieConsentToDataLayer } from "@/lib/gtm-consent";
 
 type CookieConsentContextValue = {
   /** null when the visitor has not chosen yet. */
@@ -79,8 +81,14 @@ export function CookieConsentProvider({ children }: { children: ReactNode }) {
 
   const hasChosen = preferences !== null;
   const bannerOpen = !hasChosen && !preferencesOpen;
-  /** Explicit marketing opt-in only — refuse/close/unset => false, no Meta Pixel. */
+  /** Explicit marketing opt-in only — refuse/close/unset => false. */
   const marketingAllowed = hasMarketingConsent(preferences);
+
+  useEffect(() => {
+    // Initial push on client mount + every later marketingAllowed change.
+    // Payload: event + marketingAllowed only (no PII / form / health data).
+    pushCookieConsentToDataLayer(marketingAllowed);
+  }, [marketingAllowed]);
 
   const value = useMemo<CookieConsentContextValue>(
     () => ({
