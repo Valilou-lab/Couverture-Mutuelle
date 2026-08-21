@@ -17,11 +17,15 @@ declare global {
 /**
  * Push a consent update for GTM / sGTM (Stape).
  * Payload is intentionally limited to event + marketingAllowed.
+ * Ensures window.dataLayer exists before pushing (GTM may load later).
  */
 export function pushCookieConsentToDataLayer(marketingAllowed: boolean): void {
   if (typeof window === "undefined") return;
 
-  window.dataLayer = window.dataLayer || [];
+  if (!Array.isArray(window.dataLayer)) {
+    window.dataLayer = [];
+  }
+
   const payload: CookieConsentDataLayerEvent = {
     event: "cookie_consent_update",
     marketingAllowed: Boolean(marketingAllowed),
