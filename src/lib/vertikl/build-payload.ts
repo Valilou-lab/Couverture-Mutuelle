@@ -12,6 +12,7 @@ import {
 import {
   mapCurrentlyInsured,
   mapHealthScheme,
+  mapInsurerTenure,
   mapPeopleToCover,
   mapPriorityCare,
   VertiklMappingError,
@@ -117,6 +118,17 @@ export function buildVertiklFields(
 
   if (userAgent) {
     fields.consent_user_agent = userAgent;
+  }
+
+  // Savings calculator only — optional Vertikl fields (never for QuoteForm).
+  const premium = meta?.calculator?.currentMonthlyPremium;
+  if (typeof premium === "number" && Number.isFinite(premium)) {
+    fields.health_insurance_budget = premium;
+  }
+
+  const timeInsured = mapInsurerTenure(meta?.calculator?.insurerTenure);
+  if (timeInsured) {
+    fields["time-insured"] = timeInsured;
   }
 
   // Intentionally omitted: familyStatus, insurer, citiesOptions, civility.

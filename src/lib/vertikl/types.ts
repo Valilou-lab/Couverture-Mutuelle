@@ -19,6 +19,12 @@ export type VertiklPriorityCare =
   | "soins_courants"
   | "je_ne_sais_pas";
 
+/** Vertikl ENUM for mutual tenure (`time-insured`). */
+export type VertiklTimeInsured =
+  | "moinsde2ans"
+  | "entre2et5ans"
+  | "plusde5ans";
+
 export type VertiklConsentChannel =
   | "telephone"
   | "email"
@@ -55,6 +61,10 @@ export type VertiklLeadFields = {
   consent_user_agent?: string;
   consent_source: string;
   consent_status: "actif" | "retire" | "expire";
+  /** Optional — savings calculator only. */
+  health_insurance_budget?: number;
+  /** Optional — savings calculator only. Vertikl field name uses a hyphen. */
+  "time-insured"?: VertiklTimeInsured;
 };
 
 export type VertiklLeadPayload = {
@@ -96,8 +106,15 @@ export type AcquisitionParams = {
   gclid?: string;
 };
 
+/** Optional calculator-only fields (never sent to GTM / dataLayer). */
+export type LeadCalculatorMeta = {
+  currentMonthlyPremium?: number;
+  insurerTenure?: "moins-2-ans" | "2-5-ans" | "plus-5-ans";
+};
+
 export type LeadSubmissionMeta = {
   landingPageUrl?: string;
   referrer?: string;
   acquisition?: AcquisitionParams;
+  calculator?: LeadCalculatorMeta;
 };

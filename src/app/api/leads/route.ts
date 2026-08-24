@@ -11,6 +11,7 @@ import { sendLeadToVertikl } from "@/lib/vertikl/client";
 import { VertiklMappingError } from "@/lib/vertikl/mappers";
 import type {
   AcquisitionParams,
+  LeadCalculatorMeta,
   LeadSubmissionMeta,
 } from "@/lib/vertikl/types";
 
@@ -74,6 +75,30 @@ function sanitizeAcquisition(
       result[key] = raw.trim().slice(0, 200);
     }
   }
+  return Object.keys(result).length > 0 ? result : undefined;
+}
+
+function sanitizeCalculator(value: unknown): LeadCalculatorMeta | undefined {
+  if (!isPlainObject(value)) return undefined;
+
+  const result: LeadCalculatorMeta = {};
+
+  if (
+    typeof value.currentMonthlyPremium === "number" &&
+    Number.isFinite(value.currentMonthlyPremium)
+  ) {
+    result.currentMonthlyPremium = value.currentMonthlyPremium;
+  }
+
+  const tenure = value.insurerTenure;
+  if (
+    tenure === "moins-2-ans" ||
+    tenure === "2-5-ans" ||
+    tenure === "plus-5-ans"
+  ) {
+    result.insurerTenure = tenure;
+  }
+
   return Object.keys(result).length > 0 ? result : undefined;
 }
 
@@ -177,12 +202,19 @@ export async function POST(request: Request) {
         ? body.meta.referrer.slice(0, 2000)
         : undefined,
     acquisition: sanitizeAcquisition(body.meta?.acquisition),
+    calculator: sanitizeCalculator(body.meta?.calculator),
   };
 
   // Capture acquisition for future Vertikl fields — not sent today.
   if (meta.acquisition) {
     console.info("[api/leads] acquisition present", {
       keys: Object.keys(meta.acquisition),
+    });
+  }
+
+  if (meta.calculator) {
+    console.info("[api/leads] calculator meta present", {
+      keys: Object.keys(meta.calculator),
     });
   }
 

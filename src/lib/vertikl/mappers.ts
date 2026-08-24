@@ -3,10 +3,12 @@ import type {
   CoveredPersonId,
   HealthRegimeId,
 } from "@/components/form/types";
+import type { SavingsTenureId } from "@/lib/savings-engine";
 import type {
   VertiklHealthScheme,
   VertiklPeopleToCover,
   VertiklPriorityCare,
+  VertiklTimeInsured,
 } from "./types";
 
 export class VertiklMappingError extends Error {
@@ -81,4 +83,22 @@ export function mapCurrentlyInsured(value: "oui" | "non" | ""): boolean {
   if (value === "oui") return true;
   if (value === "non") return false;
   throw new VertiklMappingError("alreadyInsured must be oui or non.");
+}
+
+const TIME_INSURED_MAP: Record<SavingsTenureId, VertiklTimeInsured> = {
+  "moins-2-ans": "moinsde2ans",
+  "2-5-ans": "entre2et5ans",
+  "plus-5-ans": "plusde5ans",
+};
+
+/** Returns undefined when empty — field is optional on Vertikl. */
+export function mapInsurerTenure(
+  value: SavingsTenureId | "" | undefined,
+): VertiklTimeInsured | undefined {
+  if (!value) return undefined;
+  const mapped = TIME_INSURED_MAP[value];
+  if (!mapped) {
+    throw new VertiklMappingError(`Unmapped insurerTenure: ${value}`);
+  }
+  return mapped;
 }

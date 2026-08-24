@@ -83,7 +83,8 @@ function withCalculatorDefaults(
 
 export function SavingsQuoteForm() {
   const router = useRouter();
-  const { calculator, savingsQuoteFocusToken } = useQuoteJourney();
+  const { calculator, calculatorLeadFields, savingsQuoteFocusToken } =
+    useQuoteJourney();
 
   const [data, setData] = useState<QuoteFormData>(() =>
     withCalculatorDefaults(initialFormData, calculator),
@@ -197,6 +198,25 @@ export function SavingsQuoteForm() {
     setErrors({});
 
     try {
+      const calculatorMeta: {
+        currentMonthlyPremium?: number;
+        insurerTenure?: "moins-2-ans" | "2-5-ans" | "plus-5-ans";
+      } = {};
+      if (
+        typeof calculatorLeadFields.currentMonthlyPremium === "number" &&
+        Number.isFinite(calculatorLeadFields.currentMonthlyPremium)
+      ) {
+        calculatorMeta.currentMonthlyPremium =
+          calculatorLeadFields.currentMonthlyPremium;
+      }
+      if (
+        calculatorLeadFields.insurerTenure === "moins-2-ans" ||
+        calculatorLeadFields.insurerTenure === "2-5-ans" ||
+        calculatorLeadFields.insurerTenure === "plus-5-ans"
+      ) {
+        calculatorMeta.insurerTenure = calculatorLeadFields.insurerTenure;
+      }
+
       const response = await fetch("/api/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -206,6 +226,9 @@ export function SavingsQuoteForm() {
             landingPageUrl: window.location.href,
             referrer: document.referrer || "",
             acquisition: readAcquisitionParams(),
+            ...(Object.keys(calculatorMeta).length > 0
+              ? { calculator: calculatorMeta }
+              : {}),
           },
         }),
       });
@@ -236,7 +259,7 @@ export function SavingsQuoteForm() {
       setIsAdvancing(false);
       advanceLock.current = false;
     }
-  }, [data, isSubmitting, router]);
+  }, [calculatorLeadFields, data, isSubmitting, router]);
 
   const goNext = useCallback(() => {
     if (advanceLock.current || isSubmitting) return;
