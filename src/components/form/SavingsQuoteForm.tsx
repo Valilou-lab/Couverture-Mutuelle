@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   initialFormData,
   COVERED_PERSONS,
@@ -17,17 +18,19 @@ import { StepHealthRegime } from "./StepHealthRegime";
 import { StepAlreadyInsured } from "./StepAlreadyInsured";
 import { StepAnalyzing } from "./StepAnalyzing";
 import { StepContact } from "./StepContact";
-import { StepConfirmation } from "./StepConfirmation";
 import { FormMascotGuide } from "./FormMascotGuide";
 import {
   getFormProgressPercent,
   randomOffersCount,
 } from "./mascotGuideConfig";
 import { useQuoteJourney } from "@/context/QuoteJourneyContext";
-import { buildCompleteSavingsLead } from "@/lib/savings-lead";
+import { readAcquisitionParams } from "@/lib/acquisition";
+import { pushLeadCompletedToDataLayer } from "@/lib/gtm-consent";
 import { scrollQuoteFormIntoView } from "./scrollQuoteFormIntoView";
 
 const ADVANCE_DELAY_MS = 320;
+const SUBMIT_ERROR_MESSAGE =
+  "Une erreur est survenue lors de l’envoi de votre demande. Merci de réessayer.";
 
 /** Steps for users coming from the savings calculator (postal already known). */
 const SAVINGS_FORM_STEPS: FormStepId[] = [
@@ -79,13 +82,8 @@ function withCalculatorDefaults(
 }
 
 export function SavingsQuoteForm() {
-  const {
-    calculator,
-    estimate,
-    calculatorLeadFields,
-    savingsQuoteFocusToken,
-    setCompleteSavingsLead,
-  } = useQuoteJourney();
+  const router = useRouter();
+  const { calculator, savingsQuoteFocusToken } = useQuoteJourney();
 
   const [data, setData] = useState<QuoteFormData>(() =>
     withCalculatorDefaults(initialFormData, calculator),
@@ -93,11 +91,14 @@ export function SavingsQuoteForm() {
   const [step, setStep] = useState<FormStepId>("careNeeds");
   const [errors, setErrors] = useState<FieldErrors>({});
   const [isAdvancing, setIsAdvancing] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
   const [offersCount, setOffersCount] = useState<number | null>(null);
   const advanceLock = useRef(false);
   const timers = useRef<number[]>([]);
   const lastFocusToken = useRef(0);
   const formRootRef = useRef<HTMLDivElement>(null);
+  const leadCompletedPushedRef = useRef(false);
 
   useEffect(() => {
     setData((current) => withCalculatorDefaults(current, calculator));
@@ -158,18 +159,6 @@ export function SavingsQuoteForm() {
     timers.current.push(id);
   }, []);
 
-  const finalizeLead = useCallback(
-    (formData: QuoteFormData) => {
-      const lead = buildCompleteSavingsLead({
-        calculatorLead: calculatorLeadFields,
-        estimate,
-        form: formData,
-      });
-      setCompleteSavingsLead(lead);
-    },
-    [calculatorLeadFields, estimate, setCompleteSavingsLead],
-  );
-
   const goNextFrom = useCallback(
     (currentStep: FormStepId, nextData: QuoteFormData) => {
       const validation = validateStep(currentStep, nextData);
@@ -184,28 +173,85 @@ export function SavingsQuoteForm() {
       const currentIndex = steps.indexOf(currentStep);
       const nextStep = steps[currentIndex + 1];
 
-      if (currentStep === "contact") {
-        finalizeLead(nextData);
-      }
-
       if (nextStep) {
         goTo(nextStep);
       }
       unlockLater();
     },
-    [finalizeLead, goTo, unlockLater],
+    [goTo, unlockLater],
   );
 
+  const submitLead = useCallback(async () => {
+    if (advanceLock.current || isSubmitting) return;
+
+    const validation = validateStep("contact", data);
+    if (Object.keys(validation).length > 0) {
+      setErrors(validation);
+      return;
+    }
+
+    advanceLock.current = true;
+    setIsSubmitting(true);
+    setIsAdvancing(true);
+    setSubmitError(null);
+    setErrors({});
+
+    try {
+      const response = await fetch("/api/leads", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          form: data,
+          meta: {
+            landingPageUrl: window.location.href,
+            referrer: document.referrer || "",
+            acquisition: readAcquisitionParams(),
+          },
+        }),
+      });
+
+      let payload: { success?: boolean } | null = null;
+      try {
+        payload = (await response.json()) as { success?: boolean };
+      } catch {
+        payload = null;
+      }
+
+      if (!response.ok || payload?.success !== true) {
+        setSubmitError(SUBMIT_ERROR_MESSAGE);
+        return;
+      }
+
+      // GTM dataLayer only — no Meta Pixel, no form/PII parameters.
+      if (!leadCompletedPushedRef.current) {
+        leadCompletedPushedRef.current = true;
+        pushLeadCompletedToDataLayer();
+      }
+
+      router.push("/confirmation");
+    } catch {
+      setSubmitError(SUBMIT_ERROR_MESSAGE);
+    } finally {
+      setIsSubmitting(false);
+      setIsAdvancing(false);
+      advanceLock.current = false;
+    }
+  }, [data, isSubmitting, router]);
+
   const goNext = useCallback(() => {
-    if (advanceLock.current) return;
+    if (advanceLock.current || isSubmitting) return;
+    if (step === "contact") {
+      void submitLead();
+      return;
+    }
     advanceLock.current = true;
     setIsAdvancing(true);
     goNextFrom(step, data);
-  }, [data, goNextFrom, step]);
+  }, [data, goNextFrom, isSubmitting, step, submitLead]);
 
   const selectAndAdvance = useCallback(
     (partial: Partial<QuoteFormData>) => {
-      if (advanceLock.current) return;
+      if (advanceLock.current || isSubmitting) return;
       advanceLock.current = true;
       setIsAdvancing(true);
 
@@ -218,11 +264,11 @@ export function SavingsQuoteForm() {
       }, ADVANCE_DELAY_MS);
       timers.current.push(id);
     },
-    [data, goNextFrom, step],
+    [data, goNextFrom, isSubmitting, step],
   );
 
   const goBack = useCallback(() => {
-    if (advanceLock.current) return;
+    if (advanceLock.current || isSubmitting) return;
     clearTimers();
     advanceLock.current = false;
     setIsAdvancing(false);
@@ -235,7 +281,7 @@ export function SavingsQuoteForm() {
         return;
       }
     }
-  }, [clearTimers, goTo, step, visibleSteps]);
+  }, [clearTimers, goTo, isSubmitting, step, visibleSteps]);
 
   const handleAnalyzingDone = useCallback(() => {
     goTo("contact");
@@ -362,15 +408,14 @@ export function SavingsQuoteForm() {
           <StepContact
             data={data}
             errors={errors}
-            disabled={isAdvancing}
+            disabled={isAdvancing || isSubmitting}
             offersCount={offersCount}
+            submitError={submitError}
             onPatch={patch}
             onBack={goBack}
             onNext={goNext}
           />
         ) : null}
-
-        {step === "confirmation" ? <StepConfirmation /> : null}
       </div>
 
       {showMascotGuide ? <FormMascotGuide step={step} /> : null}
