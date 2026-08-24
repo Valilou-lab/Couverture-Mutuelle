@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import {
   FORM_STEPS,
   initialFormData,
@@ -24,7 +25,6 @@ import { StepHealthRegime } from "./StepHealthRegime";
 import { StepAlreadyInsured } from "./StepAlreadyInsured";
 import { StepAnalyzing } from "./StepAnalyzing";
 import { StepContact } from "./StepContact";
-import { StepConfirmation } from "./StepConfirmation";
 import { FormMascotGuide } from "./FormMascotGuide";
 import {
   getFormProgressPercent,
@@ -99,6 +99,7 @@ function applyCalculatorDefaults(
 }
 
 export function QuoteForm() {
+  const router = useRouter();
   const {
     calculator,
     hasBirthDateFromCalculator,
@@ -284,7 +285,7 @@ export function QuoteForm() {
         pushLeadCompletedToDataLayer();
       }
 
-      goTo("confirmation");
+      router.push("/confirmation");
     } catch {
       setSubmitError(SUBMIT_ERROR_MESSAGE);
     } finally {
@@ -292,7 +293,7 @@ export function QuoteForm() {
       setIsAdvancing(false);
       advanceLock.current = false;
     }
-  }, [data, goTo, isSubmitting]);
+  }, [data, isSubmitting, router]);
 
   const goNext = useCallback(() => {
     if (advanceLock.current || isSubmitting) return;
@@ -497,8 +498,6 @@ export function QuoteForm() {
             onNext={goNext}
           />
         ) : null}
-
-        {step === "confirmation" ? <StepConfirmation /> : null}
       </div>
 
       {showMascotGuide ? <FormMascotGuide step={step} /> : null}
