@@ -4,7 +4,7 @@
  */
 
 export const LANDING_PAGE_VERSION = "2026-08-17";
-export const CONSENT_OPTIN_TEXT_VERSION = "2026-08-17.1";
+export const CONSENT_OPTIN_TEXT_VERSION = "2026-08-27.1";
 /** @deprecated Use CONSENT_OPTIN_TEXT_VERSION */
 export const CONSENT_TEXT_VERSION = CONSENT_OPTIN_TEXT_VERSION;
 export const LEGAL_NOTICE_VERSION = "2026-08-17";
@@ -14,7 +14,7 @@ export const CONSENT_CAMPAIGN = "Couverture Mutuelle";
 
 /** Exact opt-in sentence presented next to the consent checkbox. */
 export const CONSENT_OPTIN_TEXT =
-  "J’accepte d’être contacté(e) par téléphone, SMS, whatsapp et email par Couverture Mutuelle et ses partenaires afin de recevoir des offres de complémentaire santé.";
+  "J’accepte d’être contacté(e) par téléphone, SMS, whatsapp et email dans les 2 heures suivant ma demande, de 8h à 20h du lundi au samedi par Couverture Mutuelle et ses partenaires afin de recevoir mes offres de complémentaire santé.";
 
 /** Supporting sentence under the opt-in (validity / withdrawal). */
 export const CONSENT_VALIDITY_TEXT =
