@@ -8,11 +8,6 @@ import type {
 } from "./types";
 
 const VERTIKL_BASE_URL = "https://ebre.vertikl.app";
-const DEFAULT_CAMPAIGN_ID = "b1c3d961-2a06-4b99-b410-42753de22e1e";
-
-function getCampaignId(): string {
-  return process.env.VERTIKL_CAMPAIGN_ID?.trim() || DEFAULT_CAMPAIGN_ID;
-}
 
 function getApiMode(): string {
   return (process.env.VERTIKL_API_MODE ?? "test").trim().toLowerCase();
@@ -54,6 +49,7 @@ function summarizeReturnedFields(
 
 export async function sendLeadToVertikl(
   fields: VertiklLeadFields,
+  campaignId: string,
 ): Promise<SendLeadResult> {
   const apiKey = process.env.VERTIKL_API_KEY?.trim();
   if (!apiKey) {
@@ -62,6 +58,18 @@ export async function sendLeadToVertikl(
       ok: false,
       httpStatus: null,
       failureMessage: "VERTIKL_API_KEY_MISSING",
+      returnedFieldNames: [],
+      consentWhatsappReturned: null,
+    };
+  }
+
+  const resolvedCampaignId = campaignId.trim();
+  if (!resolvedCampaignId) {
+    console.error("[vertikl] campaignId is missing.");
+    return {
+      ok: false,
+      httpStatus: null,
+      failureMessage: "VERTIKL_CAMPAIGN_ID_MISSING",
       returnedFieldNames: [],
       consentWhatsappReturned: null,
     };
@@ -83,9 +91,8 @@ export async function sendLeadToVertikl(
     };
   }
 
-  const campaignId = getCampaignId();
   const payload: VertiklLeadPayload = {
-    campaignId,
+    campaignId: resolvedCampaignId,
     fields,
   };
 
@@ -93,7 +100,7 @@ export async function sendLeadToVertikl(
 
   console.info("[vertikl] submitting lead", {
     endpoint,
-    campaignId,
+    campaignId: resolvedCampaignId,
     mode: getApiMode(),
     sentFieldNames,
     hasConsentWhatsapp: Object.prototype.hasOwnProperty.call(
@@ -130,7 +137,7 @@ export async function sendLeadToVertikl(
 
     console.info("[vertikl] response", {
       endpoint,
-      campaignId,
+      campaignId: resolvedCampaignId,
       httpStatus: response.status,
       success: ok,
       failureMessage: failureMessage ?? null,
@@ -160,7 +167,7 @@ export async function sendLeadToVertikl(
       error instanceof Error ? error.message : "NETWORK_ERROR";
     console.error("[vertikl] network error", {
       endpoint,
-      campaignId,
+      campaignId: resolvedCampaignId,
       failureMessage: message,
     });
     return {

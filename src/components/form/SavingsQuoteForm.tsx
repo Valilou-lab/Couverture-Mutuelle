@@ -24,7 +24,7 @@ import {
   randomOffersCount,
 } from "./mascotGuideConfig";
 import { useQuoteJourney } from "@/context/QuoteJourneyContext";
-import { readAcquisitionParams } from "@/lib/acquisition";
+import { getStoredAcquisition } from "@/lib/acquisition";
 import { pushLeadCompletedToDataLayer } from "@/lib/gtm-consent";
 import { scrollQuoteFormIntoView } from "./scrollQuoteFormIntoView";
 
@@ -217,15 +217,16 @@ export function SavingsQuoteForm() {
         calculatorMeta.insurerTenure = calculatorLeadFields.insurerTenure;
       }
 
+      const storedAcquisition = getStoredAcquisition();
       const response = await fetch("/api/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           form: data,
           meta: {
-            landingPageUrl: window.location.href,
-            referrer: document.referrer || "",
-            acquisition: readAcquisitionParams(),
+            landingPageUrl: storedAcquisition.landingPageUrl,
+            referrer: storedAcquisition.referrer,
+            acquisition: storedAcquisition.acquisition,
             ...(Object.keys(calculatorMeta).length > 0
               ? { calculator: calculatorMeta }
               : {}),

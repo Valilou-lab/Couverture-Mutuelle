@@ -31,7 +31,7 @@ import {
   randomOffersCount,
 } from "./mascotGuideConfig";
 import { useQuoteJourney } from "@/context/QuoteJourneyContext";
-import { readAcquisitionParams } from "@/lib/acquisition";
+import { getStoredAcquisition } from "@/lib/acquisition";
 import { pushLeadCompletedToDataLayer } from "@/lib/gtm-consent";
 import { scrollQuoteFormIntoView } from "./scrollQuoteFormIntoView";
 
@@ -254,15 +254,16 @@ export function QuoteForm() {
     setErrors({});
 
     try {
+      const storedAcquisition = getStoredAcquisition();
       const response = await fetch("/api/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           form: data,
           meta: {
-            landingPageUrl: window.location.href,
-            referrer: document.referrer || "",
-            acquisition: readAcquisitionParams(),
+            landingPageUrl: storedAcquisition.landingPageUrl,
+            referrer: storedAcquisition.referrer,
+            acquisition: storedAcquisition.acquisition,
           },
         }),
       });

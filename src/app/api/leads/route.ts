@@ -7,12 +7,14 @@ import {
   type FieldErrors,
 } from "@/components/form/validation";
 import { buildVertiklFields } from "@/lib/vertikl/build-payload";
+import { resolveVertiklCampaign } from "@/lib/vertikl/campaigns";
 import { sendLeadToVertikl } from "@/lib/vertikl/client";
 import { VertiklMappingError } from "@/lib/vertikl/mappers";
-import type {
-  AcquisitionParams,
-  LeadCalculatorMeta,
-  LeadSubmissionMeta,
+import {
+  isAcquisitionChannel,
+  type AcquisitionParams,
+  type LeadCalculatorMeta,
+  type LeadSubmissionMeta,
 } from "@/lib/vertikl/types";
 
 export const runtime = "nodejs";
@@ -74,6 +76,9 @@ function sanitizeAcquisition(
     if (typeof raw === "string" && raw.trim()) {
       result[key] = raw.trim().slice(0, 200);
     }
+  }
+  if (isAcquisitionChannel(value.acquisition_channel)) {
+    result.acquisition_channel = value.acquisition_channel;
   }
   return Object.keys(result).length > 0 ? result : undefined;
 }
@@ -205,7 +210,7 @@ export async function POST(request: Request) {
     calculator: sanitizeCalculator(body.meta?.calculator),
   };
 
-  // Capture acquisition for future Vertikl fields — not sent today.
+  // First-touch UTM / click IDs are used only to route the Vertikl campaignId.
   if (meta.acquisition) {
     console.info("[api/leads] acquisition present", {
       keys: Object.keys(meta.acquisition),
@@ -216,6 +221,22 @@ export async function POST(request: Request) {
     console.info("[api/leads] calculator meta present", {
       keys: Object.keys(meta.calculator),
     });
+  }
+
+  const routing = resolveVertiklCampaign({
+    utm_source: meta.acquisition?.utm_source,
+    utm_medium: meta.acquisition?.utm_medium,
+    fbclid: meta.acquisition?.fbclid,
+    gclid: meta.acquisition?.gclid,
+    referrer: meta.referrer,
+  });
+
+  if (!routing.campaignId) {
+    console.error("[api/leads] Vertikl campaign id missing", {
+      source: routing.source,
+      campaignEnv: routing.campaignEnv,
+    });
+    return failure(500, "SERVER_MISCONFIGURED");
   }
 
   const consentAt = new Date();
@@ -240,11 +261,13 @@ export async function POST(request: Request) {
     return failure(500, "LEAD_SUBMISSION_FAILED");
   }
 
-  const result = await sendLeadToVertikl(fields);
+  const result = await sendLeadToVertikl(fields, routing.campaignId);
   console.info("[api/leads] vertikl result", {
     ok: result.ok,
     httpStatus: result.httpStatus,
     failureMessage: result.failureMessage,
+    source: routing.source,
+    campaignId: routing.campaignId,
     returnedFieldNames: result.returnedFieldNames,
     consentWhatsappReturned: result.consentWhatsappReturned,
     sentFieldNames: Object.keys(fields).sort(),

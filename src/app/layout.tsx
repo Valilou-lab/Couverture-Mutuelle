@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Baloo_2, DM_Sans, Manrope, Nunito, Sora } from "next/font/google";
+import { AcquisitionCapture } from "@/components/acquisition/AcquisitionCapture";
 import { ChatbotSlot } from "@/components/chatbot/ChatbotSlot";
 import { CookieConsentUI } from "@/components/cookies/CookieConsentUI";
 import { GoogleTagManager } from "@/components/gtm/GoogleTagManager";
@@ -81,6 +82,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     >
       <body className="min-h-full flex max-w-[100vw] flex-col overflow-x-hidden font-sans">
         <GoogleTagManager />
+        <AcquisitionCapture />
         <CookieConsentProvider>
           <QuoteJourneyProvider>
             {children}

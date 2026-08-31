@@ -95,6 +95,26 @@ export type SendLeadResult =
       consentWhatsappReturned: boolean | null;
     };
 
+export const ACQUISITION_CHANNELS = [
+  "meta / paid",
+  "google / paid",
+  "instagram / organic",
+  "facebook / organic",
+  "referral",
+  "direct",
+] as const;
+
+export type AcquisitionChannel = (typeof ACQUISITION_CHANNELS)[number];
+
+export function isAcquisitionChannel(
+  value: unknown,
+): value is AcquisitionChannel {
+  return (
+    typeof value === "string" &&
+    (ACQUISITION_CHANNELS as readonly string[]).includes(value)
+  );
+}
+
 /** Acquisition params captured client-side for a future Vertikl mapping. */
 export type AcquisitionParams = {
   utm_source?: string;
@@ -104,6 +124,7 @@ export type AcquisitionParams = {
   utm_term?: string;
   fbclid?: string;
   gclid?: string;
+  acquisition_channel?: AcquisitionChannel;
 };
 
 /** Optional calculator-only fields (never sent to GTM / dataLayer). */
