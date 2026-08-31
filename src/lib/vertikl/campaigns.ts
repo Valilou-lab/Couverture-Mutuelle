@@ -38,6 +38,7 @@ const GOOGLE_PAID_MEDIUMS = new Set(["cpc", "paid"]);
 export type VertiklSourceInput = {
   utm_source?: string;
   utm_medium?: string;
+  utm_content?: string;
   fbclid?: string;
   gclid?: string;
   referrer?: string;
@@ -146,6 +147,7 @@ function landingPageSearchParams(
 function paramsFromLandingPage(landingPageUrl: string | undefined): {
   utm_source?: string;
   utm_medium?: string;
+  utm_content?: string;
   fbclid?: string;
   gclid?: string;
 } {
@@ -155,6 +157,7 @@ function paramsFromLandingPage(landingPageUrl: string | undefined): {
   return {
     utm_source: pick("utm_source"),
     utm_medium: pick("utm_medium"),
+    utm_content: pick("utm_content"),
     fbclid: pick("fbclid"),
     gclid: pick("gclid"),
   };
@@ -163,11 +166,16 @@ function paramsFromLandingPage(landingPageUrl: string | undefined): {
 function hasQueryAcquisition(params: {
   utm_source?: string;
   utm_medium?: string;
+  utm_content?: string;
   fbclid?: string;
   gclid?: string;
 }): boolean {
   return Boolean(
-    params.utm_source || params.utm_medium || params.fbclid || params.gclid,
+    params.utm_source ||
+      params.utm_medium ||
+      params.utm_content ||
+      params.fbclid ||
+      params.gclid,
   );
 }
 
@@ -181,59 +189,88 @@ function mapClientAcquisitionChannel(
   return CLIENT_CHANNEL_TO_SOURCE[normalized];
 }
 
+function isOrganicSocialMedium(medium: string): boolean {
+  return medium === "organic" || medium === "social";
+}
+
+function isLinkInBio(content: string): boolean {
+  return normalizeMedium(content) === "link_in_bio";
+}
+
+function isKnownAdPlatformSource(source: string): boolean {
+  return (
+    isInstagramSource(source) ||
+    isFacebookSource(source) ||
+    isGoogleSource(source) ||
+    isTikTokSource(source)
+  );
+}
+
+function isAmbiguousMetaPaid(
+  source: string,
+  medium: string,
+  isPaidMedium: boolean,
+): boolean {
+  if (!isPaidMedium) return false;
+  if (isKnownAdPlatformSource(source)) return false;
+  return source === "meta" || medium === "paid_social" || medium === "paidsocial";
+}
+
 /**
  * Normalize first-touch signals into a Vertikl routing source.
- * Does not persist anything — uses the already-captured first-touch payload.
+ * fbclid is never treated as proof of paid traffic.
  *
- * Priority: explicit UTM pairs → click IDs → source-only UTM → referrer → direct.
+ * Priority: explicit paid UTM → gclid → organic UTM / link_in_bio → referrer → direct.
  */
 export function resolveVertiklAcquisitionSource(
   input: VertiklSourceInput,
 ): VertiklAcquisitionSource {
   const source = normalizeToken(input.utm_source);
   const medium = normalizeMedium(input.utm_medium);
+  const content = normalizeToken(input.utm_content);
+  const isPaidMedium = PAID_MEDIUMS.has(medium);
   const hasGclid = Boolean(input.gclid?.trim());
-  const hasFbclid = Boolean(input.fbclid?.trim());
   const referrerHost = externalReferrerHost(input.referrer);
 
-  if (isInstagramSource(source) && medium === "organic") {
-    return "instagram_organic";
-  }
-  if (isInstagramSource(source) && PAID_MEDIUMS.has(medium)) {
+  if (isInstagramSource(source) && isPaidMedium) {
     return "instagram_paid";
   }
-  if (isFacebookSource(source) && medium === "organic") {
-    return "facebook_organic";
-  }
-  if (isFacebookSource(source) && PAID_MEDIUMS.has(medium)) {
+  if (isFacebookSource(source) && isPaidMedium) {
     return "facebook_paid";
   }
   if (isGoogleSource(source) && GOOGLE_PAID_MEDIUMS.has(medium)) {
     return "google_paid";
   }
-  if (isTikTokSource(source) && medium === "organic") {
-    return "tiktok_organic";
-  }
-  if (isTikTokSource(source) && PAID_MEDIUMS.has(medium)) {
+  if (isTikTokSource(source) && isPaidMedium) {
     return "tiktok_paid";
+  }
+  if (isAmbiguousMetaPaid(source, medium, isPaidMedium)) {
+    return "meta_paid_unattributed";
   }
 
   if (hasGclid) return "google_paid";
 
-  const instagramIdentifiable =
-    isInstagramSource(source) ||
-    (referrerHost !== null && isInstagramHost(referrerHost));
-  const facebookIdentifiable =
-    isFacebookSource(source) ||
-    (referrerHost !== null && isFacebookHost(referrerHost));
-
-  if (hasFbclid && instagramIdentifiable) return "instagram_paid";
-  if (hasFbclid && facebookIdentifiable) return "facebook_paid";
-  if (hasFbclid) return "meta_paid_unattributed";
-
-  if (isInstagramSource(source)) return "instagram_organic";
-  if (isFacebookSource(source)) return "facebook_organic";
-  if (isTikTokSource(source)) return "tiktok_organic";
+  if (isInstagramSource(source) && isOrganicSocialMedium(medium)) {
+    return "instagram_organic";
+  }
+  if (isInstagramSource(source) && isLinkInBio(content)) {
+    return "instagram_organic";
+  }
+  if (isInstagramSource(source)) {
+    return "instagram_organic";
+  }
+  if (isFacebookSource(source) && isOrganicSocialMedium(medium)) {
+    return "facebook_organic";
+  }
+  if (isFacebookSource(source) && isLinkInBio(content)) {
+    return "facebook_organic";
+  }
+  if (isFacebookSource(source)) {
+    return "facebook_organic";
+  }
+  if (isTikTokSource(source)) {
+    return "tiktok_organic";
+  }
 
   if (referrerHost && isInstagramHost(referrerHost)) return "instagram_organic";
   if (referrerHost && isFacebookHost(referrerHost)) return "facebook_organic";
@@ -261,6 +298,7 @@ export function resolveVertiklCampaign(input: VertiklSourceInput): {
   const merged: VertiklSourceInput = {
     utm_source: firstNonEmpty(input.utm_source, fromLanding.utm_source),
     utm_medium: firstNonEmpty(input.utm_medium, fromLanding.utm_medium),
+    utm_content: firstNonEmpty(input.utm_content, fromLanding.utm_content),
     fbclid: firstNonEmpty(input.fbclid, fromLanding.fbclid),
     gclid: firstNonEmpty(input.gclid, fromLanding.gclid),
     referrer: input.referrer,

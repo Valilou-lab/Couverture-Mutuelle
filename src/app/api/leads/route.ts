@@ -233,6 +233,7 @@ export async function POST(request: Request) {
   const routing = resolveVertiklCampaign({
     utm_source: meta.acquisition?.utm_source,
     utm_medium: meta.acquisition?.utm_medium,
+    utm_content: meta.acquisition?.utm_content,
     fbclid: meta.acquisition?.fbclid,
     gclid: meta.acquisition?.gclid,
     referrer: meta.referrer,
