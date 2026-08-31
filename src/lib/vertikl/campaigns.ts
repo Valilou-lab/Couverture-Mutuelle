@@ -41,6 +41,17 @@ export type VertiklSourceInput = {
   fbclid?: string;
   gclid?: string;
   referrer?: string;
+  landingPageUrl?: string;
+  acquisition_channel?: string;
+};
+
+const CLIENT_CHANNEL_TO_SOURCE: Partial<
+  Record<string, VertiklAcquisitionSource>
+> = {
+  "instagram / organic": "instagram_organic",
+  "facebook / organic": "facebook_organic",
+  "google / paid": "google_paid",
+  referral: "referral",
 };
 
 function normalizeToken(value: string | undefined): string {
@@ -106,6 +117,68 @@ function externalReferrerHost(referrer: string | undefined): string | null {
   const raw = referrer?.trim() ?? "";
   if (!raw || isInternalReferrer(raw)) return null;
   return parseHostname(raw);
+}
+
+function firstNonEmpty(
+  ...values: Array<string | undefined>
+): string | undefined {
+  for (const value of values) {
+    const trimmed = value?.trim();
+    if (trimmed) return trimmed;
+  }
+  return undefined;
+}
+
+function landingPageSearchParams(
+  landingPageUrl: string | undefined,
+): URLSearchParams {
+  const raw = landingPageUrl?.trim() ?? "";
+  if (!raw) return new URLSearchParams();
+  try {
+    return new URL(raw).searchParams;
+  } catch {
+    const queryIndex = raw.indexOf("?");
+    if (queryIndex === -1) return new URLSearchParams();
+    return new URLSearchParams(raw.slice(queryIndex));
+  }
+}
+
+function paramsFromLandingPage(landingPageUrl: string | undefined): {
+  utm_source?: string;
+  utm_medium?: string;
+  fbclid?: string;
+  gclid?: string;
+} {
+  const params = landingPageSearchParams(landingPageUrl);
+  const pick = (key: string): string | undefined =>
+    params.get(key)?.trim() || undefined;
+  return {
+    utm_source: pick("utm_source"),
+    utm_medium: pick("utm_medium"),
+    fbclid: pick("fbclid"),
+    gclid: pick("gclid"),
+  };
+}
+
+function hasQueryAcquisition(params: {
+  utm_source?: string;
+  utm_medium?: string;
+  fbclid?: string;
+  gclid?: string;
+}): boolean {
+  return Boolean(
+    params.utm_source || params.utm_medium || params.fbclid || params.gclid,
+  );
+}
+
+function mapClientAcquisitionChannel(
+  channel: string | undefined,
+): VertiklAcquisitionSource | undefined {
+  const normalized = channel?.trim();
+  if (!normalized) return undefined;
+  // "meta / paid" must not guess Instagram vs Facebook.
+  // "direct" must not override a more precise landingPageUrl signal.
+  return CLIENT_CHANNEL_TO_SOURCE[normalized];
 }
 
 /**
@@ -183,7 +256,36 @@ export function resolveVertiklCampaign(input: VertiklSourceInput): {
   campaignId: string | undefined;
   campaignEnv: string;
 } {
-  const source = resolveVertiklAcquisitionSource(input);
+  const fromLanding = paramsFromLandingPage(input.landingPageUrl);
+
+  const merged: VertiklSourceInput = {
+    utm_source: firstNonEmpty(input.utm_source, fromLanding.utm_source),
+    utm_medium: firstNonEmpty(input.utm_medium, fromLanding.utm_medium),
+    fbclid: firstNonEmpty(input.fbclid, fromLanding.fbclid),
+    gclid: firstNonEmpty(input.gclid, fromLanding.gclid),
+    referrer: input.referrer,
+  };
+
+  let source = resolveVertiklAcquisitionSource(merged);
+
+  // Structured fields may be present but unusable; landingPageUrl is first-touch.
+  if (source === "direct" && hasQueryAcquisition(fromLanding)) {
+    const fromUrlOnly = resolveVertiklAcquisitionSource({
+      ...fromLanding,
+      referrer: input.referrer,
+    });
+    if (fromUrlOnly !== "direct") {
+      source = fromUrlOnly;
+    }
+  }
+
+  if (source === "direct") {
+    const fromChannel = mapClientAcquisitionChannel(input.acquisition_channel);
+    if (fromChannel) {
+      source = fromChannel;
+    }
+  }
+
   return {
     source,
     campaignId: getVertiklCampaignId(source),

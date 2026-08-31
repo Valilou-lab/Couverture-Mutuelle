@@ -38,6 +38,20 @@ function isPlainObject(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null && !Array.isArray(value);
 }
 
+/** Path + query only — no host, no PII fields. */
+function landingPagePathAndQuery(url: string | undefined): string | null {
+  const raw = url?.trim();
+  if (!raw) return null;
+  try {
+    const parsed = new URL(raw);
+    return `${parsed.pathname}${parsed.search}` || null;
+  } catch {
+    const queryIndex = raw.indexOf("?");
+    if (queryIndex === -1) return null;
+    return raw.slice(queryIndex);
+  }
+}
+
 function getClientIp(request: Request): string | undefined {
   const forwarded = request.headers.get("x-forwarded-for");
   if (forwarded) {
@@ -210,13 +224,6 @@ export async function POST(request: Request) {
     calculator: sanitizeCalculator(body.meta?.calculator),
   };
 
-  // First-touch UTM / click IDs are used only to route the Vertikl campaignId.
-  if (meta.acquisition) {
-    console.info("[api/leads] acquisition present", {
-      keys: Object.keys(meta.acquisition),
-    });
-  }
-
   if (meta.calculator) {
     console.info("[api/leads] calculator meta present", {
       keys: Object.keys(meta.calculator),
@@ -229,6 +236,19 @@ export async function POST(request: Request) {
     fbclid: meta.acquisition?.fbclid,
     gclid: meta.acquisition?.gclid,
     referrer: meta.referrer,
+    landingPageUrl: meta.landingPageUrl,
+    acquisition_channel: meta.acquisition?.acquisition_channel,
+  });
+
+  console.info("[api/leads] acquisition routing", {
+    utm_source: meta.acquisition?.utm_source ?? null,
+    utm_medium: meta.acquisition?.utm_medium ?? null,
+    acquisition_channel: meta.acquisition?.acquisition_channel ?? null,
+    hasFbclid: Boolean(meta.acquisition?.fbclid),
+    hasGclid: Boolean(meta.acquisition?.gclid),
+    landingPagePathAndQuery: landingPagePathAndQuery(meta.landingPageUrl),
+    source: routing.source,
+    campaignId: routing.campaignId ?? null,
   });
 
   if (!routing.campaignId) {
