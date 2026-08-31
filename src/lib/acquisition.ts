@@ -105,14 +105,28 @@ function isFacebookHost(host: string): boolean {
   );
 }
 
-function isGoogleHost(host: string): boolean {
-  return (
-    host === "google.com" ||
-    host.endsWith(".google.com") ||
-    /^google\.[a-z]{2,3}(\.[a-z]{2})?$/.test(host) ||
-    host === "googleadservices.com" ||
-    host.endsWith(".googleadservices.com")
-  );
+function isTikTokHost(host: string): boolean {
+  return host === "tiktok.com" || host.endsWith(".tiktok.com");
+}
+
+function isInstagramSource(source: string): boolean {
+  return source === "instagram" || source === "ig";
+}
+
+function isFacebookSource(source: string): boolean {
+  return source === "facebook" || source === "fb";
+}
+
+function isTikTokSource(source: string): boolean {
+  return source === "tiktok" || source === "tt";
+}
+
+function isOrganicSocialMedium(medium: string): boolean {
+  return medium === "organic" || medium === "social";
+}
+
+function isLinkInBio(content: string): boolean {
+  return normalizeMedium(content) === "link_in_bio";
 }
 
 function pickParams(source: PersistedFirstTouch | AcquisitionParams): AcquisitionParams {
@@ -141,39 +155,51 @@ export function readAcquisitionParams(
 
 /**
  * Derive the marketing channel from first-touch params + original referrer.
- * Priority: gclid > fbclid > explicit UTM > referrer > direct.
+ * fbclid is never treated as proof of paid traffic.
  */
 export function deriveAcquisitionChannel(input: {
   utm_source?: string;
   utm_medium?: string;
+  utm_content?: string;
   fbclid?: string;
   gclid?: string;
   referrer?: string;
 }): AcquisitionChannel {
   const source = normalizeToken(input.utm_source);
   const medium = normalizeMedium(input.utm_medium);
+  const content = normalizeToken(input.utm_content);
+  const isPaidMedium = PAID_MEDIUMS.has(medium);
   const hasGclid = Boolean(input.gclid?.trim());
-  const hasFbclid = Boolean(input.fbclid?.trim());
   const referrerHost = parseHostname(input.referrer ?? "");
   const externalHost =
-    referrerHost &&
-    !isInternalReferrer(input.referrer ?? "")
+    referrerHost && !isInternalReferrer(input.referrer ?? "")
       ? referrerHost
       : null;
 
-  if (hasGclid) return "google / paid";
-  if (hasFbclid) return "meta / paid";
-
-  if (source === "google" && GOOGLE_PAID_MEDIUMS.has(medium)) {
+  if (isInstagramSource(source) && isPaidMedium) {
+    return "instagram / paid";
+  }
+  if (isFacebookSource(source) && isPaidMedium) {
+    return "facebook / paid";
+  }
+  if (hasGclid || (source === "google" && GOOGLE_PAID_MEDIUMS.has(medium))) {
     return "google / paid";
   }
-  if (PAID_MEDIUMS.has(medium)) return "meta / paid";
+  if (isTikTokSource(source) && isPaidMedium) {
+    return "tiktok / paid";
+  }
 
-  if (source === "instagram" && medium === "organic") {
+  if (
+    isInstagramSource(source) &&
+    (isOrganicSocialMedium(medium) || isLinkInBio(content) || !isPaidMedium)
+  ) {
     return "instagram / organic";
   }
-  if ((source === "facebook" || source === "fb") && medium === "organic") {
+  if (isFacebookSource(source)) {
     return "facebook / organic";
+  }
+  if (isTikTokSource(source)) {
+    return "tiktok / organic";
   }
 
   if (externalHost && isInstagramHost(externalHost)) {
@@ -182,7 +208,10 @@ export function deriveAcquisitionChannel(input: {
   if (externalHost && isFacebookHost(externalHost)) {
     return "facebook / organic";
   }
-  if (externalHost && !isGoogleHost(externalHost)) {
+  if (externalHost && isTikTokHost(externalHost)) {
+    return "tiktok / organic";
+  }
+  if (externalHost) {
     return "referral";
   }
 

@@ -50,9 +50,14 @@ const CLIENT_CHANNEL_TO_SOURCE: Partial<
   Record<string, VertiklAcquisitionSource>
 > = {
   "instagram / organic": "instagram_organic",
+  "instagram / paid": "instagram_paid",
   "facebook / organic": "facebook_organic",
+  "facebook / paid": "facebook_paid",
   "google / paid": "google_paid",
+  "tiktok / organic": "tiktok_organic",
+  "tiktok / paid": "tiktok_paid",
   referral: "referral",
+  direct: "direct",
 };
 
 function normalizeToken(value: string | undefined): string {
