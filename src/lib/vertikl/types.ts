@@ -19,7 +19,7 @@ export type VertiklPriorityCare =
   | "soins_courants"
   | "je_ne_sais_pas";
 
-/** Vertikl ENUM for mutual tenure (`time-insured`). */
+/** Vertikl ENUM for mutual tenure (`time_insured`). */
 export type VertiklTimeInsured =
   | "moinsde2ans"
   | "entre2et5ans"
@@ -44,8 +44,7 @@ export type VertiklLeadFields = {
   currently_insured: boolean;
   people_to_cover: VertiklPeopleToCover;
   priority_care: VertiklPriorityCare[];
-  /** Vertikl field name uses a hyphen. */
-  "consent-whatsapp": boolean;
+  consent_whatsapp: boolean;
   consent_given: boolean;
   consent_campaign: string;
   consent_datetime: string;
@@ -62,9 +61,9 @@ export type VertiklLeadFields = {
   consent_source: string;
   consent_status: "actif" | "retire" | "expire";
   /** Optional — savings calculator only. */
-  health_insurance_budget?: number;
-  /** Optional — savings calculator only. Vertikl field name uses a hyphen. */
-  "time-insured"?: VertiklTimeInsured;
+  cost_health?: number;
+  /** Optional — savings calculator only. */
+  time_insured?: VertiklTimeInsured;
 };
 
 export type VertiklLeadPayload = {

@@ -23,7 +23,7 @@ export const CONSENT_VALIDITY_TEXT =
 /** Full text stored as Vertikl consent_optin_text. */
 export const CONSENT_OPTIN_TEXT_FULL = `${CONSENT_OPTIN_TEXT} ${CONSENT_VALIDITY_TEXT}`;
 
-/** Vertikl published channels only — WhatsApp is consent-whatsapp, not a channel. */
+/** Vertikl published channels only — WhatsApp is consent_whatsapp, not a channel. */
 export const CONSENT_CHANNELS = ["telephone", "email", "sms"] as const;
 
 export type ConsentChannel = (typeof CONSENT_CHANNELS)[number];

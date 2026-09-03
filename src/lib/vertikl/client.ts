@@ -37,7 +37,7 @@ function summarizeReturnedFields(
     return { returnedFieldNames: [], consentWhatsappReturned: null };
   }
   const returnedFieldNames = Object.keys(fields).sort();
-  const rawWhatsapp = fields["consent-whatsapp"];
+  const rawWhatsapp = fields["consent_whatsapp"];
   const consentWhatsappReturned =
     typeof rawWhatsapp === "boolean"
       ? rawWhatsapp
@@ -105,7 +105,7 @@ export async function sendLeadToVertikl(
     sentFieldNames,
     hasConsentWhatsapp: Object.prototype.hasOwnProperty.call(
       fields,
-      "consent-whatsapp",
+      "consent_whatsapp",
     ),
   });
 

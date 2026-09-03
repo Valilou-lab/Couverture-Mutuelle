@@ -79,7 +79,7 @@ export function buildVertiklFields(
     currently_insured: mapCurrentlyInsured(form.alreadyInsured),
     people_to_cover: mapPeopleToCover(form.coveredPersons),
     priority_care: mapPriorityCare(form.careNeeds),
-    "consent-whatsapp": Boolean(form.whatsappAvailable),
+    consent_whatsapp: Boolean(form.whatsappAvailable),
     consent_given: true,
     consent_campaign: CONSENT_CAMPAIGN,
     consent_datetime: consentDatetime,
@@ -123,16 +123,16 @@ export function buildVertiklFields(
   // Savings calculator only — optional Vertikl fields (never for QuoteForm).
   const premium = meta?.calculator?.currentMonthlyPremium;
   if (typeof premium === "number" && Number.isFinite(premium)) {
-    fields.health_insurance_budget = premium;
+    fields.cost_health = premium;
   }
 
   const timeInsured = mapInsurerTenure(meta?.calculator?.insurerTenure);
   if (timeInsured) {
-    fields["time-insured"] = timeInsured;
+    fields.time_insured = timeInsured;
   }
 
   // Intentionally omitted: familyStatus, insurer, citiesOptions, civility.
-  // WhatsApp is ONLY consent-whatsapp — never added to consent_channels.
+  // WhatsApp is ONLY consent_whatsapp — never added to consent_channels.
   // Acquisition (utm_*, fbclid, gclid) not mapped to Vertikl fields yet.
 
   return fields;
