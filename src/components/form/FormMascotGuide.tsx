@@ -87,7 +87,7 @@ export function FormMascotGuide({
           <img
             src={getMascotPoseSrc(display.pose)}
             alt=""
-            className={`form-mascot-pose relative z-10 -mt-2 ml-1 block h-[10.75rem] w-auto max-w-none select-none object-contain drop-shadow-[0_10px_18px_rgba(15,15,20,0.16)] sm:-mt-2.5 sm:ml-1.5 sm:h-[12.5rem] ${
+            className={`form-mascot-pose relative z-[1] -mt-2 -ml-5 block h-[10.75rem] w-[8.25rem] shrink-0 select-none object-cover object-[52%_center] drop-shadow-[0_10px_18px_rgba(15,15,20,0.16)] sm:-mt-2.5 sm:ml-1.5 sm:h-[12.5rem] sm:w-auto sm:max-w-none sm:object-contain sm:object-center ${
               featured ? "h-[10.5rem] sm:h-[13.5rem]" : ""
             } ${step === "analyzing" ? "form-mascot-searching" : ""} ${
               visible ? "form-mascot-pop" : ""
@@ -96,12 +96,12 @@ export function FormMascotGuide({
           />
         </div>
 
-        {/* Texte — bien séparé de la mascotte sur mobile */}
+        {/* Texte — au-dessus de la mascotte, sans recouvrement sur mobile */}
         <div
-          className={`relative z-[1] flex min-w-0 items-center pr-2.5 sm:pr-3 ${
+          className={`relative z-[2] flex min-w-0 items-center pr-2.5 sm:pr-3 ${
             featured
-              ? "w-[62%] translate-x-0 pl-1 sm:w-[54%] sm:-translate-x-3 sm:pl-0 sm:-translate-y-1"
-              : "w-1/2 -translate-x-5 -translate-y-2 sm:-translate-x-7 sm:-translate-y-2.5"
+              ? "w-[62%] translate-x-0 pl-3 sm:w-[54%] sm:-translate-x-3 sm:pl-0 sm:-translate-y-1"
+              : "w-1/2 translate-x-0 pl-4 -translate-y-2 sm:-translate-x-7 sm:pl-0 sm:-translate-y-2.5"
           }`}
         >
           <div
