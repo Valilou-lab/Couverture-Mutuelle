@@ -48,16 +48,18 @@ export function StepContact({
       </h2>
 
       <div className="mt-4 rounded-2xl bg-brand-soft/70 px-4 py-3.5 text-center sm:mt-5 sm:px-5 sm:py-4">
-        <p className="font-manrope text-base font-bold text-brand sm:text-lg">
+        <p className="bonne-nouvelle-title font-manrope text-base font-bold text-brand sm:text-lg">
           Bonne nouvelle{" "}
-          <span aria-hidden="true">🎉</span>
+          <span aria-hidden="true" className="bonne-nouvelle-emoji">
+            🎉
+          </span>
         </p>
         <p className="mt-1.5 text-sm leading-snug text-[#3b0764] sm:text-[0.9375rem]">
-          Nous avons trouvé{" "}
-          <strong className="offers-count-blink font-extrabold text-brand tabular-nums">
-            {offersCount ?? "…"} offres
+          Nous avons identifié{" "}
+          <strong className="offers-count-blink rounded-md bg-brand-muted/70 px-1 font-extrabold text-brand">
+            plusieurs offres
           </strong>{" "}
-          susceptibles de vous intéresser.
+          susceptibles de correspondre à votre profil.
         </p>
         <p className="mt-1.5 text-sm leading-snug text-zinc-600 sm:text-[0.9375rem]">
           Dernière étape pour recevoir vos devis.
