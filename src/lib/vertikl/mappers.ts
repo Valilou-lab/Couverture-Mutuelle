@@ -1,10 +1,12 @@
 import type {
   CareNeedId,
+  CivilityId,
   CoveredPersonId,
   HealthRegimeId,
 } from "@/components/form/types";
 import type { SavingsTenureId } from "@/lib/savings-engine";
 import type {
+  VertiklGender,
   VertiklHealthScheme,
   VertiklPeopleToCover,
   VertiklPriorityCare,
@@ -90,6 +92,23 @@ const TIME_INSURED_MAP: Record<SavingsTenureId, VertiklTimeInsured> = {
   "2-5-ans": "entre2et5ans",
   "plus-5-ans": "plusde5ans",
 };
+
+const GENDER_MAP: Record<CivilityId, VertiklGender> = {
+  mme: "Madame",
+  m: "Monsieur",
+};
+
+/** Returns undefined when empty — field is optional on Vertikl. */
+export function mapGender(
+  value: CivilityId | "" | undefined,
+): VertiklGender | undefined {
+  if (!value) return undefined;
+  const mapped = GENDER_MAP[value];
+  if (!mapped) {
+    throw new VertiklMappingError(`Unmapped civility: ${value}`);
+  }
+  return mapped;
+}
 
 /** Returns undefined when empty — field is optional on Vertikl. */
 export function mapInsurerTenure(

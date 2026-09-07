@@ -11,6 +11,7 @@ import {
 } from "@/lib/consent";
 import {
   mapCurrentlyInsured,
+  mapGender,
   mapHealthScheme,
   mapInsurerTenure,
   mapPeopleToCover,
@@ -93,6 +94,11 @@ export function buildVertiklFields(
     consent_status: CONSENT_STATUS_ACTIVE,
   };
 
+  const gender = mapGender(form.civility);
+  if (gender) {
+    fields.gender = gender;
+  }
+
   if (partnerDateOfBirth) {
     fields.partner_date_of_birth = partnerDateOfBirth;
   }
@@ -131,7 +137,7 @@ export function buildVertiklFields(
     fields.time_insured = timeInsured;
   }
 
-  // Intentionally omitted: familyStatus, insurer, citiesOptions, civility.
+  // Intentionally omitted: familyStatus, insurer, citiesOptions.
   // WhatsApp is ONLY consent_whatsapp — never added to consent_channels.
   // Acquisition (utm_*, fbclid, gclid) not mapped to Vertikl fields yet.
 

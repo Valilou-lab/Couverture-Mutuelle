@@ -25,6 +25,9 @@ export type VertiklTimeInsured =
   | "entre2et5ans"
   | "plusde5ans";
 
+/** Vertikl ENUM for civility (`gender`). */
+export type VertiklGender = "Madame" | "Monsieur" | "Autre";
+
 export type VertiklConsentChannel =
   | "telephone"
   | "email"
@@ -37,6 +40,8 @@ export type VertiklLeadFields = {
   phone: string;
   email: string;
   date_of_birth: string;
+  /** Optional — mapped from form civility. */
+  gender?: VertiklGender;
   partner_date_of_birth?: string;
   postal_code: string;
   city?: string;
