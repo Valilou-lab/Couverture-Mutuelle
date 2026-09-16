@@ -60,13 +60,19 @@ export function TikTokHero() {
 
           <a
             href="#formulaire-devis"
-            className="mt-7 inline-flex min-h-14 w-full max-w-sm items-center justify-center gap-2.5 rounded-full bg-brand px-5 font-sora text-base font-semibold uppercase tracking-wide text-white shadow-[0_14px_32px_-10px_rgba(109,40,217,0.6)] transition hover:bg-[#5b21b6] sm:mt-8 sm:min-h-[3.75rem] sm:gap-3 sm:px-7 sm:text-lg"
+            className="tiktok-cta mt-7 inline-flex min-h-14 w-full max-w-sm items-center justify-center gap-2.5 rounded-full bg-brand px-5 font-sora text-base font-semibold uppercase tracking-wide text-white sm:mt-8 sm:min-h-[3.75rem] sm:gap-3 sm:px-7 sm:text-lg"
           >
-            <span aria-hidden="true" className="text-lg leading-none sm:text-xl">
+            <span
+              aria-hidden="true"
+              className="tiktok-cta-arrow text-lg leading-none sm:text-xl"
+            >
               ↓
             </span>
             Obtenir mon devis
-            <span aria-hidden="true" className="text-lg leading-none sm:text-xl">
+            <span
+              aria-hidden="true"
+              className="tiktok-cta-arrow text-lg leading-none sm:text-xl"
+            >
               ↓
             </span>
           </a>
@@ -89,6 +95,7 @@ export function TikTokHero() {
               firstStepNote="couverturemutuelle.fr s’engage à vous mettre en relation avec des courtiers certifiés en moins de 30 minutes."
               careNeedsTitle="Qu’est-ce qui compte le plus pour vous dans votre mutuelle ?"
               coveredPersonsTitle="Qui doit-être assuré ?"
+              accentQuestions
             />
           </div>
         </div>

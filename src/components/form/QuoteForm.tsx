@@ -120,6 +120,7 @@ type QuoteFormProps = {
   firstStep?: FormStepId;
   firstStepIntro?: string;
   firstStepNote?: string;
+  accentQuestions?: boolean;
 };
 
 export function QuoteForm({
@@ -128,6 +129,7 @@ export function QuoteForm({
   firstStep,
   firstStepIntro,
   firstStepNote,
+  accentQuestions = false,
 }: QuoteFormProps = {}) {
   const router = useRouter();
   const {
@@ -412,7 +414,9 @@ export function QuoteForm({
     <div
       ref={formRootRef}
       id="formulaire-devis"
-      className="form-glow-pulse relative z-10 scroll-mt-28 overflow-visible rounded-[1.75rem] border-2 border-brand/40 bg-white p-3.5 pb-2 sm:p-5 sm:pb-3 lg:p-8 lg:pb-4"
+      className={`form-glow-pulse relative z-10 scroll-mt-28 overflow-visible rounded-[1.75rem] border-2 border-brand/40 bg-white p-3.5 pb-2 sm:p-5 sm:pb-3 lg:p-8 lg:pb-4${
+        accentQuestions ? " tiktok-question-titles" : ""
+      }`}
     >
       {firstStep ? null : (
         <p className="mb-4 hidden text-center font-manrope text-xl font-extrabold leading-snug tracking-tight text-[#3b0764] sm:mb-5 sm:text-2xl lg:mb-5 lg:block lg:text-[1.7rem]">

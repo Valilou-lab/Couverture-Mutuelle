@@ -306,7 +306,82 @@ body {
   animation: calc-chrono-text 1.8s ease-in-out infinite;
 }
 
+/* TikTok landing CTA only — soft pulse for 55+ audience */
+@keyframes tiktok-cta-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow:
+      0 14px 32px -10px rgba(109, 40, 217, 0.6),
+      0 0 16px 0 rgba(109, 40, 217, 0.16);
+  }
+  50% {
+    transform: scale(1.02);
+    box-shadow:
+      0 16px 36px -8px rgba(109, 40, 217, 0.7),
+      0 0 26px 5px rgba(109, 40, 217, 0.26);
+  }
+}
+
+@keyframes tiktok-cta-arrow {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(3px);
+  }
+}
+
+.tiktok-cta {
+  box-shadow:
+    0 14px 32px -10px rgba(109, 40, 217, 0.6),
+    0 0 16px 0 rgba(109, 40, 217, 0.16);
+  animation: tiktok-cta-pulse 2.6s ease-in-out infinite;
+  touch-action: manipulation;
+  transition: background-color 200ms ease;
+}
+
+.tiktok-question-titles h2 {
+  color: var(--brand);
+}
+
+.tiktok-cta-arrow {
+  display: inline-block;
+  animation: tiktok-cta-arrow 2.2s ease-in-out infinite;
+}
+
+.tiktok-cta:active {
+  animation-play-state: paused;
+  background-color: #5b21b6;
+  transform: scale(1.02);
+  box-shadow:
+    0 20px 44px -8px rgba(109, 40, 217, 0.8),
+    0 0 30px 7px rgba(109, 40, 217, 0.32);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .tiktok-cta:hover {
+    animation-play-state: paused;
+    background-color: #5b21b6;
+    transform: scale(1.02);
+    box-shadow:
+      0 20px 44px -8px rgba(109, 40, 217, 0.8),
+      0 0 30px 7px rgba(109, 40, 217, 0.32);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .tiktok-cta,
+  .tiktok-cta-arrow {
+    animation: none !important;
+    transform: none !important;
+  }
+
+  .tiktok-cta {
+    box-shadow: 0 14px 32px -10px rgba(109, 40, 217, 0.6);
+  }
+
   .calc-btn-ready:not(:disabled):hover {
     animation: none;
     transform: none;
