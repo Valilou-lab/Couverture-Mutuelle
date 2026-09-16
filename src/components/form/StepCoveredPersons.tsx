@@ -13,6 +13,7 @@ type Props = {
   data: QuoteFormData;
   errors: FieldErrors;
   disabled?: boolean;
+  title?: string;
   onSelectAndAdvance: (id: CoveredPersonId) => void;
   onBack: () => void;
 };
@@ -21,13 +22,14 @@ export function StepCoveredPersons({
   data,
   errors,
   disabled = false,
+  title = "Qui souhaitez-vous assurer\u00a0?",
   onSelectAndAdvance,
   onBack,
 }: Props) {
   return (
     <div>
       <h2 className="text-center text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
-        Qui souhaitez-vous assurer&nbsp;?
+        {title}
       </h2>
       <div className="mt-5 grid gap-2.5">
         {COVERED_PERSONS.map((item) => (

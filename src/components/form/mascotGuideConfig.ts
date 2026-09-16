@@ -122,7 +122,16 @@ const GUIDE_BY_STEP: Partial<Record<FormStepId, FormMascotContent>> = {
 
 export function getFormMascotContent(
   step: FormStepId,
+  options?: { isFirstStep?: boolean },
 ): FormMascotContent | null {
+  if (options?.isFirstStep && step === "healthRegime") {
+    return {
+      pose: "sourit-et-salue",
+      title: "Bienvenue !",
+      lines: ["Commençons par votre", "régime de santé."],
+      bubbleTone: "mint",
+    };
+  }
   return GUIDE_BY_STEP[step] ?? null;
 }
 

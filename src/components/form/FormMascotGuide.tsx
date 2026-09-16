@@ -13,20 +13,22 @@ type Props = {
   offersCount?: number | null;
   /** Slightly roomier layout on analyzing / confirmation. */
   featured?: boolean;
+  isFirstStep?: boolean;
 };
 
 export function FormMascotGuide({
   step,
   offersCount = null,
   featured = false,
+  isFirstStep = false,
 }: Props) {
-  const content = getFormMascotContent(step);
+  const content = getFormMascotContent(step, { isFirstStep });
   const [visible, setVisible] = useState(true);
   const [display, setDisplay] = useState(content);
   const [animKey, setAnimKey] = useState(0);
 
   useEffect(() => {
-    const next = getFormMascotContent(step);
+    const next = getFormMascotContent(step, { isFirstStep });
     if (!next) return;
 
     const reduced =
@@ -46,7 +48,7 @@ export function FormMascotGuide({
       setVisible(true);
     }, 130);
     return () => window.clearTimeout(id);
-  }, [step]);
+  }, [isFirstStep, step]);
 
   if (!display) return null;
 
@@ -101,7 +103,7 @@ export function FormMascotGuide({
           className={`relative z-[2] flex min-w-0 items-center pr-2.5 sm:pr-3 ${
             featured
               ? "w-[62%] translate-x-0 pl-3 sm:w-[54%] sm:-translate-x-3 sm:pl-0 sm:-translate-y-1"
-              : "w-1/2 translate-x-0 pl-4 -translate-y-2 sm:-translate-x-7 sm:pl-0 sm:-translate-y-2.5"
+              : "w-1/2 -translate-x-5 pl-0 pr-4 -translate-y-2 sm:-translate-x-9 sm:pr-3 sm:-translate-y-2.5"
           }`}
         >
           <div

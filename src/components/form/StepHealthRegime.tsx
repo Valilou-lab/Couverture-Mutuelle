@@ -13,6 +13,7 @@ type Props = {
   data: QuoteFormData;
   errors: FieldErrors;
   disabled?: boolean;
+  showBack?: boolean;
   onSelectAndAdvance: (id: HealthRegimeId) => void;
   onBack: () => void;
 };
@@ -21,6 +22,7 @@ export function StepHealthRegime({
   data,
   errors,
   disabled = false,
+  showBack = true,
   onSelectAndAdvance,
   onBack,
 }: Props) {
@@ -48,7 +50,12 @@ export function StepHealthRegime({
           {errors.healthRegime}
         </p>
       ) : null}
-      <FormNavigation onBack={onBack} showNext={false} disabled={disabled} />
+      <FormNavigation
+        onBack={onBack}
+        showBack={showBack}
+        showNext={false}
+        disabled={disabled}
+      />
     </div>
   );
 }

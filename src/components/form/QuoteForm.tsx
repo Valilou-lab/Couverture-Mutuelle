@@ -39,11 +39,20 @@ const ADVANCE_DELAY_MS = 320;
 const SUBMIT_ERROR_MESSAGE =
   "Une erreur est survenue lors de l’envoi de votre demande. Merci de réessayer.";
 
+function orderedFormSteps(firstStep?: FormStepId): FormStepId[] {
+  if (!firstStep || firstStep === FORM_STEPS[0]) return FORM_STEPS;
+  return [firstStep, ...FORM_STEPS.filter((step) => step !== firstStep)];
+}
+
 function getVisibleSteps(
   data: QuoteFormData,
-  options: { skipBirthDate: boolean; skipPostalCode: boolean },
+  options: {
+    skipBirthDate: boolean;
+    skipPostalCode: boolean;
+    firstStep?: FormStepId;
+  },
 ): FormStepId[] {
-  return FORM_STEPS.filter((step) => {
+  return orderedFormSteps(options.firstStep).filter((step) => {
     // Skip own-DOB step only when already known AND no spouse DOB is needed.
     if (
       step === "birthDate" &&
@@ -59,7 +68,11 @@ function getVisibleSteps(
 
 function findFirstNeededStep(
   data: QuoteFormData,
-  options: { skipBirthDate: boolean; skipPostalCode: boolean },
+  options: {
+    skipBirthDate: boolean;
+    skipPostalCode: boolean;
+    firstStep?: FormStepId;
+  },
 ): FormStepId {
   const steps = getVisibleSteps(data, options);
   for (const stepId of steps) {
@@ -69,7 +82,10 @@ function findFirstNeededStep(
       return stepId;
     }
   }
-  return steps.includes("contact") ? "contact" : "careNeeds";
+  return (
+    steps.find((stepId) => stepId !== "analyzing" && stepId !== "confirmation") ??
+    "careNeeds"
+  );
 }
 
 function applyCalculatorDefaults(
@@ -98,7 +114,21 @@ function applyCalculatorDefaults(
   };
 }
 
-export function QuoteForm() {
+type QuoteFormProps = {
+  careNeedsTitle?: string;
+  coveredPersonsTitle?: string;
+  firstStep?: FormStepId;
+  firstStepIntro?: string;
+  firstStepNote?: string;
+};
+
+export function QuoteForm({
+  careNeedsTitle,
+  coveredPersonsTitle,
+  firstStep,
+  firstStepIntro,
+  firstStepNote,
+}: QuoteFormProps = {}) {
   const router = useRouter();
   const {
     calculator,
@@ -117,7 +147,7 @@ export function QuoteForm() {
       skipPostalCode,
     }),
   );
-  const [step, setStep] = useState<FormStepId>("careNeeds");
+  const [step, setStep] = useState<FormStepId>(firstStep ?? "careNeeds");
   const [errors, setErrors] = useState<FieldErrors>({});
   const [isAdvancing, setIsAdvancing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -151,8 +181,8 @@ export function QuoteForm() {
   }, []);
 
   const stepOptions = useMemo(
-    () => ({ skipBirthDate, skipPostalCode }),
-    [skipBirthDate, skipPostalCode],
+    () => ({ skipBirthDate, skipPostalCode, firstStep }),
+    [firstStep, skipBirthDate, skipPostalCode],
   );
 
   const visibleSteps = useMemo(
@@ -384,17 +414,34 @@ export function QuoteForm() {
       id="formulaire-devis"
       className="form-glow-pulse relative z-10 scroll-mt-28 overflow-visible rounded-[1.75rem] border-2 border-brand/40 bg-white p-3.5 pb-2 sm:p-5 sm:pb-3 lg:p-8 lg:pb-4"
     >
-      <p className="mb-4 hidden text-center font-manrope text-xl font-extrabold leading-snug tracking-tight text-[#3b0764] sm:mb-5 sm:text-2xl lg:mb-5 lg:block lg:text-[1.7rem]">
-        VOTRE DEVIS EN{" "}
-        <span className="font-extrabold text-[#c026d3]">1&nbsp;MINUTE</span>{" "}
-        <span aria-hidden="true">⏱️</span>
-      </p>
+      {firstStep ? null : (
+        <p className="mb-4 hidden text-center font-manrope text-xl font-extrabold leading-snug tracking-tight text-[#3b0764] sm:mb-5 sm:text-2xl lg:mb-5 lg:block lg:text-[1.7rem]">
+          VOTRE DEVIS EN{" "}
+          <span className="font-extrabold text-[#c026d3]">1&nbsp;MINUTE</span>{" "}
+          <span aria-hidden="true">⏱️</span>
+        </p>
+      )}
+
+      {showProgress && (firstStepIntro || firstStepNote) ? (
+        <div className="mb-4 text-center sm:mb-5">
+          {firstStepIntro ? (
+            <p className="font-manrope text-lg font-extrabold tracking-tight text-[#3b0764] sm:text-xl">
+              {firstStepIntro}
+            </p>
+          ) : null}
+          {firstStepNote ? (
+            <p className="mt-2 text-sm font-medium leading-snug text-brand sm:text-base">
+              {firstStepNote}
+            </p>
+          ) : null}
+        </div>
+      ) : null}
 
       {showProgress ? (
         <ProgressBar
           current={progressCurrent}
           total={progressTotal}
-          percent={getFormProgressPercent(step)}
+          percent={firstStep ? undefined : getFormProgressPercent(step)}
         />
       ) : null}
 
@@ -404,7 +451,10 @@ export function QuoteForm() {
             data={data}
             errors={errors}
             disabled={isAdvancing}
+            title={careNeedsTitle}
+            showBack={stepIndex > 0}
             onChange={(careNeeds) => patch({ careNeeds })}
+            onBack={goBack}
             onNext={goNext}
           />
         ) : null}
@@ -414,6 +464,7 @@ export function QuoteForm() {
             data={data}
             errors={errors}
             disabled={isAdvancing}
+            title={coveredPersonsTitle}
             onSelectAndAdvance={(coveredPersons: CoveredPersonId) =>
               selectAndAdvance({
                 coveredPersons,
@@ -461,6 +512,7 @@ export function QuoteForm() {
             data={data}
             errors={errors}
             disabled={isAdvancing}
+            showBack={stepIndex > 0}
             onSelectAndAdvance={(healthRegime) =>
               selectAndAdvance({ healthRegime })
             }
@@ -501,7 +553,9 @@ export function QuoteForm() {
         ) : null}
       </div>
 
-      {showMascotGuide ? <FormMascotGuide step={step} /> : null}
+      {showMascotGuide ? (
+        <FormMascotGuide step={step} isFirstStep={stepIndex === 0} />
+      ) : null}
     </div>
   );
 }

@@ -10,7 +10,10 @@ type Props = {
   data: QuoteFormData;
   errors: FieldErrors;
   disabled?: boolean;
+  title?: string;
+  showBack?: boolean;
   onChange: (careNeeds: CareNeedId[]) => void;
+  onBack?: () => void;
   onNext: () => void;
 };
 
@@ -18,7 +21,10 @@ export function StepCareNeeds({
   data,
   errors,
   disabled = false,
+  title = "Que souhaitez-vous couvrir en priorité\u00a0?",
+  showBack = false,
   onChange,
+  onBack,
   onNext,
 }: Props) {
   function toggle(id: CareNeedId) {
@@ -43,7 +49,7 @@ export function StepCareNeeds({
   return (
     <div>
       <h2 className="text-center text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
-        Que souhaitez-vous couvrir en priorité&nbsp;?
+        {title}
       </h2>
       <p className="mt-0.5 text-center text-sm text-zinc-600 sm:mt-2 sm:text-base">
         (multi-choix possible)
@@ -79,7 +85,8 @@ export function StepCareNeeds({
         </p>
       ) : null}
       <FormNavigation
-        showBack={false}
+        showBack={showBack}
+        onBack={onBack}
         onNext={onNext}
         disabled={disabled}
       />
