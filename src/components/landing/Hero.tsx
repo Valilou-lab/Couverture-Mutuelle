@@ -15,7 +15,8 @@ function HeroCopyDesktop() {
         <Highlight>gratuitement</Highlight> et <Highlight>sans engagement</Highlight>
       </h1>
       <p className="mx-auto mt-4 max-w-xl rounded-2xl bg-white/80 px-4 py-3.5 text-lg font-medium leading-snug text-foreground ring-1 ring-brand/15 sm:mt-5 sm:px-5 sm:py-4 sm:text-xl lg:mx-0 lg:bg-white lg:text-[1.25rem] lg:leading-snug xl:text-[1.35rem]">
-        Une économie moyenne de <Highlight>380&nbsp;€ à l’année</Highlight>.
+        Vous pourriez économiser jusqu’à{" "}
+        <Highlight>380&nbsp;€ par an</Highlight> selon votre situation.
       </p>
     </>
   );
@@ -29,7 +30,8 @@ function HeroCopyMobile() {
         <span aria-hidden="true">⏱️</span>
       </h1>
       <p className="mt-1.5 text-sm leading-snug text-zinc-600 sm:text-base">
-        Une économie moyenne de <Highlight>380&nbsp;€ par an</Highlight>.
+        Vous pourriez économiser jusqu’à{" "}
+        <Highlight>380&nbsp;€ par an</Highlight> selon votre situation.
       </p>
     </div>
   );
