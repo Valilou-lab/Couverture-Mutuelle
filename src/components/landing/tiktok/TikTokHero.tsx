@@ -1,11 +1,26 @@
+"use client";
+
 import Image from "next/image";
 import { QuoteForm } from "@/components/form/QuoteForm";
+import { TikTokFunnelTracker } from "@/components/landing/tiktok/TikTokFunnelTracker";
+import {
+  trackTikTokCtaClick,
+  trackTikTokFormStart,
+  trackTikTokFormStepCompleted,
+  trackTikTokSubmitForm,
+} from "@/lib/tiktok-funnel";
 
 const REASSURANCE = [
   "Comparaison gratuite",
   "Sans engagement",
   "Adapté aux 55 ans et +",
 ] as const;
+
+const TIKTOK_FORM_FUNNEL = {
+  onInteract: trackTikTokFormStart,
+  onStepCompleted: trackTikTokFormStepCompleted,
+  onSubmitSuccess: trackTikTokSubmitForm,
+} as const;
 
 /**
  * TikTok landing hero — isolated from the main Hero.
@@ -15,6 +30,7 @@ const REASSURANCE = [
 export function TikTokHero() {
   return (
     <>
+      <TikTokFunnelTracker />
       <section className="relative bg-gradient-to-b from-brand-soft/80 via-[#f5f2ff] to-white">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-80 bg-[radial-gradient(circle_at_top,rgba(196,181,253,0.55),transparent_60%)]" />
 
@@ -61,6 +77,9 @@ export function TikTokHero() {
           <a
             href="#formulaire-devis"
             className="tiktok-cta mt-7 inline-flex min-h-14 w-full max-w-sm items-center justify-center gap-2.5 rounded-full bg-brand px-5 font-sora text-base font-semibold uppercase tracking-wide text-white sm:mt-8 sm:min-h-[3.75rem] sm:gap-3 sm:px-7 sm:text-lg"
+            onClick={() => {
+              trackTikTokCtaClick();
+            }}
           >
             <span
               aria-hidden="true"
@@ -96,6 +115,7 @@ export function TikTokHero() {
               careNeedsTitle="Qu’est-ce qui compte le plus pour vous dans votre mutuelle ?"
               coveredPersonsTitle="Qui doit-être assuré ?"
               accentQuestions
+              funnel={TIKTOK_FORM_FUNNEL}
             />
           </div>
         </div>

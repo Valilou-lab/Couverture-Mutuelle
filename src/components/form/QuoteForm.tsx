@@ -114,6 +114,12 @@ function applyCalculatorDefaults(
   };
 }
 
+type QuoteFormFunnel = {
+  onInteract?: () => void;
+  onStepCompleted?: (stepNumber: number) => void;
+  onSubmitSuccess?: () => void;
+};
+
 type QuoteFormProps = {
   careNeedsTitle?: string;
   coveredPersonsTitle?: string;
@@ -121,7 +127,22 @@ type QuoteFormProps = {
   firstStepIntro?: string;
   firstStepNote?: string;
   accentQuestions?: boolean;
+  funnel?: QuoteFormFunnel;
 };
+
+function questionStepNumber(
+  currentStep: FormStepId,
+  steps: FormStepId[],
+): number | null {
+  if (currentStep === "analyzing" || currentStep === "confirmation") {
+    return null;
+  }
+  const questions = steps.filter(
+    (item) => item !== "analyzing" && item !== "confirmation",
+  );
+  const index = questions.indexOf(currentStep);
+  return index >= 0 ? index + 1 : null;
+}
 
 export function QuoteForm({
   careNeedsTitle,
@@ -130,6 +151,7 @@ export function QuoteForm({
   firstStepIntro,
   firstStepNote,
   accentQuestions = false,
+  funnel,
 }: QuoteFormProps = {}) {
   const router = useRouter();
   const {
@@ -203,11 +225,15 @@ export function QuoteForm({
       .length || 1,
   );
 
-  const patch = useCallback((partial: Partial<QuoteFormData>) => {
-    setData((current) => ({ ...current, ...partial }));
-    setErrors({});
-    setSubmitError(null);
-  }, []);
+  const patch = useCallback(
+    (partial: Partial<QuoteFormData>) => {
+      funnel?.onInteract?.();
+      setData((current) => ({ ...current, ...partial }));
+      setErrors({});
+      setSubmitError(null);
+    },
+    [funnel],
+  );
 
   const setPostalCode = useCallback(
     (postalCode: string) => patch({ postalCode }),
@@ -261,13 +287,17 @@ export function QuoteForm({
 
       const steps = getVisibleSteps(nextData, stepOptions);
       const currentIndex = steps.indexOf(currentStep);
+      const completed = questionStepNumber(currentStep, steps);
+      if (completed != null) {
+        funnel?.onStepCompleted?.(completed);
+      }
       const nextStep = steps[currentIndex + 1];
       if (nextStep) {
         goTo(nextStep);
       }
       unlockLater();
     },
-    [goTo, stepOptions, unlockLater],
+    [funnel, goTo, stepOptions, unlockLater],
   );
 
   const submitLead = useCallback(async () => {
@@ -317,6 +347,7 @@ export function QuoteForm({
         leadCompletedPushedRef.current = true;
         pushLeadCompletedToDataLayer();
       }
+      funnel?.onSubmitSuccess?.();
 
       router.push("/confirmation");
     } catch {
@@ -326,7 +357,7 @@ export function QuoteForm({
       setIsAdvancing(false);
       advanceLock.current = false;
     }
-  }, [data, isSubmitting, router]);
+  }, [data, funnel, isSubmitting, router]);
 
   const goNext = useCallback(() => {
     if (advanceLock.current || isSubmitting) return;
@@ -342,6 +373,7 @@ export function QuoteForm({
   const selectAndAdvance = useCallback(
     (partial: Partial<QuoteFormData>) => {
       if (advanceLock.current) return;
+      funnel?.onInteract?.();
       advanceLock.current = true;
       setIsAdvancing(true);
 
@@ -354,7 +386,7 @@ export function QuoteForm({
       }, ADVANCE_DELAY_MS);
       timers.current.push(id);
     },
-    [data, goNextFrom, step],
+    [data, funnel, goNextFrom, step],
   );
 
   const goBack = useCallback(() => {
