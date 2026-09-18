@@ -140,7 +140,7 @@ export function CookieConsentUI() {
       root.style.scrollPaddingBottom = "";
       return;
     }
-    root.style.scrollPaddingBottom = "max(11rem, 30svh)";
+    root.style.scrollPaddingBottom = "max(10rem, 28svh)";
     return () => {
       root.style.scrollPaddingBottom = "";
     };
@@ -150,23 +150,23 @@ export function CookieConsentUI() {
     <>
       {bannerOpen ? (
         <div
-          className="pointer-events-none fixed inset-x-0 bottom-0 z-[80] px-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:px-6 sm:pb-5"
+          className="pointer-events-none fixed inset-x-0 bottom-0 z-[80] flex justify-center px-3 pb-[max(12px,env(safe-area-inset-bottom))] sm:px-6 sm:pb-5"
           role="region"
           aria-labelledby="cookie-banner-title"
           aria-describedby="cookie-banner-desc"
         >
-          <div className="pointer-events-auto mx-auto flex max-h-[30svh] w-full max-w-lg flex-col overflow-hidden rounded-2xl border border-brand/15 bg-white/95 p-3 shadow-[0_10px_32px_-10px_rgba(59,7,100,0.28)] backdrop-blur-sm sm:max-w-xl sm:p-4">
+          <div className="pointer-events-auto flex max-h-[30svh] w-full max-w-[520px] flex-col overflow-hidden rounded-3xl border border-[#D9C6FF] bg-[#F4EEFF] p-3 shadow-[0_8px_24px_-8px_rgba(109,40,217,0.22)] sm:p-3.5">
             <div className="flex min-h-0 items-start gap-2 overflow-y-auto">
               <div className="min-w-0 flex-1">
                 <p
                   id="cookie-banner-title"
-                  className="font-sora text-sm font-bold tracking-tight text-[#3b0764] sm:text-[0.9375rem]"
+                  className="font-sora text-sm font-bold tracking-tight text-[#3b0764]"
                 >
                   Vous gardez le contrôle.
                 </p>
                 <p
                   id="cookie-banner-desc"
-                  className="mt-0.5 text-[0.75rem] leading-snug text-zinc-600 sm:text-[0.8125rem]"
+                  className="mt-0.5 text-[0.75rem] leading-snug text-[#4c1d95]/80"
                 >
                   Cookies publicitaires pour mesurer nos campagnes. Votre devis
                   n’est pas impacté.
@@ -174,7 +174,7 @@ export function CookieConsentUI() {
                 <button
                   type="button"
                   onClick={openPreferences}
-                  className="mt-1 text-[0.75rem] font-medium text-brand/80 underline underline-offset-2 transition hover:text-brand"
+                  className="mt-1 text-[0.75rem] font-medium text-brand underline underline-offset-2 transition hover:text-[#5b21b6]"
                 >
                   Gérer mes cookies
                 </button>
@@ -183,7 +183,7 @@ export function CookieConsentUI() {
                 type="button"
                 onClick={refuseOptional}
                 aria-label="Fermer et refuser les cookies non essentiels"
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-zinc-500 transition hover:bg-brand-soft hover:text-brand"
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[#6d28d9]/70 transition hover:bg-white hover:text-brand"
               >
                 <span aria-hidden="true" className="text-lg leading-none">
                   ×
@@ -195,14 +195,14 @@ export function CookieConsentUI() {
               <button
                 type="button"
                 onClick={refuseOptional}
-                className="min-h-9 rounded-full border border-zinc-300 bg-white px-3 font-sora text-[0.8125rem] font-semibold text-foreground transition hover:border-brand hover:bg-brand-soft hover:text-brand sm:min-h-10 sm:text-sm"
+                className="min-h-10 rounded-full border-2 border-brand bg-white px-3 font-sora text-[0.8125rem] font-semibold text-brand transition hover:bg-white/80 sm:text-sm"
               >
                 Tout refuser
               </button>
               <button
                 type="button"
                 onClick={acceptAll}
-                className="min-h-9 rounded-full border border-brand bg-brand px-3 font-sora text-[0.8125rem] font-semibold text-white transition hover:bg-[#5b21b6] sm:min-h-10 sm:text-sm"
+                className="min-h-10 rounded-full border-2 border-brand bg-brand px-3 font-sora text-[0.8125rem] font-semibold text-white transition hover:bg-[#5b21b6] sm:text-sm"
               >
                 Tout accepter
               </button>

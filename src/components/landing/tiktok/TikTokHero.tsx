@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { QuoteForm } from "@/components/form/QuoteForm";
 import { TikTokFunnelTracker } from "@/components/landing/tiktok/TikTokFunnelTracker";
 import {
@@ -34,30 +33,21 @@ export function TikTokHero() {
       <section className="relative bg-gradient-to-b from-brand-soft/80 via-[#f5f2ff] to-white">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-80 bg-[radial-gradient(circle_at_top,rgba(196,181,253,0.55),transparent_60%)]" />
 
-        <div className="relative mx-auto flex min-h-[calc(100svh-3.75rem)] w-full max-w-lg flex-col items-center justify-center px-5 py-8 text-center sm:min-h-[calc(100svh-5.5rem)] sm:px-6 sm:py-10 md:min-h-[calc(100svh-6rem)]">
-          <p className="mb-3 inline-flex max-w-sm rounded-full bg-white px-4 py-1.5 text-sm italic leading-snug text-brand shadow-sm ring-1 ring-brand/20 sm:mb-4 sm:px-5 sm:py-2 sm:text-base">
+        <div className="relative mx-auto flex w-full max-w-lg flex-col items-center px-5 pb-6 pt-5 text-center sm:min-h-[calc(100svh-5.5rem)] sm:justify-center sm:px-6 sm:py-10 md:min-h-[calc(100svh-6rem)]">
+          <p className="mb-2.5 inline-flex max-w-sm rounded-full bg-white px-4 py-1.5 text-sm italic leading-snug text-brand shadow-sm ring-1 ring-brand/20 sm:mb-4 sm:px-5 sm:py-2 sm:text-base">
             Le comparateur n°1 de vos économies
           </p>
-
-          <Image
-            src="/images/mascotte-sourit-et-salue.png"
-            alt=""
-            width={160}
-            height={160}
-            priority
-            className="mb-3 h-16 w-auto select-none sm:mb-4 sm:h-[4.5rem]"
-          />
 
           <h1 className="max-w-[20rem] font-manrope text-[1.75rem] font-extrabold leading-[1.15] tracking-tight text-[#3b0764] sm:max-w-md sm:text-[2.15rem]">
             Comparez les mutuelles en moins de{" "}
             <span className="font-extrabold text-[#c026d3]">1&nbsp;minute</span>
           </h1>
 
-          <p className="mt-3 max-w-sm text-[0.9375rem] leading-snug text-zinc-600 sm:mt-4 sm:text-base">
+          <p className="mt-2.5 max-w-sm text-[0.9375rem] leading-snug text-zinc-600 sm:mt-4 sm:text-base">
             Votre devis gratuit et sans engagement parmi les meilleures offres du marché
           </p>
 
-          <ul className="mt-5 flex max-w-sm flex-wrap items-center justify-center gap-2 sm:mt-6">
+          <ul className="mt-4 flex max-w-sm flex-wrap items-center justify-center gap-2 sm:mt-6">
             {REASSURANCE.map((item) => (
               <li
                 key={item}
@@ -76,7 +66,7 @@ export function TikTokHero() {
 
           <a
             href="#formulaire-devis"
-            className="tiktok-cta mt-7 inline-flex min-h-14 w-full max-w-sm items-center justify-center gap-2.5 rounded-full bg-brand px-5 font-sora text-base font-semibold uppercase tracking-wide text-white sm:mt-8 sm:min-h-[3.75rem] sm:gap-3 sm:px-7 sm:text-lg"
+            className="tiktok-cta mt-5 inline-flex min-h-14 w-full max-w-sm items-center justify-center gap-2.5 rounded-full bg-brand px-5 font-sora text-base font-semibold uppercase tracking-wide text-white sm:mt-8 sm:min-h-[3.75rem] sm:gap-3 sm:px-7 sm:text-lg"
             onClick={() => {
               trackTikTokCtaClick();
             }}
@@ -96,7 +86,7 @@ export function TikTokHero() {
             </span>
           </a>
 
-          <p className="mt-3 text-[0.6875rem] font-medium tracking-wide text-zinc-500 sm:text-xs">
+          <p className="mt-2.5 text-[0.6875rem] font-medium tracking-wide text-zinc-500 sm:text-xs">
             Gratuit • Données sécurisées • Demande rapide
           </p>
         </div>
