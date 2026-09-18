@@ -33,7 +33,7 @@ export function TikTokHero() {
       <section className="relative bg-gradient-to-b from-brand-soft/80 via-[#f5f2ff] to-white">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-80 bg-[radial-gradient(circle_at_top,rgba(196,181,253,0.55),transparent_60%)]" />
 
-        <div className="relative mx-auto flex w-full max-w-lg flex-col items-center px-5 pb-6 pt-5 text-center sm:min-h-[calc(100svh-5.5rem)] sm:justify-center sm:px-6 sm:py-10 md:min-h-[calc(100svh-6rem)]">
+        <div className="relative mx-auto flex min-h-[calc(100svh-3.75rem)] w-full max-w-lg flex-col items-center px-5 pt-6 text-center sm:min-h-[calc(100svh-5.5rem)] sm:max-w-xl sm:px-6 sm:pt-10 md:min-h-[calc(100svh-6rem)]">
           <p className="mb-2.5 inline-flex max-w-sm rounded-full bg-white px-4 py-1.5 text-sm italic leading-snug text-brand shadow-sm ring-1 ring-brand/20 sm:mb-4 sm:px-5 sm:py-2 sm:text-base">
             Le comparateur n°1 de vos économies
           </p>
@@ -89,6 +89,11 @@ export function TikTokHero() {
           <p className="mt-2.5 text-[0.6875rem] font-medium tracking-wide text-zinc-500 sm:text-xs">
             Gratuit • Données sécurisées • Demande rapide
           </p>
+
+          <div
+            className="min-h-20 w-full flex-1 sm:min-h-28"
+            aria-hidden="true"
+          />
         </div>
       </section>
 
@@ -96,7 +101,7 @@ export function TikTokHero() {
         id="devis"
         className="relative scroll-mt-24 bg-gradient-to-b from-white via-[#f5f2ff] to-white"
       >
-        <div className="relative mx-auto w-full max-w-6xl min-w-0 px-4 pb-6 pt-4 sm:px-6 sm:pb-8 sm:pt-6 lg:pb-10 lg:pt-8">
+        <div className="relative mx-auto w-full max-w-6xl min-w-0 px-4 pb-6 pt-10 sm:px-6 sm:pb-8 sm:pt-14 lg:pb-10 lg:pt-16">
           <div className="relative z-10 mx-auto w-full min-w-0 max-w-xl overflow-x-clip lg:max-w-2xl">
             <QuoteForm
               firstStep="healthRegime"
