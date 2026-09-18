@@ -12,7 +12,6 @@ import {
 const REASSURANCE = [
   "Comparaison gratuite",
   "Sans engagement",
-  "Adapté aux 55 ans et +",
 ] as const;
 
 const TIKTOK_FORM_FUNNEL = {
@@ -33,67 +32,68 @@ export function TikTokHero() {
       <section className="relative bg-gradient-to-b from-brand-soft/80 via-[#f5f2ff] to-white">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-80 bg-[radial-gradient(circle_at_top,rgba(196,181,253,0.55),transparent_60%)]" />
 
-        <div className="relative mx-auto flex min-h-[calc(100svh-3.75rem)] w-full max-w-lg flex-col items-center px-5 pt-6 text-center sm:min-h-[calc(100svh-5.5rem)] sm:max-w-xl sm:px-6 sm:pt-10 md:min-h-[calc(100svh-6rem)]">
-          <p className="mb-2.5 inline-flex max-w-sm rounded-full bg-white px-4 py-1.5 text-sm italic leading-snug text-brand shadow-sm ring-1 ring-brand/20 sm:mb-4 sm:px-5 sm:py-2 sm:text-base">
-            Le comparateur n°1 de vos économies
-          </p>
+        <div className="relative mx-auto flex min-h-[calc(100svh-3.75rem)] w-full max-w-lg flex-col items-center px-5 pb-[11rem] pt-12 text-center sm:min-h-[calc(100svh-5.5rem)] sm:max-w-xl sm:px-6 sm:pb-28 sm:pt-16 md:min-h-[calc(100svh-6rem)]">
+          <div className="flex flex-col items-center gap-3 sm:gap-4">
+            <p className="inline-flex max-w-sm rounded-full bg-white px-4 py-1.5 text-sm italic leading-snug text-brand shadow-sm ring-1 ring-brand/20 sm:px-5 sm:py-2 sm:text-base">
+              Le comparateur n°1 de vos économies
+            </p>
 
-          <h1 className="max-w-[20rem] font-manrope text-[1.75rem] font-extrabold leading-[1.15] tracking-tight text-[#3b0764] sm:max-w-md sm:text-[2.15rem]">
-            Comparez les mutuelles en moins de{" "}
-            <span className="font-extrabold text-[#c026d3]">1&nbsp;minute</span>
-          </h1>
+            <h1 className="max-w-[20rem] font-manrope text-[1.75rem] font-extrabold leading-[1.15] tracking-tight text-[#3b0764] sm:max-w-md sm:text-[2.15rem]">
+              Comparez les mutuelles en moins de{" "}
+              <span className="font-extrabold text-[#c026d3]">1&nbsp;minute</span>
+            </h1>
+          </div>
 
-          <p className="mt-2.5 max-w-sm text-[0.9375rem] leading-snug text-zinc-600 sm:mt-4 sm:text-base">
-            Votre devis gratuit et sans engagement parmi les meilleures offres du marché
-          </p>
+          <div className="flex min-h-0 w-full flex-1 flex-col items-center justify-center gap-5 sm:gap-6">
+            <p className="max-w-sm text-[0.9375rem] leading-snug text-zinc-600 sm:text-base">
+              Votre devis gratuit et sans engagement parmi les meilleures offres du marché
+            </p>
 
-          <ul className="mt-4 flex max-w-sm flex-wrap items-center justify-center gap-2 sm:mt-6">
-            {REASSURANCE.map((item) => (
-              <li
-                key={item}
-                className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#3b0764] shadow-sm ring-1 ring-brand/15 sm:text-sm"
-              >
-                <span
-                  className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-brand text-[0.625rem] font-bold text-white"
-                  aria-hidden="true"
+            <ul className="flex max-w-sm flex-wrap items-center justify-center gap-2">
+              {REASSURANCE.map((item) => (
+                <li
+                  key={item}
+                  className="inline-flex items-center gap-1.5 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-[#3b0764] shadow-sm ring-1 ring-brand/15 sm:text-sm"
                 >
-                  ✓
-                </span>
-                {item}
-              </li>
-            ))}
-          </ul>
+                  <span
+                    className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-brand text-[0.625rem] font-bold text-white"
+                    aria-hidden="true"
+                  >
+                    ✓
+                  </span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
 
-          <a
-            href="#formulaire-devis"
-            className="tiktok-cta mt-5 inline-flex min-h-14 w-full max-w-sm items-center justify-center gap-2.5 rounded-full bg-brand px-5 font-sora text-base font-semibold uppercase tracking-wide text-white sm:mt-8 sm:min-h-[3.75rem] sm:gap-3 sm:px-7 sm:text-lg"
-            onClick={() => {
-              trackTikTokCtaClick();
-            }}
-          >
-            <span
-              aria-hidden="true"
-              className="tiktok-cta-arrow text-lg leading-none sm:text-xl"
+          <div className="flex w-full shrink-0 flex-col items-center gap-3 sm:gap-4">
+            <a
+              href="#formulaire-devis"
+              className="tiktok-cta inline-flex min-h-14 w-full max-w-sm items-center justify-center gap-2.5 rounded-full bg-brand px-5 font-sora text-base font-semibold uppercase tracking-wide text-white sm:min-h-[3.75rem] sm:gap-3 sm:px-7 sm:text-lg"
+              onClick={() => {
+                trackTikTokCtaClick();
+              }}
             >
-              ↓
-            </span>
-            Obtenir mon devis
-            <span
-              aria-hidden="true"
-              className="tiktok-cta-arrow text-lg leading-none sm:text-xl"
-            >
-              ↓
-            </span>
-          </a>
+              <span
+                aria-hidden="true"
+                className="tiktok-cta-arrow text-lg leading-none sm:text-xl"
+              >
+                ↓
+              </span>
+              Obtenir mon devis
+              <span
+                aria-hidden="true"
+                className="tiktok-cta-arrow text-lg leading-none sm:text-xl"
+              >
+                ↓
+              </span>
+            </a>
 
-          <p className="mt-2.5 text-[0.6875rem] font-medium tracking-wide text-zinc-500 sm:text-xs">
-            Gratuit • Données sécurisées • Demande rapide
-          </p>
-
-          <div
-            className="min-h-20 w-full flex-1 sm:min-h-28"
-            aria-hidden="true"
-          />
+            <p className="text-[0.6875rem] font-medium tracking-wide text-zinc-500 sm:text-xs">
+              Gratuit • Données sécurisées • Demande rapide
+            </p>
+          </div>
         </div>
       </section>
 
