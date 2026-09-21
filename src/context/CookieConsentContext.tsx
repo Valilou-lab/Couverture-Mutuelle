@@ -21,6 +21,7 @@ import {
   type CookieConsentChoice,
   type CookieConsentPreferences,
 } from "@/lib/cookie-consent";
+import { updateGoogleConsentMode } from "@/lib/google-ads";
 import { pushCookieConsentToDataLayer } from "@/lib/gtm-consent";
 
 type CookieConsentContextValue = {
@@ -88,7 +89,14 @@ export function CookieConsentProvider({ children }: { children: ReactNode }) {
     // Initial push on client mount + every later marketingAllowed change.
     // Payload: event + marketingAllowed only (no PII / form / health data).
     pushCookieConsentToDataLayer(marketingAllowed);
-  }, [marketingAllowed]);
+    // Google Consent Mode v2 — same banner choice, no second banner.
+    // Skip while preferences is null: the head script already set default denied
+    // and restored a stored choice. Updating denied here would clobber a grant.
+    // Tout accepter / Tout refuser / Enregistrer mes choix all go through persist().
+    if (preferences) {
+      updateGoogleConsentMode(preferences);
+    }
+  }, [marketingAllowed, preferences]);
 
   const value = useMemo<CookieConsentContextValue>(
     () => ({

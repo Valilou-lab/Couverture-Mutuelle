@@ -3,6 +3,7 @@ import { Baloo_2, DM_Sans, Manrope, Nunito, Sora } from "next/font/google";
 import { AcquisitionCapture } from "@/components/acquisition/AcquisitionCapture";
 import { ChatbotSlot } from "@/components/chatbot/ChatbotSlot";
 import { CookieConsentUI } from "@/components/cookies/CookieConsentUI";
+import { GoogleAdsTag } from "@/components/gtm/GoogleAdsTag";
 import { GoogleTagManager } from "@/components/gtm/GoogleTagManager";
 import { CookieConsentProvider } from "@/context/CookieConsentContext";
 import { QuoteJourneyProvider } from "@/context/QuoteJourneyContext";
@@ -81,6 +82,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${dmSans.variable} ${manrope.variable} ${baloo2.variable} ${nunito.variable} ${sora.variable} h-full antialiased`}
     >
       <body className="min-h-full flex max-w-[100vw] flex-col overflow-x-hidden font-sans">
+        <GoogleAdsTag />
         <GoogleTagManager />
         <AcquisitionCapture />
         <CookieConsentProvider>

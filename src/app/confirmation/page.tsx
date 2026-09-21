@@ -10,9 +10,11 @@ export const metadata: Metadata = {
 };
 
 /**
- * Neutral confirmation URL for Meta Custom Conversion (page visit).
+ * Neutral confirmation URL after a successful lead.
+ * Used for Meta Custom Conversion (page visit) and Google Ads conversion measurement.
  * No PII, no form data, no lead id, no query string.
  * Does not push lead_completed — that stays only in QuoteForm after backend success.
+ * Google Ads tag AW-18465010704 is loaded once from the root layout, including here.
  */
 export default function ConfirmationPage() {
   return (
