@@ -2,12 +2,10 @@ import type {
   CareNeedId,
   CivilityId,
   CoveredPersonId,
-  HealthRegimeId,
 } from "@/components/form/types";
 import type { SavingsTenureId } from "@/lib/savings-engine";
 import type {
   VertiklGender,
-  VertiklHealthScheme,
   VertiklPeopleToCover,
   VertiklPriorityCare,
   VertiklTimeInsured,
@@ -19,13 +17,6 @@ export class VertiklMappingError extends Error {
     this.name = "VertiklMappingError";
   }
 }
-
-const HEALTH_SCHEME_MAP: Record<HealthRegimeId, VertiklHealthScheme> = {
-  general: "regime_general",
-  tns: "travailleur_non_salarie",
-  agricole: "regime_agricole",
-  "alsace-moselle": "alsace_moselle",
-};
 
 const PEOPLE_TO_COVER_MAP: Record<CoveredPersonId, VertiklPeopleToCover> = {
   moi: "moi",
@@ -43,17 +34,6 @@ const PRIORITY_CARE_MAP: Record<CareNeedId, VertiklPriorityCare> = {
   "soins-courants": "soins_courants",
   "je-ne-sais-pas": "je_ne_sais_pas",
 };
-
-export function mapHealthScheme(value: HealthRegimeId | ""): VertiklHealthScheme {
-  if (!value) {
-    throw new VertiklMappingError("healthRegime is required.");
-  }
-  const mapped = HEALTH_SCHEME_MAP[value];
-  if (!mapped) {
-    throw new VertiklMappingError(`Unmapped healthRegime: ${value}`);
-  }
-  return mapped;
-}
 
 export function mapPeopleToCover(
   value: CoveredPersonId | "",

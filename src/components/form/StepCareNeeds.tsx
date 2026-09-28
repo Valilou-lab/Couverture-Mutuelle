@@ -6,14 +6,14 @@ import { OptionCard } from "./OptionCard";
 import { FormNavigation } from "./FormNavigation";
 import type { FieldErrors } from "./validation";
 
+/** Kept even when hidden — gated by SHOW_CARE_PRIORITIES_STEP in formConfig.ts. */
+
 type Props = {
   data: QuoteFormData;
   errors: FieldErrors;
   disabled?: boolean;
   title?: string;
-  showBack?: boolean;
   onChange: (careNeeds: CareNeedId[]) => void;
-  onBack?: () => void;
   onNext: () => void;
 };
 
@@ -22,9 +22,7 @@ export function StepCareNeeds({
   errors,
   disabled = false,
   title = "Que souhaitez-vous couvrir en priorité\u00a0?",
-  showBack = false,
   onChange,
-  onBack,
   onNext,
 }: Props) {
   function toggle(id: CareNeedId) {
@@ -84,12 +82,7 @@ export function StepCareNeeds({
           {errors.careNeeds}
         </p>
       ) : null}
-      <FormNavigation
-        showBack={showBack}
-        onBack={onBack}
-        onNext={onNext}
-        disabled={disabled}
-      />
+      <FormNavigation onNext={onNext} disabled={disabled} />
     </div>
   );
 }

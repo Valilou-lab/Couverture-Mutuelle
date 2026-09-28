@@ -9,24 +9,22 @@ import {
   type FormStepId,
   type QuoteFormData,
 } from "./types";
-import { validateStep, needsSpouseBirthDate, type FieldErrors } from "./validation";
+import { validateStep, shouldAskSpouseBirthDate, type FieldErrors } from "./validation";
+import { FormBackButton } from "./FormBackButton";
 import { ProgressBar } from "./ProgressBar";
 import { StepCareNeeds } from "./StepCareNeeds";
 import { StepCoveredPersons } from "./StepCoveredPersons";
 import { StepBirthDate } from "./StepBirthDate";
-import { StepHealthRegime } from "./StepHealthRegime";
+import { StepProfessionalStatus } from "./StepProfessionalStatus";
 import { StepAlreadyInsured } from "./StepAlreadyInsured";
 import { StepAnalyzing } from "./StepAnalyzing";
 import { StepContact } from "./StepContact";
-import { FormMascotGuide } from "./FormMascotGuide";
-import {
-  getFormProgressPercent,
-  randomOffersCount,
-} from "./mascotGuideConfig";
+import { randomOffersCount } from "./mascotGuideConfig";
 import { useQuoteJourney } from "@/context/QuoteJourneyContext";
 import { getStoredAcquisition } from "@/lib/acquisition";
 import { pushLeadCompletedToDataLayer } from "@/lib/gtm-consent";
 import { scrollQuoteFormIntoView } from "./scrollQuoteFormIntoView";
+import { isHiddenFormStep } from "./formConfig";
 
 const ADVANCE_DELAY_MS = 320;
 const SUBMIT_ERROR_MESSAGE =
@@ -37,7 +35,7 @@ const SAVINGS_FORM_STEPS: FormStepId[] = [
   "careNeeds",
   "coveredPersons",
   "birthDate",
-  "healthRegime",
+  "professionalStatus",
   "alreadyInsured",
   "analyzing",
   "contact",
@@ -46,8 +44,9 @@ const SAVINGS_FORM_STEPS: FormStepId[] = [
 
 function getVisibleSteps(data: QuoteFormData): FormStepId[] {
   return SAVINGS_FORM_STEPS.filter((step) => {
+    if (isHiddenFormStep(step)) return false;
     // Own DOB already collected in calculator — only keep this step for spouse DOB.
-    if (step === "birthDate" && !needsSpouseBirthDate(data)) return false;
+    if (step === "birthDate" && !shouldAskSpouseBirthDate(data)) return false;
     return true;
   });
 }
@@ -61,7 +60,7 @@ function findFirstNeededStep(data: QuoteFormData): FormStepId {
       return stepId;
     }
   }
-  return steps.includes("contact") ? "contact" : "careNeeds";
+  return steps.includes("contact") ? "contact" : "coveredPersons";
 }
 
 function withCalculatorDefaults(
@@ -89,7 +88,15 @@ export function SavingsQuoteForm() {
   const [data, setData] = useState<QuoteFormData>(() =>
     withCalculatorDefaults(initialFormData, calculator),
   );
-  const [step, setStep] = useState<FormStepId>("careNeeds");
+  const [step, setStep] = useState<FormStepId>(() => {
+    const steps = getVisibleSteps(
+      withCalculatorDefaults(initialFormData, calculator),
+    );
+    return (
+      steps.find((item) => item !== "analyzing" && item !== "confirmation") ??
+      "coveredPersons"
+    );
+  });
   const [errors, setErrors] = useState<FieldErrors>({});
   const [isAdvancing, setIsAdvancing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -151,6 +158,12 @@ export function SavingsQuoteForm() {
       return nextData;
     });
   }, [calculator, savingsQuoteFocusToken]);
+
+  useEffect(() => {
+    if (!visibleSteps.includes(step)) {
+      goTo(findFirstNeededStep(data));
+    }
+  }, [data, goTo, step, visibleSteps]);
 
   const unlockLater = useCallback(() => {
     const id = window.setTimeout(() => {
@@ -312,8 +325,6 @@ export function SavingsQuoteForm() {
   }, [goTo]);
 
   const showProgress = step !== "analyzing" && step !== "confirmation";
-  const showMascotGuide =
-    step !== "analyzing" && step !== "confirmation" && step !== "contact";
 
   useEffect(() => {
     if (step !== "contact") {
@@ -339,17 +350,25 @@ export function SavingsQuoteForm() {
       id="formulaire-devis-economies"
       className="form-glow-pulse relative z-10 scroll-mt-28 overflow-visible rounded-[1.75rem] border-2 border-brand/40 bg-white p-5 pb-2 sm:p-7 sm:pb-3 lg:p-8 lg:pb-4"
     >
-      <p className="mb-4 text-center font-manrope text-base font-bold leading-snug text-brand sm:mb-5 sm:text-lg">
+      {showProgress && stepIndex > 0 ? (
+        <FormBackButton
+          onBack={goBack}
+          disabled={isAdvancing || isSubmitting}
+          className="absolute left-2 top-2 z-20 sm:left-3 sm:top-3"
+        />
+      ) : null}
+
+      <p
+        className={`mb-4 text-center font-manrope text-base font-bold leading-snug text-brand sm:mb-5 sm:text-lg ${
+          showProgress && stepIndex > 0 ? "px-10" : ""
+        }`}
+      >
         Complétez pour recevoir vos devis personnalisés{" "}
         <span aria-hidden="true">⏱️</span>
       </p>
 
       {showProgress ? (
-        <ProgressBar
-          current={progressCurrent}
-          total={progressTotal}
-          percent={getFormProgressPercent(step)}
-        />
+        <ProgressBar current={progressCurrent} total={progressTotal} />
       ) : null}
 
       <div key={step} className="form-step-enter">
@@ -378,7 +397,6 @@ export function SavingsQuoteForm() {
                   : "",
               })
             }
-            onBack={goBack}
           />
         ) : null}
 
@@ -392,20 +410,18 @@ export function SavingsQuoteForm() {
             onChangeSpouseBirthDate={(spouseBirthDate) =>
               patch({ spouseBirthDate })
             }
-            onBack={goBack}
             onNext={goNext}
           />
         ) : null}
 
-        {step === "healthRegime" ? (
-          <StepHealthRegime
+        {step === "professionalStatus" ? (
+          <StepProfessionalStatus
             data={data}
             errors={errors}
             disabled={isAdvancing}
-            onSelectAndAdvance={(healthRegime) =>
-              selectAndAdvance({ healthRegime })
+            onSelectAndAdvance={(professionalStatus) =>
+              selectAndAdvance({ professionalStatus })
             }
-            onBack={goBack}
           />
         ) : null}
 
@@ -420,7 +436,6 @@ export function SavingsQuoteForm() {
                 insurer: "",
               })
             }
-            onBack={goBack}
           />
         ) : null}
 
@@ -436,13 +451,10 @@ export function SavingsQuoteForm() {
             offersCount={offersCount}
             submitError={submitError}
             onPatch={patch}
-            onBack={goBack}
             onNext={goNext}
           />
         ) : null}
       </div>
-
-      {showMascotGuide ? <FormMascotGuide step={step} /> : null}
     </div>
   );
 }

@@ -28,7 +28,7 @@ export type CompleteSavingsLead = {
   coveredPersons: QuoteFormData["coveredPersons"];
   spouseBirthDate: string;
   familyStatus: QuoteFormData["familyStatus"];
-  healthRegime: QuoteFormData["healthRegime"];
+  professionalStatus: QuoteFormData["professionalStatus"];
   alreadyInsured: QuoteFormData["alreadyInsured"];
   insurer: string;
   civility: QuoteFormData["civility"];
@@ -67,7 +67,7 @@ export function buildCompleteSavingsLead(input: {
     coveredPersons: form.coveredPersons,
     spouseBirthDate: form.spouseBirthDate,
     familyStatus: form.familyStatus,
-    healthRegime: form.healthRegime,
+    professionalStatus: form.professionalStatus,
     alreadyInsured: form.alreadyInsured,
     insurer: form.insurer,
     civility: form.civility,

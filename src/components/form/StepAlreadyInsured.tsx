@@ -2,15 +2,14 @@
 
 import type { QuoteFormData } from "./types";
 import { OptionCard } from "./OptionCard";
-import { FormNavigation } from "./FormNavigation";
 import type { FieldErrors } from "./validation";
 
+/** Kept even when hidden — gated by SHOW_ALREADY_INSURED_STEP in formConfig.ts. */
 type Props = {
   data: QuoteFormData;
   errors: FieldErrors;
   disabled?: boolean;
   onSelectAndAdvance: (value: "oui" | "non") => void;
-  onBack: () => void;
 };
 
 export function StepAlreadyInsured({
@@ -18,7 +17,6 @@ export function StepAlreadyInsured({
   errors,
   disabled = false,
   onSelectAndAdvance,
-  onBack,
 }: Props) {
   return (
     <div>
@@ -47,7 +45,6 @@ export function StepAlreadyInsured({
           {errors.alreadyInsured}
         </p>
       ) : null}
-      <FormNavigation onBack={onBack} showNext={false} disabled={disabled} />
     </div>
   );
 }

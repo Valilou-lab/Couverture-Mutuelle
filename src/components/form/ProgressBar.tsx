@@ -3,17 +3,13 @@
 type ProgressBarProps = {
   current: number;
   total: number;
-  /** When set, overrides current/total percentage (used for narrative progress). */
-  percent?: number;
 };
 
-export function ProgressBar({ current, total, percent: percentOverride }: ProgressBarProps) {
-  const percent =
-    percentOverride != null
-      ? Math.min(100, Math.max(0, Math.round(percentOverride)))
-      : Math.min(100, Math.round((current / total) * 100));
+export function ProgressBar({ current, total }: ProgressBarProps) {
+  const safeTotal = Math.max(1, total);
+  const safeCurrent = Math.min(safeTotal, Math.max(1, current));
+  const percent = Math.min(100, Math.round((safeCurrent / safeTotal) * 100));
 
-  // Couleurs plus “peps” à mesure que l’on avance
   const gradient =
     percent < 35
       ? "linear-gradient(105deg, #7c3aed 0%, #8b5cf6 35%, #a855f7 70%, #c084fc 100%)"
@@ -26,10 +22,10 @@ export function ProgressBar({ current, total, percent: percentOverride }: Progre
       <div
         className="relative h-7 overflow-hidden rounded-full bg-brand-soft shadow-inner sm:h-8"
         role="progressbar"
-        aria-valuenow={percent}
-        aria-valuemin={0}
-        aria-valuemax={100}
-        aria-label={`Progression : ${percent} %`}
+        aria-valuenow={safeCurrent}
+        aria-valuemin={1}
+        aria-valuemax={safeTotal}
+        aria-label={`Question ${safeCurrent} sur ${safeTotal}`}
       >
         <div
           className="relative h-full overflow-hidden rounded-full transition-[width] duration-500 ease-out"
@@ -43,7 +39,7 @@ export function ProgressBar({ current, total, percent: percentOverride }: Progre
             percent >= 45 ? "text-white drop-shadow-sm" : "text-[#3b0764]"
           }`}
         >
-          {percent}&nbsp;%
+          Question {safeCurrent} / {safeTotal}
         </span>
       </div>
     </div>

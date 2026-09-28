@@ -52,85 +52,59 @@ export function FormMascotGuide({
 
   if (!display) return null;
 
+  const message = display.lines.join(" ");
+
   return (
     <aside
       key={animKey}
-      className={`form-mascot-guide relative w-full overflow-visible ${
+      className={`form-mascot-guide w-full overflow-hidden rounded-2xl bg-brand-soft/80 ${
         featured ? "mt-3 sm:mt-4" : "mt-5 sm:mt-6"
       }`}
       aria-live="polite"
     >
-      {/* Fond du bloc — la mascotte peut dépasser par-dessus */}
       <div
-        className="pointer-events-none absolute inset-0 rounded-2xl bg-brand-soft/80"
-        aria-hidden="true"
-      />
-
-      <div
-        className={`relative flex items-center transition-all duration-300 ease-out ${
+        className={`grid items-stretch transition-all duration-300 ease-out ${
           featured
-            ? "min-h-[10.5rem] gap-3 py-3 sm:min-h-[12rem] sm:gap-2 sm:py-3.5"
-            : "h-[8.75rem] sm:h-[10.5rem]"
+            ? "min-h-[10.5rem] grid-cols-[minmax(8.5rem,44%)_1fr] sm:min-h-[12rem]"
+            : "min-h-[8.75rem] grid-cols-[minmax(8rem,44%)_1fr] sm:min-h-[10.5rem]"
         } ${
           visible
             ? "translate-y-0 scale-100 opacity-100"
             : "translate-y-1 scale-[0.98] opacity-0"
         }`}
       >
-        {/* Moitié gauche — personnage entier, dépasse légèrement haut/bas */}
-        <div
-          className={`relative flex shrink-0 items-center justify-center self-stretch overflow-visible ${
-            featured
-              ? "w-[38%] sm:w-[46%]"
-              : "w-1/2"
-          }`}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element -- mascot PNGs */}
-          <img
-            src={getMascotPoseSrc(display.pose)}
-            alt=""
-            className={`form-mascot-pose relative z-[1] -mt-2 -ml-5 block h-[10.75rem] w-[8.25rem] shrink-0 select-none object-cover object-[52%_center] drop-shadow-[0_10px_18px_rgba(15,15,20,0.16)] sm:-mt-2.5 sm:ml-1.5 sm:h-[12.5rem] sm:w-auto sm:max-w-none sm:object-contain sm:object-center ${
-              featured ? "h-[10.5rem] sm:h-[13.5rem]" : ""
-            } ${step === "analyzing" ? "form-mascot-searching" : ""} ${
-              visible ? "form-mascot-pop" : ""
-            }`}
-            draggable={false}
-          />
+        <div className="relative min-h-0 overflow-hidden">
+          <div className="absolute inset-0 scale-[1.22]">
+            {/* eslint-disable-next-line @next/next/no-img-element -- mascot PNGs */}
+            <img
+              src={getMascotPoseSrc(display.pose)}
+              alt=""
+              className={`form-mascot-pose h-full w-full select-none object-cover object-[52%_center] drop-shadow-[0_8px_14px_rgba(15,15,20,0.14)] ${
+                step === "analyzing" ? "form-mascot-searching" : ""
+              } ${visible ? "form-mascot-pop" : ""}`}
+              draggable={false}
+            />
+          </div>
         </div>
 
-        {/* Texte — au-dessus de la mascotte, sans recouvrement sur mobile */}
-        <div
-          className={`relative z-[2] flex min-w-0 items-center pr-2.5 sm:pr-3 ${
-            featured
-              ? "w-[62%] translate-x-0 pl-3 sm:w-[54%] sm:-translate-x-3 sm:pl-0 sm:-translate-y-1"
-              : "w-1/2 -translate-x-5 pl-0 pr-4 -translate-y-2 sm:-translate-x-9 sm:pr-3 sm:-translate-y-2.5"
-          }`}
-        >
-          <div
-            className={`text-left font-nunito ${
-              featured
-                ? "max-w-none pr-1"
-                : "max-w-[13rem] sm:max-w-[15rem]"
-            }`}
-          >
+        <div className="flex min-w-0 items-center px-3 py-2.5 pr-3.5 font-baloo sm:px-4 sm:py-3">
+          <div className="min-w-0">
             <p
-              className={`font-bold leading-tight text-[#3b0764] ${
+              className={`font-bold leading-tight tracking-tight text-[#3b0764] ${
                 featured
-                  ? "text-[0.9375rem] sm:text-base"
-                  : "text-base sm:text-lg"
+                  ? "text-[1.05rem] sm:text-xl"
+                  : "text-[1.05rem] sm:text-lg"
               }`}
             >
               {display.title}
             </p>
             {step === "contact" && offersCount != null ? (
-              <p className="mt-0.5 text-sm font-semibold leading-snug text-zinc-700 sm:text-[0.9375rem]">
+              <p className="mt-1 text-[0.8125rem] font-semibold leading-snug text-zinc-700 sm:text-sm">
                 J’ai trouvé{" "}
                 <strong className="font-extrabold text-brand tabular-nums">
                   {offersCount}
                 </strong>{" "}
-                offres dans
-                <br />
-                votre région.
+                offres dans votre région.
               </p>
             ) : null}
             {step === "confirmation" ? (
@@ -140,18 +114,13 @@ export function FormMascotGuide({
                 <strong className="font-extrabold text-brand">vos offres</strong>
                 .
               </p>
-            ) : (
-              display.lines.map((line) => (
-                <p
-                  key={line}
-                  className="mt-0.5 text-sm font-semibold leading-snug text-zinc-700 sm:text-[0.9375rem]"
-                >
-                  {line}
-                </p>
-              ))
-            )}
+            ) : message ? (
+              <p className="mt-1 text-[0.8125rem] font-semibold leading-snug text-zinc-700 sm:text-sm">
+                {message}
+              </p>
+            ) : null}
             {display.reassurance ? (
-              <p className="mt-1 text-xs font-medium leading-snug text-zinc-500 sm:text-sm">
+              <p className="mt-1 text-[0.75rem] font-medium leading-snug text-zinc-500 sm:text-[0.8125rem]">
                 {display.reassurance}
               </p>
             ) : null}

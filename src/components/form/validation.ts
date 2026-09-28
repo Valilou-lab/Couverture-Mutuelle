@@ -1,6 +1,11 @@
 import type { FormStepId, QuoteFormData } from "./types";
 import { COVERED_PERSONS } from "./types";
 import {
+  COMBINE_BIRTH_AND_POSTAL_STEP,
+  SHOW_CARE_PRIORITIES_STEP,
+  SHOW_SPOUSE_BIRTH_DATE_STEP,
+} from "./formConfig";
+import {
   deriveAgeFromBirthDate,
   MAX_ELIGIBLE_AGE,
   MIN_ELIGIBLE_AGE,
@@ -138,6 +143,33 @@ export function needsSpouseBirthDate(data: QuoteFormData): boolean {
   return Boolean(option?.needsSpouseDob);
 }
 
+export function shouldAskSpouseBirthDate(data: QuoteFormData): boolean {
+  return SHOW_SPOUSE_BIRTH_DATE_STEP && needsSpouseBirthDate(data);
+}
+
+function validateOwnBirthDate(data: QuoteFormData): FieldErrors {
+  const errors: FieldErrors = {};
+  if (!data.birthDate) {
+    errors.birthDate = "Indiquez votre date de naissance.";
+  } else {
+    const ageError = getBirthDateAgeError(data.birthDate);
+    if (ageError) errors.birthDate = ageError;
+  }
+  return errors;
+}
+
+function validatePostalCodeFields(data: QuoteFormData): FieldErrors {
+  const errors: FieldErrors = {};
+  if (!/^\d{5}$/.test(data.postalCode)) {
+    errors.postalCode = "Saisissez un code postal à 5 chiffres.";
+  } else if (data.citiesOptions.length > 0 && !data.city) {
+    errors.city = "Sélectionnez votre ville.";
+  } else if (!data.city) {
+    errors.city = "Nous n’avons pas trouvé de ville pour ce code postal.";
+  }
+  return errors;
+}
+
 export function validateStep(
   step: FormStepId,
   data: QuoteFormData,
@@ -146,8 +178,16 @@ export function validateStep(
 
   switch (step) {
     case "careNeeds":
+      if (!SHOW_CARE_PRIORITIES_STEP) break;
       if (data.careNeeds.length === 0) {
         errors.careNeeds = "Sélectionnez au moins un soin prioritaire.";
+      }
+      break;
+
+    case "currentMutualTariff":
+      if (!data.currentMutualTariff) {
+        errors.currentMutualTariff =
+          "Sélectionnez le tarif de votre mutuelle actuelle.";
       }
       break;
 
@@ -157,14 +197,16 @@ export function validateStep(
       }
       break;
 
+    case "birthAndPostal":
+      Object.assign(errors, validateOwnBirthDate(data));
+      Object.assign(errors, validatePostalCodeFields(data));
+      break;
+
     case "birthDate":
-      if (!data.birthDate) {
-        errors.birthDate = "Indiquez votre date de naissance.";
-      } else {
-        const ageError = getBirthDateAgeError(data.birthDate);
-        if (ageError) errors.birthDate = ageError;
+      if (!COMBINE_BIRTH_AND_POSTAL_STEP) {
+        Object.assign(errors, validateOwnBirthDate(data));
       }
-      if (needsSpouseBirthDate(data)) {
+      if (shouldAskSpouseBirthDate(data)) {
         if (!data.spouseBirthDate) {
           errors.spouseBirthDate =
             "Indiquez la date de naissance de votre conjoint.";
@@ -172,22 +214,19 @@ export function validateStep(
           const spouseAgeError = getBirthDateAgeError(data.spouseBirthDate);
           if (spouseAgeError) errors.spouseBirthDate = spouseAgeError;
         }
+      } else if (COMBINE_BIRTH_AND_POSTAL_STEP) {
+        break;
       }
       break;
 
     case "postalCode":
-      if (!/^\d{5}$/.test(data.postalCode)) {
-        errors.postalCode = "Saisissez un code postal à 5 chiffres.";
-      } else if (data.citiesOptions.length > 0 && !data.city) {
-        errors.city = "Sélectionnez votre ville.";
-      } else if (!data.city) {
-        errors.city = "Nous n’avons pas trouvé de ville pour ce code postal.";
-      }
+      if (COMBINE_BIRTH_AND_POSTAL_STEP) break;
+      Object.assign(errors, validatePostalCodeFields(data));
       break;
 
-    case "healthRegime":
-      if (!data.healthRegime) {
-        errors.healthRegime = "Sélectionnez votre régime de santé.";
+    case "professionalStatus":
+      if (!data.professionalStatus) {
+        errors.professionalStatus = "Sélectionnez votre profession.";
       }
       break;
 

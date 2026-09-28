@@ -6,7 +6,6 @@ import {
   type QuoteFormData,
 } from "./types";
 import { OptionCard } from "./OptionCard";
-import { FormNavigation } from "./FormNavigation";
 import type { FieldErrors } from "./validation";
 
 type Props = {
@@ -15,7 +14,6 @@ type Props = {
   disabled?: boolean;
   title?: string;
   onSelectAndAdvance: (id: CoveredPersonId) => void;
-  onBack: () => void;
 };
 
 export function StepCoveredPersons({
@@ -24,7 +22,6 @@ export function StepCoveredPersons({
   disabled = false,
   title = "Qui souhaitez-vous assurer\u00a0?",
   onSelectAndAdvance,
-  onBack,
 }: Props) {
   return (
     <div>
@@ -47,8 +44,6 @@ export function StepCoveredPersons({
           {errors.coveredPersons}
         </p>
       ) : null}
-
-      <FormNavigation onBack={onBack} showNext={false} disabled={disabled} />
     </div>
   );
 }

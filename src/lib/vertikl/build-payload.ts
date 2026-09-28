@@ -12,7 +12,6 @@ import {
 import {
   mapCurrentlyInsured,
   mapGender,
-  mapHealthScheme,
   mapInsurerTenure,
   mapPeopleToCover,
   mapPriorityCare,
@@ -76,10 +75,8 @@ export function buildVertiklFields(
     email: form.email.trim(),
     date_of_birth: dateOfBirth,
     postal_code: form.postalCode.trim(),
-    health_scheme: mapHealthScheme(form.healthRegime),
     currently_insured: mapCurrentlyInsured(form.alreadyInsured),
     people_to_cover: mapPeopleToCover(form.coveredPersons),
-    priority_care: mapPriorityCare(form.careNeeds),
     consent_whatsapp: Boolean(form.whatsappAvailable),
     consent_given: true,
     consent_campaign: CONSENT_CAMPAIGN,
@@ -108,6 +105,15 @@ export function buildVertiklFields(
     fields.city = city;
   }
 
+  // Keep mapPriorityCare for when the step is re-enabled; omit if unanswered.
+  if (form.careNeeds.length > 0) {
+    fields.priority_care = mapPriorityCare(form.careNeeds);
+  }
+
+  if (form.currentMutualTariff) {
+    fields.cost_health = form.currentMutualTariff;
+  }
+
   if (ipAddress) {
     fields.consent_ip_address = ipAddress;
   }
@@ -128,7 +134,11 @@ export function buildVertiklFields(
 
   // Savings calculator only — optional Vertikl fields (never for QuoteForm).
   const premium = meta?.calculator?.currentMonthlyPremium;
-  if (typeof premium === "number" && Number.isFinite(premium)) {
+  if (
+    fields.cost_health === undefined &&
+    typeof premium === "number" &&
+    Number.isFinite(premium)
+  ) {
     fields.cost_health = premium;
   }
 
@@ -137,7 +147,12 @@ export function buildVertiklFields(
     fields.time_insured = timeInsured;
   }
 
-  // Intentionally omitted: familyStatus, insurer, citiesOptions.
+  // Intentionally omitted: familyStatus, insurer, citiesOptions, professionalStatus.
+  // professionalStatus is stored on the form but has no Vertikl field yet.
+  // cost_health is a range id from QuoteForm, or a number from the calculator.
+  // currently_insured is derived from the tariff step (no_insurance → false).
+  // priority_care is omitted when unanswered (step can be hidden).
+  // health_scheme is optional on Vertikl and no longer collected.
   // WhatsApp is ONLY consent_whatsapp — never added to consent_channels.
   // Acquisition (utm_*, fbclid, gclid) not mapped to Vertikl fields yet.
 

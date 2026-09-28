@@ -7,7 +7,7 @@ import {
   formatBirthDateInput,
   getBirthDateAgeError,
   isValidBirthDate,
-  needsSpouseBirthDate,
+  shouldAskSpouseBirthDate,
   type FieldErrors,
 } from "./validation";
 
@@ -19,7 +19,6 @@ type Props = {
   hideOwnBirthDate?: boolean;
   onChangeBirthDate: (value: string) => void;
   onChangeSpouseBirthDate: (value: string) => void;
-  onBack: () => void;
   onNext: () => void;
 };
 
@@ -34,12 +33,11 @@ export function StepBirthDate({
   hideOwnBirthDate = false,
   onChangeBirthDate,
   onChangeSpouseBirthDate,
-  onBack,
   onNext,
 }: Props) {
   const spouseInputRef = useRef<HTMLInputElement>(null);
   const wasSpouseVisible = useRef(false);
-  const showSpouseOption = needsSpouseBirthDate(data);
+  const showSpouseOption = shouldAskSpouseBirthDate(data);
   const showOwn = !hideOwnBirthDate;
   const ownAnswered = hideOwnBirthDate || hasAnsweredOwnBirthDate(data.birthDate);
   const showSpouseField =
@@ -138,7 +136,7 @@ export function StepBirthDate({
         ) : null}
       </div>
 
-      <FormNavigation onBack={onBack} onNext={onNext} disabled={disabled} />
+      <FormNavigation onNext={onNext} disabled={disabled} />
     </div>
   );
 }

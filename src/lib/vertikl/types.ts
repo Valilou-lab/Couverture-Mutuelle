@@ -45,10 +45,12 @@ export type VertiklLeadFields = {
   partner_date_of_birth?: string;
   postal_code: string;
   city?: string;
-  health_scheme: VertiklHealthScheme;
+  /** Optional — no longer collected on the form. */
+  health_scheme?: VertiklHealthScheme;
   currently_insured: boolean;
   people_to_cover: VertiklPeopleToCover;
-  priority_care: VertiklPriorityCare[];
+  /** Optional — omitted when the care-priorities step is hidden. */
+  priority_care?: VertiklPriorityCare[];
   consent_whatsapp: boolean;
   consent_given: boolean;
   consent_campaign: string;
@@ -65,8 +67,15 @@ export type VertiklLeadFields = {
   consent_user_agent?: string;
   consent_source: string;
   consent_status: "actif" | "retire" | "expire";
-  /** Optional — savings calculator only. */
-  cost_health?: number;
+  /** Quote form: range id. Savings calculator: monthly amount. */
+  cost_health?:
+    | number
+    | "under_60"
+    | "60_90"
+    | "90_120"
+    | "over_120"
+    | "unknown"
+    | "no_insurance";
   /** Optional — savings calculator only. */
   time_insured?: VertiklTimeInsured;
 };

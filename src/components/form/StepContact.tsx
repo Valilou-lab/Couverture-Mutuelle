@@ -1,11 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import {
-  CIVILITIES,
-  type CivilityId,
-  type QuoteFormData,
-} from "./types";
+import { type QuoteFormData } from "./types";
 import { FormNavigation } from "./FormNavigation";
 import { PartnersModal } from "./PartnersModal";
 import type { FieldErrors } from "./validation";
@@ -25,7 +21,6 @@ type Props = {
   offersCount?: number | null;
   submitError?: string | null;
   onPatch: (patch: Partial<QuoteFormData>) => void;
-  onBack: () => void;
   onNext: () => void;
 };
 
@@ -36,7 +31,6 @@ export function StepContact({
   offersCount = null,
   submitError = null,
   onPatch,
-  onBack,
   onNext,
 }: Props) {
   const [partnersOpen, setPartnersOpen] = useState(false);
@@ -55,43 +49,18 @@ export function StepContact({
           </span>
         </p>
         <p className="mt-1.5 text-sm leading-snug text-[#3b0764] sm:text-[0.9375rem]">
-          Nous avons identifié{" "}
+          Nous avons{" "}
           <strong className="offers-count-blink rounded-md bg-brand-muted/70 px-1 font-extrabold text-brand">
             plusieurs offres
           </strong>{" "}
-          susceptibles de correspondre à votre profil.
+          à vous communiquer.
         </p>
         <p className="mt-1.5 text-sm leading-snug text-zinc-600 sm:text-[0.9375rem]">
-          Dernière étape pour recevoir vos devis.
+          Dernière étape pour recevoir vos nouveaux tarifs.
         </p>
       </div>
 
-      <fieldset className="mt-5">
-        <legend className="text-sm font-medium">Civilité</legend>
-        <div className="mt-2 flex gap-2">
-          {CIVILITIES.map((item) => (
-            <button
-              key={item.id}
-              type="button"
-              onClick={() => onPatch({ civility: item.id as CivilityId })}
-              className={`min-h-11 flex-1 rounded-full border-2 px-3 text-sm font-semibold transition duration-200 ${
-                data.civility === item.id
-                  ? "border-brand bg-brand text-white shadow-md"
-                  : "border-brand/45 bg-[#ede9fe] text-[#3b0764] shadow-sm hover:border-brand hover:bg-[#ddd6fe]"
-              }`}
-            >
-              {item.label}
-            </button>
-          ))}
-        </div>
-        {errors.civility ? (
-          <p className="mt-2 text-sm text-error" role="alert">
-            {errors.civility}
-          </p>
-        ) : null}
-      </fieldset>
-
-      <div className="mt-4 grid grid-cols-2 gap-3 sm:gap-4">
+      <div className="mt-5 grid grid-cols-2 gap-3 sm:gap-4">
         <div>
           <label htmlFor="firstName" className="block text-sm font-medium">
             Prénom
@@ -154,7 +123,7 @@ export function StepContact({
 
         <label
           htmlFor="whatsapp-available"
-          className={`mt-3 flex cursor-pointer items-start gap-3 rounded-2xl border-2 px-3.5 py-3.5 transition sm:px-4 ${
+          className={`mt-3 flex cursor-pointer items-center gap-3 rounded-2xl border-2 px-3.5 py-3.5 transition sm:px-4 ${
             data.whatsappAvailable
               ? "border-[#25D366] bg-[#ecfdf3] shadow-sm"
               : "border-[#25D366]/45 bg-[#f0fdf4] hover:border-[#25D366] hover:bg-[#ecfdf3]"
@@ -167,24 +136,19 @@ export function StepContact({
             onChange={(event) =>
               onPatch({ whatsappAvailable: event.target.checked })
             }
-            className="mt-1 h-5 w-5 shrink-0 accent-[#25D366]"
+            className="h-5 w-5 shrink-0 accent-[#25D366]"
           />
-          <span className="min-w-0">
-            <span className="inline-flex items-center gap-2 text-sm font-bold leading-snug text-[#14532d] sm:text-[0.9375rem]">
-              {/* eslint-disable-next-line @next/next/no-img-element -- brand asset */}
-              <img
-                src="/images/whatsapp-logo.png"
-                alt=""
-                width={24}
-                height={24}
-                className="h-6 w-6 shrink-0"
-                draggable={false}
-              />
-              J’ai WhatsApp via ce numéro
-            </span>
-            <span className="mt-1 block text-xs italic leading-snug text-[#166534]/80 sm:text-[0.8125rem]">
-              Recevez également le suivi de votre demande sur WhatsApp
-            </span>
+          <span className="inline-flex min-w-0 items-center gap-2 text-sm font-bold leading-snug text-[#14532d] sm:text-[0.9375rem]">
+            {/* eslint-disable-next-line @next/next/no-img-element -- brand asset */}
+            <img
+              src="/images/whatsapp-logo.png"
+              alt=""
+              width={24}
+              height={24}
+              className="h-6 w-6 shrink-0"
+              draggable={false}
+            />
+            J’ai WhatsApp via ce numéro
           </span>
         </label>
       </div>
@@ -272,7 +236,6 @@ export function StepContact({
       ) : null}
 
       <FormNavigation
-        onBack={onBack}
         onNext={onNext}
         nextLabel={disabled ? "Envoi en cours…" : "Valider ma demande"}
         disabled={disabled}

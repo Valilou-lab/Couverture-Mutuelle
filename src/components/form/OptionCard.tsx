@@ -9,6 +9,8 @@ type OptionCardProps = {
   description?: string;
   disabled?: boolean;
   icon?: ReactNode;
+  className?: string;
+  labelClassName?: string;
   /** Kept for compatibility — checkboxes are no longer shown. */
   showCheckbox?: boolean;
 };
@@ -20,6 +22,8 @@ export function OptionCard({
   description,
   disabled = false,
   icon,
+  className,
+  labelClassName,
 }: OptionCardProps) {
   const hasIcon = Boolean(icon);
 
@@ -35,7 +39,7 @@ export function OptionCard({
         selected
           ? "border-brand bg-[#c4b5fd] text-[#3b0764] shadow-md ring-2 ring-brand/40"
           : "border-brand/45 bg-[#ede9fe] text-foreground shadow-sm hover:-translate-y-0.5 hover:border-brand hover:bg-[#ddd6fe] hover:shadow-md"
-      }`}
+      } ${className ?? ""}`}
     >
       {icon ? (
         <span
@@ -46,7 +50,12 @@ export function OptionCard({
         </span>
       ) : null}
 
-      <span className="w-full max-w-full text-balance text-[13px] font-semibold leading-snug text-[#3b0764] sm:text-[15px]">
+      <span
+        className={
+          labelClassName ??
+          "w-full max-w-full text-balance text-[13px] font-semibold leading-snug text-[#3b0764] sm:text-[15px]"
+        }
+      >
         {label}
       </span>
 

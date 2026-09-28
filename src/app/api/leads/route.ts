@@ -1,8 +1,13 @@
 import { NextResponse } from "next/server";
 import type { QuoteFormData } from "@/components/form/types";
-import { initialFormData } from "@/components/form/types";
 import {
-  needsSpouseBirthDate,
+  deriveAlreadyInsured,
+  initialFormData,
+  isCurrentMutualTariffId,
+  isProfessionalStatusId,
+} from "@/components/form/types";
+import {
+  shouldAskSpouseBirthDate,
   validateStep,
   type FieldErrors,
 } from "@/components/form/validation";
@@ -16,6 +21,7 @@ import {
   type LeadCalculatorMeta,
   type LeadSubmissionMeta,
 } from "@/lib/vertikl/types";
+import { isHiddenFormStep } from "@/components/form/formConfig";
 
 export const runtime = "nodejs";
 
@@ -25,11 +31,12 @@ type LeadRequestBody = {
 };
 
 const FORM_VALIDATION_STEPS = [
-  "careNeeds",
+  "currentMutualTariff",
   "coveredPersons",
+  "professionalStatus",
+  "birthAndPostal",
   "birthDate",
-  "postalCode",
-  "healthRegime",
+  "careNeeds",
   "alreadyInsured",
   "contact",
 ] as const;
@@ -124,6 +131,13 @@ function sanitizeCalculator(value: unknown): LeadCalculatorMeta | undefined {
 function parseForm(raw: unknown): QuoteFormData | null {
   if (!isPlainObject(raw)) return null;
 
+  const currentMutualTariff =
+    typeof raw.currentMutualTariff === "string" &&
+    isCurrentMutualTariffId(raw.currentMutualTariff)
+      ? raw.currentMutualTariff
+      : "";
+  const derivedInsured = deriveAlreadyInsured(currentMutualTariff);
+
   return {
     ...initialFormData,
     careNeeds: Array.isArray(raw.careNeeds)
@@ -140,14 +154,17 @@ function parseForm(raw: unknown): QuoteFormData | null {
     postalCode: typeof raw.postalCode === "string" ? raw.postalCode : "",
     city: typeof raw.city === "string" ? raw.city : "",
     citiesOptions: [],
-    healthRegime:
-      typeof raw.healthRegime === "string"
-        ? (raw.healthRegime as QuoteFormData["healthRegime"])
+    professionalStatus:
+      typeof raw.professionalStatus === "string" &&
+      isProfessionalStatusId(raw.professionalStatus)
+        ? raw.professionalStatus
         : "",
+    currentMutualTariff,
     alreadyInsured:
-      raw.alreadyInsured === "oui" || raw.alreadyInsured === "non"
+      derivedInsured ||
+      (raw.alreadyInsured === "oui" || raw.alreadyInsured === "non"
         ? raw.alreadyInsured
-        : "",
+        : ""),
     insurer: "",
     civility:
       raw.civility === "mme" || raw.civility === "m" ? raw.civility : "",
@@ -164,10 +181,13 @@ function validateLeadForm(form: QuoteFormData): FieldErrors {
   const errors: FieldErrors = {};
 
   for (const step of FORM_VALIDATION_STEPS) {
+    if (isHiddenFormStep(step)) continue;
+    if (step === "alreadyInsured" && form.currentMutualTariff) continue;
+    if (step === "currentMutualTariff" && !form.currentMutualTariff) continue;
     if (
       step === "birthDate" &&
       form.birthDate &&
-      !needsSpouseBirthDate(form)
+      !shouldAskSpouseBirthDate(form)
     ) {
       // Still validate birth date when present.
     }

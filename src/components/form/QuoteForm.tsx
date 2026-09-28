@@ -6,34 +6,39 @@ import {
   FORM_STEPS,
   initialFormData,
   COVERED_PERSONS,
+  deriveAlreadyInsured,
   type CoveredPersonId,
   type FormStepId,
   type QuoteFormData,
 } from "./types";
 import {
   isEligibleFormBirthDate,
-  needsSpouseBirthDate,
+  shouldAskSpouseBirthDate,
   validateStep,
   type FieldErrors,
 } from "./validation";
+import { FormBackButton } from "./FormBackButton";
 import { ProgressBar } from "./ProgressBar";
 import { StepCareNeeds } from "./StepCareNeeds";
 import { StepCoveredPersons } from "./StepCoveredPersons";
 import { StepBirthDate } from "./StepBirthDate";
 import { StepPostalCode } from "./StepPostalCode";
-import { StepHealthRegime } from "./StepHealthRegime";
+import { StepProfessionalStatus } from "./StepProfessionalStatus";
 import { StepAlreadyInsured } from "./StepAlreadyInsured";
+import { StepCurrentMutualTariff } from "./StepCurrentMutualTariff";
+import { StepBirthAndPostal } from "./StepBirthAndPostal";
 import { StepAnalyzing } from "./StepAnalyzing";
 import { StepContact } from "./StepContact";
-import { FormMascotGuide } from "./FormMascotGuide";
-import {
-  getFormProgressPercent,
-  randomOffersCount,
-} from "./mascotGuideConfig";
+import { randomOffersCount } from "./mascotGuideConfig";
 import { useQuoteJourney } from "@/context/QuoteJourneyContext";
 import { getStoredAcquisition } from "@/lib/acquisition";
 import { pushLeadCompletedToDataLayer } from "@/lib/gtm-consent";
 import { scrollQuoteFormIntoView } from "./scrollQuoteFormIntoView";
+import {
+  COMBINE_BIRTH_AND_POSTAL_STEP,
+  SHOW_ALREADY_INSURED_STEP,
+  isHiddenFormStep,
+} from "./formConfig";
 
 const ADVANCE_DELAY_MS = 320;
 const SUBMIT_ERROR_MESSAGE =
@@ -53,15 +58,25 @@ function getVisibleSteps(
   },
 ): FormStepId[] {
   return orderedFormSteps(options.firstStep).filter((step) => {
-    // Skip own-DOB step only when already known AND no spouse DOB is needed.
-    if (
-      step === "birthDate" &&
-      options.skipBirthDate &&
-      !needsSpouseBirthDate(data)
-    ) {
-      return false;
+    if (isHiddenFormStep(step)) return false;
+    if (step === "alreadyInsured" && !SHOW_ALREADY_INSURED_STEP) return false;
+    if (step === "birthAndPostal") {
+      if (!COMBINE_BIRTH_AND_POSTAL_STEP) return false;
+      if (options.skipBirthDate && options.skipPostalCode) return false;
+      return true;
     }
-    if (step === "postalCode" && options.skipPostalCode) return false;
+    if (step === "postalCode") {
+      if (COMBINE_BIRTH_AND_POSTAL_STEP) return false;
+      if (options.skipPostalCode) return false;
+      return true;
+    }
+    if (step === "birthDate") {
+      if (COMBINE_BIRTH_AND_POSTAL_STEP) {
+        return shouldAskSpouseBirthDate(data);
+      }
+      if (options.skipBirthDate && !shouldAskSpouseBirthDate(data)) return false;
+      return true;
+    }
     return true;
   });
 }
@@ -84,7 +99,7 @@ function findFirstNeededStep(
   }
   return (
     steps.find((stepId) => stepId !== "analyzing" && stepId !== "confirmation") ??
-    "careNeeds"
+    "currentMutualTariff"
   );
 }
 
@@ -171,7 +186,18 @@ export function QuoteForm({
       skipPostalCode,
     }),
   );
-  const [step, setStep] = useState<FormStepId>(firstStep ?? "careNeeds");
+  const [step, setStep] = useState<FormStepId>(() => {
+    const steps = getVisibleSteps(initialFormData, {
+      skipBirthDate,
+      skipPostalCode,
+      firstStep,
+    });
+    if (firstStep && steps.includes(firstStep)) return firstStep;
+    return (
+      steps.find((item) => item !== "analyzing" && item !== "confirmation") ??
+      "currentMutualTariff"
+    );
+  });
   const [errors, setErrors] = useState<FieldErrors>({});
   const [isAdvancing, setIsAdvancing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -430,17 +456,13 @@ export function QuoteForm({
   }, [step]);
 
   useEffect(() => {
-    if (
-      (skipBirthDate && step === "birthDate") ||
-      (skipPostalCode && step === "postalCode")
-    ) {
+    if (!visibleSteps.includes(step)) {
       goTo(findFirstNeededStep(data, stepOptions));
     }
-  }, [data, goTo, skipBirthDate, skipPostalCode, step, stepOptions]);
+  }, [data, goTo, step, stepOptions, visibleSteps]);
 
   const showProgress = step !== "analyzing" && step !== "confirmation";
-  const showMascotGuide =
-    step !== "analyzing" && step !== "confirmation" && step !== "contact";
+  const canGoBack = showProgress && stepIndex > 0;
 
   return (
     <div
@@ -458,8 +480,18 @@ export function QuoteForm({
         </p>
       )}
 
+      {canGoBack ? (
+        <FormBackButton
+          onBack={goBack}
+          disabled={isAdvancing || isSubmitting}
+          className="absolute left-1 top-1 z-20 sm:left-2 sm:top-2"
+        />
+      ) : null}
+
       {showProgress && (firstStepIntro || firstStepNote) ? (
-        <div className="mb-4 text-center sm:mb-5">
+        <div
+          className={`mb-4 text-center sm:mb-5 ${canGoBack ? "px-10" : ""}`}
+        >
           {firstStepIntro ? (
             <p className="font-manrope text-lg font-extrabold tracking-tight text-[#3b0764] sm:text-xl">
               {firstStepIntro}
@@ -474,23 +506,31 @@ export function QuoteForm({
       ) : null}
 
       {showProgress ? (
-        <ProgressBar
-          current={progressCurrent}
-          total={progressTotal}
-          percent={firstStep ? undefined : getFormProgressPercent(step)}
-        />
+        <ProgressBar current={progressCurrent} total={progressTotal} />
       ) : null}
 
       <div key={step} className="form-step-enter">
+        {step === "currentMutualTariff" ? (
+          <StepCurrentMutualTariff
+            data={data}
+            errors={errors}
+            disabled={isAdvancing}
+            onSelectAndAdvance={(currentMutualTariff) =>
+              selectAndAdvance({
+                currentMutualTariff,
+                alreadyInsured: deriveAlreadyInsured(currentMutualTariff),
+              })
+            }
+          />
+        ) : null}
+
         {step === "careNeeds" ? (
           <StepCareNeeds
             data={data}
             errors={errors}
             disabled={isAdvancing}
             title={careNeedsTitle}
-            showBack={stepIndex > 0}
             onChange={(careNeeds) => patch({ careNeeds })}
-            onBack={goBack}
             onNext={goNext}
           />
         ) : null}
@@ -511,7 +551,21 @@ export function QuoteForm({
                   : "",
               })
             }
-            onBack={goBack}
+          />
+        ) : null}
+
+        {step === "birthAndPostal" ? (
+          <StepBirthAndPostal
+            data={data}
+            errors={errors}
+            disabled={isAdvancing}
+            hideOwnBirthDate={skipBirthDate}
+            hidePostalCode={skipPostalCode}
+            onChangeBirthDate={(birthDate) => patch({ birthDate })}
+            onPostalCode={setPostalCode}
+            onCitiesLoaded={setCitiesOptions}
+            onCity={setCity}
+            onNext={goNext}
           />
         ) : null}
 
@@ -520,12 +574,11 @@ export function QuoteForm({
             data={data}
             errors={errors}
             disabled={isAdvancing}
-            hideOwnBirthDate={skipBirthDate}
+            hideOwnBirthDate={COMBINE_BIRTH_AND_POSTAL_STEP || skipBirthDate}
             onChangeBirthDate={(birthDate) => patch({ birthDate })}
             onChangeSpouseBirthDate={(spouseBirthDate) =>
               patch({ spouseBirthDate })
             }
-            onBack={goBack}
             onNext={goNext}
           />
         ) : null}
@@ -538,21 +591,18 @@ export function QuoteForm({
             onPostalCode={setPostalCode}
             onCitiesLoaded={setCitiesOptions}
             onCity={setCity}
-            onBack={goBack}
             onNext={goNext}
           />
         ) : null}
 
-        {step === "healthRegime" ? (
-          <StepHealthRegime
+        {step === "professionalStatus" ? (
+          <StepProfessionalStatus
             data={data}
             errors={errors}
             disabled={isAdvancing}
-            showBack={stepIndex > 0}
-            onSelectAndAdvance={(healthRegime) =>
-              selectAndAdvance({ healthRegime })
+            onSelectAndAdvance={(professionalStatus) =>
+              selectAndAdvance({ professionalStatus })
             }
-            onBack={goBack}
           />
         ) : null}
 
@@ -567,7 +617,6 @@ export function QuoteForm({
                 insurer: "",
               })
             }
-            onBack={goBack}
           />
         ) : null}
 
@@ -583,15 +632,10 @@ export function QuoteForm({
             offersCount={offersCount}
             submitError={submitError}
             onPatch={patch}
-            onBack={goBack}
             onNext={goNext}
           />
         ) : null}
       </div>
-
-      {showMascotGuide ? (
-        <FormMascotGuide step={step} isFirstStep={stepIndex === 0} />
-      ) : null}
     </div>
   );
 }

@@ -23,11 +23,20 @@ export const COVERED_PERSONS = [
   },
 ] as const;
 
-export const HEALTH_REGIMES = [
-  { id: "general", label: "Régime général" },
-  { id: "tns", label: "Travailleur non salarié" },
-  { id: "agricole", label: "Régime agricole" },
-  { id: "alsace-moselle", label: "Alsace-Moselle" },
+export const PROFESSIONAL_STATUSES = [
+  { id: "retired", label: "Retraité" },
+  { id: "employee", label: "Salarié" },
+  { id: "not_working", label: "Sans activité professionnelle" },
+  { id: "other", label: "Autre" },
+] as const;
+
+export const CURRENT_MUTUAL_TARIFFS = [
+  { id: "under_60", label: "Moins de 60 €" },
+  { id: "60_90", label: "60 à 90 €" },
+  { id: "90_120", label: "90 à 120 €" },
+  { id: "over_120", label: "Plus de 120 €" },
+  { id: "unknown", label: "Je ne sais pas" },
+  { id: "no_insurance", label: "Je n’ai pas de mutuelle" },
 ] as const;
 
 export const CIVILITIES = [
@@ -37,7 +46,31 @@ export const CIVILITIES = [
 
 export type CareNeedId = (typeof CARE_NEEDS)[number]["id"];
 export type CoveredPersonId = (typeof COVERED_PERSONS)[number]["id"];
-export type HealthRegimeId = (typeof HEALTH_REGIMES)[number]["id"];
+export type ProfessionalStatusId = (typeof PROFESSIONAL_STATUSES)[number]["id"];
+
+export function isProfessionalStatusId(
+  value: string,
+): value is ProfessionalStatusId {
+  return PROFESSIONAL_STATUSES.some((item) => item.id === value);
+}
+
+export type CurrentMutualTariffId =
+  (typeof CURRENT_MUTUAL_TARIFFS)[number]["id"];
+
+export function isCurrentMutualTariffId(
+  value: string,
+): value is CurrentMutualTariffId {
+  return CURRENT_MUTUAL_TARIFFS.some((item) => item.id === value);
+}
+
+/** Derived from the tariff step — never asked separately while that step is shown. */
+export function deriveAlreadyInsured(
+  tariff: CurrentMutualTariffId | "",
+): "oui" | "non" | "" {
+  if (!tariff) return "";
+  return tariff === "no_insurance" ? "non" : "oui";
+}
+
 export type CivilityId = (typeof CIVILITIES)[number]["id"];
 
 export type QuoteFormData = {
@@ -50,7 +83,8 @@ export type QuoteFormData = {
   postalCode: string;
   city: string;
   citiesOptions: string[];
-  healthRegime: HealthRegimeId | "";
+  professionalStatus: ProfessionalStatusId | "";
+  currentMutualTariff: CurrentMutualTariffId | "";
   alreadyInsured: "oui" | "non" | "";
   insurer: string;
   civility: CivilityId | "";
@@ -71,7 +105,8 @@ export const initialFormData: QuoteFormData = {
   postalCode: "",
   city: "",
   citiesOptions: [],
-  healthRegime: "",
+  professionalStatus: "",
+  currentMutualTariff: "",
   alreadyInsured: "",
   insurer: "",
   civility: "",
@@ -84,22 +119,26 @@ export const initialFormData: QuoteFormData = {
 };
 
 export type FormStepId =
-  | "careNeeds"
+  | "currentMutualTariff"
   | "coveredPersons"
+  | "professionalStatus"
+  | "birthAndPostal"
   | "birthDate"
   | "postalCode"
-  | "healthRegime"
+  | "careNeeds"
   | "alreadyInsured"
   | "analyzing"
   | "contact"
   | "confirmation";
 
 export const FORM_STEPS: FormStepId[] = [
-  "careNeeds",
+  "currentMutualTariff",
   "coveredPersons",
+  "professionalStatus",
+  "birthAndPostal",
   "birthDate",
   "postalCode",
-  "healthRegime",
+  "careNeeds",
   "alreadyInsured",
   "analyzing",
   "contact",

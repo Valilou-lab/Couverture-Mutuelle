@@ -2,7 +2,6 @@
 
 import { useEffect } from "react";
 import confetti from "canvas-confetti";
-import { FormMascotGuide } from "./FormMascotGuide";
 
 const CONFETTI_COLORS = [
   "#6d28d9",
@@ -65,7 +64,13 @@ export function StepConfirmation() {
 
   return (
     <div className="relative py-4 text-center sm:py-6">
-      <FormMascotGuide step="confirmation" featured />
+      <h2 className="font-manrope text-xl font-bold tracking-tight text-brand sm:text-2xl">
+        Félicitations, votre dossier est envoyé.
+      </h2>
+      <p className="mx-auto mt-2 max-w-md text-sm font-medium leading-snug text-zinc-700 sm:text-base">
+        Un conseiller Couverture Mutuelle va vous appeler dans quelques minutes
+        pour finaliser votre comparaison et vous présenter vos offres.
+      </p>
 
       <div className="mx-auto mt-5 max-w-md rounded-2xl border border-brand/20 bg-brand-soft/60 px-4 py-4 text-left text-[#3b0764] sm:px-5">
         <p className="font-nunito text-sm font-bold leading-snug sm:text-base">
