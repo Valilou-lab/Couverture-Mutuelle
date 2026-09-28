@@ -10,11 +10,13 @@ import {
   LEGAL_NOTICE_VERSION,
 } from "@/lib/consent";
 import {
+  mapCostHealth,
   mapCurrentlyInsured,
   mapGender,
   mapInsurerTenure,
   mapPeopleToCover,
   mapPriorityCare,
+  mapProfessionalStatut,
   VertiklMappingError,
 } from "./mappers";
 import {
@@ -110,8 +112,14 @@ export function buildVertiklFields(
     fields.priority_care = mapPriorityCare(form.careNeeds);
   }
 
-  if (form.currentMutualTariff) {
-    fields.cost_health = form.currentMutualTariff;
+  const professionalStatut = mapProfessionalStatut(form.professionalStatus);
+  if (professionalStatut) {
+    fields.professional_statut = professionalStatut;
+  }
+
+  const tariffCost = mapCostHealth(form.currentMutualTariff);
+  if (tariffCost !== undefined) {
+    fields.cost_health = tariffCost;
   }
 
   if (ipAddress) {
@@ -147,10 +155,13 @@ export function buildVertiklFields(
     fields.time_insured = timeInsured;
   }
 
-  // Intentionally omitted: familyStatus, insurer, citiesOptions, professionalStatus.
-  // professionalStatus is stored on the form but has no Vertikl field yet.
-  // cost_health is a range id from QuoteForm, or a number from the calculator.
+  // Intentionally omitted when unanswered / not collected:
+  // familyStatus, insurer, citiesOptions, civility/gender, health_scheme,
+  // spouse DOB, care priorities, marital_status, number_of_children.
+  // professional_statut is mapped from professionalStatus when present.
+  // cost_health is a number (range midpoint from QuoteForm, or calculator amount).
   // currently_insured is derived from the tariff step (no_insurance → false).
+  // unknown / no_insurance tariffs omit cost_health (no amount to send).
   // priority_care is omitted when unanswered (step can be hidden).
   // health_scheme is optional on Vertikl and no longer collected.
   // WhatsApp is ONLY consent_whatsapp — never added to consent_channels.

@@ -2,12 +2,15 @@ import type {
   CareNeedId,
   CivilityId,
   CoveredPersonId,
+  CurrentMutualTariffId,
+  ProfessionalStatusId,
 } from "@/components/form/types";
 import type { SavingsTenureId } from "@/lib/savings-engine";
 import type {
   VertiklGender,
   VertiklPeopleToCover,
   VertiklPriorityCare,
+  VertiklProfessionalStatut,
   VertiklTimeInsured,
 } from "./types";
 
@@ -100,4 +103,52 @@ export function mapInsurerTenure(
     throw new VertiklMappingError(`Unmapped insurerTenure: ${value}`);
   }
   return mapped;
+}
+
+const PROFESSIONAL_STATUT_MAP: Record<
+  ProfessionalStatusId,
+  VertiklProfessionalStatut
+> = {
+  retired: "retraité",
+  employee: "salarié",
+  not_working: "sans emploi",
+  other: "autre",
+};
+
+/** Returns undefined when empty — field is optional on Vertikl. */
+export function mapProfessionalStatut(
+  value: ProfessionalStatusId | "",
+): VertiklProfessionalStatut | undefined {
+  if (!value) return undefined;
+  const mapped = PROFESSIONAL_STATUT_MAP[value];
+  if (!mapped) {
+    throw new VertiklMappingError(`Unmapped professionalStatus: ${value}`);
+  }
+  return mapped;
+}
+
+/**
+ * Vertikl `cost_health` is a NUMBER. Range answers are encoded as the
+ * midpoint of the band. Unknown / no insurance are omitted (no amount).
+ */
+const COST_HEALTH_MIDPOINT: Record<
+  CurrentMutualTariffId,
+  number | undefined
+> = {
+  under_60: 45,
+  "60_90": 75,
+  "90_120": 105,
+  over_120: 150,
+  unknown: undefined,
+  no_insurance: undefined,
+};
+
+export function mapCostHealth(
+  value: CurrentMutualTariffId | "",
+): number | undefined {
+  if (!value) return undefined;
+  if (!Object.prototype.hasOwnProperty.call(COST_HEALTH_MIDPOINT, value)) {
+    throw new VertiklMappingError(`Unmapped currentMutualTariff: ${value}`);
+  }
+  return COST_HEALTH_MIDPOINT[value];
 }
