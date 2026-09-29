@@ -2,7 +2,12 @@
 
 import { useEffect, useId, useRef } from "react";
 import { createPortal } from "react-dom";
-import { PARTNERS, PARTNERS_INTRO } from "@/lib/partners";
+import { PartnerCard } from "@/components/partners/PartnerCard";
+import {
+  PARTNERS,
+  PARTNERS_INTRO,
+  PARTNERS_INTRO_NOTE,
+} from "@/lib/partners";
 
 type Props = {
   open: boolean;
@@ -50,42 +55,41 @@ export function PartnersModal({ open, onClose }: Props) {
         role="dialog"
         aria-modal="true"
         aria-labelledby={titleId}
-        className="relative z-10 flex max-h-[min(85vh,36rem)] w-full max-w-md flex-col overflow-hidden rounded-[1.5rem] bg-white shadow-[0_24px_60px_-20px_rgba(15,15,20,0.5)]"
+        className="relative z-10 flex max-h-[min(88vh,42rem)] w-full max-w-lg flex-col overflow-hidden rounded-[1.5rem] bg-[#fbfaff] shadow-[0_24px_60px_-20px_rgba(15,15,20,0.5)]"
       >
-        <div className="flex items-start justify-between gap-3 border-b border-border px-5 py-4">
-          <div className="min-w-0 pr-2">
+        <div className="border-b border-border px-5 py-4 sm:px-6">
+          <div className="flex items-start justify-between gap-3">
             <h2
               id={titleId}
-              className="font-manrope text-xl font-bold tracking-tight text-brand"
+              className="font-manrope text-xl font-bold tracking-tight text-brand sm:text-[1.35rem]"
             >
-              Nos Partenaires
+              Nos partenaires
             </h2>
-            <p className="mt-1.5 text-sm leading-snug text-zinc-600">
-              {PARTNERS_INTRO}
-            </p>
+            <button
+              ref={closeRef}
+              type="button"
+              onClick={onClose}
+              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-soft text-2xl leading-none text-brand transition hover:bg-brand hover:text-white"
+              aria-label="Fermer"
+            >
+              ×
+            </button>
           </div>
-          <button
-            ref={closeRef}
-            type="button"
-            onClick={onClose}
-            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-brand-soft text-2xl leading-none text-brand transition hover:bg-brand hover:text-white"
-            aria-label="Fermer"
-          >
-            ×
-          </button>
+          <p className="mt-2 text-sm leading-relaxed text-zinc-600 sm:text-[0.9375rem]">
+            {PARTNERS_INTRO}
+          </p>
+          <p className="mt-1.5 text-[0.8125rem] leading-snug text-zinc-500">
+            {PARTNERS_INTRO_NOTE}
+          </p>
         </div>
 
-        <ul className="flex-1 space-y-2.5 overflow-y-auto px-5 py-4">
+        <ul className="flex-1 list-none space-y-2.5 overflow-y-auto px-5 py-4 sm:px-6">
           {PARTNERS.map((partner) => (
-            <li
+            <PartnerCard
               key={`${partner.name}-${partner.orias}`}
-              className="rounded-2xl border border-border bg-brand-soft/40 px-4 py-3"
-            >
-              <p className="font-semibold text-[#3b0764]">{partner.name}</p>
-              <p className="mt-0.5 text-sm text-zinc-500">
-                ORIAS&nbsp;: {partner.orias}
-              </p>
-            </li>
+              name={partner.name}
+              orias={partner.orias}
+            />
           ))}
         </ul>
       </div>

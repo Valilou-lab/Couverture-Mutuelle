@@ -5,6 +5,25 @@ import { ConversionQuoteForm } from "@/components/form/ConversionQuoteForm";
 import { TikTokFunnelTracker } from "@/components/landing/tiktok/TikTokFunnelTracker";
 import { trackTikTokCtaClick } from "@/lib/tiktok-funnel";
 
+function TrustCheckIcon() {
+  return (
+    <svg
+      viewBox="0 0 16 16"
+      className="h-4 w-4 shrink-0 text-[#5b21b6]"
+      fill="none"
+      aria-hidden="true"
+    >
+      <path
+        d="M3.4 8.2 6.3 11l6.3-7"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
+
 function AdvisorPhoto({ className }: { className?: string }) {
   return (
     <Image
@@ -36,25 +55,29 @@ export function PrimaryHero() {
                 Le comparateur n°1 de vos économies
               </p>
 
-              <h1 className="mt-6 max-w-[26rem] font-manrope text-[1.75rem] font-extrabold leading-[1.2] tracking-tight text-[#3b0764] sm:mt-7 sm:max-w-md sm:text-[2.15rem] lg:max-w-lg lg:text-[2.5rem] lg:leading-[1.15]">
-                Jusqu’à{" "}
-                <span className="font-extrabold text-[#c026d3]">450 euros</span>
+              <h1 className="mt-6 max-w-[19rem] font-manrope text-[1.75rem] font-extrabold leading-[1.18] tracking-tight text-[#3b0764] sm:mt-7 sm:max-w-lg sm:text-[2.15rem] lg:max-w-[36rem] lg:text-[2.85rem] lg:leading-[1.1]">
+                Payez-vous encore le{" "}
+                <span className="whitespace-nowrap font-extrabold text-[#c026d3]">
+                  juste prix
+                </span>
                 <br />
-                d’économies / an
-                <br />
-                sur votre mutuelle
+                pour votre mutuelle&nbsp;?
               </h1>
 
-              <div className="mt-3 max-w-md space-y-1.5 text-[0.9375rem] leading-snug sm:mt-4 sm:text-base">
-                <p className="font-semibold text-[#c026d3]">
-                  Devis 100 % gratuit et sans engagement
+              <div className="mt-3 max-w-sm space-y-0 text-center lg:max-w-md lg:text-left">
+                <p className="text-base font-bold tracking-tight text-[#c026d3] sm:text-[1.0625rem] lg:text-lg">
+                  Jusqu’à 450&nbsp;€ d’économies/an*
                 </p>
-                <p className="text-zinc-600">
-                  Nos courtiers partenaires recherchent parmi de nombreuses
-                  mutuelles une offre adaptée à vos besoins, au meilleur tarif
-                  possible.
+                <p className="mt-0.5 text-[0.625rem] italic leading-tight text-zinc-400 sm:text-[0.6875rem]">
+                  *Économie potentielle variable selon le profil, le contrat
+                  actuel et les offres disponibles.
                 </p>
               </div>
+
+              <p className="mt-3 max-w-md text-[0.9375rem] font-medium leading-snug text-zinc-600 sm:mt-4 sm:text-base lg:max-w-lg lg:text-[1.0625rem]">
+                Comparez gratuitement les tarifs et garanties adaptés à votre
+                profil.
+              </p>
 
               <a
                 href="#formulaire-devis"
@@ -63,12 +86,32 @@ export function PrimaryHero() {
                   trackTikTokCtaClick();
                 }}
               >
-                Obtenir mon tarif
+                Comparer mes tarifs
               </a>
 
-              <p className="mt-3 inline-flex items-center gap-1 text-[0.6875rem] font-medium tracking-wide text-zinc-500 sm:text-xs">
-                Données sécurisées • En moins d’une minute{" "}
-                <span aria-hidden="true">⏱️</span>
+              <p className="mt-2.5 inline-flex max-w-sm items-center justify-center gap-1.5 text-[0.75rem] font-medium leading-none text-zinc-600 lg:justify-start lg:max-w-md sm:text-[0.8125rem]">
+                <Image
+                  src="/images/Pictos/picto-securite-donnees.png"
+                  alt=""
+                  width={20}
+                  height={18}
+                  className="h-5 w-5 shrink-0 object-contain"
+                />
+                Vos données sont sécurisées
+              </p>
+
+              <p className="mt-2 inline-flex max-w-sm flex-wrap items-center justify-center gap-x-3.5 gap-y-1 text-sm font-semibold leading-none text-[#2e1065] lg:justify-start">
+                <span className="inline-flex items-center gap-1.5">
+                  <TrustCheckIcon />
+                  Gratuit
+                </span>
+                <span className="select-none text-[#2e1065]/35" aria-hidden="true">
+                  •
+                </span>
+                <span className="inline-flex items-center gap-1.5">
+                  <TrustCheckIcon />
+                  Sans engagement
+                </span>
               </p>
 
               <div

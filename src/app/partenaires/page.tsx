@@ -1,6 +1,11 @@
 import type { Metadata } from "next";
 import { LegalPage } from "@/components/landing/LegalPage";
-import { PARTNERS, PARTNERS_INTRO } from "@/lib/partners";
+import { PartnerCard } from "@/components/partners/PartnerCard";
+import {
+  PARTNERS,
+  PARTNERS_INTRO,
+  PARTNERS_INTRO_NOTE,
+} from "@/lib/partners";
 
 export const metadata: Metadata = {
   title: "Nos Partenaires — Couverture Mutuelle",
@@ -8,20 +13,17 @@ export const metadata: Metadata = {
 
 export default function PartenairesPage() {
   return (
-    <LegalPage title="Nos Partenaires" titleClassName="text-brand">
+    <LegalPage title="Nos partenaires" titleClassName="text-brand">
       <p>{PARTNERS_INTRO}</p>
+      <p className="mt-2 text-sm text-zinc-500">{PARTNERS_INTRO_NOTE}</p>
 
-      <ul className="mt-2 space-y-3">
+      <ul className="mt-5 list-none space-y-3 p-0">
         {PARTNERS.map((partner) => (
-          <li
+          <PartnerCard
             key={`${partner.name}-${partner.orias}`}
-            className="rounded-2xl border border-border bg-white px-4 py-3"
-          >
-            <p className="font-semibold text-[#3b0764]">{partner.name}</p>
-            <p className="mt-0.5 text-sm text-zinc-500">
-              ORIAS&nbsp;: {partner.orias}
-            </p>
-          </li>
+            name={partner.name}
+            orias={partner.orias}
+          />
         ))}
       </ul>
     </LegalPage>
