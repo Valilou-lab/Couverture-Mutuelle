@@ -310,6 +310,62 @@ body {
   color: var(--brand);
 }
 
+@keyframes partner-marquee {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+.partner-marquee {
+  overflow: hidden;
+  mask-image: linear-gradient(
+    to right,
+    transparent 0,
+    #000 4%,
+    #000 96%,
+    transparent 100%
+  );
+}
+
+.partner-marquee-track {
+  display: flex;
+  width: max-content;
+  align-items: center;
+  animation: partner-marquee 52s linear infinite;
+  will-change: transform;
+}
+
+.partner-marquee-group {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 2.25rem;
+  padding-inline: 1.125rem;
+}
+
+@media (min-width: 640px) {
+  .partner-marquee-group {
+    gap: 3.25rem;
+    padding-inline: 1.625rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .partner-marquee-group {
+    gap: 3.75rem;
+    padding-inline: 1.875rem;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .partner-marquee:hover .partner-marquee-track {
+    animation-play-state: paused;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .calc-btn-ready:not(:disabled):hover {
     animation: none;
@@ -362,5 +418,14 @@ body {
     animation: none;
     filter: none;
     text-shadow: none;
+  }
+
+  .partner-marquee-track {
+    animation: none;
+    will-change: auto;
+  }
+
+  .partner-marquee {
+    mask-image: none;
   }
 }

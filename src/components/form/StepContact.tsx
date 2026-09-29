@@ -37,11 +37,7 @@ export function StepContact({
 
   return (
     <div>
-      <h2 className="text-center text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
-        Vos coordonnées
-      </h2>
-
-      <div className="mt-4 rounded-2xl bg-brand-soft/70 px-4 py-3.5 text-center sm:mt-5 sm:px-5 sm:py-4">
+      <div className="rounded-2xl bg-brand-soft/70 px-4 py-3.5 text-center sm:px-5 sm:py-4">
         <p className="bonne-nouvelle-title font-manrope text-base font-bold text-brand sm:text-lg">
           Bonne nouvelle{" "}
           <span aria-hidden="true" className="bonne-nouvelle-emoji">
@@ -123,7 +119,7 @@ export function StepContact({
 
         <label
           htmlFor="whatsapp-available"
-          className={`mt-3 flex cursor-pointer items-center gap-3 rounded-2xl border-2 px-3.5 py-3.5 transition sm:px-4 ${
+          className={`mt-3 flex cursor-pointer items-start gap-3 rounded-2xl border-2 px-3.5 py-3.5 transition sm:px-4 ${
             data.whatsappAvailable
               ? "border-[#25D366] bg-[#ecfdf3] shadow-sm"
               : "border-[#25D366]/45 bg-[#f0fdf4] hover:border-[#25D366] hover:bg-[#ecfdf3]"
@@ -136,19 +132,25 @@ export function StepContact({
             onChange={(event) =>
               onPatch({ whatsappAvailable: event.target.checked })
             }
-            className="h-5 w-5 shrink-0 accent-[#25D366]"
+            className="mt-0.5 h-5 w-5 shrink-0 accent-[#25D366]"
           />
-          <span className="inline-flex min-w-0 items-center gap-2 text-sm font-bold leading-snug text-[#14532d] sm:text-[0.9375rem]">
-            {/* eslint-disable-next-line @next/next/no-img-element -- brand asset */}
-            <img
-              src="/images/whatsapp-logo.png"
-              alt=""
-              width={24}
-              height={24}
-              className="h-6 w-6 shrink-0"
-              draggable={false}
-            />
-            J’ai WhatsApp via ce numéro
+          <span className="min-w-0">
+            <span className="inline-flex items-center gap-2 text-sm font-bold leading-snug text-[#14532d] sm:text-[0.9375rem]">
+              {/* eslint-disable-next-line @next/next/no-img-element -- brand asset */}
+              <img
+                src="/images/whatsapp-logo.png"
+                alt=""
+                width={24}
+                height={24}
+                className="h-6 w-6 shrink-0"
+                draggable={false}
+              />
+              J’ai WhatsApp via ce numéro
+            </span>
+            <span className="mt-1 block text-[0.6875rem] font-normal leading-snug text-[#3f6212]/85">
+              Cela nous permet de savoir si nous pouvons vous contacter via
+              WhatsApp. Ce canal reste facultatif.
+            </span>
           </span>
         </label>
       </div>
