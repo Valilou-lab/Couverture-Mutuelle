@@ -140,16 +140,6 @@ export function buildVertiklFields(
     fields.consent_user_agent = userAgent;
   }
 
-  // Savings calculator only — optional Vertikl fields (never for QuoteForm).
-  const premium = meta?.calculator?.currentMonthlyPremium;
-  if (
-    fields.cost_health === undefined &&
-    typeof premium === "number" &&
-    Number.isFinite(premium)
-  ) {
-    fields.cost_health = premium;
-  }
-
   const timeInsured = mapInsurerTenure(meta?.calculator?.insurerTenure);
   if (timeInsured) {
     fields.time_insured = timeInsured;
@@ -159,9 +149,8 @@ export function buildVertiklFields(
   // familyStatus, insurer, citiesOptions, civility/gender, health_scheme,
   // spouse DOB, care priorities, marital_status, number_of_children.
   // professional_statut is mapped from professionalStatus when present.
-  // cost_health is a number (range midpoint from QuoteForm, or calculator amount).
+  // cost_health is the selected tariff enum id (under_60, 60_90, …).
   // currently_insured is derived from the tariff step (no_insurance → false).
-  // unknown / no_insurance tariffs omit cost_health (no amount to send).
   // priority_care is omitted when unanswered (step can be hidden).
   // health_scheme is optional on Vertikl and no longer collected.
   // WhatsApp is ONLY consent_whatsapp — never added to consent_channels.

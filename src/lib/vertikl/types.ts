@@ -35,6 +35,15 @@ export type VertiklProfessionalStatut =
   | "sans emploi"
   | "autre";
 
+/** Vertikl ENUM for current mutual tariff (`cost_health`). */
+export type VertiklCostHealth =
+  | "under_60"
+  | "60_90"
+  | "90_120"
+  | "over_120"
+  | "unknown"
+  | "no_insurance";
+
 export type VertiklConsentChannel =
   | "telephone"
   | "email"
@@ -76,8 +85,8 @@ export type VertiklLeadFields = {
   consent_user_agent?: string;
   consent_source: string;
   consent_status: "actif" | "retire" | "expire";
-  /** Monthly amount. Quote-form ranges are mapped to a midpoint number. */
-  cost_health?: number;
+  /** Optional — selected tariff range id. */
+  cost_health?: VertiklCostHealth;
   /** Optional — savings calculator only. */
   time_insured?: VertiklTimeInsured;
 };

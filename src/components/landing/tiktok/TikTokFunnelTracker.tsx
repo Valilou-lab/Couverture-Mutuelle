@@ -30,7 +30,8 @@ function tryTrackFormView(): void {
 }
 
 /**
- * /tiktok-only funnel: landing view + form visibility after CTA click.
+ * Conversion landing funnel: landing view + form visibility after CTA click.
+ * Event names are unchanged; `page` in the payload is the real pathname.
  */
 export function TikTokFunnelTracker() {
   useEffect(() => {

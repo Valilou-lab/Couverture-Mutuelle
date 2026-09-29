@@ -20,7 +20,7 @@ export function StepCoveredPersons({
   data,
   errors,
   disabled = false,
-  title = "Qui souhaitez-vous assurer\u00a0?",
+  title = "Qui doit-être assuré\u00a0?",
   onSelectAndAdvance,
 }: Props) {
   return (

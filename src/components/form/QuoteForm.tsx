@@ -160,12 +160,12 @@ function questionStepNumber(
 }
 
 export function QuoteForm({
-  careNeedsTitle,
-  coveredPersonsTitle,
-  firstStep,
-  firstStepIntro,
+  careNeedsTitle = "Qu’est-ce qui compte le plus pour vous dans votre mutuelle ?",
+  coveredPersonsTitle = "Qui doit-être assuré ?",
+  firstStep = "currentMutualTariff",
+  firstStepIntro = "Votre nouveau tarif en 1 minute",
   firstStepNote,
-  accentQuestions = false,
+  accentQuestions = true,
   funnel,
 }: QuoteFormProps = {}) {
   const router = useRouter();
@@ -472,14 +472,6 @@ export function QuoteForm({
         accentQuestions ? " tiktok-question-titles" : ""
       }`}
     >
-      {firstStep ? null : (
-        <p className="mb-4 hidden text-center font-manrope text-xl font-extrabold leading-snug tracking-tight text-[#3b0764] sm:mb-5 sm:text-2xl lg:mb-5 lg:block lg:text-[1.7rem]">
-          VOTRE DEVIS EN{" "}
-          <span className="font-extrabold text-[#c026d3]">1&nbsp;MINUTE</span>{" "}
-          <span aria-hidden="true">⏱️</span>
-        </p>
-      )}
-
       {canGoBack ? (
         <FormBackButton
           onBack={goBack}

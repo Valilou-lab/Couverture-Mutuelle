@@ -7,6 +7,7 @@ import type {
 } from "@/components/form/types";
 import type { SavingsTenureId } from "@/lib/savings-engine";
 import type {
+  VertiklCostHealth,
   VertiklGender,
   VertiklPeopleToCover,
   VertiklPriorityCare,
@@ -127,28 +128,10 @@ export function mapProfessionalStatut(
   return mapped;
 }
 
-/**
- * Vertikl `cost_health` is a NUMBER. Range answers are encoded as the
- * midpoint of the band. Unknown / no insurance are omitted (no amount).
- */
-const COST_HEALTH_MIDPOINT: Record<
-  CurrentMutualTariffId,
-  number | undefined
-> = {
-  under_60: 45,
-  "60_90": 75,
-  "90_120": 105,
-  over_120: 150,
-  unknown: undefined,
-  no_insurance: undefined,
-};
-
+/** Returns the selected tariff id. Empty answers are omitted. */
 export function mapCostHealth(
   value: CurrentMutualTariffId | "",
-): number | undefined {
+): VertiklCostHealth | undefined {
   if (!value) return undefined;
-  if (!Object.prototype.hasOwnProperty.call(COST_HEALTH_MIDPOINT, value)) {
-    throw new VertiklMappingError(`Unmapped currentMutualTariff: ${value}`);
-  }
-  return COST_HEALTH_MIDPOINT[value];
+  return value;
 }

@@ -1,10 +1,17 @@
 /**
- * Behavioral funnel events for the /tiktok landing only.
- * DataLayer-only: GTM must map these to TikTok if needed.
+ * Behavioral funnel events for the conversion landing (/ and /tiktok).
+ * Event names are stable for GTM (CTA_Click, Form_View, etc.).
+ * `page` is the real pathname so a Meta/Google visit on / is not labelled /tiktok.
+ * Acquisition (utm_*, fbclid, gclid) stays in first-touch capture — never inferred from this file.
  * Never include PII, form answers, or health-related fields.
  */
 
 export const TIKTOK_FUNNEL_PAGE = "/tiktok";
+
+function funnelPage(): string {
+  if (typeof window === "undefined") return TIKTOK_FUNNEL_PAGE;
+  return window.location.pathname || TIKTOK_FUNNEL_PAGE;
+}
 
 export type TikTokFunnelEventName =
   | "LandingPageView"
@@ -75,7 +82,7 @@ function pushEvent(
   const payload: Record<string, string> = {
     event: eventName,
     event_name: eventName,
-    page: TIKTOK_FUNNEL_PAGE,
+    page: funnelPage(),
   };
   if (extra.step) {
     payload.step = extra.step;
