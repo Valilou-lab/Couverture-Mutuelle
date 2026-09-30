@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   FORM_STEPS,
@@ -163,7 +164,7 @@ export function QuoteForm({
   careNeedsTitle = "Qu’est-ce qui compte le plus pour vous dans votre mutuelle ?",
   coveredPersonsTitle = "Qui doit-être assuré ?",
   firstStep = "currentMutualTariff",
-  firstStepIntro = "Votre nouveau tarif en 1 minute",
+  firstStepIntro = "Votre devis en 1 minute",
   firstStepNote,
   accentQuestions = true,
   funnel,
@@ -482,10 +483,14 @@ export function QuoteForm({
 
       {showProgress && (firstStepIntro || firstStepNote) ? (
         <div
-          className={`mb-4 text-center sm:mb-5 ${canGoBack ? "px-10" : ""}`}
+          className={`-mx-3.5 -mt-3.5 mb-3 rounded-t-[1.6rem] border-b border-brand/20 bg-[#ddd6fe] pb-3.5 pt-4 text-center sm:-mx-5 sm:-mt-5 sm:mb-4 sm:pb-4 sm:pt-5 lg:-mx-8 lg:-mt-8 ${
+            canGoBack
+              ? "pl-12 pr-3.5 sm:pl-14 sm:pr-5 lg:pr-8"
+              : "px-3.5 sm:px-5 lg:px-8"
+          }`}
         >
           {firstStepIntro ? (
-            <p className="font-manrope text-lg font-extrabold tracking-tight text-[#3b0764] sm:text-xl">
+            <p className="font-manrope text-xl font-extrabold tracking-tight text-[#3b0764] sm:text-2xl">
               {firstStepIntro}
             </p>
           ) : null}
@@ -628,6 +633,17 @@ export function QuoteForm({
           />
         ) : null}
       </div>
+
+      <p className="mt-4 flex items-center justify-center gap-1.5 pb-1 text-[0.75rem] font-medium leading-none text-zinc-600 sm:text-[0.8125rem]">
+        <Image
+          src="/images/Pictos/picto-securite-donnees.png"
+          alt=""
+          width={20}
+          height={18}
+          className="h-5 w-5 shrink-0 object-contain"
+        />
+        Vos données sont sécurisées
+      </p>
     </div>
   );
 }
