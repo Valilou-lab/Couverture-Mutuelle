@@ -140,8 +140,19 @@ export function CookieConsentUI() {
       root.style.scrollPaddingBottom = "";
       return;
     }
-    root.style.scrollPaddingBottom = "max(10rem, 28svh)";
+
+    const apply = () => {
+      const desktop = window.matchMedia("(min-width: 1024px)").matches;
+      root.style.scrollPaddingBottom = desktop
+        ? "13rem"
+        : "max(16rem, 34svh)";
+    };
+    apply();
+
+    const media = window.matchMedia("(min-width: 1024px)");
+    media.addEventListener("change", apply);
     return () => {
+      media.removeEventListener("change", apply);
       root.style.scrollPaddingBottom = "";
     };
   }, [bannerOpen]);
@@ -150,61 +161,52 @@ export function CookieConsentUI() {
     <>
       {bannerOpen ? (
         <div
-          className="pointer-events-none fixed inset-x-0 bottom-0 z-[80] flex justify-center px-3 pb-[max(12px,env(safe-area-inset-bottom))] sm:px-6 sm:pb-5"
+          className="pointer-events-none fixed inset-x-0 bottom-0 z-[80] flex justify-center px-3 pb-[max(12px,env(safe-area-inset-bottom))] lg:px-6 lg:pb-6"
           role="region"
           aria-labelledby="cookie-banner-title"
           aria-describedby="cookie-banner-desc"
         >
-          <div className="pointer-events-auto flex max-h-[30svh] w-full max-w-[520px] flex-col overflow-hidden rounded-3xl border border-[#D9C6FF] bg-[#F4EEFF] p-3 shadow-[0_8px_24px_-8px_rgba(109,40,217,0.22)] sm:p-3.5">
-            <div className="flex min-h-0 items-start gap-2 overflow-y-auto">
-              <div className="min-w-0 flex-1">
-                <p
-                  id="cookie-banner-title"
-                  className="font-sora text-sm font-bold tracking-tight text-[#3b0764]"
-                >
-                  Vous gardez le contrôle.
-                </p>
-                <p
-                  id="cookie-banner-desc"
-                  className="mt-0.5 text-[0.75rem] leading-snug text-[#4c1d95]/80"
-                >
-                  Cookies publicitaires pour mesurer nos campagnes. Votre devis
-                  n’est pas impacté.
-                </p>
+          <div className="pointer-events-auto flex min-h-[30svh] w-full max-w-none flex-col justify-between rounded-[1.75rem] border border-brand/25 bg-[#F4EEFF] px-4 py-4 shadow-[0_20px_44px_-10px_rgba(109,40,217,0.38)] sm:px-5 sm:py-5 lg:min-h-0 lg:w-full lg:max-w-[40rem] lg:px-7 lg:py-6 lg:shadow-[0_16px_36px_-12px_rgba(109,40,217,0.28)]">
+            <div>
+              <p
+                id="cookie-banner-title"
+                className="font-sora text-[1.25rem] font-bold leading-snug tracking-tight text-[#3b0764] sm:text-[1.35rem] lg:text-xl"
+              >
+                Votre choix concernant les cookies
+              </p>
+              <p
+                id="cookie-banner-desc"
+                className="mt-2.5 text-[0.9375rem] leading-relaxed text-[#4c1d95]/85 lg:mt-2 lg:text-sm"
+              >
+                Nous utilisons des cookies publicitaires pour mesurer nos
+                campagnes et améliorer nos services. Votre choix n’a aucun
+                impact sur votre demande de devis.
+              </p>
+            </div>
+
+            <div className="mt-5 lg:mt-5">
+              <div className="grid grid-cols-2 gap-2.5 max-[359px]:grid-cols-1">
                 <button
                   type="button"
-                  onClick={openPreferences}
-                  className="mt-1 text-[0.75rem] font-medium text-brand underline underline-offset-2 transition hover:text-[#5b21b6]"
+                  onClick={refuseOptional}
+                  className="min-h-[3.25rem] w-full rounded-full border-2 border-brand bg-white px-2.5 font-sora text-sm font-semibold text-brand transition hover:bg-white/80 sm:min-h-14 sm:px-4 sm:text-base lg:min-h-12 lg:text-sm"
                 >
-                  Gérer mes cookies
+                  Tout refuser
+                </button>
+                <button
+                  type="button"
+                  onClick={acceptAll}
+                  className="min-h-[3.25rem] w-full rounded-full border-2 border-brand bg-brand px-2.5 font-sora text-sm font-semibold text-white transition hover:bg-[#5b21b6] sm:min-h-14 sm:px-4 sm:text-base lg:min-h-12 lg:text-sm"
+                >
+                  Tout accepter
                 </button>
               </div>
               <button
                 type="button"
-                onClick={refuseOptional}
-                aria-label="Fermer et refuser les cookies non essentiels"
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-[#6d28d9]/70 transition hover:bg-white hover:text-brand"
+                onClick={openPreferences}
+                className="mx-auto mt-3 block text-sm font-medium text-brand underline underline-offset-2 transition hover:text-[#5b21b6]"
               >
-                <span aria-hidden="true" className="text-lg leading-none">
-                  ×
-                </span>
-              </button>
-            </div>
-
-            <div className="mt-2.5 grid shrink-0 grid-cols-2 gap-2">
-              <button
-                type="button"
-                onClick={refuseOptional}
-                className="min-h-10 rounded-full border-2 border-brand bg-white px-3 font-sora text-[0.8125rem] font-semibold text-brand transition hover:bg-white/80 sm:text-sm"
-              >
-                Tout refuser
-              </button>
-              <button
-                type="button"
-                onClick={acceptAll}
-                className="min-h-10 rounded-full border-2 border-brand bg-brand px-3 font-sora text-[0.8125rem] font-semibold text-white transition hover:bg-[#5b21b6] sm:text-sm"
-              >
-                Tout accepter
+                Gérer mes cookies
               </button>
             </div>
           </div>

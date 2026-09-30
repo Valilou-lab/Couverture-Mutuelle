@@ -29,12 +29,14 @@ export function StepAlreadyInsured({
       <div className="mt-5 grid gap-2.5">
         <OptionCard
           label="Oui"
+          surface="light"
           selected={data.alreadyInsured === "oui"}
           disabled={disabled}
           onClick={() => onSelectAndAdvance("oui")}
         />
         <OptionCard
           label="Non"
+          surface="light"
           selected={data.alreadyInsured === "non"}
           disabled={disabled}
           onClick={() => onSelectAndAdvance("non")}

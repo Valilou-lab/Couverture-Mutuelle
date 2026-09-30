@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Baloo_2, DM_Sans, Manrope, Nunito, Sora } from "next/font/google";
+import { Baloo_2, DM_Sans, Manrope, Nunito, Poppins, Sora } from "next/font/google";
 import { AcquisitionCapture } from "@/components/acquisition/AcquisitionCapture";
 import { ChatbotSlot } from "@/components/chatbot/ChatbotSlot";
 import { CookieConsentUI } from "@/components/cookies/CookieConsentUI";
@@ -37,6 +37,12 @@ const sora = Sora({
   variable: "--font-sora-family",
   subsets: ["latin"],
   weight: ["500", "600", "700", "800"],
+});
+
+const poppins = Poppins({
+  variable: "--font-poppins-family",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
 });
 
 export const metadata: Metadata = {
@@ -79,7 +85,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html
       lang="fr"
-      className={`${dmSans.variable} ${manrope.variable} ${baloo2.variable} ${nunito.variable} ${sora.variable} h-full antialiased`}
+      className={`${dmSans.variable} ${manrope.variable} ${baloo2.variable} ${nunito.variable} ${sora.variable} ${poppins.variable} h-full antialiased`}
     >
       <body className="min-h-full flex max-w-[100vw] flex-col overflow-x-hidden font-sans">
         <GoogleAdsTag />

@@ -16,7 +16,7 @@ type PrimaryLandingProps = {
 
 export function PrimaryLanding({ homeHref }: PrimaryLandingProps) {
   return (
-    <>
+    <div className="primary-lp flex min-h-0 flex-1 flex-col">
       <PrimaryHeader homeHref={homeHref} />
       <main className="flex-1">
         <PrimaryHero />
@@ -30,6 +30,6 @@ export function PrimaryLanding({ homeHref }: PrimaryLandingProps) {
         <FinalCta />
       </main>
       <Footer />
-    </>
+    </div>
   );
 }

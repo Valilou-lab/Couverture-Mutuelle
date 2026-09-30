@@ -52,7 +52,7 @@ export function StepPostalCode({
         aria-label="Code postal"
         value={data.postalCode}
         onChange={(event) => handlePostalCodeChange(event.target.value)}
-        className="mt-5 w-full rounded-2xl border border-border bg-white px-4 py-3.5 text-base outline-none ring-brand/30 focus:ring-2"
+        className="mt-5 w-full rounded-2xl border-2 border-[#c4b5fd] bg-white px-4 py-3.5 text-base outline-none ring-brand/30 focus:border-brand focus:ring-2"
       />
       {errors.postalCode ? (
         <p className="mt-2 text-sm text-error" role="alert">
@@ -79,7 +79,7 @@ export function StepPostalCode({
             id="cityStandalone"
             value={data.city}
             onChange={(event) => onCity(event.target.value)}
-            className="mt-2 w-full rounded-2xl border border-border bg-white px-4 py-3.5 text-base outline-none ring-brand/30 focus:ring-2"
+            className="mt-2 w-full rounded-2xl border-2 border-[#c4b5fd] bg-white px-4 py-3.5 text-base outline-none ring-brand/30 focus:border-brand focus:ring-2"
           >
             <option value="">Sélectionnez votre ville</option>
             {data.citiesOptions.map((city) => (

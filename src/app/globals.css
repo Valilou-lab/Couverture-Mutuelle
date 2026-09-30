@@ -27,6 +27,7 @@
   --font-baloo: var(--font-baloo-family);
   --font-nunito: var(--font-nunito-family);
   --font-sora: var(--font-sora-family);
+  --font-poppins: var(--font-poppins-family);
 }
 
 html {
@@ -147,6 +148,10 @@ body {
   animation: bonne-nouvelle-emoji 1.4s ease-in-out 560ms infinite;
 }
 
+.form-glow-pulse {
+  animation: form-glow-pulse 2.4s ease-in-out infinite;
+}
+
 @keyframes form-glow-pulse {
   0%,
   100% {
@@ -160,6 +165,49 @@ body {
       0 0 0 3px rgba(109, 40, 217, 0.7),
       0 0 36px 8px rgba(109, 40, 217, 0.45),
       0 22px 60px -28px rgba(109, 40, 217, 0.55);
+  }
+}
+
+@media (min-width: 1024px) {
+  .form-glow-pulse {
+    animation: none;
+  }
+
+  .primary-hero-photo {
+    filter: contrast(1.16) saturate(1.08) brightness(1.03);
+  }
+}
+
+.primary-lp,
+.primary-lp .font-manrope,
+.primary-lp .font-sora,
+.primary-lp .font-baloo,
+.primary-lp .font-nunito,
+.primary-lp .font-sans,
+.primary-lp-overlay,
+.primary-lp-overlay .font-manrope,
+.primary-lp-overlay .font-sora {
+  font-family: var(--font-poppins-family), sans-serif;
+}
+
+.primary-lp :is(h1, h2, h3)[class],
+.primary-lp .font-manrope,
+.primary-lp .font-sora,
+.primary-lp .font-baloo,
+.primary-lp-overlay .font-manrope,
+.primary-lp-overlay .font-sora {
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+}
+
+.primary-lp :is(h1, p).hero-display {
+  font-weight: 600;
+}
+
+@media (max-width: 1023px) {
+  .primary-lp h1.hero-display {
+    font-weight: 500;
   }
 }
 

@@ -43,7 +43,7 @@ export function PartnersModal({ open, onClose }: Props) {
   if (!open || typeof document === "undefined") return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[100] flex items-end justify-center p-4 sm:items-center">
+    <div className="primary-lp-overlay fixed inset-0 z-[100] flex items-end justify-center p-4 sm:items-center">
       <button
         type="button"
         aria-label="Fermer la liste des partenaires"

@@ -66,7 +66,7 @@ export function StepContact({
             autoComplete="given-name"
             value={data.firstName}
             onChange={(event) => onPatch({ firstName: event.target.value })}
-            className="mt-2 w-full rounded-2xl border border-border bg-white px-4 py-3.5 text-base outline-none ring-brand/30 focus:ring-2"
+            className="mt-2 w-full rounded-2xl border-2 border-[#c4b5fd] bg-white px-4 py-3.5 text-base outline-none ring-brand/30 focus:border-brand focus:ring-2"
           />
           {errors.firstName ? (
             <p className="mt-2 text-sm text-error" role="alert">
@@ -83,7 +83,7 @@ export function StepContact({
             autoComplete="family-name"
             value={data.lastName}
             onChange={(event) => onPatch({ lastName: event.target.value })}
-            className="mt-2 w-full rounded-2xl border border-border bg-white px-4 py-3.5 text-base outline-none ring-brand/30 focus:ring-2"
+            className="mt-2 w-full rounded-2xl border-2 border-[#c4b5fd] bg-white px-4 py-3.5 text-base outline-none ring-brand/30 focus:border-brand focus:ring-2"
           />
           {errors.lastName ? (
             <p className="mt-2 text-sm text-error" role="alert">
@@ -104,7 +104,7 @@ export function StepContact({
           inputMode="tel"
           value={data.phone}
           onChange={(event) => onPatch({ phone: event.target.value })}
-          className="mt-2 w-full rounded-2xl border border-border bg-white px-4 py-3.5 text-base outline-none ring-brand/30 focus:ring-2"
+          className="mt-2 w-full rounded-2xl border-2 border-[#c4b5fd] bg-white px-4 py-3.5 text-base outline-none ring-brand/30 focus:border-brand focus:ring-2"
         />
         {errors.phone ? (
           <div className="mt-2 space-y-1" role="alert">
@@ -165,7 +165,7 @@ export function StepContact({
           autoComplete="email"
           value={data.email}
           onChange={(event) => onPatch({ email: event.target.value })}
-          className="mt-2 w-full rounded-2xl border border-border bg-white px-4 py-3.5 text-base outline-none ring-brand/30 focus:ring-2"
+          className="mt-2 w-full rounded-2xl border-2 border-[#c4b5fd] bg-white px-4 py-3.5 text-base outline-none ring-brand/30 focus:border-brand focus:ring-2"
         />
         {errors.email ? (
           <p className="mt-2 text-sm text-error" role="alert">
@@ -174,7 +174,7 @@ export function StepContact({
         ) : null}
       </div>
 
-      <div className="mt-5 rounded-2xl border border-border bg-surface px-4 py-3.5 text-sm leading-relaxed text-zinc-700">
+      <div className="mt-5 rounded-2xl border-2 border-[#c4b5fd] bg-surface px-4 py-3.5 text-sm leading-relaxed text-zinc-700">
         <div className="flex items-start gap-3">
           <input
             id="consent-opt-in"

@@ -76,7 +76,7 @@ export function StepBirthAndPostal({
               onChange={(event) =>
                 onChangeBirthDate(formatBirthDateInput(event.target.value))
               }
-              className="mt-2 min-h-14 w-full rounded-2xl border border-border bg-white px-4 py-3.5 text-base outline-none ring-brand/30 placeholder:text-zinc-300 focus:ring-2"
+              className="mt-2 min-h-14 w-full rounded-2xl border-2 border-[#c4b5fd] bg-white px-4 py-3.5 text-base outline-none ring-brand/30 placeholder:text-zinc-300 focus:border-brand focus:ring-2"
             />
             {errors.birthDate ? (
               <p className="mt-2 text-sm text-error" role="alert">
@@ -107,7 +107,7 @@ export function StepBirthAndPostal({
               value={data.postalCode}
               disabled={disabled}
               onChange={(event) => handlePostalCodeChange(event.target.value)}
-              className="mt-2 w-full rounded-2xl border border-border bg-white px-4 py-3.5 text-base outline-none ring-brand/30 focus:ring-2"
+              className="mt-2 w-full rounded-2xl border-2 border-[#c4b5fd] bg-white px-4 py-3.5 text-base outline-none ring-brand/30 focus:border-brand focus:ring-2"
             />
             {errors.postalCode ? (
               <p className="mt-2 text-sm text-error" role="alert">
@@ -135,7 +135,7 @@ export function StepBirthAndPostal({
                   value={data.city}
                   disabled={disabled}
                   onChange={(event) => onCity(event.target.value)}
-                  className="mt-2 w-full rounded-2xl border border-border bg-white px-4 py-3.5 text-base outline-none ring-brand/30 focus:ring-2"
+                  className="mt-2 w-full rounded-2xl border-2 border-[#c4b5fd] bg-white px-4 py-3.5 text-base outline-none ring-brand/30 focus:border-brand focus:ring-2"
                 >
                   <option value="">Sélectionnez votre ville</option>
                   {data.citiesOptions.map((city) => (

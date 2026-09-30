@@ -6,6 +6,7 @@ import {
   type QuoteFormData,
 } from "./types";
 import { OptionCard } from "./OptionCard";
+import { professionalStatusIcon } from "./ProfessionalStatusIcons";
 import type { FieldErrors } from "./validation";
 
 type Props = {
@@ -41,6 +42,8 @@ export function StepProfessionalStatus({
           <OptionCard
             key={item.id}
             label={item.label}
+            icon={professionalStatusIcon(item.id)}
+            surface="light"
             selected={data.professionalStatus === item.id}
             disabled={disabled}
             onClick={() => onSelectAndAdvance(item.id)}

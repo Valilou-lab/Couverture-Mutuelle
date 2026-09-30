@@ -58,6 +58,7 @@ export function StepCareNeeds({
             key={item.id}
             label={item.label}
             icon={CARE_NEED_ICONS[item.id]}
+            surface="light"
             selected={data.careNeeds.includes(item.id)}
             disabled={disabled}
             showCheckbox
@@ -69,6 +70,7 @@ export function StepCareNeeds({
             <OptionCard
               label={unknownNeed.label}
               icon={CARE_NEED_ICONS[unknownNeed.id]}
+              surface="light"
               selected={data.careNeeds.includes(unknownNeed.id)}
               disabled={disabled}
               showCheckbox

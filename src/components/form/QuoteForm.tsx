@@ -1,6 +1,13 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
@@ -140,7 +147,7 @@ type QuoteFormProps = {
   careNeedsTitle?: string;
   coveredPersonsTitle?: string;
   firstStep?: FormStepId;
-  firstStepIntro?: string;
+  firstStepIntro?: ReactNode;
   firstStepNote?: string;
   accentQuestions?: boolean;
   funnel?: QuoteFormFunnel;
@@ -469,7 +476,7 @@ export function QuoteForm({
     <div
       ref={formRootRef}
       id="formulaire-devis"
-      className={`form-glow-pulse relative z-10 scroll-mt-28 overflow-visible rounded-[1.75rem] border-2 border-brand/40 bg-white p-3.5 pb-2 sm:p-5 sm:pb-3 lg:p-8 lg:pb-4${
+      className={`form-glow-pulse relative z-10 scroll-mt-28 overflow-visible rounded-[1.75rem] border-2 border-brand/40 bg-white p-3.5 pb-2 sm:p-5 sm:pb-3 lg:z-20 lg:border lg:border-[#ddd6fe] lg:px-7 lg:pb-4 lg:pt-6 lg:shadow-[0_18px_40px_-22px_rgba(91,33,182,0.28)] lg:[animation:none]${
         accentQuestions ? " tiktok-question-titles" : ""
       }`}
     >
@@ -477,20 +484,20 @@ export function QuoteForm({
         <FormBackButton
           onBack={goBack}
           disabled={isAdvancing || isSubmitting}
-          className="absolute left-1 top-1 z-20 sm:left-2 sm:top-2"
+          className="absolute left-1 top-1 z-20 sm:left-2 sm:top-2 lg:text-white lg:hover:bg-white/15"
         />
       ) : null}
 
       {showProgress && (firstStepIntro || firstStepNote) ? (
         <div
-          className={`-mx-3.5 -mt-3.5 mb-3 rounded-t-[1.6rem] border-b border-brand/20 bg-[#ddd6fe] pb-3.5 pt-4 text-center sm:-mx-5 sm:-mt-5 sm:mb-4 sm:pb-4 sm:pt-5 lg:-mx-8 lg:-mt-8 ${
+          className={`-mx-3.5 -mt-3.5 mb-3 rounded-t-[1.6rem] border-b border-brand/20 bg-[#ddd6fe] pb-3.5 pt-4 text-center sm:-mx-5 sm:-mt-5 sm:mb-4 sm:pb-4 sm:pt-5 lg:-mx-7 lg:-mt-6 lg:mb-4 lg:border-white/10 lg:bg-gradient-to-r lg:from-[#7c3aed] lg:via-[#8b5cf6] lg:to-[#c4b5fd] lg:pb-3.5 lg:pt-4 ${
             canGoBack
-              ? "pl-12 pr-3.5 sm:pl-14 sm:pr-5 lg:pr-8"
-              : "px-3.5 sm:px-5 lg:px-8"
+              ? "pl-12 pr-3.5 sm:pl-14 sm:pr-5 lg:pr-7"
+              : "px-3.5 sm:px-5 lg:px-7"
           }`}
         >
           {firstStepIntro ? (
-            <p className="font-manrope text-xl font-extrabold tracking-tight text-[#3b0764] sm:text-2xl">
+            <p className="font-manrope text-xl font-extrabold tracking-tight text-[#3b0764] sm:text-2xl lg:text-[1.75rem] lg:text-white">
               {firstStepIntro}
             </p>
           ) : null}
@@ -634,7 +641,7 @@ export function QuoteForm({
         ) : null}
       </div>
 
-      <p className="mt-4 flex items-center justify-center gap-1.5 pb-1 text-[0.75rem] font-medium leading-none text-zinc-600 sm:text-[0.8125rem]">
+      <p className="mt-4 flex items-center justify-center gap-1.5 pb-1 text-[0.75rem] font-medium leading-none text-zinc-600 sm:text-[0.8125rem] lg:mt-3">
         <Image
           src="/images/Pictos/picto-securite-donnees.png"
           alt=""

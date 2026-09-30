@@ -21,7 +21,12 @@ export function ConversionQuoteForm() {
   return (
     <QuoteForm
       firstStep="currentMutualTariff"
-      firstStepIntro="Votre devis en 1 minute"
+      firstStepIntro={
+        <>
+          <span className="lg:hidden">Votre devis en 1 minute</span>
+          <span className="hidden lg:inline">Votre devis gratuit en 1 minute</span>
+        </>
+      }
       careNeedsTitle="Qu’est-ce qui compte le plus pour vous dans votre mutuelle ?"
       coveredPersonsTitle="Qui doit-être assuré ?"
       accentQuestions

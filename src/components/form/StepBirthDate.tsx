@@ -88,7 +88,7 @@ export function StepBirthDate({
               onChange={(event) =>
                 onChangeBirthDate(formatBirthDateInput(event.target.value))
               }
-              className={`min-h-14 w-full rounded-2xl border border-border bg-white px-4 py-3.5 text-base outline-none ring-brand/30 placeholder:text-zinc-300 focus:ring-2 ${
+              className={`min-h-14 w-full rounded-2xl border-2 border-[#c4b5fd] bg-white px-4 py-3.5 text-base outline-none ring-brand/30 placeholder:text-zinc-300 focus:border-brand focus:ring-2 ${
                 showSpouseOption ? "mt-2" : ""
               }`}
             />
@@ -125,7 +125,7 @@ export function StepBirthDate({
                   formatBirthDateInput(event.target.value),
                 )
               }
-              className="mt-2 min-h-14 w-full rounded-2xl border border-border bg-white px-4 py-3.5 text-base outline-none ring-brand/30 placeholder:text-zinc-300 focus:ring-2"
+              className="mt-2 min-h-14 w-full rounded-2xl border-2 border-[#c4b5fd] bg-white px-4 py-3.5 text-base outline-none ring-brand/30 placeholder:text-zinc-300 focus:border-brand focus:ring-2"
             />
             {errors.spouseBirthDate ? (
               <p className="mt-2 text-sm text-error" role="alert">
