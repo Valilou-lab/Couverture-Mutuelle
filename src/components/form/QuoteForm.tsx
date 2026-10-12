@@ -384,13 +384,14 @@ export function QuoteForm({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          form: data,
+          form: senior ? { ...data, whatsappAvailable: false } : data,
           meta: {
             landingPageUrl: storedAcquisition.landingPageUrl,
             referrer: storedAcquisition.referrer,
             acquisition: storedAcquisition.acquisition,
           },
           metaTracking,
+          ...(senior ? { consentVariant: "senior" } : {}),
         }),
       });
 
@@ -426,7 +427,7 @@ export function QuoteForm({
       setIsAdvancing(false);
       advanceLock.current = false;
     }
-  }, [data, funnel, isSubmitting, router]);
+  }, [data, funnel, isSubmitting, router, senior]);
 
   const goNext = useCallback(() => {
     if (advanceLock.current || isSubmitting) return;

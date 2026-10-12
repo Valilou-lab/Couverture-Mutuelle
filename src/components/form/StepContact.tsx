@@ -8,6 +8,8 @@ import type { FieldErrors } from "./validation";
 import {
   CONSENT_OPTIN_TEXT,
   CONSENT_VALIDITY_TEXT,
+  SENIOR_CONSENT_OPTIN_TEXT,
+  SENIOR_CONSENT_VALIDITY_TEXT,
 } from "@/lib/consent";
 import {
   SENIOR_ERROR,
@@ -23,6 +25,10 @@ const DEFAULT_INPUT =
 const PARTNERS_MARKER = "ses partenaires";
 const [consentOptinBeforePartners, consentOptinAfterPartners] =
   CONSENT_OPTIN_TEXT.split(PARTNERS_MARKER);
+const [seniorConsentBefore, seniorConsentAfter] =
+  SENIOR_CONSENT_OPTIN_TEXT.split(PARTNERS_MARKER);
+const LINK_CLASS =
+  "font-semibold text-brand underline underline-offset-2 hover:text-[#5b21b6]";
 
 type Props = {
   data: QuoteFormData;
@@ -164,54 +170,56 @@ export function StepContact({
           </div>
         ) : null}
 
-        <label
-          htmlFor="whatsapp-available"
-          className={`mt-3 flex cursor-pointer items-start gap-3 border-2 transition ${
-            senior ? "rounded-[18px] px-4 py-3.5" : "rounded-2xl px-3.5 py-3.5 sm:px-4"
-          } ${
-            data.whatsappAvailable
-              ? "border-[#25D366] bg-[#ecfdf3] shadow-sm"
-              : "border-[#25D366]/45 bg-[#f0fdf4] hover:border-[#25D366] hover:bg-[#ecfdf3]"
-          }`}
-        >
-          <input
-            id="whatsapp-available"
-            type="checkbox"
-            checked={data.whatsappAvailable}
-            onChange={(event) =>
-              onPatch({ whatsappAvailable: event.target.checked })
-            }
-            className={`shrink-0 accent-[#25D366] ${
-              senior ? "mt-0.5 h-6 w-6" : "mt-0.5 h-5 w-5"
+        {!senior ? (
+          <label
+            htmlFor="whatsapp-available"
+            className={`mt-3 flex cursor-pointer items-start gap-3 border-2 transition ${
+              senior ? "rounded-[18px] px-4 py-3.5" : "rounded-2xl px-3.5 py-3.5 sm:px-4"
+            } ${
+              data.whatsappAvailable
+                ? "border-[#25D366] bg-[#ecfdf3] shadow-sm"
+                : "border-[#25D366]/45 bg-[#f0fdf4] hover:border-[#25D366] hover:bg-[#ecfdf3]"
             }`}
-          />
-          <span className="min-w-0">
-            <span
-              className={`inline-flex items-center gap-2 font-bold leading-snug text-[#14532d] ${
-                senior ? "text-base" : "text-sm sm:text-[0.9375rem]"
+          >
+            <input
+              id="whatsapp-available"
+              type="checkbox"
+              checked={data.whatsappAvailable}
+              onChange={(event) =>
+                onPatch({ whatsappAvailable: event.target.checked })
+              }
+              className={`shrink-0 accent-[#25D366] ${
+                senior ? "mt-0.5 h-6 w-6" : "mt-0.5 h-5 w-5"
               }`}
-            >
-              {/* eslint-disable-next-line @next/next/no-img-element -- brand asset */}
-              <img
-                src="/images/whatsapp-logo.png"
-                alt=""
-                width={24}
-                height={24}
-                className="h-6 w-6 shrink-0"
-                draggable={false}
-              />
-              J’ai WhatsApp via ce numéro
+            />
+            <span className="min-w-0">
+              <span
+                className={`inline-flex items-center gap-2 font-bold leading-snug text-[#14532d] ${
+                  senior ? "text-base" : "text-sm sm:text-[0.9375rem]"
+                }`}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element -- brand asset */}
+                <img
+                  src="/images/whatsapp-logo.png"
+                  alt=""
+                  width={24}
+                  height={24}
+                  className="h-6 w-6 shrink-0"
+                  draggable={false}
+                />
+                J’ai WhatsApp via ce numéro
+              </span>
+              <span
+                className={`mt-1 block font-normal leading-snug text-[#3f6212]/85 ${
+                  senior ? "text-[0.9rem]" : "text-[0.6875rem]"
+                }`}
+              >
+                Cela nous permet de savoir si nous pouvons vous contacter via
+                WhatsApp. Ce canal reste facultatif.
+              </span>
             </span>
-            <span
-              className={`mt-1 block font-normal leading-snug text-[#3f6212]/85 ${
-                senior ? "text-[0.9rem]" : "text-[0.6875rem]"
-              }`}
-            >
-              Cela nous permet de savoir si nous pouvons vous contacter via
-              WhatsApp. Ce canal reste facultatif.
-            </span>
-          </span>
-        </label>
+          </label>
+        ) : null}
       </div>
 
       <div className="mt-4">
@@ -235,11 +243,51 @@ export function StepContact({
         ) : null}
       </div>
 
+      {senior ? (
+        <div className="mt-4 rounded-[18px] border-2 border-brand-muted bg-[#f7f4ff] p-4 text-[0.98rem] leading-relaxed text-foreground">
+          <div className="flex items-start gap-3">
+            <input
+              id="consent-opt-in"
+              type="checkbox"
+              checked={data.consent}
+              onChange={(event) => onPatch({ consent: event.target.checked })}
+              className="mt-[3px] h-6 w-6 shrink-0 accent-brand"
+            />
+            <div className="min-w-0">
+              <p>
+                <label htmlFor="consent-opt-in" className="cursor-pointer">
+                  {seniorConsentBefore}
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setPartnersOpen(true)}
+                  className={LINK_CLASS}
+                >
+                  {PARTNERS_MARKER}
+                </button>
+                <label htmlFor="consent-opt-in" className="cursor-pointer">
+                  {seniorConsentAfter}
+                </label>
+              </p>
+              <p className="mt-2 text-[0.8125rem] leading-snug text-zinc-500">
+                {SENIOR_CONSENT_VALIDITY_TEXT}{" "}
+                <a
+                  href="/politique-de-confidentialite"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline underline-offset-2 hover:text-brand"
+                >
+                  Politique de confidentialité
+                </a>
+                .
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : (
       <div
         className={
-          senior
-            ? "mt-4 rounded-[18px] border-2 border-brand-muted bg-[#f7f4ff] p-4 text-[0.98rem] leading-relaxed text-foreground"
-            : "mt-5 rounded-2xl border-2 border-[#c4b5fd] bg-surface px-4 py-3.5 text-sm leading-relaxed text-zinc-700"
+          "mt-5 rounded-2xl border-2 border-[#c4b5fd] bg-surface px-4 py-3.5 text-sm leading-relaxed text-zinc-700"
         }
       >
         <div className="flex items-start gap-3">
@@ -297,6 +345,7 @@ export function StepContact({
           </div>
         </div>
       </div>
+      )}
       {errors.consent ? (
         <p className={errorClass} role="alert">
           {errors.consent}

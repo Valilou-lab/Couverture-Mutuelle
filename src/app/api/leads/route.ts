@@ -30,6 +30,7 @@ import {
   nowInSeconds,
   sendMetaEvents,
 } from "@/lib/meta/capi";
+import { resolveConsentVariantId } from "@/lib/consent";
 import { isValidMetaEventId } from "@/lib/meta/events";
 
 export const runtime = "nodejs";
@@ -37,6 +38,8 @@ export const runtime = "nodejs";
 type LeadRequestBody = {
   form?: Partial<QuoteFormData>;
   meta?: LeadSubmissionMeta;
+  /** Consent text variant shown to the visitor; resolved via a server allowlist. */
+  consentVariant?: unknown;
   /** Meta Pixel/CAPI Lead context (event_id + cookie banner marketing consent). */
   metaTracking?: unknown;
 };
@@ -393,6 +396,7 @@ export async function POST(request: Request) {
       form,
       meta,
       consentAt,
+      consentVariant: resolveConsentVariantId(body.consentVariant),
       ipAddress,
       userAgent,
     });
