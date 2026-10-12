@@ -40,7 +40,14 @@ import { randomOffersCount } from "./mascotGuideConfig";
 import { useQuoteJourney } from "@/context/QuoteJourneyContext";
 import { getStoredAcquisition } from "@/lib/acquisition";
 import { pushLeadCompletedToDataLayer } from "@/lib/gtm-consent";
+import {
+  prepareMetaLeadTracking,
+  trackMetaFormStart,
+  trackMetaFormStep,
+  trackMetaLeadPixel,
+} from "@/lib/meta/pixel";
 import { scrollQuoteFormIntoView } from "./scrollQuoteFormIntoView";
+import { SeniorFormContext } from "./seniorForm";
 import {
   COMBINE_BIRTH_AND_POSTAL_STEP,
   SHOW_ALREADY_INSURED_STEP,
@@ -150,6 +157,8 @@ type QuoteFormProps = {
   firstStepNote?: string;
   accentQuestions?: boolean;
   funnel?: QuoteFormFunnel;
+  /** "senior": homepage layout (larger type / tap targets). Logic is identical. */
+  variant?: "default" | "senior";
 };
 
 function questionStepNumber(
@@ -174,7 +183,9 @@ export function QuoteForm({
   firstStepNote,
   accentQuestions = true,
   funnel,
+  variant = "default",
 }: QuoteFormProps = {}) {
+  const senior = variant === "senior";
   const router = useRouter();
   const {
     calculator,
@@ -215,6 +226,16 @@ export function QuoteForm({
   const lastFocusToken = useRef(0);
   const formRootRef = useRef<HTMLDivElement>(null);
   const leadCompletedPushedRef = useRef(false);
+  const metaFormStartedRef = useRef(false);
+  const metaStepsTrackedRef = useRef<Set<FormStepId>>(new Set());
+  const metaLeadTrackedRef = useRef(false);
+
+  /** Meta FormStart — first interaction only (no form data sent). */
+  const markFormStarted = useCallback(() => {
+    if (metaFormStartedRef.current) return;
+    metaFormStartedRef.current = true;
+    trackMetaFormStart();
+  }, []);
 
   useEffect(() => {
     if (!skipBirthDate && !skipPostalCode) return;
@@ -261,11 +282,12 @@ export function QuoteForm({
   const patch = useCallback(
     (partial: Partial<QuoteFormData>) => {
       funnel?.onInteract?.();
+      markFormStarted();
       setData((current) => ({ ...current, ...partial }));
       setErrors({});
       setSubmitError(null);
     },
-    [funnel],
+    [funnel, markFormStarted],
   );
 
   const setPostalCode = useCallback(
@@ -323,6 +345,11 @@ export function QuoteForm({
       const completed = questionStepNumber(currentStep, steps);
       if (completed != null) {
         funnel?.onStepCompleted?.(completed);
+        // Meta FormStep: step number + internal step key only (no answers).
+        if (!metaStepsTrackedRef.current.has(currentStep)) {
+          metaStepsTrackedRef.current.add(currentStep);
+          trackMetaFormStep(completed, currentStep);
+        }
       }
       const nextStep = steps[currentIndex + 1];
       if (nextStep) {
@@ -350,16 +377,21 @@ export function QuoteForm({
 
     try {
       const storedAcquisition = getStoredAcquisition();
+      // Shared event_id: server sends the CAPI Lead (only with marketing consent),
+      // the browser fires the Pixel Lead below once /api/leads returns OK.
+      const metaTracking = prepareMetaLeadTracking();
       const response = await fetch("/api/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          form: data,
+          form: senior ? { ...data, whatsappAvailable: false } : data,
           meta: {
             landingPageUrl: storedAcquisition.landingPageUrl,
             referrer: storedAcquisition.referrer,
             acquisition: storedAcquisition.acquisition,
           },
+          metaTracking,
+          ...(senior ? { consentVariant: "senior" } : {}),
         }),
       });
 
@@ -375,10 +407,15 @@ export function QuoteForm({
         return;
       }
 
-      // GTM dataLayer only — no Meta Pixel, no form/PII parameters.
+      // GTM dataLayer (GA4 / Google Ads) — no form/PII parameters.
       if (!leadCompletedPushedRef.current) {
         leadCompletedPushedRef.current = true;
         pushLeadCompletedToDataLayer();
+      }
+      // Meta Pixel Lead (app code, not GTM) — no parameters, same event_id as CAPI.
+      if (!metaLeadTrackedRef.current) {
+        metaLeadTrackedRef.current = true;
+        trackMetaLeadPixel(metaTracking);
       }
       funnel?.onSubmitSuccess?.();
 
@@ -390,7 +427,7 @@ export function QuoteForm({
       setIsAdvancing(false);
       advanceLock.current = false;
     }
-  }, [data, funnel, isSubmitting, router]);
+  }, [data, funnel, isSubmitting, router, senior]);
 
   const goNext = useCallback(() => {
     if (advanceLock.current || isSubmitting) return;
@@ -407,6 +444,7 @@ export function QuoteForm({
     (partial: Partial<QuoteFormData>) => {
       if (advanceLock.current) return;
       funnel?.onInteract?.();
+      markFormStarted();
       advanceLock.current = true;
       setIsAdvancing(true);
 
@@ -419,7 +457,7 @@ export function QuoteForm({
       }, ADVANCE_DELAY_MS);
       timers.current.push(id);
     },
-    [data, funnel, goNextFrom, step],
+    [data, funnel, goNextFrom, markFormStarted, step],
   );
 
   const goBack = useCallback(() => {
@@ -471,6 +509,185 @@ export function QuoteForm({
   const showProgress = step !== "analyzing" && step !== "confirmation";
   const canGoBack = showProgress && stepIndex > 0;
 
+  const stepContent = (
+    <div key={step} className="form-step-enter">
+      {step === "currentMutualTariff" ? (
+        <StepCurrentMutualTariff
+          data={data}
+          errors={errors}
+          disabled={isAdvancing}
+          onSelectAndAdvance={(healthInsuranceGoal) =>
+            selectAndAdvance({
+              healthInsuranceGoal,
+              // Goal step no longer collects “no insurance”; keep Vertikl
+              // currently_insured required without reopening that question.
+              alreadyInsured: "oui",
+            })
+          }
+        />
+      ) : null}
+
+      {step === "careNeeds" ? (
+        <StepCareNeeds
+          data={data}
+          errors={errors}
+          disabled={isAdvancing}
+          title={careNeedsTitle}
+          onChange={(careNeeds) => patch({ careNeeds })}
+          onNext={goNext}
+        />
+      ) : null}
+
+      {step === "coveredPersons" ? (
+        <StepCoveredPersons
+          data={data}
+          errors={errors}
+          disabled={isAdvancing}
+          title={coveredPersonsTitle}
+          onSelectAndAdvance={(coveredPersons: CoveredPersonId) =>
+            selectAndAdvance({
+              coveredPersons,
+              spouseBirthDate: COVERED_PERSONS.find(
+                (item) => item.id === coveredPersons,
+              )?.needsSpouseDob
+                ? data.spouseBirthDate
+                : "",
+            })
+          }
+        />
+      ) : null}
+
+      {step === "birthAndPostal" ? (
+        <StepBirthAndPostal
+          data={data}
+          errors={errors}
+          disabled={isAdvancing}
+          hideOwnBirthDate={skipBirthDate}
+          hidePostalCode={skipPostalCode}
+          onChangeBirthDate={(birthDate) => patch({ birthDate })}
+          onPostalCode={setPostalCode}
+          onCitiesLoaded={setCitiesOptions}
+          onCity={setCity}
+          onNext={goNext}
+        />
+      ) : null}
+
+      {step === "birthDate" ? (
+        <StepBirthDate
+          data={data}
+          errors={errors}
+          disabled={isAdvancing}
+          hideOwnBirthDate={COMBINE_BIRTH_AND_POSTAL_STEP || skipBirthDate}
+          onChangeBirthDate={(birthDate) => patch({ birthDate })}
+          onChangeSpouseBirthDate={(spouseBirthDate) =>
+            patch({ spouseBirthDate })
+          }
+          onNext={goNext}
+        />
+      ) : null}
+
+      {step === "postalCode" ? (
+        <StepPostalCode
+          data={data}
+          errors={errors}
+          disabled={isAdvancing}
+          onPostalCode={setPostalCode}
+          onCitiesLoaded={setCitiesOptions}
+          onCity={setCity}
+          onNext={goNext}
+        />
+      ) : null}
+
+      {step === "professionalStatus" ? (
+        <StepProfessionalStatus
+          data={data}
+          errors={errors}
+          disabled={isAdvancing}
+          onSelectAndAdvance={(professionalStatus) =>
+            selectAndAdvance({ professionalStatus })
+          }
+        />
+      ) : null}
+
+      {step === "alreadyInsured" ? (
+        <StepAlreadyInsured
+          data={data}
+          errors={errors}
+          disabled={isAdvancing}
+          onSelectAndAdvance={(alreadyInsured) =>
+            selectAndAdvance({
+              alreadyInsured,
+              insurer: "",
+            })
+          }
+        />
+      ) : null}
+
+      {step === "analyzing" ? (
+        <StepAnalyzing onDone={handleAnalyzingDone} />
+      ) : null}
+
+      {step === "contact" ? (
+        <StepContact
+          data={data}
+          errors={errors}
+          disabled={isAdvancing || isSubmitting}
+          offersCount={offersCount}
+          submitError={submitError}
+          onPatch={patch}
+          onNext={goNext}
+        />
+      ) : null}
+    </div>
+  );
+
+  if (senior) {
+    return (
+      <SeniorFormContext.Provider value>
+        <div
+          ref={formRootRef}
+          id="formulaire-devis"
+          className="relative scroll-mt-4 overflow-hidden rounded-[28px] border border-[#ddd6fe] bg-white shadow-[0_10px_30px_-18px_rgba(98,41,208,0.45)]"
+        >
+          <div className="grid grid-cols-[44px_1fr_44px] items-center border-b border-brand-muted bg-[#ddd6fe] px-2 py-3.5">
+            {canGoBack ? (
+              <FormBackButton
+                onBack={goBack}
+                disabled={isAdvancing || isSubmitting}
+                label="Question précédente"
+              />
+            ) : (
+              <span aria-hidden="true" />
+            )}
+            <p className="text-balance text-center font-poppins text-[1.25rem] font-extrabold leading-tight tracking-[-0.02em] text-[#3b0764] sm:text-[1.7rem]">
+              {firstStepIntro}
+            </p>
+            <span aria-hidden="true" />
+          </div>
+
+          <div className="grid gap-4 px-4 pb-4 pt-[18px] min-[760px]:px-7 min-[760px]:pb-5 min-[760px]:pt-[22px]">
+            {showProgress ? (
+              <ProgressBar current={progressCurrent} total={progressTotal} />
+            ) : null}
+
+            {stepContent}
+
+            <p className="flex items-center justify-center gap-2 text-[0.95rem] text-zinc-600">
+              <Image
+                src="/images/Pictos/picto-securite-donnees.png"
+                alt=""
+                width={22}
+                height={20}
+                className="h-5 w-[22px] shrink-0 object-contain"
+              />
+              Vos données sont sécurisées
+            </p>
+          </div>
+        </div>
+      </SeniorFormContext.Provider>
+    );
+  }
+
   return (
     <div
       ref={formRootRef}
@@ -512,135 +729,7 @@ export function QuoteForm({
         <ProgressBar current={progressCurrent} total={progressTotal} />
       ) : null}
 
-      <div key={step} className="form-step-enter">
-        {step === "currentMutualTariff" ? (
-          <StepCurrentMutualTariff
-            data={data}
-            errors={errors}
-            disabled={isAdvancing}
-            onSelectAndAdvance={(healthInsuranceGoal) =>
-              selectAndAdvance({
-                healthInsuranceGoal,
-                // Goal step no longer collects “no insurance”; keep Vertikl
-                // currently_insured required without reopening that question.
-                alreadyInsured: "oui",
-              })
-            }
-          />
-        ) : null}
-
-        {step === "careNeeds" ? (
-          <StepCareNeeds
-            data={data}
-            errors={errors}
-            disabled={isAdvancing}
-            title={careNeedsTitle}
-            onChange={(careNeeds) => patch({ careNeeds })}
-            onNext={goNext}
-          />
-        ) : null}
-
-        {step === "coveredPersons" ? (
-          <StepCoveredPersons
-            data={data}
-            errors={errors}
-            disabled={isAdvancing}
-            title={coveredPersonsTitle}
-            onSelectAndAdvance={(coveredPersons: CoveredPersonId) =>
-              selectAndAdvance({
-                coveredPersons,
-                spouseBirthDate: COVERED_PERSONS.find(
-                  (item) => item.id === coveredPersons,
-                )?.needsSpouseDob
-                  ? data.spouseBirthDate
-                  : "",
-              })
-            }
-          />
-        ) : null}
-
-        {step === "birthAndPostal" ? (
-          <StepBirthAndPostal
-            data={data}
-            errors={errors}
-            disabled={isAdvancing}
-            hideOwnBirthDate={skipBirthDate}
-            hidePostalCode={skipPostalCode}
-            onChangeBirthDate={(birthDate) => patch({ birthDate })}
-            onPostalCode={setPostalCode}
-            onCitiesLoaded={setCitiesOptions}
-            onCity={setCity}
-            onNext={goNext}
-          />
-        ) : null}
-
-        {step === "birthDate" ? (
-          <StepBirthDate
-            data={data}
-            errors={errors}
-            disabled={isAdvancing}
-            hideOwnBirthDate={COMBINE_BIRTH_AND_POSTAL_STEP || skipBirthDate}
-            onChangeBirthDate={(birthDate) => patch({ birthDate })}
-            onChangeSpouseBirthDate={(spouseBirthDate) =>
-              patch({ spouseBirthDate })
-            }
-            onNext={goNext}
-          />
-        ) : null}
-
-        {step === "postalCode" ? (
-          <StepPostalCode
-            data={data}
-            errors={errors}
-            disabled={isAdvancing}
-            onPostalCode={setPostalCode}
-            onCitiesLoaded={setCitiesOptions}
-            onCity={setCity}
-            onNext={goNext}
-          />
-        ) : null}
-
-        {step === "professionalStatus" ? (
-          <StepProfessionalStatus
-            data={data}
-            errors={errors}
-            disabled={isAdvancing}
-            onSelectAndAdvance={(professionalStatus) =>
-              selectAndAdvance({ professionalStatus })
-            }
-          />
-        ) : null}
-
-        {step === "alreadyInsured" ? (
-          <StepAlreadyInsured
-            data={data}
-            errors={errors}
-            disabled={isAdvancing}
-            onSelectAndAdvance={(alreadyInsured) =>
-              selectAndAdvance({
-                alreadyInsured,
-                insurer: "",
-              })
-            }
-          />
-        ) : null}
-
-        {step === "analyzing" ? (
-          <StepAnalyzing onDone={handleAnalyzingDone} />
-        ) : null}
-
-        {step === "contact" ? (
-          <StepContact
-            data={data}
-            errors={errors}
-            disabled={isAdvancing || isSubmitting}
-            offersCount={offersCount}
-            submitError={submitError}
-            onPatch={patch}
-            onNext={goNext}
-          />
-        ) : null}
-      </div>
+      {stepContent}
 
       <p className="mt-4 flex items-center justify-center gap-1.5 pb-1 text-[0.75rem] font-medium leading-none text-zinc-600 sm:text-[0.8125rem] lg:mt-3">
         <Image

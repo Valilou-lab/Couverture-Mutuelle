@@ -34,3 +34,9 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Suivi Meta (Pixel + API Conversions)
+
+Implémenté directement dans l'app (pas via GTM). Variables Vercel : `NEXT_PUBLIC_META_PIXEL_ID`,
+`META_CAPI_ACCESS_TOKEN`, `META_TEST_EVENT_CODE` (facultatif). Détails et liste des événements :
+[Docs/meta-tracking.md](Docs/meta-tracking.md).

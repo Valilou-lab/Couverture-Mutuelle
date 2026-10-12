@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { useSeniorForm } from "./seniorForm";
 
 type OptionCardProps = {
   label: string;
@@ -17,6 +18,8 @@ type OptionCardProps = {
   layout?: "default" | "stack" | "row";
   surface?: "brand" | "light";
   iconClassName?: string;
+  /** Senior variant only: label alignment (icon stays on the left). */
+  seniorAlign?: "left" | "center";
 };
 
 export function OptionCard({
@@ -31,7 +34,42 @@ export function OptionCard({
   layout = "default",
   surface = "brand",
   iconClassName,
+  seniorAlign = "left",
 }: OptionCardProps) {
+  const senior = useSeniorForm();
+
+  if (senior) {
+    const centered = seniorAlign === "center";
+    return (
+      <button
+        type="button"
+        onClick={onClick}
+        disabled={disabled}
+        aria-pressed={selected}
+        className={`grid min-h-[72px] w-full items-center gap-2.5 rounded-[18px] border-2 px-[18px] py-2.5 text-[1.1rem] font-semibold leading-snug text-[#3b0764] transition-[background-color,border-color,box-shadow] duration-150 disabled:cursor-not-allowed ${
+          centered
+            ? "grid-cols-[56px_1fr_56px] text-center"
+            : "grid-cols-[56px_1fr] text-left"
+        } ${
+          selected
+            ? "border-brand bg-brand-muted shadow-[0_0_0_3px_rgba(98,41,208,0.18)]"
+            : "border-brand-muted bg-white hover:border-brand hover:bg-[#f8f6ff]"
+        } ${className ?? ""}`}
+      >
+        <span
+          className={`inline-flex justify-self-center ${
+            selected ? "text-[#8a6cf0]" : "text-[#8b5cf6]"
+          }`}
+          aria-hidden="true"
+        >
+          {icon}
+        </span>
+        <span className="min-w-0 text-pretty">{label}</span>
+        {centered ? <span aria-hidden="true" /> : null}
+      </button>
+    );
+  }
+
   const hasIcon = Boolean(icon);
   const isStack = layout === "stack";
   const isRow = layout === "row";

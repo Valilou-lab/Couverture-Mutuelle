@@ -8,6 +8,13 @@ import {
 import { OptionCard } from "./OptionCard";
 import { professionalStatusIcon } from "./ProfessionalStatusIcons";
 import type { FieldErrors } from "./validation";
+import { seniorStatusIcon } from "./SeniorChoiceIcons";
+import {
+  SENIOR_ERROR,
+  SENIOR_INFO,
+  SENIOR_QUESTION_TITLE,
+  useSeniorForm,
+} from "./seniorForm";
 
 type Props = {
   data: QuoteFormData;
@@ -22,6 +29,46 @@ export function StepProfessionalStatus({
   disabled = false,
   onSelectAndAdvance,
 }: Props) {
+  const senior = useSeniorForm();
+
+  if (senior) {
+    return (
+      <div className="grid gap-4">
+        <div className={SENIOR_INFO}>
+          <p className="font-semibold text-[#3b0764]">
+            Votre profession nous aide à trouver la meilleure mutuelle.
+          </p>
+          <p className="mt-1 text-[0.95rem] text-zinc-600">
+            Les garanties et tarifs varient selon votre statut professionnel.
+          </p>
+        </div>
+        <h2 className={SENIOR_QUESTION_TITLE}>Quelle est votre profession ?</h2>
+        <div
+          className="grid gap-3"
+          role="group"
+          aria-label="Quelle est votre profession ?"
+        >
+          {PROFESSIONAL_STATUSES.map((item) => (
+            <OptionCard
+              key={item.id}
+              label={item.label}
+              icon={seniorStatusIcon(item.id)}
+              seniorAlign="center"
+              selected={data.professionalStatus === item.id}
+              disabled={disabled}
+              onClick={() => onSelectAndAdvance(item.id)}
+            />
+          ))}
+        </div>
+        {errors.professionalStatus ? (
+          <p className={SENIOR_ERROR} role="alert">
+            {errors.professionalStatus}
+          </p>
+        ) : null}
+      </div>
+    );
+  }
+
   return (
     <div>
       <div className="rounded-2xl border border-brand/20 bg-brand-soft/80 px-4 py-3 text-center sm:px-5 sm:py-3.5">

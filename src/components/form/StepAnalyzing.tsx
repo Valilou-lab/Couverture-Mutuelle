@@ -2,12 +2,14 @@
 
 import { useEffect } from "react";
 import { getMascotPoseSrc } from "./mascotGuideConfig";
+import { useSeniorForm } from "./seniorForm";
 
 type Props = {
   onDone: () => void;
 };
 
 export function StepAnalyzing({ onDone }: Props) {
+  const senior = useSeniorForm();
   useEffect(() => {
     const timer = window.setTimeout(() => {
       onDone();
@@ -18,7 +20,13 @@ export function StepAnalyzing({ onDone }: Props) {
 
   return (
     <div className="py-6 text-center sm:py-8">
-      <h2 className="font-manrope text-xl font-bold tracking-tight text-brand sm:text-2xl">
+      <h2
+        className={
+          senior
+            ? "font-poppins text-[1.5rem] font-extrabold tracking-[-0.02em] text-brand sm:text-[1.75rem]"
+            : "font-manrope text-xl font-bold tracking-tight text-brand sm:text-2xl"
+        }
+      >
         Analyse en cours
       </h2>
 

@@ -1,4 +1,4 @@
-import { NextResponse } from "next/server";
+import { after, NextResponse } from "next/server";
 import type { QuoteFormData } from "@/components/form/types";
 import {
   deriveAlreadyInsured,
@@ -23,13 +23,94 @@ import {
   type LeadSubmissionMeta,
 } from "@/lib/vertikl/types";
 import { isHiddenFormStep } from "@/components/form/formConfig";
+import {
+  buildLeadUserData,
+  isMetaCapiConfigured,
+  metaContextFromRequest,
+  nowInSeconds,
+  sendMetaEvents,
+} from "@/lib/meta/capi";
+import { resolveConsentVariantId } from "@/lib/consent";
+import { isValidMetaEventId } from "@/lib/meta/events";
 
 export const runtime = "nodejs";
 
 type LeadRequestBody = {
   form?: Partial<QuoteFormData>;
   meta?: LeadSubmissionMeta;
+  /** Consent text variant shown to the visitor; resolved via a server allowlist. */
+  consentVariant?: unknown;
+  /** Meta Pixel/CAPI Lead context (event_id + cookie banner marketing consent). */
+  metaTracking?: unknown;
 };
+
+type SanitizedMetaLeadTracking = {
+  eventId: string;
+  eventSourceUrl?: string;
+};
+
+/** Returns null unless the visitor explicitly granted marketing consent. */
+function sanitizeMetaLeadTracking(
+  value: unknown,
+): SanitizedMetaLeadTracking | null {
+  if (!isPlainObject(value)) return null;
+  if (value.marketingConsent !== true) return null;
+  if (!isValidMetaEventId(value.eventId)) return null;
+  let eventSourceUrl: string | undefined;
+  if (
+    typeof value.eventSourceUrl === "string" &&
+    value.eventSourceUrl.length <= 2000
+  ) {
+    try {
+      const url = new URL(value.eventSourceUrl);
+      if (url.protocol === "https:" || url.protocol === "http:") {
+        eventSourceUrl = url.toString();
+      }
+    } catch {
+      eventSourceUrl = undefined;
+    }
+  }
+  return { eventId: value.eventId, eventSourceUrl };
+}
+
+/**
+ * Server-side Meta Lead (Conversions API), fire-and-forget after the response.
+ * Same event_id as the browser Pixel Lead. Never blocks or fails the lead.
+ */
+function scheduleMetaLead(
+  request: Request,
+  form: QuoteFormData,
+  meta: LeadSubmissionMeta,
+  rawTracking: unknown,
+): void {
+  try {
+    if (!isMetaCapiConfigured()) return;
+    const tracking = sanitizeMetaLeadTracking(rawTracking);
+    if (!tracking) return;
+
+    const context = metaContextFromRequest(request, meta.acquisition?.fbclid);
+    const event = {
+      event_name: "Lead",
+      event_time: nowInSeconds(),
+      event_id: tracking.eventId,
+      ...(tracking.eventSourceUrl
+        ? { event_source_url: tracking.eventSourceUrl }
+        : {}),
+      action_source: "website" as const,
+      user_data: buildLeadUserData(context, {
+        email: form.email,
+        phone: form.phone,
+        firstName: form.firstName,
+        lastName: form.lastName,
+        postalCode: form.postalCode,
+        city: form.city,
+      }),
+    };
+    after(() => sendMetaEvents([event]));
+  } catch {
+    console.error("[api/leads] meta capi scheduling failed");
+  }
+}
 
 const FORM_VALIDATION_STEPS = [
   "currentMutualTariff",
@@ -315,6 +396,7 @@ export async function POST(request: Request) {
       form,
       meta,
       consentAt,
+      consentVariant: resolveConsentVariantId(body.consentVariant),
       ipAddress,
       userAgent,
     });
@@ -341,6 +423,8 @@ export async function POST(request: Request) {
   if (!result.ok) {
     return failure(502, "LEAD_SUBMISSION_FAILED");
   }
+
+  scheduleMetaLead(request, form, meta, body.metaTracking);
 
   return NextResponse.json({ success: true });
 }

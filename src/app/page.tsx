@@ -1,5 +1,5 @@
-import { PrimaryLanding } from "@/components/landing/primary/PrimaryLanding";
+import { SeniorLanding } from "@/components/landing/senior/SeniorLanding";
 
 export default function Home() {
-  return <PrimaryLanding homeHref="/" />;
+  return <SeniorLanding />;
 }

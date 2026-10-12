@@ -1,9 +1,8 @@
 import type { QuoteFormData } from "@/components/form/types";
 import {
   CONSENT_CAMPAIGN,
-  CONSENT_CHANNELS,
-  CONSENT_OPTIN_TEXT_FULL,
-  CONSENT_OPTIN_TEXT_VERSION,
+  CONSENT_VARIANTS,
+  type ConsentVariantId,
   CONSENT_SOURCE,
   CONSENT_STATUS_ACTIVE,
   LANDING_PAGE_VERSION,
@@ -32,6 +31,8 @@ export type BuildVertiklFieldsInput = {
   form: QuoteFormData;
   meta?: LeadSubmissionMeta;
   consentAt: Date;
+  /** Allowlisted consent variant shown to the visitor (default: legacy text). */
+  consentVariant?: ConsentVariantId;
   ipAddress?: string;
   userAgent?: string;
 };
@@ -66,6 +67,7 @@ export function buildVertiklFields(
     throw new VertiklMappingError("Invalid French phone number.");
   }
 
+  const consentVariant = CONSENT_VARIANTS[input.consentVariant ?? "default"];
   const consentDatetime = formatVertiklDateTime(consentAt);
   const consentExpiration = formatVertiklDateTime(
     addMonthsUtc(consentAt, 12),
@@ -80,15 +82,17 @@ export function buildVertiklFields(
     postal_code: form.postalCode.trim(),
     currently_insured: mapCurrentlyInsured(form.alreadyInsured),
     people_to_cover: mapPeopleToCover(form.coveredPersons),
-    consent_whatsapp: Boolean(form.whatsappAvailable),
+    consent_whatsapp: consentVariant.whatsapp
+      ? Boolean(form.whatsappAvailable)
+      : false,
     consent_given: true,
     consent_campaign: CONSENT_CAMPAIGN,
     consent_datetime: consentDatetime,
     consent_expiration_date: consentExpiration,
-    consent_channels: [...CONSENT_CHANNELS],
+    consent_channels: [...consentVariant.channels],
     consent_landing_page_version: LANDING_PAGE_VERSION,
-    consent_optin_text: CONSENT_OPTIN_TEXT_FULL,
-    consent_optin_text_version: CONSENT_OPTIN_TEXT_VERSION,
+    consent_optin_text: consentVariant.optinText,
+    consent_optin_text_version: consentVariant.optinTextVersion,
     consent_legal_notice_version: LEGAL_NOTICE_VERSION,
     consent_source: CONSENT_SOURCE,
     consent_status: CONSENT_STATUS_ACTIVE,
