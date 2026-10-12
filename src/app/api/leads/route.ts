@@ -4,6 +4,7 @@ import {
   deriveAlreadyInsured,
   initialFormData,
   isCurrentMutualTariffId,
+  isHealthInsuranceGoalId,
   isProfessionalStatusId,
 } from "@/components/form/types";
 import {
@@ -136,7 +137,21 @@ function parseForm(raw: unknown): QuoteFormData | null {
     isCurrentMutualTariffId(raw.currentMutualTariff)
       ? raw.currentMutualTariff
       : "";
+  const healthInsuranceGoal =
+    typeof raw.healthInsuranceGoal === "string" &&
+    isHealthInsuranceGoalId(raw.healthInsuranceGoal)
+      ? raw.healthInsuranceGoal
+      : "";
   const derivedInsured = deriveAlreadyInsured(currentMutualTariff);
+  const explicitInsured =
+    raw.alreadyInsured === "oui" || raw.alreadyInsured === "non"
+      ? raw.alreadyInsured
+      : "";
+  // Primary LP goal step sends alreadyInsured: "oui"; tariff path still derives.
+  const alreadyInsured =
+    explicitInsured ||
+    derivedInsured ||
+    (healthInsuranceGoal ? ("oui" as const) : "");
 
   return {
     ...initialFormData,
@@ -160,11 +175,8 @@ function parseForm(raw: unknown): QuoteFormData | null {
         ? raw.professionalStatus
         : "",
     currentMutualTariff,
-    alreadyInsured:
-      derivedInsured ||
-      (raw.alreadyInsured === "oui" || raw.alreadyInsured === "non"
-        ? raw.alreadyInsured
-        : ""),
+    healthInsuranceGoal,
+    alreadyInsured,
     insurer: "",
     civility:
       raw.civility === "mme" || raw.civility === "m" ? raw.civility : "",
@@ -182,8 +194,21 @@ function validateLeadForm(form: QuoteFormData): FieldErrors {
 
   for (const step of FORM_VALIDATION_STEPS) {
     if (isHiddenFormStep(step)) continue;
-    if (step === "alreadyInsured" && form.currentMutualTariff) continue;
-    if (step === "currentMutualTariff" && !form.currentMutualTariff) continue;
+    if (
+      step === "alreadyInsured" &&
+      (form.currentMutualTariff || form.healthInsuranceGoal || form.alreadyInsured)
+    ) {
+      continue;
+    }
+    // Skip first-step validation only when neither goal nor legacy tariff is present
+    // (e.g. savings path that never asks this question).
+    if (
+      step === "currentMutualTariff" &&
+      !form.healthInsuranceGoal &&
+      !form.currentMutualTariff
+    ) {
+      continue;
+    }
     if (
       step === "birthDate" &&
       form.birthDate &&

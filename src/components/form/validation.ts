@@ -185,9 +185,10 @@ export function validateStep(
       break;
 
     case "currentMutualTariff":
-      if (!data.currentMutualTariff) {
-        errors.currentMutualTariff =
-          "Sélectionnez le tarif de votre mutuelle actuelle.";
+      // Primary LP uses healthInsuranceGoal; legacy/savings may still send tariff.
+      if (!data.healthInsuranceGoal && !data.currentMutualTariff) {
+        errors.healthInsuranceGoal =
+          "Indiquez ce que vous aimeriez améliorer.";
       }
       break;
 

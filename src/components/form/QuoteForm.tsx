@@ -14,7 +14,6 @@ import {
   FORM_STEPS,
   initialFormData,
   COVERED_PERSONS,
-  deriveAlreadyInsured,
   type CoveredPersonId,
   type FormStepId,
   type QuoteFormData,
@@ -484,20 +483,20 @@ export function QuoteForm({
         <FormBackButton
           onBack={goBack}
           disabled={isAdvancing || isSubmitting}
-          className="absolute left-1 top-1 z-20 sm:left-2 sm:top-2 lg:text-white lg:hover:bg-white/15"
+          className="absolute left-1 top-1 z-20 sm:left-2 sm:top-2"
         />
       ) : null}
 
       {showProgress && (firstStepIntro || firstStepNote) ? (
         <div
-          className={`-mx-3.5 -mt-3.5 mb-3 rounded-t-[1.6rem] border-b border-brand/20 bg-[#ddd6fe] pb-3.5 pt-4 text-center sm:-mx-5 sm:-mt-5 sm:mb-4 sm:pb-4 sm:pt-5 lg:-mx-7 lg:-mt-6 lg:mb-4 lg:border-white/10 lg:bg-gradient-to-r lg:from-[#7c3aed] lg:via-[#8b5cf6] lg:to-[#c4b5fd] lg:pb-3.5 lg:pt-4 ${
+          className={`-mx-3.5 -mt-3.5 mb-3 rounded-t-[1.6rem] border-b border-brand/20 bg-[#ddd6fe] pb-3.5 pt-4 text-center sm:-mx-5 sm:-mt-5 sm:mb-4 sm:pb-4 sm:pt-5 lg:-mx-7 lg:-mt-6 lg:mb-4 lg:pb-3.5 lg:pt-4 ${
             canGoBack
               ? "pl-12 pr-3.5 sm:pl-14 sm:pr-5 lg:pr-7"
               : "px-3.5 sm:px-5 lg:px-7"
           }`}
         >
           {firstStepIntro ? (
-            <p className="font-manrope text-xl font-extrabold tracking-tight text-[#3b0764] sm:text-2xl lg:text-[1.75rem] lg:text-white">
+            <p className="font-manrope text-xl font-extrabold tracking-tight text-[#3b0764] sm:text-2xl lg:text-[1.75rem]">
               {firstStepIntro}
             </p>
           ) : null}
@@ -519,10 +518,12 @@ export function QuoteForm({
             data={data}
             errors={errors}
             disabled={isAdvancing}
-            onSelectAndAdvance={(currentMutualTariff) =>
+            onSelectAndAdvance={(healthInsuranceGoal) =>
               selectAndAdvance({
-                currentMutualTariff,
-                alreadyInsured: deriveAlreadyInsured(currentMutualTariff),
+                healthInsuranceGoal,
+                // Goal step no longer collects “no insurance”; keep Vertikl
+                // currently_insured required without reopening that question.
+                alreadyInsured: "oui",
               })
             }
           />

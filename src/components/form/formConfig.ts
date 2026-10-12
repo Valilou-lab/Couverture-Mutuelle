@@ -9,8 +9,9 @@ import type { FormStepId } from "./types";
 export const SHOW_CARE_PRIORITIES_STEP = false;
 
 /**
- * The yes/no “already insured” question is derived from the tariff step.
- * Keep StepAlreadyInsured — set to `true` to show it again.
+ * The yes/no “already insured” question is hidden on the primary LP.
+ * The goal step sets alreadyInsured to "oui"; legacy tariff path still uses
+ * deriveAlreadyInsured(). Keep StepAlreadyInsured — set to `true` to show it.
  */
 export const SHOW_ALREADY_INSURED_STEP = false;
 

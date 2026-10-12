@@ -30,6 +30,7 @@ export const PROFESSIONAL_STATUSES = [
   { id: "other", label: "Autre" },
 ] as const;
 
+/** Kept for Vertikl `cost_health` / savings flows — no longer asked on the primary LP. */
 export const CURRENT_MUTUAL_TARIFFS = [
   { id: "under_60", label: "Moins de 60 €" },
   { id: "60_90", label: "60 à 90 €" },
@@ -37,6 +38,15 @@ export const CURRENT_MUTUAL_TARIFFS = [
   { id: "over_120", label: "Plus de 120 €" },
   { id: "unknown", label: "Je ne sais pas" },
   { id: "no_insurance", label: "Je n’ai pas de mutuelle" },
+] as const;
+
+/** First question on the primary conversion form (`health_insurance_goal`). */
+export const HEALTH_INSURANCE_GOALS = [
+  { id: "pay_less", label: "Payer moins cher" },
+  { id: "better_reimbursement", label: "Être mieux remboursé(e)" },
+  { id: "adapt_coverage", label: "Adapter mes garanties à mes besoins" },
+  { id: "compare_before_increase", label: "Comparer avant la prochaine hausse" },
+  { id: "unknown", label: "Je ne sais pas" },
 ] as const;
 
 export const CIVILITIES = [
@@ -63,7 +73,19 @@ export function isCurrentMutualTariffId(
   return CURRENT_MUTUAL_TARIFFS.some((item) => item.id === value);
 }
 
-/** Derived from the tariff step — never asked separately while that step is shown. */
+export type HealthInsuranceGoalId =
+  (typeof HEALTH_INSURANCE_GOALS)[number]["id"];
+
+export function isHealthInsuranceGoalId(
+  value: string,
+): value is HealthInsuranceGoalId {
+  return HEALTH_INSURANCE_GOALS.some((item) => item.id === value);
+}
+
+/**
+ * Derived from the legacy tariff step (`no_insurance` → non).
+ * On the primary LP, the goal step sets alreadyInsured to "oui" instead.
+ */
 export function deriveAlreadyInsured(
   tariff: CurrentMutualTariffId | "",
 ): "oui" | "non" | "" {
@@ -84,7 +106,10 @@ export type QuoteFormData = {
   city: string;
   citiesOptions: string[];
   professionalStatus: ProfessionalStatusId | "";
+  /** Optional legacy tariff — still mapped to Vertikl `cost_health` when present. */
   currentMutualTariff: CurrentMutualTariffId | "";
+  /** Primary LP first-step answer → Vertikl `health_insurance_goal`. */
+  healthInsuranceGoal: HealthInsuranceGoalId | "";
   alreadyInsured: "oui" | "non" | "";
   insurer: string;
   civility: CivilityId | "";
@@ -107,6 +132,7 @@ export const initialFormData: QuoteFormData = {
   citiesOptions: [],
   professionalStatus: "",
   currentMutualTariff: "",
+  healthInsuranceGoal: "",
   alreadyInsured: "",
   insurer: "",
   civility: "",

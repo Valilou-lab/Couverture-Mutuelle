@@ -80,6 +80,7 @@ export function buildQuoteLeadPreview(
     familyStatus: form.familyStatus,
     professionalStatus: form.professionalStatus,
     currentMutualTariff: form.currentMutualTariff,
+    healthInsuranceGoal: form.healthInsuranceGoal,
     alreadyInsured: form.alreadyInsured,
     insurer: form.insurer,
     civility: form.civility,

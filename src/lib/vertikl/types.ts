@@ -85,8 +85,15 @@ export type VertiklLeadFields = {
   consent_user_agent?: string;
   consent_source: string;
   consent_status: "actif" | "retire" | "expire";
-  /** Optional — selected tariff range id. */
+  /** Optional — selected tariff range id (legacy / calculator). */
   cost_health?: VertiklCostHealth;
+  /** Optional — primary LP first-step motivation. */
+  health_insurance_goal?:
+    | "pay_less"
+    | "better_reimbursement"
+    | "adapt_coverage"
+    | "compare_before_increase"
+    | "unknown";
   /** Optional — savings calculator only. */
   time_insured?: VertiklTimeInsured;
 };

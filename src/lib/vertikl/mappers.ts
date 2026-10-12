@@ -3,6 +3,7 @@ import type {
   CivilityId,
   CoveredPersonId,
   CurrentMutualTariffId,
+  HealthInsuranceGoalId,
   ProfessionalStatusId,
 } from "@/components/form/types";
 import type { SavingsTenureId } from "@/lib/savings-engine";
@@ -132,6 +133,14 @@ export function mapProfessionalStatut(
 export function mapCostHealth(
   value: CurrentMutualTariffId | "",
 ): VertiklCostHealth | undefined {
+  if (!value) return undefined;
+  return value;
+}
+
+/** Returns the selected goal id. Empty answers are omitted. */
+export function mapHealthInsuranceGoal(
+  value: HealthInsuranceGoalId | "",
+): HealthInsuranceGoalId | undefined {
   if (!value) return undefined;
   return value;
 }

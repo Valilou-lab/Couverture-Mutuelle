@@ -13,6 +13,7 @@ import {
   mapCostHealth,
   mapCurrentlyInsured,
   mapGender,
+  mapHealthInsuranceGoal,
   mapInsurerTenure,
   mapPeopleToCover,
   mapPriorityCare,
@@ -117,9 +118,16 @@ export function buildVertiklFields(
     fields.professional_statut = professionalStatut;
   }
 
+  // cost_health stays optional — only set when a tariff was collected
+  // (legacy savings path / calculator). Primary LP no longer asks it.
   const tariffCost = mapCostHealth(form.currentMutualTariff);
   if (tariffCost !== undefined) {
     fields.cost_health = tariffCost;
+  }
+
+  const healthGoal = mapHealthInsuranceGoal(form.healthInsuranceGoal);
+  if (healthGoal !== undefined) {
+    fields.health_insurance_goal = healthGoal;
   }
 
   if (ipAddress) {
@@ -149,8 +157,9 @@ export function buildVertiklFields(
   // familyStatus, insurer, citiesOptions, civility/gender, health_scheme,
   // spouse DOB, care priorities, marital_status, number_of_children.
   // professional_statut is mapped from professionalStatus when present.
-  // cost_health is the selected tariff enum id (under_60, 60_90, …).
-  // currently_insured is derived from the tariff step (no_insurance → false).
+  // cost_health is the selected tariff enum id when present (under_60, …).
+  // health_insurance_goal is the primary LP first-step motivation id.
+  // currently_insured defaults to true on the primary LP goal step.
   // priority_care is omitted when unanswered (step can be hidden).
   // health_scheme is optional on Vertikl and no longer collected.
   // WhatsApp is ONLY consent_whatsapp — never added to consent_channels.

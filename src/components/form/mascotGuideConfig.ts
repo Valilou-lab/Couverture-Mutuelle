@@ -40,9 +40,9 @@ const GUIDE_BY_STEP: Partial<Record<FormStepId, FormMascotContent>> = {
     pose: "curieuse",
     title: "C’est parti !",
     lines: [
-      "Votre tarif actuel m’aide à",
-      "trouver des offres plus",
-      "avantageuses.",
+      "Votre priorité m’aide à",
+      "trouver des offres vraiment",
+      "adaptées.",
     ],
     bubbleTone: "mint",
   },
