@@ -30,6 +30,7 @@ type Fbq = ((...args: unknown[]) => void) & {
   push?: unknown;
   loaded?: boolean;
   version?: string;
+  disablePushState?: boolean;
 };
 
 declare global {
@@ -68,6 +69,9 @@ function injectFbevents(): void {
   fbq.loaded = true;
   fbq.version = "2.0";
   fbq.queue = [];
+  // fbevents.js fires its own PageView (without our event_id) on every
+  // history.pushState; MetaPixel.tsx already sends one per pathname.
+  fbq.disablePushState = true;
   window.fbq = fbq;
   if (!window._fbq) window._fbq = fbq;
 
