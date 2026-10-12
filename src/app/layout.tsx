@@ -5,6 +5,7 @@ import { ChatbotSlot } from "@/components/chatbot/ChatbotSlot";
 import { CookieConsentUI } from "@/components/cookies/CookieConsentUI";
 import { GoogleAdsTag } from "@/components/gtm/GoogleAdsTag";
 import { GoogleTagManager } from "@/components/gtm/GoogleTagManager";
+import { MetaPixel } from "@/components/meta/MetaPixel";
 import { CookieConsentProvider } from "@/context/CookieConsentContext";
 import { QuoteJourneyProvider } from "@/context/QuoteJourneyContext";
 import "./globals.css";
@@ -97,6 +98,8 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
             <ChatbotSlot />
           </QuoteJourneyProvider>
           <CookieConsentUI />
+          {/* Meta Pixel + CAPI relay — app code, not GTM; loads only after marketing consent. */}
+          <MetaPixel />
         </CookieConsentProvider>
       </body>
     </html>

@@ -40,6 +40,12 @@ import { randomOffersCount } from "./mascotGuideConfig";
 import { useQuoteJourney } from "@/context/QuoteJourneyContext";
 import { getStoredAcquisition } from "@/lib/acquisition";
 import { pushLeadCompletedToDataLayer } from "@/lib/gtm-consent";
+import {
+  prepareMetaLeadTracking,
+  trackMetaFormStart,
+  trackMetaFormStep,
+  trackMetaLeadPixel,
+} from "@/lib/meta/pixel";
 import { scrollQuoteFormIntoView } from "./scrollQuoteFormIntoView";
 import {
   COMBINE_BIRTH_AND_POSTAL_STEP,
@@ -215,6 +221,16 @@ export function QuoteForm({
   const lastFocusToken = useRef(0);
   const formRootRef = useRef<HTMLDivElement>(null);
   const leadCompletedPushedRef = useRef(false);
+  const metaFormStartedRef = useRef(false);
+  const metaStepsTrackedRef = useRef<Set<FormStepId>>(new Set());
+  const metaLeadTrackedRef = useRef(false);
+
+  /** Meta FormStart — first interaction only (no form data sent). */
+  const markFormStarted = useCallback(() => {
+    if (metaFormStartedRef.current) return;
+    metaFormStartedRef.current = true;
+    trackMetaFormStart();
+  }, []);
 
   useEffect(() => {
     if (!skipBirthDate && !skipPostalCode) return;
@@ -261,11 +277,12 @@ export function QuoteForm({
   const patch = useCallback(
     (partial: Partial<QuoteFormData>) => {
       funnel?.onInteract?.();
+      markFormStarted();
       setData((current) => ({ ...current, ...partial }));
       setErrors({});
       setSubmitError(null);
     },
-    [funnel],
+    [funnel, markFormStarted],
   );
 
   const setPostalCode = useCallback(
@@ -323,6 +340,11 @@ export function QuoteForm({
       const completed = questionStepNumber(currentStep, steps);
       if (completed != null) {
         funnel?.onStepCompleted?.(completed);
+        // Meta FormStep: step number + internal step key only (no answers).
+        if (!metaStepsTrackedRef.current.has(currentStep)) {
+          metaStepsTrackedRef.current.add(currentStep);
+          trackMetaFormStep(completed, currentStep);
+        }
       }
       const nextStep = steps[currentIndex + 1];
       if (nextStep) {
@@ -350,6 +372,9 @@ export function QuoteForm({
 
     try {
       const storedAcquisition = getStoredAcquisition();
+      // Shared event_id: server sends the CAPI Lead (only with marketing consent),
+      // the browser fires the Pixel Lead below once /api/leads returns OK.
+      const metaTracking = prepareMetaLeadTracking();
       const response = await fetch("/api/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -360,6 +385,7 @@ export function QuoteForm({
             referrer: storedAcquisition.referrer,
             acquisition: storedAcquisition.acquisition,
           },
+          metaTracking,
         }),
       });
 
@@ -375,10 +401,15 @@ export function QuoteForm({
         return;
       }
 
-      // GTM dataLayer only — no Meta Pixel, no form/PII parameters.
+      // GTM dataLayer (GA4 / Google Ads) — no form/PII parameters.
       if (!leadCompletedPushedRef.current) {
         leadCompletedPushedRef.current = true;
         pushLeadCompletedToDataLayer();
+      }
+      // Meta Pixel Lead (app code, not GTM) — no parameters, same event_id as CAPI.
+      if (!metaLeadTrackedRef.current) {
+        metaLeadTrackedRef.current = true;
+        trackMetaLeadPixel(metaTracking);
       }
       funnel?.onSubmitSuccess?.();
 
@@ -407,6 +438,7 @@ export function QuoteForm({
     (partial: Partial<QuoteFormData>) => {
       if (advanceLock.current) return;
       funnel?.onInteract?.();
+      markFormStarted();
       advanceLock.current = true;
       setIsAdvancing(true);
 
@@ -419,7 +451,7 @@ export function QuoteForm({
       }, ADVANCE_DELAY_MS);
       timers.current.push(id);
     },
-    [data, funnel, goNextFrom, step],
+    [data, funnel, goNextFrom, markFormStarted, step],
   );
 
   const goBack = useCallback(() => {

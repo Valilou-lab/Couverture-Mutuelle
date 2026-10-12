@@ -259,7 +259,8 @@ export function SavingsQuoteForm() {
         return;
       }
 
-      // GTM dataLayer only — no Meta Pixel, no form/PII parameters.
+      // GTM dataLayer only — no form/PII parameters. Meta Pixel/CAPI events are
+      // wired in QuoteForm only (this savings journey is disabled: /devis-economies redirects).
       if (!leadCompletedPushedRef.current) {
         leadCompletedPushedRef.current = true;
         pushLeadCompletedToDataLayer();
