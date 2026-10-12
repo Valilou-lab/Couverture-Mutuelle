@@ -8,6 +8,8 @@ import {
 import { OptionCard } from "./OptionCard";
 import { goalChoiceIcon } from "./GoalChoiceIcons";
 import type { FieldErrors } from "./validation";
+import { seniorGoalIcon } from "./SeniorChoiceIcons";
+import { SENIOR_ERROR, SENIOR_QUESTION_TITLE, useSeniorForm } from "./seniorForm";
 
 const PRIMARY_GOALS = HEALTH_INSURANCE_GOALS.filter(
   (item) => item.id !== "unknown",
@@ -35,6 +37,39 @@ export function StepCurrentMutualTariff({
   disabled = false,
   onSelectAndAdvance,
 }: Props) {
+  const senior = useSeniorForm();
+
+  if (senior) {
+    return (
+      <div>
+        <h2 className={SENIOR_QUESTION_TITLE}>
+          Qu’aimeriez-vous améliorer avec votre mutuelle&nbsp;?
+        </h2>
+        <div
+          className="mt-4 grid gap-3"
+          role="group"
+          aria-label="Qu’aimeriez-vous améliorer avec votre mutuelle ?"
+        >
+          {HEALTH_INSURANCE_GOALS.map((item) => (
+            <OptionCard
+              key={item.id}
+              label={item.label}
+              icon={seniorGoalIcon(item.id)}
+              selected={data.healthInsuranceGoal === item.id}
+              disabled={disabled}
+              onClick={() => onSelectAndAdvance(item.id)}
+            />
+          ))}
+        </div>
+        {errors.healthInsuranceGoal ? (
+          <p className={SENIOR_ERROR} role="alert">
+            {errors.healthInsuranceGoal}
+          </p>
+        ) : null}
+      </div>
+    );
+  }
+
   return (
     <div>
       <h2 className="text-center text-xl font-semibold tracking-tight text-foreground sm:text-2xl lg:text-[1.45rem]">

@@ -1,5 +1,7 @@
 "use client";
 
+import { useSeniorForm } from "./seniorForm";
+
 type FormNavigationProps = {
   onNext?: () => void;
   nextLabel?: string;
@@ -13,7 +15,23 @@ export function FormNavigation({
   showNext = true,
   disabled = false,
 }: FormNavigationProps) {
+  const senior = useSeniorForm();
   if (!showNext) return null;
+
+  if (senior) {
+    return (
+      <div className="mt-5">
+        <button
+          type="button"
+          onClick={onNext}
+          disabled={disabled}
+          className="inline-flex min-h-16 w-full items-center justify-center rounded-full bg-brand px-6 py-3.5 text-[1.2rem] font-extrabold text-white shadow-[0_8px_20px_-10px_rgba(98,41,208,0.7)] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {nextLabel}
+        </button>
+      </div>
+    );
+  }
 
   return (
     <div className="mt-6 flex items-center sm:mt-8">

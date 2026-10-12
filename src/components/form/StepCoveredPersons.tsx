@@ -8,6 +8,16 @@ import {
 import { OptionCard } from "./OptionCard";
 import { householdChoiceIcon } from "./HouseholdChoiceIcons";
 import type { FieldErrors } from "./validation";
+import { seniorHouseholdIcon } from "./SeniorChoiceIcons";
+import { SENIOR_ERROR, SENIOR_QUESTION_TITLE, useSeniorForm } from "./seniorForm";
+
+/** Senior layout lists couples before children (same ids and Vertikl mapping). */
+const SENIOR_ORDER: CoveredPersonId[] = [
+  "moi",
+  "moi-conjoint",
+  "moi-enfants",
+  "moi-conjoint-enfants",
+];
 
 type Props = {
   data: QuoteFormData;
@@ -24,6 +34,36 @@ export function StepCoveredPersons({
   title = "Qui doit-être assuré\u00a0?",
   onSelectAndAdvance,
 }: Props) {
+  const senior = useSeniorForm();
+
+  if (senior) {
+    return (
+      <div>
+        <h2 className={SENIOR_QUESTION_TITLE}>{title}</h2>
+        <div className="mt-4 grid gap-3" role="group" aria-label={title}>
+          {SENIOR_ORDER.map((id) => {
+            const item = COVERED_PERSONS.find((person) => person.id === id)!;
+            return (
+              <OptionCard
+                key={item.id}
+                label={item.label}
+                icon={seniorHouseholdIcon(item.id)}
+                selected={data.coveredPersons === item.id}
+                disabled={disabled}
+                onClick={() => onSelectAndAdvance(item.id)}
+              />
+            );
+          })}
+        </div>
+        {errors.coveredPersons ? (
+          <p className={SENIOR_ERROR} role="alert">
+            {errors.coveredPersons}
+          </p>
+        ) : null}
+      </div>
+    );
+  }
+
   return (
     <div>
       <h2 className="text-center text-xl font-semibold tracking-tight text-foreground sm:text-2xl">

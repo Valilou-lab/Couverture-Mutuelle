@@ -4,19 +4,21 @@ type Props = {
   onBack: () => void;
   disabled?: boolean;
   className?: string;
+  label?: string;
 };
 
 export function FormBackButton({
   onBack,
   disabled = false,
   className = "",
+  label = "Retour",
 }: Props) {
   return (
     <button
       type="button"
       onClick={onBack}
       disabled={disabled}
-      aria-label="Retour"
+      aria-label={label}
       className={`inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-brand transition hover:bg-brand-soft disabled:opacity-40 ${className}`.trim()}
     >
       <svg
