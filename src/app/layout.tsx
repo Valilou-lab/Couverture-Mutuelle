@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Baloo_2, DM_Sans, Manrope, Nunito, Poppins, Sora } from "next/font/google";
 import { AcquisitionCapture } from "@/components/acquisition/AcquisitionCapture";
 import { ChatbotSlot } from "@/components/chatbot/ChatbotSlot";
 import { CookieConsentUI } from "@/components/cookies/CookieConsentUI";
@@ -9,42 +8,6 @@ import { MetaPixel } from "@/components/meta/MetaPixel";
 import { CookieConsentProvider } from "@/context/CookieConsentContext";
 import { QuoteJourneyProvider } from "@/context/QuoteJourneyContext";
 import "./globals.css";
-
-const dmSans = DM_Sans({
-  variable: "--font-dm-sans",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-});
-
-const manrope = Manrope({
-  variable: "--font-manrope-family",
-  subsets: ["latin"],
-  weight: ["500", "600", "700", "800"],
-});
-
-const baloo2 = Baloo_2({
-  variable: "--font-baloo-family",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
-});
-
-const nunito = Nunito({
-  variable: "--font-nunito-family",
-  subsets: ["latin"],
-  weight: ["500", "600", "700", "800"],
-});
-
-const sora = Sora({
-  variable: "--font-sora-family",
-  subsets: ["latin"],
-  weight: ["500", "600", "700", "800"],
-});
-
-const poppins = Poppins({
-  variable: "--font-poppins-family",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700", "800"],
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://www.couverturemutuelle.fr"),
@@ -84,11 +47,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html
-      lang="fr"
-      className={`${dmSans.variable} ${manrope.variable} ${baloo2.variable} ${nunito.variable} ${sora.variable} ${poppins.variable} h-full antialiased`}
-    >
-      <body className="min-h-full flex max-w-[100vw] flex-col overflow-x-hidden font-sans">
+    <html lang="fr" className="h-full antialiased">
+      <body className="flex min-h-full max-w-[100vw] flex-col overflow-x-hidden font-sans">
         <GoogleAdsTag />
         <GoogleTagManager />
         <AcquisitionCapture />

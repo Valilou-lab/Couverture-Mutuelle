@@ -38,7 +38,7 @@ function TokenStack({ count }: { count: 1 | 2 | 3 | 4 }) {
               fontSize="8.5"
               fontWeight="500"
               fill={MARK}
-              fontFamily="var(--font-poppins-family), ui-sans-serif, system-ui, sans-serif"
+              fontFamily="Arial, Helvetica, sans-serif"
             >
               €
             </text>

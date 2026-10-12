@@ -15,7 +15,7 @@ export function PrimaryHero() {
           <div className="mx-auto max-w-[84rem] px-4 py-8 sm:px-6 sm:py-10 lg:px-10 lg:py-12">
             <div className="grid items-start gap-8 lg:grid-cols-[minmax(0,1fr)_minmax(31.25rem,33.75rem)] lg:gap-x-12 xl:gap-x-16">
               <div className="relative min-w-0">
-                <div className="relative z-10 max-w-xl lg:max-w-[34rem]">
+                <div className="relative z-10 max-w-xl lg:max-w-[40rem] xl:max-w-[44rem]">
                   <p className="text-sm font-medium text-[#7c3aed]">
                     Comparer sa mutuelle simplement
                   </p>
@@ -27,19 +27,14 @@ export function PrimaryHero() {
                     </span>
                   </h1>
 
-                  <p className="mt-4 text-[1.0625rem] leading-relaxed text-zinc-600 sm:text-lg">
-                    Répondez à 5 questions et découvrez si vous pouvez payer
-                    moins cher votre mutuelle.
-                  </p>
-
-                  {/* Desktop only — under the subtitle, left-aligned */}
-                  <div className="mt-8 hidden lg:block">
+                  {/* Desktop only — under the title, left-aligned */}
+                  <div className="mt-6 hidden w-full lg:block">
                     <Image
                       src="/images/hero-couple-economisez-v2.png"
                       alt="Couple senior — Économisez jusqu’à 25 %"
                       width={1024}
                       height={535}
-                      className="h-auto w-full max-w-[28rem] object-contain object-left xl:max-w-[30rem]"
+                      className="h-auto w-full max-w-none object-contain object-left"
                       priority
                       unoptimized
                     />

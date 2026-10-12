@@ -22,12 +22,12 @@
   --color-border: var(--border);
   --color-success: var(--success);
   --color-error: var(--error);
-  --font-sans: var(--font-dm-sans);
-  --font-manrope: var(--font-manrope-family);
-  --font-baloo: var(--font-baloo-family);
-  --font-nunito: var(--font-nunito-family);
-  --font-sora: var(--font-sora-family);
-  --font-poppins: var(--font-poppins-family);
+  --font-sans: Arial, Helvetica, sans-serif;
+  --font-manrope: Arial, Helvetica, sans-serif;
+  --font-baloo: Arial, Helvetica, sans-serif;
+  --font-nunito: Arial, Helvetica, sans-serif;
+  --font-sora: Arial, Helvetica, sans-serif;
+  --font-poppins: Arial, Helvetica, sans-serif;
 }
 
 html {
@@ -38,6 +38,7 @@ html {
 body {
   background: var(--background);
   color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
   overflow-x: hidden;
 }
 
@@ -187,7 +188,7 @@ body {
 .primary-lp-overlay,
 .primary-lp-overlay .font-manrope,
 .primary-lp-overlay .font-sora {
-  font-family: var(--font-poppins-family), sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 .primary-lp :is(h1, h2, h3)[class],

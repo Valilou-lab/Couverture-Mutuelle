@@ -10,6 +10,7 @@ import type { SavingsTenureId } from "@/lib/savings-engine";
 import type {
   VertiklCostHealth,
   VertiklGender,
+  VertiklHealthInsuranceGoal,
   VertiklPeopleToCover,
   VertiklPriorityCare,
   VertiklProfessionalStatut,
@@ -137,10 +138,29 @@ export function mapCostHealth(
   return value;
 }
 
-/** Returns the selected goal id. Empty answers are omitted. */
+/**
+ * Form ids stay local (`pay_less`, …); Vertikl expects distinct LIST codes.
+ * Empty answers are omitted — never pushed to GTM/dataLayer.
+ */
+const HEALTH_INSURANCE_GOAL_MAP: Record<
+  HealthInsuranceGoalId,
+  VertiklHealthInsuranceGoal
+> = {
+  pay_less: "save_money",
+  better_reimbursement: "better_coverage",
+  adapt_coverage: "adjust_coverage",
+  compare_before_increase: "compare_before_increase",
+  unknown: "not_sure",
+};
+
+/** Returns a one-item LIST for Vertikl. Empty answers are omitted. */
 export function mapHealthInsuranceGoal(
   value: HealthInsuranceGoalId | "",
-): HealthInsuranceGoalId | undefined {
+): VertiklHealthInsuranceGoal[] | undefined {
   if (!value) return undefined;
-  return value;
+  const mapped = HEALTH_INSURANCE_GOAL_MAP[value];
+  if (!mapped) {
+    throw new VertiklMappingError(`Unmapped healthInsuranceGoal: ${value}`);
+  }
+  return [mapped];
 }

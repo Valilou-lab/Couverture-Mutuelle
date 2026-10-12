@@ -1,6 +1,5 @@
 import { Advantages } from "@/components/landing/Advantages";
 import { AdvisorValue } from "@/components/landing/AdvisorValue";
-import { CoverageShowcase } from "@/components/landing/CoverageShowcase";
 import { Faq } from "@/components/landing/Faq";
 import { FinalCta } from "@/components/landing/FinalCta";
 import { Footer } from "@/components/landing/Footer";
@@ -25,7 +24,6 @@ export function PrimaryLanding({ homeHref }: PrimaryLandingProps) {
         <MascotAdvice />
         <PricingGuide />
         <AdvisorValue />
-        <CoverageShowcase />
         <Faq />
         <FinalCta />
       </main>

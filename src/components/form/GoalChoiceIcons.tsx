@@ -38,7 +38,7 @@ function PayLessIcon() {
         fontSize="9.5"
         fontWeight="600"
         fill={MARK}
-        fontFamily="var(--font-poppins-family), ui-sans-serif, system-ui, sans-serif"
+        fontFamily="Arial, Helvetica, sans-serif"
       >
         €
       </text>

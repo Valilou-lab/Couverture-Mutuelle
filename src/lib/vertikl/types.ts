@@ -44,6 +44,14 @@ export type VertiklCostHealth =
   | "unknown"
   | "no_insurance";
 
+/** Vertikl LIST codes for `health_insurance_goal` (custom field). */
+export type VertiklHealthInsuranceGoal =
+  | "save_money"
+  | "better_coverage"
+  | "adjust_coverage"
+  | "compare_before_increase"
+  | "not_sure";
+
 export type VertiklConsentChannel =
   | "telephone"
   | "email"
@@ -87,13 +95,11 @@ export type VertiklLeadFields = {
   consent_status: "actif" | "retire" | "expire";
   /** Optional — selected tariff range id (legacy / calculator). */
   cost_health?: VertiklCostHealth;
-  /** Optional — primary LP first-step motivation. */
-  health_insurance_goal?:
-    | "pay_less"
-    | "better_reimbursement"
-    | "adapt_coverage"
-    | "compare_before_increase"
-    | "unknown";
+  /**
+   * Optional — primary LP first-step motivation.
+   * Vertikl campaign field type is LIST (one code per lead).
+   */
+  health_insurance_goal?: VertiklHealthInsuranceGoal[];
   /** Optional — savings calculator only. */
   time_insured?: VertiklTimeInsured;
 };

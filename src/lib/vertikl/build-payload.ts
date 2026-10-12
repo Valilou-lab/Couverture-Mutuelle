@@ -129,6 +129,7 @@ export function buildVertiklFields(
     fields.cost_health = tariffCost;
   }
 
+  // Form stores local ids; mapper emits Vertikl LIST codes (e.g. save_money).
   const healthGoal = mapHealthInsuranceGoal(form.healthInsuranceGoal);
   if (healthGoal !== undefined) {
     fields.health_insurance_goal = healthGoal;
@@ -162,7 +163,7 @@ export function buildVertiklFields(
   // spouse DOB, care priorities, marital_status, number_of_children.
   // professional_statut is mapped from professionalStatus when present.
   // cost_health is the selected tariff enum id when present (under_60, …).
-  // health_insurance_goal is the primary LP first-step motivation id.
+  // health_insurance_goal is a Vertikl LIST of mapped codes (save_money, …).
   // currently_insured defaults to true on the primary LP goal step.
   // priority_care is omitted when unanswered (step can be hidden).
   // health_scheme is optional on Vertikl and no longer collected.
