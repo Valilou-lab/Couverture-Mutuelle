@@ -409,6 +409,10 @@ export async function POST(request: Request) {
     return failure(500, "LEAD_SUBMISSION_FAILED");
   }
 
+  // CAPI Lead goes out for every valid form, whatever Vertikl answers
+  // (a quarantined lead is still a real conversion).
+  scheduleMetaLead(request, form, meta, body.metaTracking);
+
   const result = await sendLeadToVertikl(fields, routing.campaignId);
   console.info("[api/leads] vertikl result", {
     ok: result.ok,
@@ -423,8 +427,6 @@ export async function POST(request: Request) {
   if (!result.ok) {
     return failure(502, "LEAD_SUBMISSION_FAILED");
   }
-
-  scheduleMetaLead(request, form, meta, body.metaTracking);
 
   return NextResponse.json({ success: true });
 }
