@@ -46,6 +46,7 @@ import {
   trackMetaFormStep,
   trackMetaLeadPixel,
 } from "@/lib/meta/pixel";
+import type { MetaLeadTracking } from "@/lib/meta/events";
 import { scrollQuoteFormIntoView } from "./scrollQuoteFormIntoView";
 import { SeniorFormContext } from "./seniorForm";
 import {
@@ -229,6 +230,7 @@ export function QuoteForm({
   const metaFormStartedRef = useRef(false);
   const metaStepsTrackedRef = useRef<Set<FormStepId>>(new Set());
   const metaLeadTrackedRef = useRef(false);
+  const metaLeadTrackingRef = useRef<MetaLeadTracking | null>(null);
 
   /** Meta FormStart — first interaction only (no form data sent). */
   const markFormStarted = useCallback(() => {
@@ -379,7 +381,9 @@ export function QuoteForm({
       const storedAcquisition = getStoredAcquisition();
       // Shared event_id: server sends the CAPI Lead (only with marketing consent),
       // the browser fires the Pixel Lead below once /api/leads returns OK.
-      const metaTracking = prepareMetaLeadTracking();
+      // Reused on retry so Meta dedupes a resubmit after an error.
+      metaLeadTrackingRef.current ??= prepareMetaLeadTracking();
+      const metaTracking = metaLeadTrackingRef.current;
       const response = await fetch("/api/leads", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
