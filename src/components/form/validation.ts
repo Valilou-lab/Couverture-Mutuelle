@@ -134,8 +134,56 @@ function isValidPhone(value: string): boolean {
   return true;
 }
 
+/** Common consumer-domain typos — custom / professional domains stay allowed. */
+const OBVIOUS_EMAIL_DOMAIN_TYPOS = new Set([
+  "gmai.com",
+  "gmial.com",
+  "gamil.com",
+  "gnail.com",
+  "gmal.com",
+  "gmail.con",
+  "gmail.co",
+  "gmail.cm",
+  "gmail.fr",
+  "hotmai.com",
+  "hotmial.com",
+  "hotmal.com",
+  "hotmail.con",
+  "hotmail.co",
+  "hotmail.cm",
+  "outlok.com",
+  "outllok.com",
+  "outlook.con",
+  "outlook.co",
+  "outlook.cm",
+  "yahooo.com",
+  "yaho.com",
+  "yahoo.con",
+  "yahoo.co",
+  "icloud.con",
+  "icoud.com",
+  "live.con",
+  "msn.con",
+  "orange.con",
+  "wanadoo.con",
+  "laposte.con",
+  "free.con",
+  "sfr.con",
+]);
+
 function isValidEmail(value: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
+  const email = value.trim();
+  // local@domain.tld — one @, no spaces, TLD at least 2 letters
+  return /^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?(?:\.[A-Za-z0-9](?:[A-Za-z0-9-]{0,61}[A-Za-z0-9])?)+$/.test(
+    email,
+  );
+}
+
+function isObviousEmailDomainTypo(value: string): boolean {
+  const at = value.trim().lastIndexOf("@");
+  if (at < 0) return false;
+  const domain = value.trim().slice(at + 1).toLowerCase();
+  return OBVIOUS_EMAIL_DOMAIN_TYPOS.has(domain);
 }
 
 export function needsSpouseBirthDate(data: QuoteFormData): boolean {
@@ -249,6 +297,9 @@ export function validateStep(
         errors.email = "Indiquez votre adresse e-mail.";
       } else if (!isValidEmail(data.email)) {
         errors.email = "Adresse e-mail invalide.";
+      } else if (isObviousEmailDomainTypo(data.email)) {
+        errors.email =
+          "Vérifiez l’orthographe de votre adresse e-mail (ex. gmail.com).";
       }
       if (!data.consent) {
         errors.consent =
