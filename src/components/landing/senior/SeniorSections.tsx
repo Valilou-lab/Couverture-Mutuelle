@@ -81,7 +81,7 @@ export function SeniorPartners() {
 const STEPS = [
   {
     title: "Vous remplissez le formulaire",
-    text: "{count} questions, moins d’une minute.",
+    text: "5 questions, moins d’une minute.",
   },
   {
     title: "Un conseiller étudie votre situation",
@@ -93,7 +93,7 @@ const STEPS = [
   },
 ] as const;
 
-export function SeniorSteps({ questionsCount = 5 }: { questionsCount?: number }) {
+export function SeniorSteps() {
   return (
     <Block labelledBy="etapes-titre">
       <h2 id="etapes-titre" className={H2}>
@@ -122,9 +122,7 @@ export function SeniorSteps({ questionsCount = 5 }: { questionsCount?: number })
             </span>
             <div>
               <h3 className={H3}>{item.title}</h3>
-              <p className="text-base text-zinc-600">
-                {item.text.replace("{count}", String(questionsCount))}
-              </p>
+              <p className="text-base text-zinc-600">{item.text}</p>
             </div>
           </li>
         ))}
@@ -150,7 +148,7 @@ const PEOPLE = [
   },
 ] as const;
 
-export function SeniorPeople() {
+export function SeniorPeople({ mariePrice = 74 }: { mariePrice?: number }) {
   return (
     <Block labelledBy="profils-titre">
       <h2 id="profils-titre" className={H2}>
@@ -175,7 +173,9 @@ export function SeniorPeople() {
             <div className="grid gap-1">
               <h3 className={H3}>{person.name}</h3>
               <p className="text-[1.15rem] font-extrabold tabular-nums text-brand">
-                {person.price}
+                {person.name.startsWith("Marie")
+                  ? `95 € → ${mariePrice} €/mois`
+                  : person.price}
               </p>
               <p className="text-base text-zinc-600">{person.text}</p>
             </div>

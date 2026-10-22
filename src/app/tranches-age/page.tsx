@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { SeniorQuoteForm } from "@/components/form/SeniorQuoteForm";
 import { SeniorHero } from "@/components/landing/senior/SeniorHero";
 import { SeniorLanding } from "@/components/landing/senior/SeniorLanding";
 
@@ -9,7 +8,7 @@ const DESCRIPTION =
 
 /**
  * Paid landing for the Meta ad « A01 | Tranches d’âge ».
- * Same page and form as the homepage, with an age-bracket first question.
+ * Same page and form as the homepage; only the hero copy and CTA label differ.
  * Not indexed: duplicate of the homepage content, meant for ad traffic only.
  */
 export const metadata: Metadata = {
@@ -21,8 +20,9 @@ export const metadata: Metadata = {
 export default function TranchesAgePage() {
   return (
     <SeniorLanding
-      questionsCount={6}
       ctaLabel="Je compare mon tarif"
+      mariePrice={39}
+      hidePricing
       hero={
         <SeniorHero
           title={
@@ -39,13 +39,6 @@ export default function TranchesAgePage() {
               </strong>
               , un conseiller vous rappelle avec les offres adaptées.
             </>
-          }
-          form={
-            <SeniorQuoteForm
-              askAgeBracket
-              ageBracketTitle="Quel tarif pour votre âge ?"
-              firstStepIntro="Votre tarif en 1 minute"
-            />
           }
         />
       }

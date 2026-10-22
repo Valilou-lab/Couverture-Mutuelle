@@ -21,15 +21,12 @@ const DEFAULT_SUBTITLE = (
 type SeniorHeroProps = {
   title?: ReactNode;
   subtitle?: ReactNode;
-  /** Defaults to the homepage form. */
-  form?: ReactNode;
 };
 
-/** Defaults render the homepage (/) hero; /tranches-age overrides the copy and form. */
+/** Defaults render the homepage (/) hero; /tranches-age overrides the copy. */
 export function SeniorHero({
   title = DEFAULT_TITLE,
   subtitle = DEFAULT_SUBTITLE,
-  form = <SeniorQuoteForm />,
 }: SeniorHeroProps = {}) {
   return (
     <>
@@ -53,7 +50,7 @@ export function SeniorHero({
         </div>
 
         <div id="devis" className="scroll-mt-4">
-          {form}
+          <SeniorQuoteForm />
         </div>
       </div>
     </>

@@ -13,30 +13,16 @@ const SENIOR_FORM_FUNNEL = {
   onSubmitSuccess: trackTikTokSubmitForm,
 } as const;
 
-type SeniorQuoteFormProps = {
-  /** /tranches-age: ask the age bracket first (local state only). */
-  askAgeBracket?: boolean;
-  firstStepIntro?: string;
-  ageBracketTitle?: string;
-};
-
 /**
  * Homepage (/) conversion form, senior layout. Same steps, validation,
  * Vertikl mapping and tracking as ConversionQuoteForm (/tiktok).
- * Also used by /tranches-age with `askAgeBracket`.
  */
-export function SeniorQuoteForm({
-  askAgeBracket = false,
-  firstStepIntro = "Votre devis en 1 minute",
-  ageBracketTitle,
-}: SeniorQuoteFormProps = {}) {
+export function SeniorQuoteForm() {
   return (
     <QuoteForm
       variant="senior"
       firstStep="currentMutualTariff"
-      firstStepIntro={firstStepIntro}
-      askAgeBracket={askAgeBracket}
-      ageBracketTitle={ageBracketTitle}
+      firstStepIntro="Votre devis en 1 minute"
       coveredPersonsTitle="Qui doit être assuré ?"
       accentQuestions
       funnel={SENIOR_FORM_FUNNEL}

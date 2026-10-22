@@ -16,17 +16,20 @@ import { SeniorStickyCta } from "./SeniorStickyCta";
 type SeniorLandingProps = {
   /** Defaults to the homepage hero (/). */
   hero?: ReactNode;
-  /** Number of questions announced in « 3 étapes simples ». */
-  questionsCount?: number;
   /** Main CTA label (final + sticky). Defaults to « Je compare gratuitement ». */
   ctaLabel?: string;
+  /** New monthly price shown in Marie's testimonial. Defaults to 74. */
+  mariePrice?: number;
+  /** Hide the pricing table section. Defaults to false (shown). */
+  hidePricing?: boolean;
 };
 
 /** Homepage (/) landing, senior audience: larger type and tap targets. */
 export function SeniorLanding({
   hero = <SeniorHero />,
-  questionsCount,
   ctaLabel,
+  mariePrice,
+  hidePricing = false,
 }: SeniorLandingProps = {}) {
   return (
     <div className="flex min-h-0 flex-1 flex-col bg-surface text-[18px] leading-[1.55] text-foreground">
@@ -34,9 +37,9 @@ export function SeniorLanding({
       <main className="mx-auto w-full max-w-[640px] flex-1 px-4 min-[900px]:max-w-[1100px]">
         {hero}
         <SeniorPartners />
-        <SeniorSteps questionsCount={questionsCount} />
-        <SeniorPeople />
-        <SeniorPricing />
+        <SeniorSteps />
+        <SeniorPeople mariePrice={mariePrice} />
+        {!hidePricing && <SeniorPricing />}
         <SeniorGuarantees />
         <SeniorFaq />
         <SeniorFinalCta ctaLabel={ctaLabel} />
