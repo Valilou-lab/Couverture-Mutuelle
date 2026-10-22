@@ -4,7 +4,11 @@ import { useEffect, useState } from "react";
 import { CTA_CLASS } from "./SeniorSections";
 
 /** Mobile-only CTA, shown once the quote form has scrolled above the viewport. */
-export function SeniorStickyCta() {
+export function SeniorStickyCta({
+  ctaLabel = "Je compare gratuitement",
+}: {
+  ctaLabel?: string;
+}) {
   const [show, setShow] = useState(false);
 
   useEffect(() => {
@@ -25,7 +29,7 @@ export function SeniorStickyCta() {
       }`}
     >
       <a href="#devis" tabIndex={show ? 0 : -1} className={`${CTA_CLASS} min-h-14`}>
-        Je compare gratuitement
+        {ctaLabel}
       </a>
     </div>
   );

@@ -148,7 +148,7 @@ const PEOPLE = [
   },
 ] as const;
 
-export function SeniorPeople() {
+export function SeniorPeople({ mariePrice = 74 }: { mariePrice?: number }) {
   return (
     <Block labelledBy="profils-titre">
       <h2 id="profils-titre" className={H2}>
@@ -173,7 +173,9 @@ export function SeniorPeople() {
             <div className="grid gap-1">
               <h3 className={H3}>{person.name}</h3>
               <p className="text-[1.15rem] font-extrabold tabular-nums text-brand">
-                {person.price}
+                {person.name.startsWith("Marie")
+                  ? `95 € → ${mariePrice} €/mois`
+                  : person.price}
               </p>
               <p className="text-base text-zinc-600">{person.text}</p>
             </div>
@@ -331,7 +333,11 @@ export function SeniorFaq() {
 export const CTA_CLASS =
   "inline-flex w-full items-center justify-center rounded-full bg-brand px-6 py-3.5 text-[1.2rem] font-extrabold text-white no-underline shadow-[0_8px_20px_-10px_rgba(98,41,208,0.7)] transition hover:brightness-110";
 
-export function SeniorFinalCta() {
+export function SeniorFinalCta({
+  ctaLabel = "Je compare gratuitement",
+}: {
+  ctaLabel?: string;
+}) {
   return (
     <section
       aria-labelledby="final-titre"
@@ -349,7 +355,7 @@ export function SeniorFinalCta() {
         Prêt(e) à comparer les offres ?
       </h2>
       <a href="#devis" className={`${CTA_CLASS} min-h-16 max-w-[420px]`}>
-        Je compare gratuitement
+        {ctaLabel}
       </a>
     </section>
   );
