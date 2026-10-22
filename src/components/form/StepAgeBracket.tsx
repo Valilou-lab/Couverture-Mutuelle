@@ -4,14 +4,14 @@ import { AGE_BRACKETS, type AgeBracketId } from "./types";
 import { OptionCard } from "./OptionCard";
 import { SENIOR_QUESTION_TITLE, useSeniorForm } from "./seniorForm";
 
-const TITLE = "Quelle est votre tranche d’âge ?";
+const DEFAULT_TITLE = "Quelle est votre tranche d’âge ?";
 
 /** Radio-style circle, echoing the Meta ad A01 visual (46×34, currentColor). */
 function RadioIcon({ selected }: { selected: boolean }) {
   return (
     <svg
       viewBox="0 0 46 34"
-      className="h-[34px] w-[46px]"
+      className="h-[26px] w-[34px] min-[420px]:h-[30px] min-[420px]:w-[40px]"
       fill="none"
       stroke="currentColor"
       strokeWidth="2.5"
@@ -26,6 +26,7 @@ function RadioIcon({ selected }: { selected: boolean }) {
 type Props = {
   value: AgeBracketId | "";
   disabled?: boolean;
+  title?: string;
   onSelectAndAdvance: (id: AgeBracketId) => void;
 };
 
@@ -33,6 +34,7 @@ type Props = {
 export function StepAgeBracket({
   value,
   disabled = false,
+  title = DEFAULT_TITLE,
   onSelectAndAdvance,
 }: Props) {
   const senior = useSeniorForm();
@@ -46,19 +48,27 @@ export function StepAgeBracket({
             : "text-center text-xl font-semibold tracking-tight text-foreground sm:text-2xl"
         }
       >
-        Quelle est votre tranche d’âge&nbsp;?
+        {title}
       </h2>
-      <div className="mt-4 grid gap-3" role="group" aria-label={TITLE}>
+      <div
+        className="mt-4 grid grid-cols-2 gap-3"
+        role="group"
+        aria-label={title}
+      >
         {AGE_BRACKETS.map((item) => (
           <OptionCard
             key={item.id}
             label={item.label}
             icon={<RadioIcon selected={value === item.id} />}
-            seniorAlign="center"
+            seniorAlign="left"
             surface="light"
             selected={value === item.id}
             disabled={disabled}
-            className={senior ? "min-h-20! text-[1.35rem]!" : undefined}
+            className={
+              senior
+                ? "min-h-20! grid-cols-[34px_1fr]! gap-1.5! px-2.5! text-[1.02rem]! min-[420px]:grid-cols-[40px_1fr]! min-[420px]:px-3.5! min-[420px]:text-[1.3rem]!"
+                : undefined
+            }
             onClick={() => onSelectAndAdvance(item.id)}
           />
         ))}

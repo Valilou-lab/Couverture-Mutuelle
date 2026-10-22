@@ -101,9 +101,12 @@ export type CivilityId = (typeof CIVILITIES)[number]["id"];
  * (date_of_birth, asked later, stays the source of truth for age).
  */
 export const AGE_BRACKETS = [
-  { id: "55_64", label: "55 - 64 ans" },
-  { id: "65_74", label: "65 - 74 ans" },
-  { id: "75_plus", label: "75 ans et plus" },
+  { id: "55_60", label: "55-60 ans" },
+  { id: "60_65", label: "60-65 ans" },
+  { id: "65_70", label: "65-70 ans" },
+  { id: "70_75", label: "70-75 ans" },
+  { id: "75_80", label: "75-80 ans" },
+  { id: "80_plus", label: "+ de 80 ans" },
 ] as const;
 
 export type AgeBracketId = (typeof AGE_BRACKETS)[number]["id"];

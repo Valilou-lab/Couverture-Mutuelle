@@ -333,7 +333,11 @@ export function SeniorFaq() {
 export const CTA_CLASS =
   "inline-flex w-full items-center justify-center rounded-full bg-brand px-6 py-3.5 text-[1.2rem] font-extrabold text-white no-underline shadow-[0_8px_20px_-10px_rgba(98,41,208,0.7)] transition hover:brightness-110";
 
-export function SeniorFinalCta() {
+export function SeniorFinalCta({
+  ctaLabel = "Je compare gratuitement",
+}: {
+  ctaLabel?: string;
+}) {
   return (
     <section
       aria-labelledby="final-titre"
@@ -351,7 +355,7 @@ export function SeniorFinalCta() {
         Prêt(e) à comparer les offres ?
       </h2>
       <a href="#devis" className={`${CTA_CLASS} min-h-16 max-w-[420px]`}>
-        Je compare gratuitement
+        {ctaLabel}
       </a>
     </section>
   );

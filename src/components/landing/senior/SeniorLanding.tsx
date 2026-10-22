@@ -18,12 +18,15 @@ type SeniorLandingProps = {
   hero?: ReactNode;
   /** Number of questions announced in « 3 étapes simples ». */
   questionsCount?: number;
+  /** Main CTA label (final + sticky). Defaults to « Je compare gratuitement ». */
+  ctaLabel?: string;
 };
 
 /** Homepage (/) landing, senior audience: larger type and tap targets. */
 export function SeniorLanding({
   hero = <SeniorHero />,
   questionsCount,
+  ctaLabel,
 }: SeniorLandingProps = {}) {
   return (
     <div className="flex min-h-0 flex-1 flex-col bg-surface text-[18px] leading-[1.55] text-foreground">
@@ -36,10 +39,10 @@ export function SeniorLanding({
         <SeniorPricing />
         <SeniorGuarantees />
         <SeniorFaq />
-        <SeniorFinalCta />
+        <SeniorFinalCta ctaLabel={ctaLabel} />
       </main>
       <SeniorFooter />
-      <SeniorStickyCta />
+      <SeniorStickyCta ctaLabel={ctaLabel} />
     </div>
   );
 }

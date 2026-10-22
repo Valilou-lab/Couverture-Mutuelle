@@ -176,6 +176,8 @@ type QuoteFormProps = {
    * /api/leads / Vertikl); Meta only sees FormStep step_key "ageBracket".
    */
   askAgeBracket?: boolean;
+  /** Overrides the age-bracket question title (/tranches-age). */
+  ageBracketTitle?: string;
 };
 
 function questionStepNumber(
@@ -202,6 +204,7 @@ export function QuoteForm({
   funnel,
   variant = "default",
   askAgeBracket = false,
+  ageBracketTitle,
 }: QuoteFormProps = {}) {
   const senior = variant === "senior";
   const router = useRouter();
@@ -539,6 +542,7 @@ export function QuoteForm({
       {step === "ageBracket" ? (
         <StepAgeBracket
           value={ageBracket}
+          title={ageBracketTitle}
           disabled={isAdvancing}
           onSelectAndAdvance={(id) => {
             if (advanceLock.current) return;

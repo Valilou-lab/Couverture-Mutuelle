@@ -22,6 +22,7 @@ export default function TranchesAgePage() {
   return (
     <SeniorLanding
       questionsCount={6}
+      ctaLabel="Je compare mon tarif"
       hero={
         <SeniorHero
           title={
@@ -40,7 +41,11 @@ export default function TranchesAgePage() {
             </>
           }
           form={
-            <SeniorQuoteForm askAgeBracket firstStepIntro="Votre tarif en 1 minute" />
+            <SeniorQuoteForm
+              askAgeBracket
+              ageBracketTitle="Quel tarif pour votre âge ?"
+              firstStepIntro="Votre tarif en 1 minute"
+            />
           }
         />
       }

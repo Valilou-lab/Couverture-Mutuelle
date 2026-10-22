@@ -17,6 +17,7 @@ type SeniorQuoteFormProps = {
   /** /tranches-age: ask the age bracket first (local state only). */
   askAgeBracket?: boolean;
   firstStepIntro?: string;
+  ageBracketTitle?: string;
 };
 
 /**
@@ -27,6 +28,7 @@ type SeniorQuoteFormProps = {
 export function SeniorQuoteForm({
   askAgeBracket = false,
   firstStepIntro = "Votre devis en 1 minute",
+  ageBracketTitle,
 }: SeniorQuoteFormProps = {}) {
   return (
     <QuoteForm
@@ -34,6 +36,7 @@ export function SeniorQuoteForm({
       firstStep="currentMutualTariff"
       firstStepIntro={firstStepIntro}
       askAgeBracket={askAgeBracket}
+      ageBracketTitle={ageBracketTitle}
       coveredPersonsTitle="Qui doit être assuré ?"
       accentQuestions
       funnel={SENIOR_FORM_FUNNEL}
