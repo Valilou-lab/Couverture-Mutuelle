@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 import { SeniorHero } from "@/components/landing/senior/SeniorHero";
 import { SeniorLanding } from "@/components/landing/senior/SeniorLanding";
 
-const TITLE = "Votre tarif mutuelle selon votre âge — Couverture Mutuelle";
+const TITLE = "Votre âge fixe le prix de votre mutuelle — Couverture Mutuelle";
 const DESCRIPTION =
-  "55 ans et plus : comparez gratuitement les tarifs de mutuelle santé selon votre tranche d’âge. Service sans engagement.";
+  "Après 55 ans, les tarifs augmentent à chaque tranche d’âge, avec de gros écarts entre assureurs. Comparez gratuitement les offres, sans engagement.";
 
 /**
  * Paid landing for the Meta ad « A01 | Tranches d’âge ».
@@ -28,17 +28,19 @@ export default function TranchesAgePage() {
         <SeniorHero
           title={
             <>
-              Quel tarif pour{" "}
-              <span className="text-brand">{"votre âge\u00a0?"}</span>
+              Votre âge{" "}
+              <span className="text-brand">fixe le prix de votre mutuelle</span>
             </>
           }
           subtitle={
             <>
-              Après 55 ans, le prix d’une mutuelle augmente avec l’âge, et les
-              écarts entre assureurs aussi.{" "}
+              Après 55 ans, les tarifs augmentent à chaque tranche d’âge, et
+              pour un même âge, les écarts entre assureurs peuvent être
+              importants. Indiquez votre date de naissance dans le formulaire :{" "}
               <strong className="text-brand">
-                Comparez gratuitement le tarif adapté à votre âge.
+                nous comparons pour vous les offres adaptées à votre âge
               </strong>
+              , gratuitement et sans engagement.
             </>
           }
         />
