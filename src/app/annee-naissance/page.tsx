@@ -27,6 +27,8 @@ export default function AnneeNaissancePage() {
       hidePricing
       hero={
         <SeniorHero
+          imageSrc="/images/hero-couple-canape-v4.jpg"
+          imageAlt="Couple de retraités souriants assis sur un canapé"
           title={
             <>
               Votre année de naissance{" "}
