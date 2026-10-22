@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { SeniorHero } from "@/components/landing/senior/SeniorHero";
 import { SeniorLanding } from "@/components/landing/senior/SeniorLanding";
 
-const TITLE =
-  "Une mutuelle adaptée à votre année de naissance — Couverture Mutuelle";
+const TITLE = "Quelle est votre année de naissance ? — Couverture Mutuelle";
 const DESCRIPTION =
   "Nés entre 1937 et 1970 : comparez gratuitement les offres de mutuelle santé faites pour votre âge. Service sans engagement.";
 
@@ -29,17 +28,19 @@ export default function AnneeNaissancePage() {
         <SeniorHero
           title={
             <>
-              Une mutuelle adaptée à{" "}
+              Quelle est{" "}
               <span className="text-brand">votre année de naissance</span>
+              {"\u00A0?"}
             </>
           }
           subtitle={
             <>
-              Nés entre 1937 et 1970 :{" "}
+              Indiquez l’année de naissance de la personne à assurer et vos
+              priorités :{" "}
               <strong className="text-brand">
-                comparez gratuitement les offres faites pour votre âge
+                vous recevez des offres adaptées à votre budget
               </strong>
-              , sans engagement.
+              .
             </>
           }
         />
