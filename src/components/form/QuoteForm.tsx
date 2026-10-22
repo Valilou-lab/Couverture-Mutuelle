@@ -13,6 +13,7 @@ import { useRouter } from "next/navigation";
 import {
   FORM_STEPS,
   initialFormData,
+  type AgeBracketId,
   COVERED_PERSONS,
   type CoveredPersonId,
   type FormStepId,
@@ -35,6 +36,7 @@ import { StepAlreadyInsured } from "./StepAlreadyInsured";
 import { StepCurrentMutualTariff } from "./StepCurrentMutualTariff";
 import { StepBirthAndPostal } from "./StepBirthAndPostal";
 import { StepAnalyzing } from "./StepAnalyzing";
+import { StepAgeBracket } from "./StepAgeBracket";
 import { StepContact } from "./StepContact";
 import { randomOffersCount } from "./mascotGuideConfig";
 import { useQuoteJourney } from "@/context/QuoteJourneyContext";
@@ -59,20 +61,30 @@ const ADVANCE_DELAY_MS = 320;
 const SUBMIT_ERROR_MESSAGE =
   "Une erreur est survenue lors de l’envoi de votre demande. Merci de réessayer.";
 
-function orderedFormSteps(firstStep?: FormStepId): FormStepId[] {
-  if (!firstStep || firstStep === FORM_STEPS[0]) return FORM_STEPS;
-  return [firstStep, ...FORM_STEPS.filter((step) => step !== firstStep)];
+function orderedFormSteps(
+  firstStep?: FormStepId,
+  askAgeBracket = false,
+): FormStepId[] {
+  const steps =
+    !firstStep || firstStep === FORM_STEPS[0]
+      ? FORM_STEPS
+      : [firstStep, ...FORM_STEPS.filter((step) => step !== firstStep)];
+  // /tranches-age: age bracket question shown before the regular steps.
+  return askAgeBracket ? ["ageBracket", ...steps] : steps;
 }
+
+type StepOptions = {
+  skipBirthDate: boolean;
+  skipPostalCode: boolean;
+  firstStep?: FormStepId;
+  askAgeBracket?: boolean;
+};
 
 function getVisibleSteps(
   data: QuoteFormData,
-  options: {
-    skipBirthDate: boolean;
-    skipPostalCode: boolean;
-    firstStep?: FormStepId;
-  },
+  options: StepOptions,
 ): FormStepId[] {
-  return orderedFormSteps(options.firstStep).filter((step) => {
+  return orderedFormSteps(options.firstStep, options.askAgeBracket).filter((step) => {
     if (isHiddenFormStep(step)) return false;
     if (step === "alreadyInsured" && !SHOW_ALREADY_INSURED_STEP) return false;
     if (step === "birthAndPostal") {
@@ -98,15 +110,13 @@ function getVisibleSteps(
 
 function findFirstNeededStep(
   data: QuoteFormData,
-  options: {
-    skipBirthDate: boolean;
-    skipPostalCode: boolean;
-    firstStep?: FormStepId;
-  },
+  options: StepOptions,
 ): FormStepId {
   const steps = getVisibleSteps(data, options);
   for (const stepId of steps) {
     if (stepId === "analyzing" || stepId === "confirmation") continue;
+    // Optional, local-only question: never a reason to jump back to it.
+    if (stepId === "ageBracket") continue;
     const errors = validateStep(stepId, data);
     if (Object.keys(errors).length > 0) {
       return stepId;
@@ -160,6 +170,12 @@ type QuoteFormProps = {
   funnel?: QuoteFormFunnel;
   /** "senior": homepage layout (larger type / tap targets). Logic is identical. */
   variant?: "default" | "senior";
+  /**
+   * /tranches-age (Meta ad A01): ask « Quelle est votre tranche d’âge ? »
+   * before `firstStep`. The answer stays in local state (not sent to
+   * /api/leads / Vertikl); Meta only sees FormStep step_key "ageBracket".
+   */
+  askAgeBracket?: boolean;
 };
 
 function questionStepNumber(
@@ -185,6 +201,7 @@ export function QuoteForm({
   accentQuestions = true,
   funnel,
   variant = "default",
+  askAgeBracket = false,
 }: QuoteFormProps = {}) {
   const senior = variant === "senior";
   const router = useRouter();
@@ -210,13 +227,17 @@ export function QuoteForm({
       skipBirthDate,
       skipPostalCode,
       firstStep,
+      askAgeBracket,
     });
+    if (askAgeBracket) return "ageBracket";
     if (firstStep && steps.includes(firstStep)) return firstStep;
     return (
       steps.find((item) => item !== "analyzing" && item !== "confirmation") ??
       "currentMutualTariff"
     );
   });
+  /** /tranches-age only — UI state, intentionally not part of QuoteFormData. */
+  const [ageBracket, setAgeBracket] = useState<AgeBracketId | "">("");
   const [errors, setErrors] = useState<FieldErrors>({});
   const [isAdvancing, setIsAdvancing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -261,8 +282,8 @@ export function QuoteForm({
   }, []);
 
   const stepOptions = useMemo(
-    () => ({ skipBirthDate, skipPostalCode, firstStep }),
-    [firstStep, skipBirthDate, skipPostalCode],
+    () => ({ skipBirthDate, skipPostalCode, firstStep, askAgeBracket }),
+    [askAgeBracket, firstStep, skipBirthDate, skipPostalCode],
   );
 
   const visibleSteps = useMemo(
@@ -515,6 +536,18 @@ export function QuoteForm({
 
   const stepContent = (
     <div key={step} className="form-step-enter">
+      {step === "ageBracket" ? (
+        <StepAgeBracket
+          value={ageBracket}
+          disabled={isAdvancing}
+          onSelectAndAdvance={(id) => {
+            if (advanceLock.current) return;
+            setAgeBracket(id);
+            selectAndAdvance({});
+          }}
+        />
+      ) : null}
+
       {step === "currentMutualTariff" ? (
         <StepCurrentMutualTariff
           data={data}

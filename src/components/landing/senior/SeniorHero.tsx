@@ -1,8 +1,36 @@
 import Image from "next/image";
+import type { ReactNode } from "react";
 import { SeniorQuoteForm } from "@/components/form/SeniorQuoteForm";
 import { TikTokFunnelTracker } from "@/components/landing/tiktok/TikTokFunnelTracker";
 
-export function SeniorHero() {
+const DEFAULT_TITLE = (
+  <>
+    Anticipez la hausse de votre mutuelle et{" "}
+    <span className="text-[#a78bfa]">économisez dès maintenant</span>
+  </>
+);
+
+const DEFAULT_SUBTITLE = (
+  <>
+    Comparer sa mutuelle simplement.{" "}
+    <strong className="text-brand">Un conseiller vous rappelle</strong>{" "}
+    avec les offres adaptées à votre âge.
+  </>
+);
+
+type SeniorHeroProps = {
+  title?: ReactNode;
+  subtitle?: ReactNode;
+  /** Defaults to the homepage form. */
+  form?: ReactNode;
+};
+
+/** Defaults render the homepage (/) hero; /tranches-age overrides the copy and form. */
+export function SeniorHero({
+  title = DEFAULT_TITLE,
+  subtitle = DEFAULT_SUBTITLE,
+  form = <SeniorQuoteForm />,
+}: SeniorHeroProps = {}) {
   return (
     <>
       <TikTokFunnelTracker />
@@ -10,14 +38,9 @@ export function SeniorHero() {
         <div>
           <div className="grid gap-2.5 pb-3.5 pt-[22px] text-center min-[900px]:pt-6 min-[900px]:text-left">
             <h1 className="text-balance font-poppins text-[clamp(1.6rem,6.4vw,2.2rem)] font-extrabold leading-[1.2] tracking-[-0.02em] text-[#3b0764]">
-              Anticipez la hausse de votre mutuelle et{" "}
-              <span className="text-[#a78bfa]">économisez dès maintenant</span>
+              {title}
             </h1>
-            <p className="text-base text-zinc-600">
-              Comparer sa mutuelle simplement.{" "}
-              <strong className="text-brand">Un conseiller vous rappelle</strong>{" "}
-              avec les offres adaptées à votre âge.
-            </p>
+            <p className="text-base text-zinc-600">{subtitle}</p>
           </div>
           <Image
             src="/images/hero-couple-economisez-v2.png"
@@ -30,7 +53,7 @@ export function SeniorHero() {
         </div>
 
         <div id="devis" className="scroll-mt-4">
-          <SeniorQuoteForm />
+          {form}
         </div>
       </div>
     </>

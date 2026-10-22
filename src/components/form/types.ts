@@ -95,6 +95,19 @@ export function deriveAlreadyInsured(
 
 export type CivilityId = (typeof CIVILITIES)[number]["id"];
 
+/**
+ * Optional first question of the /tranches-age landing (Meta ad A01).
+ * Kept in QuoteForm local state only: never sent to /api/leads nor Vertikl
+ * (date_of_birth, asked later, stays the source of truth for age).
+ */
+export const AGE_BRACKETS = [
+  { id: "55_64", label: "55 - 64 ans" },
+  { id: "65_74", label: "65 - 74 ans" },
+  { id: "75_plus", label: "75 ans et plus" },
+] as const;
+
+export type AgeBracketId = (typeof AGE_BRACKETS)[number]["id"];
+
 export type QuoteFormData = {
   careNeeds: CareNeedId[];
   coveredPersons: CoveredPersonId | "";
@@ -145,6 +158,8 @@ export const initialFormData: QuoteFormData = {
 };
 
 export type FormStepId =
+  /** /tranches-age only — prepended via QuoteForm `askAgeBracket`, not in FORM_STEPS. */
+  | "ageBracket"
   | "currentMutualTariff"
   | "coveredPersons"
   | "professionalStatus"

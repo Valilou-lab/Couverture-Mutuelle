@@ -81,7 +81,7 @@ export function SeniorPartners() {
 const STEPS = [
   {
     title: "Vous remplissez le formulaire",
-    text: "5 questions, moins d’une minute.",
+    text: "{count} questions, moins d’une minute.",
   },
   {
     title: "Un conseiller étudie votre situation",
@@ -93,7 +93,7 @@ const STEPS = [
   },
 ] as const;
 
-export function SeniorSteps() {
+export function SeniorSteps({ questionsCount = 5 }: { questionsCount?: number }) {
   return (
     <Block labelledBy="etapes-titre">
       <h2 id="etapes-titre" className={H2}>
@@ -122,7 +122,9 @@ export function SeniorSteps() {
             </span>
             <div>
               <h3 className={H3}>{item.title}</h3>
-              <p className="text-base text-zinc-600">{item.text}</p>
+              <p className="text-base text-zinc-600">
+                {item.text.replace("{count}", String(questionsCount))}
+              </p>
             </div>
           </li>
         ))}
