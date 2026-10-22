@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import { SeniorHero } from "@/components/landing/senior/SeniorHero";
 import { SeniorLanding } from "@/components/landing/senior/SeniorLanding";
 
-const TITLE = "Quelle est votre année de naissance ? — Couverture Mutuelle";
+const TITLE =
+  "Votre année de naissance change le prix de votre mutuelle — Couverture Mutuelle";
 const DESCRIPTION =
-  "Nés entre 1937 et 1970 : comparez gratuitement les offres de mutuelle santé faites pour votre âge. Service sans engagement.";
+  "Les assureurs fixent leurs tarifs selon l’âge, avec de gros écarts entre eux. Comparez gratuitement les offres adaptées à votre âge, sans engagement.";
 
 /**
  * Paid landing for the Meta ad « A02 | Année de naissance ».
@@ -28,19 +29,21 @@ export default function AnneeNaissancePage() {
         <SeniorHero
           title={
             <>
-              Quelle est{" "}
-              <span className="text-brand">votre année de naissance</span>
-              {"\u00A0?"}
+              Votre année de naissance{" "}
+              <span className="text-brand">
+                change le prix de votre mutuelle
+              </span>
             </>
           }
           subtitle={
             <>
-              Indiquez l’année de naissance de la personne à assurer et vos
-              priorités :{" "}
+              Les assureurs calculent leurs tarifs selon l’âge, et pour une
+              même année de naissance, les écarts entre eux peuvent être
+              importants. Indiquez la vôtre dans le formulaire :{" "}
               <strong className="text-brand">
-                vous recevez des offres adaptées à votre budget
+                nous comparons pour vous les offres adaptées à votre âge
               </strong>
-              .
+              , gratuitement et sans engagement.
             </>
           }
         />
