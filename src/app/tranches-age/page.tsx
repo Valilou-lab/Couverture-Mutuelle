@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { AgeBracketChips } from "@/components/landing/senior/AgeBracketChips";
 import { SeniorHero } from "@/components/landing/senior/SeniorHero";
 import { SeniorLanding } from "@/components/landing/senior/SeniorLanding";
 
@@ -9,7 +8,7 @@ const DESCRIPTION =
 
 /**
  * Paid landing for the Meta ad « A01 | Tranches d’âge ».
- * Same page and form as the homepage; only the hero (ad headline + age bracket chips)
+ * Same page and form as the homepage; only the hero (ad headline and subline)
  * and CTA label differ.
  * Not indexed: duplicate of the homepage content, meant for ad traffic only.
  */
@@ -35,13 +34,13 @@ export default function TranchesAgePage() {
           }
           subtitle={
             <>
-              Pour les 55 ans et plus.{" "}
+              Après 55 ans, le prix d’une mutuelle augmente avec l’âge, et les
+              écarts entre assureurs aussi.{" "}
               <strong className="text-brand">
-                Gratuit et sans engagement.
+                Comparez gratuitement le tarif adapté à votre âge.
               </strong>
             </>
           }
-          belowTitle={<AgeBracketChips />}
         />
       }
     />

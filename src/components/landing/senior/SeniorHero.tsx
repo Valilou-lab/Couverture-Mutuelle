@@ -18,47 +18,27 @@ const DEFAULT_SUBTITLE = (
   </>
 );
 
-const HEADING_CLASS =
-  "grid gap-2.5 pb-3.5 pt-[22px] text-center min-[900px]:pt-6 min-[900px]:text-left";
-
 type SeniorHeroProps = {
   title?: ReactNode;
   subtitle?: ReactNode;
-  /** Optional block under the title/subtitle (e.g. /tranches-age bracket chips). */
-  belowTitle?: ReactNode;
 };
 
 /** Defaults render the homepage (/) hero; /tranches-age overrides the copy. */
 export function SeniorHero({
   title = DEFAULT_TITLE,
   subtitle = DEFAULT_SUBTITLE,
-  belowTitle,
 }: SeniorHeroProps = {}) {
-  const heading = (
-    <h1 className="text-balance font-poppins text-[clamp(1.6rem,6.4vw,2.2rem)] font-extrabold leading-[1.2] tracking-[-0.02em] text-[#3b0764]">
-      {title}
-    </h1>
-  );
-  const sub = <p className="text-base text-zinc-600">{subtitle}</p>;
-
   return (
     <>
       <TikTokFunnelTracker />
       <div className="min-[900px]:grid min-[900px]:grid-cols-[1fr_470px] min-[900px]:items-start min-[900px]:gap-10 min-[900px]:pt-6">
         <div>
-          {/* Two branches so the homepage (no belowTitle) renders exactly as before. */}
-          {belowTitle ? (
-            <div className={HEADING_CLASS}>
-              {heading}
-              {sub}
-              {belowTitle}
-            </div>
-          ) : (
-            <div className={HEADING_CLASS}>
-              {heading}
-              {sub}
-            </div>
-          )}
+          <div className="grid gap-2.5 pb-3.5 pt-[22px] text-center min-[900px]:pt-6 min-[900px]:text-left">
+            <h1 className="text-balance font-poppins text-[clamp(1.6rem,6.4vw,2.2rem)] font-extrabold leading-[1.2] tracking-[-0.02em] text-[#3b0764]">
+              {title}
+            </h1>
+            <p className="text-base text-zinc-600">{subtitle}</p>
+          </div>
           <Image
             src="/images/hero-couple-economisez-v2.png"
             alt="Couple de retraités souriants"
