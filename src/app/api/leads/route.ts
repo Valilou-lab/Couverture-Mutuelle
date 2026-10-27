@@ -1,4 +1,4 @@
-import { after, NextResponse } from "next/server";
+import { after, NextRequest, NextResponse } from "next/server";
 import type { QuoteFormData } from "@/components/form/types";
 import {
   deriveAlreadyInsured,
@@ -312,7 +312,7 @@ function failure(status: number, error: string) {
   return NextResponse.json({ success: false, error }, { status });
 }
 
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   if (!process.env.VERTIKL_API_KEY?.trim()) {
     console.error("[api/leads] VERTIKL_API_KEY missing");
     return failure(500, "SERVER_MISCONFIGURED");
