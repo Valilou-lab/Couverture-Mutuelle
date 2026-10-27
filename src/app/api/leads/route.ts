@@ -32,6 +32,11 @@ import {
 } from "@/lib/meta/capi";
 import { resolveConsentVariantId } from "@/lib/consent";
 import { isValidMetaEventId } from "@/lib/meta/events";
+import {
+  PHONE_VERIFY_COOKIE,
+  clearPhoneVerifyCookie,
+  verifyPhoneProofToken,
+} from "@/lib/phone-verify-proof";
 
 export const runtime = "nodejs";
 
@@ -329,6 +334,13 @@ export async function POST(request: Request) {
     return failure(400, "CONSENT_REQUIRED");
   }
 
+  // Twilio Verify proof (HTTP-only cookie) — required before Vertikl / CAPI.
+  const phoneProof = request.cookies.get(PHONE_VERIFY_COOKIE)?.value;
+  if (!verifyPhoneProofToken(phoneProof, form.phone)) {
+    console.info("[api/leads] phone not verified");
+    return failure(403, "PHONE_NOT_VERIFIED");
+  }
+
   const validationErrors = validateLeadForm(form);
   if (Object.keys(validationErrors).length > 0) {
     console.info("[api/leads] validation failed", {
@@ -425,8 +437,12 @@ export async function POST(request: Request) {
     sentFieldNames: Object.keys(fields).sort(),
   });
   if (!result.ok) {
+    // Keep OTP proof cookie so the user can retry without a new SMS.
     return failure(502, "LEAD_SUBMISSION_FAILED");
   }
 
-  return NextResponse.json({ success: true });
+  const success = NextResponse.json({ success: true });
+  // One-time proof: invalidate after a successful lead submission.
+  clearPhoneVerifyCookie(success);
+  return success;
 }

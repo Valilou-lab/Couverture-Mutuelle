@@ -36,6 +36,7 @@ import { StepCurrentMutualTariff } from "./StepCurrentMutualTariff";
 import { StepBirthAndPostal } from "./StepBirthAndPostal";
 import { StepAnalyzing } from "./StepAnalyzing";
 import { StepContact } from "./StepContact";
+import { StepPhoneVerify } from "./StepPhoneVerify";
 import { randomOffersCount } from "./mascotGuideConfig";
 import { useQuoteJourney } from "@/context/QuoteJourneyContext";
 import { getStoredAcquisition } from "@/lib/acquisition";
@@ -222,7 +223,15 @@ export function QuoteForm({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
   const [offersCount, setOffersCount] = useState<number | null>(null);
+  const [phoneVerifyOpen, setPhoneVerifyOpen] = useState(false);
+  const [phoneProofReady, setPhoneProofReady] = useState(false);
+  const [otpSending, setOtpSending] = useState(false);
+  const [otpVerifying, setOtpVerifying] = useState(false);
+  const [otpStatusMessage, setOtpStatusMessage] = useState<string | null>(null);
+  const [otpErrorMessage, setOtpErrorMessage] = useState<string | null>(null);
+  const [resendCooldownSec, setResendCooldownSec] = useState(0);
   const advanceLock = useRef(false);
+  const otpSendLock = useRef(false);
   const timers = useRef<number[]>([]);
   const lastFocusToken = useRef(0);
   const formRootRef = useRef<HTMLDivElement>(null);
@@ -368,6 +377,7 @@ export function QuoteForm({
     const validation = validateStep("contact", data);
     if (Object.keys(validation).length > 0) {
       setErrors(validation);
+      setPhoneVerifyOpen(false);
       return;
     }
 
@@ -433,16 +443,152 @@ export function QuoteForm({
     }
   }, [data, funnel, isSubmitting, router, senior]);
 
+  const startResendCooldown = useCallback(() => {
+    setResendCooldownSec(30);
+  }, []);
+
+  useEffect(() => {
+    if (resendCooldownSec <= 0) return;
+    const id = window.setTimeout(() => {
+      setResendCooldownSec((sec) => Math.max(0, sec - 1));
+    }, 1000);
+    return () => window.clearTimeout(id);
+  }, [resendCooldownSec]);
+
+  const sendPhoneOtp = useCallback(async () => {
+    if (otpSendLock.current || otpSending) return false;
+    otpSendLock.current = true;
+    setOtpSending(true);
+    setOtpErrorMessage(null);
+    setOtpStatusMessage("Envoi du code…");
+
+    try {
+      const response = await fetch("/api/verify/start", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phone: data.phone }),
+      });
+      const payload = (await response.json().catch(() => null)) as {
+        success?: boolean;
+        error?: string;
+      } | null;
+
+      if (!response.ok || payload?.success !== true) {
+        if (payload?.error === "RATE_LIMITED") {
+          setOtpErrorMessage(
+            "Veuillez patienter quelques secondes avant de renvoyer un code.",
+          );
+          startResendCooldown();
+        } else if (payload?.error === "INVALID_PHONE") {
+          setOtpErrorMessage("Merci de renseigner un numéro valide.");
+          setPhoneVerifyOpen(false);
+        } else {
+          setOtpErrorMessage(
+            "Nous n’avons pas pu vérifier votre numéro pour le moment. Merci de réessayer.",
+          );
+        }
+        setOtpStatusMessage(null);
+        return false;
+      }
+
+      setOtpStatusMessage("Code envoyé par SMS");
+      startResendCooldown();
+      return true;
+    } catch {
+      setOtpStatusMessage(null);
+      setOtpErrorMessage(
+        "Nous n’avons pas pu vérifier votre numéro pour le moment. Merci de réessayer.",
+      );
+      return false;
+    } finally {
+      setOtpSending(false);
+      otpSendLock.current = false;
+    }
+  }, [data.phone, otpSending, startResendCooldown]);
+
+  const beginPhoneVerify = useCallback(async () => {
+    if (advanceLock.current || isSubmitting || otpSending) return;
+
+    const validation = validateStep("contact", data);
+    if (Object.keys(validation).length > 0) {
+      setErrors(validation);
+      return;
+    }
+
+    setErrors({});
+    setSubmitError(null);
+    setPhoneProofReady(false);
+    setPhoneVerifyOpen(true);
+    setOtpErrorMessage(null);
+    await sendPhoneOtp();
+  }, [data, isSubmitting, otpSending, sendPhoneOtp]);
+
+  const confirmPhoneOtp = useCallback(
+    async (code: string) => {
+      if (otpVerifying || isSubmitting) return;
+      setOtpVerifying(true);
+      setOtpErrorMessage(null);
+
+      try {
+        // Cookie already set after a prior approved check — retry lead only.
+        if (!phoneProofReady) {
+          const response = await fetch("/api/verify/check", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ phone: data.phone, code }),
+          });
+          const payload = (await response.json().catch(() => null)) as {
+            success?: boolean;
+            error?: string;
+          } | null;
+
+          if (!response.ok || payload?.success !== true) {
+            if (payload?.error === "CODE_EXPIRED") {
+              setOtpErrorMessage(
+                "Ce code a expiré. Demandez-en un nouveau.",
+              );
+            } else if (
+              payload?.error === "NOT_APPROVED" ||
+              payload?.error === "INVALID_CODE"
+            ) {
+              setOtpErrorMessage(
+                "Ce code est incorrect. Vérifiez-le et réessayez.",
+              );
+            } else {
+              setOtpErrorMessage(
+                "Nous n’avons pas pu vérifier votre numéro pour le moment. Merci de réessayer.",
+              );
+            }
+            return;
+          }
+
+          setPhoneProofReady(true);
+          setOtpStatusMessage("Numéro vérifié ✓");
+        }
+
+        // Existing final submit — unchanged tracking / Vertikl path.
+        await submitLead();
+      } catch {
+        setOtpErrorMessage(
+          "Nous n’avons pas pu vérifier votre numéro pour le moment. Merci de réessayer.",
+        );
+      } finally {
+        setOtpVerifying(false);
+      }
+    },
+    [data.phone, isSubmitting, otpVerifying, phoneProofReady, submitLead],
+  );
+
   const goNext = useCallback(() => {
     if (advanceLock.current || isSubmitting) return;
     if (step === "contact") {
-      void submitLead();
+      void beginPhoneVerify();
       return;
     }
     advanceLock.current = true;
     setIsAdvancing(true);
     goNextFrom(step, data);
-  }, [data, goNextFrom, isSubmitting, step, submitLead]);
+  }, [beginPhoneVerify, data, goNextFrom, isSubmitting, step]);
 
   const selectAndAdvance = useCallback(
     (partial: Partial<QuoteFormData>) => {
@@ -465,7 +611,13 @@ export function QuoteForm({
   );
 
   const goBack = useCallback(() => {
-    if (advanceLock.current || isSubmitting) return;
+    if (advanceLock.current || isSubmitting || otpVerifying) return;
+    if (phoneVerifyOpen) {
+      setPhoneVerifyOpen(false);
+      setOtpErrorMessage(null);
+      setOtpStatusMessage(null);
+      return;
+    }
     clearTimers();
     advanceLock.current = false;
     setIsAdvancing(false);
@@ -479,7 +631,15 @@ export function QuoteForm({
         return;
       }
     }
-  }, [clearTimers, goTo, isSubmitting, step, visibleSteps]);
+  }, [
+    clearTimers,
+    goTo,
+    isSubmitting,
+    otpVerifying,
+    phoneVerifyOpen,
+    step,
+    visibleSteps,
+  ]);
 
   const handleAnalyzingDone = useCallback(() => {
     goTo("contact");
@@ -631,11 +791,34 @@ export function QuoteForm({
         <StepAnalyzing onDone={handleAnalyzingDone} />
       ) : null}
 
-      {step === "contact" ? (
+      {step === "contact" && phoneVerifyOpen ? (
+        <StepPhoneVerify
+          phone={data.phone}
+          sending={otpSending}
+          verifying={otpVerifying || isSubmitting}
+          statusMessage={otpStatusMessage}
+          errorMessage={otpErrorMessage ?? submitError}
+          resendCooldownSec={resendCooldownSec}
+          onConfirm={(code) => {
+            void confirmPhoneOtp(code);
+          }}
+          onResend={() => {
+            void sendPhoneOtp();
+          }}
+          onEditPhone={() => {
+            setPhoneVerifyOpen(false);
+            setPhoneProofReady(false);
+            setOtpErrorMessage(null);
+            setOtpStatusMessage(null);
+          }}
+        />
+      ) : null}
+
+      {step === "contact" && !phoneVerifyOpen ? (
         <StepContact
           data={data}
           errors={errors}
-          disabled={isAdvancing || isSubmitting}
+          disabled={isAdvancing || isSubmitting || otpSending}
           offersCount={offersCount}
           submitError={submitError}
           onPatch={patch}
