@@ -184,14 +184,18 @@ const FAQ = [
   },
 ] as const;
 
-export function RacFaq() {
+export function RacFaq({
+  items = FAQ,
+}: {
+  items?: ReadonlyArray<{ question: string; answer: string }>;
+} = {}) {
   return (
     <Block labelledBy="faq-titre">
       <h2 id="faq-titre" className={H2}>
         Questions fréquentes
       </h2>
       <div className="grid gap-3.5 min-[700px]:grid-cols-2">
-        {FAQ.map((item) => (
+        {items.map((item) => (
           <article key={item.question} className={`${CARD} grid content-start gap-2`}>
             <h3 className={H3}>{item.question}</h3>
             <p className={TEXT}>{item.answer}</p>

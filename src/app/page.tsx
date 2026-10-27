@@ -1,5 +1,5 @@
-import { SeniorLanding } from "@/components/landing/senior/SeniorLanding";
+import { HomeLanding } from "@/components/landing/home/HomeLanding";
 
 export default function Home() {
-  return <SeniorLanding />;
+  return <HomeLanding />;
 }
