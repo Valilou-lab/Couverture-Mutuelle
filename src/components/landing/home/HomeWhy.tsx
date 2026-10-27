@@ -18,10 +18,10 @@ export function HomeWhy() {
     <section aria-labelledby="pourquoi-titre" className="mx-auto grid max-w-[960px] gap-5 pt-12">
       <div className="grid gap-6 rounded-[28px] border border-[#ddd6fe] bg-white p-4 shadow-[0_24px_60px_-30px_rgba(59,7,100,0.45)] min-[860px]:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] min-[860px]:items-center min-[860px]:gap-8 min-[860px]:p-6">
         <Image
-          src="/images/hero-couple-economisez-v2.png"
-          alt="Couple de retraités souriants"
+          src="/images/hero-couple-canape-v4.jpg"
+          alt="Couple de retraités souriants assis sur un canapé"
           width={1024}
-          height={535}
+          height={576}
           sizes="(min-width: 960px) 430px, (min-width: 640px) 600px, 100vw"
           className="block aspect-[16/9] h-auto w-full rounded-[20px] object-cover min-[860px]:aspect-[4/5]"
         />
