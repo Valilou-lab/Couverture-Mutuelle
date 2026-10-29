@@ -1,26 +1,37 @@
 /*
- * IKI Assurance theme for the co-branded proposal page (/iki).
+ * IKI Assurance brand theme for the co-branded page (/iki).
  *
- * Everything is scoped to `.theme-iki`, so no other page is affected.
- * The quote form itself is NOT modified: its colours follow the shared
- * design tokens (--brand, --brand-soft, --brand-muted…) that are redefined
- * here, and the few hard-coded purple classes it uses are re-mapped below
- * with attribute selectors (exact class tokens). Questions, steps, texts,
- * validation, submission and tracking are untouched.
+ * Scope:
+ *   .theme-iki  — the page wrapper (header, sections, quote form, footer);
+ *   .iki-route  — set on <html> by <IkiRouteTheme> only while /iki is
+ *                 mounted, so the UI the root layout renders outside the page
+ *                 (cookie banner, cookie preferences dialog, partners modal
+ *                 portal, chatbot slot) is themed too.
+ * No other page ever matches these selectors.
  *
- * Palette from the IKI « Charte graphique » (web colours):
- *   violet  #7700F8   lavande #F1E5FE   orange #FF7A00
+ * The quote form and the cookie components are NOT modified: their colours
+ * follow the shared design tokens (--brand, --brand-soft, --brand-muted…)
+ * redefined here, and the few hard-coded Couverture Mutuelle purples they use
+ * are re-mapped below with attribute selectors (exact class tokens).
+ * Questions, steps, texts, validation, submission and tracking are untouched.
+ *
+ * IKI « Charte graphique » (web):
+ *   violet  #7700F8   lavande #F1E5FE   orange #FF7A00 (décor)
  *   noir    #000000   gris    #333333   violet 20 % ≈ #E4CCFE
- * Logo gradient: #5A00FF → #D900E0 → #FF0000 → #FF7A00
+ *   logo gradient: #5A00FF → #D900E0 → #FF0000 → #FF7A00
+ *   typo: Titillium Web (200 headings light, 400 body, 700 bold)
+ *   bouton « Variant »: pilule violette, ombre portée violet 20 %,
+ *   décalage x/y 11px, flou 1px.
  */
 
-.theme-iki {
+:is(.theme-iki, .iki-route) {
   --brand: #7700f8;
   --brand-soft: #f1e5fe;
-  --brand-muted: #dcc2fd;
-  --surface: #faf6ff;
+  --brand-muted: #e4ccfe;
+  --surface: #f8f2ff;
   --border: #e4ccfe;
   --foreground: #1a1a1a;
+  --error: #d10000;
 
   --iki-violet: #7700f8;
   --iki-violet-dark: #5c00c2;
@@ -30,73 +41,328 @@
   --iki-ink: #24004f;
   --iki-text: #333333;
   --iki-gradient: linear-gradient(90deg, #5a00ff 0%, #d900e0 38%, #ff0000 70%, #ff7a00 100%);
+  --iki-progress: linear-gradient(90deg, #5a00ff 0%, #7700f8 55%, #d900e0 100%);
   --iki-button-shadow: 11px 11px 1px rgba(119, 0, 248, 0.2);
+  --iki-button-shadow-sm: 6px 6px 1px rgba(119, 0, 248, 0.2);
+  --iki-font: var(--font-titillium), Arial, Helvetica, sans-serif;
+}
 
-  font-family: var(--font-titillium), Arial, Helvetica, sans-serif;
+.theme-iki,
+html.iki-route body {
+  font-family: var(--iki-font);
   color: var(--foreground);
 }
 
-/* Shared components use these font utilities (all Arial today). */
-.theme-iki .font-poppins,
-.theme-iki .font-manrope,
-.theme-iki .font-sora,
-.theme-iki .font-sans {
-  font-family: var(--font-titillium), Arial, Helvetica, sans-serif;
+html.iki-route ::selection {
+  background: var(--iki-violet-20);
 }
 
-/* ---- Hard-coded purples used by shared components, re-mapped to IKI ---- */
+/* Shared components use these font utilities (all Arial / « Poppins » slots). */
+html :is(.theme-iki, .theme-iki *, .iki-route *):is(.font-poppins, .font-manrope, .font-sora, .font-sans, .font-baloo, .font-nunito) {
+  font-family: var(--iki-font);
+}
 
-.theme-iki [class~="text-[#3b0764]"] {
+/* ---- Hard-coded Couverture Mutuelle purples, re-mapped to IKI ---- */
+
+:is(.theme-iki, .iki-route) :is([class~="text-[#3b0764]"], [class~="text-[#4c1d95]"]) {
   color: var(--iki-ink);
 }
-.theme-iki [class~="bg-[#3b0764]"] {
+:is(.theme-iki, .iki-route) [class~="bg-[#3b0764]"] {
   background-color: var(--iki-ink);
 }
-.theme-iki [class~="bg-[#ddd6fe]"] {
+:is(.theme-iki, .iki-route) :is([class~="bg-[#ddd6fe]"], [class~="bg-[#ede9fe]"]) {
   background-color: var(--iki-lavender);
 }
-.theme-iki [class~="border-[#ddd6fe]"],
-.theme-iki [class~="lg:border-[#ddd6fe]"] {
+:is(.theme-iki, .iki-route) :is([class~="border-[#ddd6fe]"], [class~="lg:border-[#ddd6fe]"], [class~="border-[#c4b5fd]"]) {
   border-color: var(--iki-violet-20);
 }
-.theme-iki [class~="bg-[#f7f4ff]"] {
+:is(.theme-iki, .iki-route) :is([class~="bg-[#f7f4ff]"], [class~="bg-[#fbfaff]"]) {
   background-color: #f8f2ff;
 }
-.theme-iki [class~="border-[#c4b5fd]"] {
-  border-color: #c9a3fc;
+:is(.theme-iki, .iki-route) [class~="bg-[#c4b5fd]"] {
+  background-color: var(--iki-violet-20);
 }
-.theme-iki [class~="hover:bg-[#f8f6ff]"]:hover {
-  background-color: #f8f2ff;
+:is(.theme-iki, .iki-route) :is([class~="hover:bg-[#f8f6ff]"], [class~="hover:bg-[#f7f4ff]"], [class~="hover:bg-[#ddd6fe]"]):hover {
+  background-color: var(--iki-lavender);
 }
-.theme-iki [class~="hover:bg-[#5b21b6]"]:hover {
+:is(.theme-iki, .iki-route) [class~="hover:bg-[#5b21b6]"]:hover {
   background-color: var(--iki-violet-dark);
 }
-.theme-iki [class~="hover:text-[#5b21b6]"]:hover,
-.theme-iki [class~="text-[#5b21b6]"] {
+:is(.theme-iki, .iki-route) :is([class~="hover:text-[#5b21b6]"]:hover, [class~="text-[#5b21b6]"]) {
   color: var(--iki-violet-dark);
 }
-.theme-iki [class~="text-[#8b5cf6]"],
-.theme-iki [class~="text-[#8a6cf0]"] {
+:is(.theme-iki, .iki-route) :is([class~="text-[#8b5cf6]"], [class~="text-[#8a6cf0]"]) {
   color: var(--iki-violet);
 }
 
-/* Form card, selected answers and primary buttons */
+/* SVG answer icons (hard-coded lilac fills/strokes in the shared icon sets). */
+:is(.theme-iki, .iki-route) [stroke="#a78bfa"] {
+  stroke: #b680fb;
+}
+:is(.theme-iki, .iki-route) :is([fill="#8b5cf6"], [fill="#6d28d9"]) {
+  fill: var(--iki-violet);
+}
+:is(.theme-iki, .iki-route) [stroke="#6d28d9"],
+:is(.theme-iki, .iki-route) [stroke="#4c1d95"] {
+  stroke: var(--iki-ink);
+}
+:is(.theme-iki, .iki-route) [fill="#4c1d95"] {
+  fill: var(--iki-ink);
+}
+:is(.theme-iki, .iki-route) [fill="#a78bfa"] {
+  fill: #b680fb;
+}
+:is(.theme-iki, .iki-route) [class~="bg-[#6d28d9]"] {
+  background-color: var(--iki-violet);
+}
+
+/* ======================= Quote form ======================= */
+
 .theme-iki #formulaire-devis {
-  border-color: var(--iki-violet-20);
-  box-shadow: 0 24px 60px -28px rgba(119, 0, 248, 0.45);
-}
-.theme-iki #formulaire-devis button[aria-pressed="true"] {
-  box-shadow: 0 0 0 3px rgba(119, 0, 248, 0.2);
-}
-.theme-iki #formulaire-devis button.bg-brand,
-.theme-iki .iki-cta {
+  border: 2px solid var(--iki-violet-20);
+  border-radius: 24px;
   box-shadow: var(--iki-button-shadow);
 }
 
-/* Progress bar fill (inline gradient in the shared component). */
-.theme-iki [role="progressbar"] > div {
-  background-image: linear-gradient(105deg, #5a00ff 0%, #7700f8 45%, #b000e8 100%) !important;
+/* Header bar: lavender band + IKI gradient rule underneath. */
+.theme-iki #formulaire-devis > div:first-child {
+  position: relative;
+  border-bottom: 0;
+  background-color: var(--iki-lavender);
 }
+.theme-iki #formulaire-devis > div:first-child::after {
+  content: "";
+  position: absolute;
+  inset: auto 0 0 0;
+  height: 4px;
+  background-image: var(--iki-gradient);
+}
+.theme-iki #formulaire-devis > div:first-child > p {
+  font-weight: 700;
+  letter-spacing: 0;
+  color: var(--iki-ink);
+}
+
+/* Question titles: Titillium bold, IKI violet. */
+.theme-iki #formulaire-devis h2 {
+  font-weight: 700;
+  letter-spacing: 0;
+  color: var(--iki-violet);
+}
+
+/* Progress bar: lavender track, IKI gradient fill. */
+.theme-iki #formulaire-devis [role="progressbar"] {
+  background-color: var(--iki-lavender);
+  box-shadow: inset 0 0 0 2px var(--iki-violet-20);
+}
+.theme-iki #formulaire-devis [role="progressbar"] > div {
+  background-image: var(--iki-progress) !important;
+}
+.theme-iki #formulaire-devis [role="progressbar"] span {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+
+/* Answer options */
+.theme-iki #formulaire-devis button[aria-pressed] {
+  border-color: var(--iki-violet-20);
+  border-radius: 16px;
+  font-weight: 600;
+  color: var(--iki-ink);
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    transform 150ms ease;
+}
+.theme-iki #formulaire-devis button[aria-pressed="false"]:hover:not(:disabled) {
+  border-color: var(--iki-violet);
+  background-color: #faf5ff;
+}
+.theme-iki #formulaire-devis button[aria-pressed="true"] {
+  border-color: var(--iki-violet);
+  background-color: var(--iki-lavender);
+  box-shadow: var(--iki-button-shadow-sm);
+}
+
+/* Inputs */
+.theme-iki #formulaire-devis :is(input[type="text"], input[type="tel"], input[type="email"], input:not([type]), input[inputmode], select) {
+  border-color: var(--iki-violet-20);
+  border-radius: 16px;
+  color: #000;
+  font-family: var(--iki-font);
+}
+.theme-iki #formulaire-devis :is(input, select):focus {
+  border-color: var(--iki-violet);
+  box-shadow: 0 0 0 4px rgba(119, 0, 248, 0.2);
+  --tw-ring-shadow: 0 0 #0000;
+}
+.theme-iki #formulaire-devis :is(input, select)::placeholder {
+  color: #8c8c8c;
+}
+.theme-iki #formulaire-devis :is(input, select)[aria-invalid="true"] {
+  border-color: var(--error);
+  background-color: #fff6f6;
+}
+.theme-iki #formulaire-devis [role="alert"] {
+  color: var(--error);
+  font-weight: 600;
+}
+
+/* Primary buttons (Continuer, Je compare gratuitement…): IKI « Variant » button. */
+.theme-iki #formulaire-devis button.bg-brand,
+.theme-iki #formulaire-devis button[type="submit"] {
+  border-radius: 9999px;
+  font-weight: 700;
+  letter-spacing: 0;
+  box-shadow: var(--iki-button-shadow);
+  transition:
+    background-color 150ms ease,
+    box-shadow 150ms ease,
+    transform 150ms ease;
+}
+.theme-iki #formulaire-devis button.bg-brand:hover:not(:disabled) {
+  background-color: var(--iki-violet-dark);
+  box-shadow: var(--iki-button-shadow-sm);
+  transform: translate(2px, 2px);
+  filter: none;
+}
+.theme-iki #formulaire-devis button:focus-visible {
+  outline: 3px solid var(--iki-orange);
+  outline-offset: 3px;
+}
+
+/* Info boxes (city detected, « Bonne nouvelle », consent block) */
+.theme-iki #formulaire-devis [class~="bg-[#f7f4ff]"] {
+  border-color: var(--iki-violet-20);
+  background-color: #f8f2ff;
+}
+
+/* Consent checkbox: IKI-styled, 24px tap target kept. */
+.theme-iki #formulaire-devis input[type="checkbox"] {
+  appearance: none;
+  -webkit-appearance: none;
+  display: inline-grid;
+  place-content: center;
+  border: 2px solid var(--iki-violet);
+  border-radius: 7px;
+  background-color: #fff;
+  cursor: pointer;
+}
+.theme-iki #formulaire-devis input[type="checkbox"]::before {
+  content: "";
+  width: 14px;
+  height: 14px;
+  transform: scale(0);
+  background-color: #fff;
+  clip-path: polygon(14% 52%, 0 66%, 38% 100%, 100% 22%, 86% 8%, 38% 72%);
+  transition: transform 120ms ease;
+}
+.theme-iki #formulaire-devis input[type="checkbox"]:checked {
+  background-color: var(--iki-violet);
+}
+.theme-iki #formulaire-devis input[type="checkbox"]:checked::before {
+  transform: scale(1);
+}
+.theme-iki #formulaire-devis input[type="checkbox"]:focus-visible {
+  outline: 3px solid var(--iki-orange);
+  outline-offset: 2px;
+}
+
+/* « Bonne nouvelle » title: IKI glow instead of the lilac one. */
+.theme-iki .bonne-nouvelle-title {
+  animation-name: bonne-nouvelle-in, iki-glow;
+}
+@keyframes iki-glow {
+  0%,
+  100% {
+    text-shadow: 0 0 0 rgba(119, 0, 248, 0);
+  }
+  50% {
+    text-shadow:
+      0 0 10px rgba(217, 0, 224, 0.45),
+      0 0 22px rgba(255, 122, 0, 0.35);
+  }
+}
+
+/* « Vos données sont sécurisées » picto → IKI violet shield-check line icon. */
+.theme-iki #formulaire-devis img[src*="picto-securite-donnees"] {
+  object-position: -9999px 0;
+  background-color: var(--iki-violet);
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z'/%3E%3Cpath d='m9 12 2 2 4-4'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z'/%3E%3Cpath d='m9 12 2 2 4-4'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* Analysis (loading) screen: the Couverture Mutuelle mascot is replaced by an
+   IKI-styled illustration; spinner in IKI colours. */
+.theme-iki #formulaire-devis div:has(> img.form-mascot-searching) {
+  background: url("/images/iki/analyse-iki.svg") center / contain no-repeat;
+}
+.theme-iki #formulaire-devis img.form-mascot-searching {
+  visibility: hidden;
+}
+.theme-iki #formulaire-devis .animate-spin {
+  border-color: var(--iki-violet-20);
+  border-top-color: var(--iki-violet);
+  border-right-color: var(--iki-orange);
+}
+
+/* ======================= Cookie banner & dialogs ======================= */
+
+html.iki-route [role="region"][aria-labelledby="cookie-banner-title"] {
+  border-top: 0;
+  border-radius: 24px 24px 0 0;
+  box-shadow: 0 -10px 30px -10px rgba(36, 0, 79, 0.25);
+}
+html.iki-route [role="region"][aria-labelledby="cookie-banner-title"]::before {
+  content: "";
+  display: block;
+  height: 5px;
+  border-radius: 24px 24px 0 0;
+  background-image: var(--iki-gradient);
+}
+html.iki-route #cookie-banner-title,
+html.iki-route #cookie-prefs-title {
+  font-weight: 700;
+  letter-spacing: 0;
+  color: var(--iki-ink);
+}
+html.iki-route #cookie-banner-desc {
+  color: var(--iki-text);
+  font-size: 1rem;
+}
+html.iki-route :is([aria-labelledby="cookie-banner-title"], [aria-labelledby="cookie-prefs-title"]) button {
+  font-weight: 700;
+  letter-spacing: 0;
+}
+html.iki-route :is([aria-labelledby="cookie-banner-title"], [aria-labelledby="cookie-prefs-title"]) button.bg-brand {
+  box-shadow: var(--iki-button-shadow-sm);
+}
+html.iki-route :is([aria-labelledby="cookie-banner-title"], [aria-labelledby="cookie-prefs-title"]) button.bg-brand:hover {
+  background-color: var(--iki-violet-dark);
+}
+html.iki-route [aria-labelledby="cookie-banner-title"] button.border-brand {
+  border-color: var(--iki-violet);
+  color: var(--iki-violet);
+}
+html.iki-route :is([aria-labelledby="cookie-banner-title"], [aria-labelledby="cookie-prefs-title"]) button:focus-visible {
+  outline: 3px solid var(--iki-orange);
+  outline-offset: 3px;
+}
+html.iki-route [aria-labelledby="cookie-prefs-title"] {
+  border-color: var(--iki-violet-20);
+  border-radius: 24px;
+}
+html.iki-route [aria-labelledby="cookie-prefs-title"] input[type="checkbox"] {
+  accent-color: var(--iki-violet);
+}
+
+/* Chatbot placeholder (empty today): keep its future launcher in IKI colours. */
+html.iki-route #chatbot-slot {
+  --brand: #7700f8;
+}
+
+/* ======================= Page-level IKI pieces ======================= */
 
 /* IKI button (charte : bouton « Variant », ombre portée violette 20 %) */
 .iki-cta {
@@ -112,6 +378,7 @@
   line-height: 1.2;
   color: #fff;
   text-decoration: none;
+  box-shadow: var(--iki-button-shadow);
   transition:
     background-color 150ms ease,
     box-shadow 150ms ease,
@@ -119,7 +386,7 @@
 }
 .iki-cta:hover {
   background-color: var(--iki-violet-dark);
-  box-shadow: 6px 6px 1px rgba(119, 0, 248, 0.2);
+  box-shadow: var(--iki-button-shadow-sm);
   transform: translate(2px, 2px);
 }
 .iki-cta:focus-visible {
@@ -127,9 +394,24 @@
   outline-offset: 3px;
 }
 
+.iki-sticky-cta {
+  box-shadow: 0 -8px 24px -12px rgba(36, 0, 79, 0.3);
+}
+.iki-sticky-cta::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 3px;
+  background-image: var(--iki-gradient);
+}
+.iki-sticky-cta .iki-cta {
+  box-shadow: var(--iki-button-shadow-sm);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .iki-cta,
-  .iki-cta:hover {
+  .iki-cta:hover,
+  .theme-iki #formulaire-devis button {
     transition: none;
     transform: none;
   }

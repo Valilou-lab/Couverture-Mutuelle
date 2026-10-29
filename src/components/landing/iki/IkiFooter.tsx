@@ -12,14 +12,14 @@ const LINKS = [
   { href: "/retirer-mon-consentement", label: "Gérer mon consentement" },
 ] as const;
 
-const LINK_CLASS = "font-semibold text-white underline underline-offset-2 hover:text-[#ffb36b]";
+const LINK_CLASS = "font-semibold text-white underline underline-offset-2 hover:text-[var(--iki-orange)]";
 
 /** Co-branded footer: same legal links as the Couverture Mutuelle footer. */
 export function IkiFooter() {
   const { openPreferences } = useCookieConsent();
 
   return (
-    <footer className="bg-[#14002e] text-[#e9dcff]">
+    <footer className="bg-[var(--iki-ink)] text-[var(--iki-lavender)]">
       <div aria-hidden="true" className="h-1.5 w-full" style={{ backgroundImage: "var(--iki-gradient)" }} />
       <div className="mx-auto grid max-w-[1200px] gap-4 px-4 pb-[110px] pt-8 text-[1rem] min-[760px]:pb-8 min-[900px]:px-8">
         <div className="flex flex-wrap items-center gap-4">

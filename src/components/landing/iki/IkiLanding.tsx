@@ -1,13 +1,11 @@
 import Image from "next/image";
 import type { CSSProperties, ReactNode } from "react";
-import { Check, HeartHandshake, PhoneCall, ShieldCheck, Timer } from "lucide-react";
+import { Check, HeartHandshake, PhoneCall, Quote, ShieldCheck, Timer } from "lucide-react";
 import { SeniorQuoteForm } from "@/components/form/SeniorQuoteForm";
-import { RacPeople } from "@/components/landing/reste-a-charge/ResteAChargeSections";
-import { SeniorPartners } from "@/components/landing/senior/SeniorSections";
-import { SeniorStickyCta } from "@/components/landing/senior/SeniorStickyCta";
 import { TikTokFunnelTracker } from "@/components/landing/tiktok/TikTokFunnelTracker";
 import { IkiFooter } from "./IkiFooter";
 import { IkiHeader } from "./IkiHeader";
+import { IkiStickyCta } from "./IkiStickyCta";
 import "./iki-theme.css";
 
 const CTA_LABEL = "Je compare gratuitement";
@@ -168,7 +166,7 @@ function IkiSteps() {
               aria-hidden="true"
               className="grid h-14 w-14 place-items-center rounded-full text-[1.6rem] font-bold text-white"
               style={{
-                backgroundColor: index === 1 ? "#d900e0" : index === 2 ? "#e85d00" : "#7700f8",
+                backgroundColor: index === 1 ? "#d900e0" : index === 2 ? "#ff7a00" : "#7700f8",
               }}
             >
               {index + 1}
@@ -292,7 +290,7 @@ function IkiWhy() {
           </ul>
           <div className="rounded-[24px] bg-[var(--iki-ink)] p-5 text-center text-[1.15rem] font-semibold text-white">
             Les seniors qui comparent économisent en moyenne
-            <strong className="mt-1 block text-[2rem] font-bold text-[#ffb36b]">
+            <strong className="mt-1 block text-[2rem] font-bold text-[var(--iki-orange)]">
               200 à 400 €/an
             </strong>
           </div>
@@ -301,6 +299,125 @@ function IkiWhy() {
       <div className="grid justify-items-center pt-2">
         <Cta />
       </div>
+    </Section>
+  );
+}
+
+/* ---------- Partenaires ---------- */
+
+const PARTNERS = [
+  { src: "/images/partners/santiane.webp", alt: "Santiane", width: 300, height: 60 },
+  { src: "/images/partners/spvie.webp", alt: "SPVIE Assurances", width: 309, height: 160 },
+  { src: "/images/partners/majelis.webp", alt: "Majelis", width: 119, height: 160 },
+  {
+    src: "/images/partners/aveyronnaise.webp",
+    alt: "L’Aveyronnaise d’Assurances",
+    width: 237,
+    height: 160,
+  },
+  { src: "/images/partners/skarlett.webp", alt: "Skarlett", width: 720, height: 128 },
+] as const;
+
+function IkiPartners() {
+  return (
+    <Section id="partenaires-titre" className="!pt-10 min-[900px]:!pt-14">
+      <div className="grid gap-5 rounded-[24px] bg-[var(--iki-lavender)] px-4 py-6 text-center min-[900px]:px-8">
+        <p
+          id="partenaires-titre"
+          className="text-[1rem] font-bold uppercase tracking-[0.08em] text-[var(--iki-violet)]"
+        >
+          Nos partenaires sélectionnés
+        </p>
+        <ul className="m-0 flex list-none flex-wrap justify-center gap-3 p-0">
+          {PARTNERS.map((logo) => (
+            <li
+              key={logo.src}
+              className="grid min-h-[72px] place-items-center rounded-[16px] bg-white px-4 py-2 shadow-[6px_6px_1px_rgba(119,0,248,0.12)]"
+            >
+              <Image
+                src={logo.src}
+                alt={logo.alt}
+                width={logo.width}
+                height={logo.height}
+                sizes="140px"
+                className="block h-10 w-auto max-w-[140px] object-contain"
+              />
+            </li>
+          ))}
+        </ul>
+        <p className="text-[1rem] text-[var(--iki-text)]">
+          Votre demande peut être transmise à ces partenaires pour vous établir un devis.
+        </p>
+      </div>
+    </Section>
+  );
+}
+
+/* ---------- Témoignages ---------- */
+
+function IkiTestimonials() {
+  const people = [
+    {
+      name: "Marie, 67 ans",
+      price: "95 € → 74 €/mois",
+      text: "Elle a comparé avant la hausse et garde les mêmes remboursements.",
+      src: "/portrait-marie.png",
+      alt: "Portrait de Marie",
+    },
+    {
+      name: "Jean, 72 ans",
+      price: "65 €/mois",
+      text: "Il paie peu, mais il est mal remboursé sur ses appareils auditifs.",
+      src: "/portrait-jean.png",
+      alt: "Portrait de Jean",
+    },
+  ];
+
+  return (
+    <Section id="profils-titre">
+      <Eyebrow>Témoignages</Eyebrow>
+      <h2 id="profils-titre" className={H2}>
+        Ils ont comparé
+      </h2>
+      <div className="grid gap-5 min-[700px]:grid-cols-2">
+        {people.map((person) => (
+          <figure
+            key={person.name}
+            className="relative m-0 grid grid-cols-[76px_1fr] items-start gap-4 rounded-[24px] bg-[var(--iki-lavender)] p-5 shadow-[11px_11px_1px_rgba(119,0,248,0.2)]"
+          >
+            <Quote
+              aria-hidden="true"
+              className="absolute right-4 top-4 h-8 w-8 text-[var(--iki-violet-20)]"
+              strokeWidth={2.4}
+            />
+            <div
+              className="h-[76px] w-[76px] rounded-full p-[3px]"
+              style={{ backgroundImage: "var(--iki-gradient)" }}
+            >
+              <div className="h-full w-full overflow-hidden rounded-full bg-white">
+                <Image
+                  src={person.src}
+                  alt={person.alt}
+                  width={723}
+                  height={1024}
+                  sizes="76px"
+                  className="block h-full w-full object-cover object-top"
+                />
+              </div>
+            </div>
+            <figcaption className="grid gap-1">
+              <h3 className={H3}>{person.name}</h3>
+              <p className="text-[1.25rem] font-bold tabular-nums text-[var(--iki-violet)]">
+                {person.price}
+              </p>
+              <p className="text-[1.1rem] leading-[1.5] text-[var(--iki-text)]">{person.text}</p>
+            </figcaption>
+          </figure>
+        ))}
+      </div>
+      <p className="text-center text-[0.95rem] text-[var(--iki-text)]">
+        Exemples illustratifs, non contractuels.
+      </p>
     </Section>
   );
 }
@@ -375,7 +492,7 @@ function IkiFinalCta() {
         </p>
         <a
           href="#devis"
-          className="inline-flex min-h-16 w-full max-w-[440px] items-center justify-center rounded-full bg-white px-7 py-3.5 text-[1.3rem] font-bold text-[var(--iki-violet)] no-underline shadow-[11px_11px_1px_rgba(20,0,46,0.25)] transition hover:bg-[var(--iki-lavender)] focus-visible:outline-[3px] focus-visible:outline-offset-[3px] focus-visible:outline-[#ffb36b]"
+          className="inline-flex min-h-16 w-full max-w-[440px] items-center justify-center rounded-full bg-white px-7 py-3.5 text-[1.3rem] font-bold text-[var(--iki-violet)] no-underline shadow-[11px_11px_1px_rgba(36,0,79,0.3)] transition hover:bg-[var(--iki-lavender)] focus-visible:outline-[3px] focus-visible:outline-offset-[3px] focus-visible:outline-[var(--iki-orange)]"
         >
           {CTA_LABEL}
         </a>
@@ -386,8 +503,9 @@ function IkiFinalCta() {
 
 /**
  * Co-branded proposal page « IKI Assurance × Couverture Mutuelle » (/iki).
- * Same quote form as the homepage (SeniorQuoteForm, unchanged): only the
- * surrounding page and the colours (scoped .theme-iki tokens) differ.
+ * Same quote form as the homepage (SeniorQuoteForm, logic untouched); the whole
+ * page, the form and the cookie banner follow the IKI brand guidelines
+ * (iki-theme.css). Couverture Mutuelle only appears as the co-brand logo.
  */
 export function IkiLanding() {
   return (
@@ -395,20 +513,16 @@ export function IkiLanding() {
       <IkiHeader />
       <main className="w-full flex-1 pb-4">
         <IkiHero />
-        <div className="mx-auto w-full max-w-[1100px] px-4 min-[900px]:px-8 [&_#partenaires-titre]:text-[1rem] [&>section]:max-w-none">
-          <SeniorPartners />
-        </div>
+        <IkiPartners />
         <IkiSteps />
         <IkiGuarantees />
         <IkiWhy />
-        <div className="mx-auto w-full max-w-[1100px] px-4 min-[900px]:px-8 [&>section]:max-w-none">
-          <RacPeople mariePrice={74} />
-        </div>
+        <IkiTestimonials />
         <IkiFaq />
         <IkiFinalCta />
       </main>
       <IkiFooter />
-      <SeniorStickyCta ctaLabel={CTA_LABEL} />
+      <IkiStickyCta ctaLabel={CTA_LABEL} />
     </div>
   );
 }
