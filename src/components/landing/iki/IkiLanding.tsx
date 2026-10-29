@@ -303,56 +303,6 @@ function IkiWhy() {
   );
 }
 
-/* ---------- Partenaires ---------- */
-
-const PARTNERS = [
-  { src: "/images/partners/santiane.webp", alt: "Santiane", width: 300, height: 60 },
-  { src: "/images/partners/spvie.webp", alt: "SPVIE Assurances", width: 309, height: 160 },
-  { src: "/images/partners/majelis.webp", alt: "Majelis", width: 119, height: 160 },
-  {
-    src: "/images/partners/aveyronnaise.webp",
-    alt: "L’Aveyronnaise d’Assurances",
-    width: 237,
-    height: 160,
-  },
-  { src: "/images/partners/skarlett.webp", alt: "Skarlett", width: 720, height: 128 },
-] as const;
-
-function IkiPartners() {
-  return (
-    <Section id="partenaires-titre" className="!pt-10 min-[900px]:!pt-14">
-      <div className="grid gap-5 rounded-[24px] bg-[var(--iki-lavender)] px-4 py-6 text-center min-[900px]:px-8">
-        <p
-          id="partenaires-titre"
-          className="text-[1rem] font-bold uppercase tracking-[0.08em] text-[var(--iki-violet)]"
-        >
-          Nos partenaires sélectionnés
-        </p>
-        <ul className="m-0 flex list-none flex-wrap justify-center gap-3 p-0">
-          {PARTNERS.map((logo) => (
-            <li
-              key={logo.src}
-              className="grid min-h-[72px] place-items-center rounded-[16px] bg-white px-4 py-2 shadow-[6px_6px_1px_rgba(119,0,248,0.12)]"
-            >
-              <Image
-                src={logo.src}
-                alt={logo.alt}
-                width={logo.width}
-                height={logo.height}
-                sizes="140px"
-                className="block h-10 w-auto max-w-[140px] object-contain"
-              />
-            </li>
-          ))}
-        </ul>
-        <p className="text-[1rem] text-[var(--iki-text)]">
-          Votre demande peut être transmise à ces partenaires pour vous établir un devis.
-        </p>
-      </div>
-    </Section>
-  );
-}
-
 /* ---------- Témoignages ---------- */
 
 function IkiTestimonials() {
@@ -432,7 +382,7 @@ const FAQ = [
   {
     question: "Êtes-vous une mutuelle ?",
     answer:
-      "Non. Nous vous mettons en relation avec des partenaires qui comparent les offres pour vous.",
+      "Non. Un conseiller IKI Assurance étudie votre situation et vous rappelle pour vous présenter des offres adaptées.",
   },
   {
     question: "Puis-je comparer si j’ai déjà une mutuelle ?",
@@ -513,7 +463,6 @@ export function IkiLanding() {
       <IkiHeader />
       <main className="w-full flex-1 pb-4">
         <IkiHero />
-        <IkiPartners />
         <IkiSteps />
         <IkiGuarantees />
         <IkiWhy />

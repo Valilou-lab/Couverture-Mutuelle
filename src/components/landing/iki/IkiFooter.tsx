@@ -8,7 +8,6 @@ const LINKS = [
   { href: "/mentions-legales", label: "Mentions légales" },
   { href: "/politique-de-confidentialite", label: "Politique de confidentialité" },
   { href: "/cookies", label: "Politique de cookies" },
-  { href: "/partenaires", label: "Partenaires" },
   { href: "/retirer-mon-consentement", label: "Gérer mon consentement" },
 ] as const;
 
