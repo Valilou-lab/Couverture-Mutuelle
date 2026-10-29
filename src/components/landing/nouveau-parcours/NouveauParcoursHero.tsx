@@ -1,7 +1,7 @@
 import { ComplianceQuoteForm } from "@/components/form/compliance/ComplianceQuoteForm";
 
 /**
- * Form-first hero for the isolated /nouveau-parcours demo LP.
+ * Form-first hero for the isolated /nouveau-parcours-demo LP.
  * Visual chrome matches the homepage; form is ComplianceQuoteForm only.
  */
 export function NouveauParcoursHero() {

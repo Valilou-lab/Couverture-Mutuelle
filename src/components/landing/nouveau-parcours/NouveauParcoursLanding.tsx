@@ -29,7 +29,7 @@ const FAQ = [
 ] as const;
 
 /**
- * Isolated demo landing for /nouveau-parcours.
+ * Isolated demo landing for /nouveau-parcours-demo.
  * Reuses CM visual chrome; does not use QuoteForm or production lead APIs.
  */
 export function NouveauParcoursLanding() {

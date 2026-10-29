@@ -7,8 +7,9 @@ const DESCRIPTION =
   "Parcours expérimental de génération de leads : éligibilité partenaires avant consentement. Démonstration uniquement.";
 
 /**
- * Isolated experimental LP. Must not affect production funnels.
- * noindex: preview / client demo only.
+ * Public demo LP at /nouveau-parcours-demo.
+ * Isolated from production funnels (no Vertikl / CAPI Lead / Twilio Verify).
+ * noindex: shareable link, not for search indexing.
  */
 export const metadata: Metadata = {
   title: TITLE,
@@ -16,6 +17,6 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-export default function NouveauParcoursPage() {
+export default function NouveauParcoursDemoPage() {
   return <NouveauParcoursLanding />;
 }

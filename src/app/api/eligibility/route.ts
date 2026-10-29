@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 
 /**
- * DEMO-ONLY eligibility endpoint for /nouveau-parcours.
+ * DEMO-ONLY eligibility endpoint for /nouveau-parcours-demo.
  * Isolated from Vertikl, /api/leads, Meta CAPI and Twilio Verify.
  * Returns a fixed mock of partners that could contact the prospect.
  */

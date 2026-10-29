@@ -1,5 +1,5 @@
 /**
- * Demo-only partner logo catalog for /nouveau-parcours.
+ * Demo-only partner logo catalog for /nouveau-parcours-demo.
  * Display stays driven by response.partners — this map only resolves assets.
  */
 export const DEMO_PARTNER_LOGOS: Record<string, string> = {
