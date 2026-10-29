@@ -1,0 +1,136 @@
+/*
+ * IKI Assurance theme for the co-branded proposal page (/iki).
+ *
+ * Everything is scoped to `.theme-iki`, so no other page is affected.
+ * The quote form itself is NOT modified: its colours follow the shared
+ * design tokens (--brand, --brand-soft, --brand-muted…) that are redefined
+ * here, and the few hard-coded purple classes it uses are re-mapped below
+ * with attribute selectors (exact class tokens). Questions, steps, texts,
+ * validation, submission and tracking are untouched.
+ *
+ * Palette from the IKI « Charte graphique » (web colours):
+ *   violet  #7700F8   lavande #F1E5FE   orange #FF7A00
+ *   noir    #000000   gris    #333333   violet 20 % ≈ #E4CCFE
+ * Logo gradient: #5A00FF → #D900E0 → #FF0000 → #FF7A00
+ */
+
+.theme-iki {
+  --brand: #7700f8;
+  --brand-soft: #f1e5fe;
+  --brand-muted: #dcc2fd;
+  --surface: #faf6ff;
+  --border: #e4ccfe;
+  --foreground: #1a1a1a;
+
+  --iki-violet: #7700f8;
+  --iki-violet-dark: #5c00c2;
+  --iki-violet-20: #e4ccfe;
+  --iki-lavender: #f1e5fe;
+  --iki-orange: #ff7a00;
+  --iki-ink: #24004f;
+  --iki-text: #333333;
+  --iki-gradient: linear-gradient(90deg, #5a00ff 0%, #d900e0 38%, #ff0000 70%, #ff7a00 100%);
+  --iki-button-shadow: 11px 11px 1px rgba(119, 0, 248, 0.2);
+
+  font-family: var(--font-titillium), Arial, Helvetica, sans-serif;
+  color: var(--foreground);
+}
+
+/* Shared components use these font utilities (all Arial today). */
+.theme-iki .font-poppins,
+.theme-iki .font-manrope,
+.theme-iki .font-sora,
+.theme-iki .font-sans {
+  font-family: var(--font-titillium), Arial, Helvetica, sans-serif;
+}
+
+/* ---- Hard-coded purples used by shared components, re-mapped to IKI ---- */
+
+.theme-iki [class~="text-[#3b0764]"] {
+  color: var(--iki-ink);
+}
+.theme-iki [class~="bg-[#3b0764]"] {
+  background-color: var(--iki-ink);
+}
+.theme-iki [class~="bg-[#ddd6fe]"] {
+  background-color: var(--iki-lavender);
+}
+.theme-iki [class~="border-[#ddd6fe]"],
+.theme-iki [class~="lg:border-[#ddd6fe]"] {
+  border-color: var(--iki-violet-20);
+}
+.theme-iki [class~="bg-[#f7f4ff]"] {
+  background-color: #f8f2ff;
+}
+.theme-iki [class~="border-[#c4b5fd]"] {
+  border-color: #c9a3fc;
+}
+.theme-iki [class~="hover:bg-[#f8f6ff]"]:hover {
+  background-color: #f8f2ff;
+}
+.theme-iki [class~="hover:bg-[#5b21b6]"]:hover {
+  background-color: var(--iki-violet-dark);
+}
+.theme-iki [class~="hover:text-[#5b21b6]"]:hover,
+.theme-iki [class~="text-[#5b21b6]"] {
+  color: var(--iki-violet-dark);
+}
+.theme-iki [class~="text-[#8b5cf6]"],
+.theme-iki [class~="text-[#8a6cf0]"] {
+  color: var(--iki-violet);
+}
+
+/* Form card, selected answers and primary buttons */
+.theme-iki #formulaire-devis {
+  border-color: var(--iki-violet-20);
+  box-shadow: 0 24px 60px -28px rgba(119, 0, 248, 0.45);
+}
+.theme-iki #formulaire-devis button[aria-pressed="true"] {
+  box-shadow: 0 0 0 3px rgba(119, 0, 248, 0.2);
+}
+.theme-iki #formulaire-devis button.bg-brand,
+.theme-iki .iki-cta {
+  box-shadow: var(--iki-button-shadow);
+}
+
+/* Progress bar fill (inline gradient in the shared component). */
+.theme-iki [role="progressbar"] > div {
+  background-image: linear-gradient(105deg, #5a00ff 0%, #7700f8 45%, #b000e8 100%) !important;
+}
+
+/* IKI button (charte : bouton « Variant », ombre portée violette 20 %) */
+.iki-cta {
+  display: inline-flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background-color: var(--iki-violet);
+  padding: 0.9rem 1.75rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: #fff;
+  text-decoration: none;
+  transition:
+    background-color 150ms ease,
+    box-shadow 150ms ease,
+    transform 150ms ease;
+}
+.iki-cta:hover {
+  background-color: var(--iki-violet-dark);
+  box-shadow: 6px 6px 1px rgba(119, 0, 248, 0.2);
+  transform: translate(2px, 2px);
+}
+.iki-cta:focus-visible {
+  outline: 3px solid var(--iki-orange);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .iki-cta,
+  .iki-cta:hover {
+    transition: none;
+    transform: none;
+  }
+}
