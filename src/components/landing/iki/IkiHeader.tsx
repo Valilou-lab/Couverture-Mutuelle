@@ -1,43 +1,51 @@
 import Image from "next/image";
 
-/** Co-branded header: IKI Assurance × Couverture Mutuelle. */
-export function IkiHeader() {
+/**
+ * Header « SiteHeader » of the IKI design system: frosted craie bar, IKI logo,
+ * one mandarine call-to-action. Couverture Mutuelle appears only as a small
+ * co-brand mark next to the IKI logo.
+ */
+export function IkiHeader({ ctaLabel }: { ctaLabel: string }) {
   return (
-    <header className="relative border-b border-[var(--iki-violet-20)] bg-white">
-      <div className="mx-auto flex max-w-[1200px] items-center justify-between gap-3 px-4 py-3 min-[900px]:px-8">
+    <header className="iki-header sticky top-0 z-40">
+      <div className="mx-auto flex min-h-[68px] max-w-[1248px] items-center justify-between gap-3 px-4 min-[900px]:min-h-[78px] min-[900px]:px-6">
         <div
-          className="flex min-w-0 items-center gap-2.5 min-[480px]:gap-4"
-          aria-label="IKI Assurance en partenariat avec Couverture Mutuelle"
+          className="flex min-w-0 items-center gap-3 min-[480px]:gap-4"
+          aria-label="IKI Assurances en partenariat avec Couverture Mutuelle"
         >
           <Image
-            src="/images/iki/logo-iki.png"
-            alt="IKI Assurance"
-            width={865}
-            height={580}
-            loading="eager"
-            fetchPriority="high"
-            className="block h-9 w-auto min-[480px]:h-11 min-[900px]:h-14"
+            src="/images/iki/logo-iki.svg"
+            alt="IKI Assurances"
+            width={145}
+            height={97}
+            unoptimized
+            priority
+            className="block h-9 w-auto min-[900px]:h-11"
           />
-          <span
-            aria-hidden="true"
-            className="text-[1.5rem] font-light leading-none text-[var(--iki-text)]"
-          >
-            ×
+          <span aria-hidden="true" className="h-9 w-px bg-[var(--encre-300)]" />
+          <span className="flex items-center gap-2">
+            <span className="hidden text-[0.85rem] leading-tight text-[var(--encre-600)] min-[560px]:block">
+              en partenariat
+              <br />
+              avec
+            </span>
+            <span className="rounded-[var(--radius-button)] border border-[var(--encre-200)] bg-white px-1.5 py-1">
+              <Image
+                src="/logo-couverture-mutuelle.png"
+                alt="Couverture Mutuelle"
+                width={782}
+                height={357}
+                sizes="100px"
+                priority
+                className="block h-7 w-auto min-[900px]:h-9"
+              />
+            </span>
           </span>
-          <Image
-            src="/logo-couverture-mutuelle.png"
-            alt="Couverture Mutuelle"
-            width={782}
-            height={357}
-            loading="eager"
-            className="block h-9 w-auto min-[480px]:h-11 min-[900px]:h-14"
-          />
         </div>
-        <span className="hidden whitespace-nowrap rounded-full bg-[var(--iki-lavender)] px-3 py-1.5 text-[0.95rem] font-semibold text-[var(--iki-ink)] min-[420px]:inline-block">
-          Gratuit • Sans engagement
-        </span>
+        <a href="#devis" className="iki-btn iki-btn-accent iki-btn-header">
+          {ctaLabel}
+        </a>
       </div>
-      <div aria-hidden="true" className="h-1 w-full" style={{ backgroundImage: "var(--iki-gradient)" }} />
     </header>
   );
 }
