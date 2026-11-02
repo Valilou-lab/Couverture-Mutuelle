@@ -121,6 +121,16 @@ html :is(.theme-iki, .theme-iki *, .iki-route *):is(.font-poppins, .font-manrope
   letter-spacing: -0.02em;
   color: var(--encre-900);
 }
+
+/* Logo gradient « par touches » on a single emphasis word. */
+.theme-iki .iki-logo-word {
+  background-image: var(--iki-gradient);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  -webkit-text-fill-color: transparent;
+}
+
 .theme-iki .iki-display-2 {
   font: 700 clamp(1.9rem, 3.8vw, 3rem) / 1.08 var(--font-core);
   letter-spacing: -0.02em;
@@ -150,28 +160,51 @@ html :is(.theme-iki, .theme-iki *, .iki-route *):is(.font-poppins, .font-manrope
   font-variant-numeric: tabular-nums;
 }
 
-/* « −11 % » claim (hero badge) */
+/* « −11 % » claim (hero badge) — primary conversion hook */
 .theme-iki .iki-claim {
   display: flex;
   width: fit-content;
+  max-width: 100%;
   align-items: center;
-  gap: 10px;
-  padding: 10px 16px 10px 12px;
-  border: 1px solid var(--mandarine-300);
+  gap: 12px;
+  padding: 14px 18px 14px 14px;
+  border: 2px solid var(--menthe-500);
   border-radius: var(--radius-floating);
-  background-color: var(--mandarine-50);
-  font-size: 1.05rem;
+  background-color: var(--menthe-100);
+  font-size: 1.125rem;
+  font-weight: 600;
   line-height: 1.35;
-  color: var(--encre-900);
-  box-shadow: var(--shadow-sm);
+  color: var(--menthe-700);
+  box-shadow:
+    0 10px 28px -16px rgba(14, 158, 126, 0.55),
+    0 0 0 4px rgba(214, 245, 236, 0.9);
 }
 .theme-iki .iki-claim strong {
-  font-weight: 700;
-  color: var(--mandarine-700);
+  font-weight: 800;
+  color: var(--menthe-700);
+  font-size: 1.08em;
+}
+.theme-iki .iki-claim .iki-claim-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border-radius: 999px;
+  background-color: #fff;
+  color: var(--menthe-500);
+  box-shadow: 0 1px 0 rgba(7, 107, 85, 0.12);
 }
 @media (min-width: 1000px) {
   .theme-iki .iki-claim {
-    font-size: 1.15rem;
+    gap: 14px;
+    padding: 16px 22px 16px 16px;
+    font-size: 1.25rem;
+  }
+  .theme-iki .iki-claim .iki-claim-icon {
+    width: 2.5rem;
+    height: 2.5rem;
   }
 }
 .theme-iki .iki-claim-ref {
@@ -181,6 +214,7 @@ html :is(.theme-iki, .theme-iki *, .iki-route *):is(.font-poppins, .font-manrope
   vertical-align: super;
   font-size: 0.7em;
   line-height: 0;
+  font-weight: 700;
 }
 
 /* ======================= Buttons & tags ======================= */
@@ -475,6 +509,17 @@ html :is(.theme-iki, .theme-iki *, .iki-route *):is(.font-poppins, .font-manrope
     grid-template-rows: auto auto 1fr;
     grid-template-areas: "text form" "reviews form" "points form";
     align-items: start;
+  }
+}
+/* From Q2: only headline + form (+ Trustpilot under the form). */
+.theme-iki .iki-hero-grid--focused {
+  grid-template-areas: "text" "form";
+  padding-bottom: 2.5rem;
+}
+@media (min-width: 1000px) {
+  .theme-iki .iki-hero-grid--focused {
+    grid-template-rows: auto;
+    grid-template-areas: "text form";
   }
 }
 .theme-iki .iki-reviews-nav {

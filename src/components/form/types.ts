@@ -119,6 +119,11 @@ export type QuoteFormData = {
   email: string;
   whatsappAvailable: boolean;
   consent: boolean;
+  /**
+   * IKI LP only — second independent opt-in (partenaires).
+   * Ignored by other consent variants.
+   */
+  partnerConsent: boolean;
 };
 
 export const initialFormData: QuoteFormData = {
@@ -142,6 +147,7 @@ export const initialFormData: QuoteFormData = {
   email: "",
   whatsappAvailable: false,
   consent: false,
+  partnerConsent: false,
 };
 
 export type FormStepId =

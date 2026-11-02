@@ -1,5 +1,6 @@
 import type { QuoteFormData } from "@/components/form/types";
 import {
+  buildIkiConsentOptinText,
   CONSENT_CAMPAIGN,
   CONSENT_VARIANTS,
   type ConsentVariantId,
@@ -67,7 +68,12 @@ export function buildVertiklFields(
     throw new VertiklMappingError("Invalid French phone number.");
   }
 
-  const consentVariant = CONSENT_VARIANTS[input.consentVariant ?? "default"];
+  const consentVariantId = input.consentVariant ?? "default";
+  const consentVariant = CONSENT_VARIANTS[consentVariantId];
+  const ikiOptin =
+    consentVariantId === "iki"
+      ? buildIkiConsentOptinText(Boolean(form.partnerConsent))
+      : null;
   const consentDatetime = formatVertiklDateTime(consentAt);
   const consentExpiration = formatVertiklDateTime(
     addMonthsUtc(consentAt, 12),
@@ -91,8 +97,9 @@ export function buildVertiklFields(
     consent_expiration_date: consentExpiration,
     consent_channels: [...consentVariant.channels],
     consent_landing_page_version: LANDING_PAGE_VERSION,
-    consent_optin_text: consentVariant.optinText,
-    consent_optin_text_version: consentVariant.optinTextVersion,
+    consent_optin_text: ikiOptin?.optinText ?? consentVariant.optinText,
+    consent_optin_text_version:
+      ikiOptin?.optinTextVersion ?? consentVariant.optinTextVersion,
     consent_legal_notice_version: LEGAL_NOTICE_VERSION,
     consent_source: CONSENT_SOURCE,
     consent_status: CONSENT_STATUS_ACTIVE,

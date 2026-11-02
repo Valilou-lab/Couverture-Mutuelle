@@ -1,6 +1,9 @@
+"use client";
+
 import Image from "next/image";
-import type { ReactNode } from "react";
+import { useCallback, useState, type ReactNode } from "react";
 import { SeniorQuoteForm } from "@/components/form/SeniorQuoteForm";
+import type { FormStepId } from "@/components/form/types";
 import { TikTokFunnelTracker } from "@/components/landing/tiktok/TikTokFunnelTracker";
 import { IkiFooter } from "./IkiFooter";
 import { IkiHeader } from "./IkiHeader";
@@ -9,6 +12,15 @@ import { IkiReviews } from "./IkiReviews";
 import { Stars } from "./IkiStars";
 import { IkiStickyCta } from "./IkiStickyCta";
 import "./iki-theme.css";
+
+/** From question 2 through analyzing / confirmation — strip marketing below the form. */
+function isIkiFormFocused(
+  step: FormStepId,
+  questionNumber: number | null,
+): boolean {
+  if (step === "analyzing" || step === "confirmation") return true;
+  return questionNumber != null && questionNumber >= 2;
+}
 
 const CTA_LABEL = "Je compare gratuitement";
 const HEADER_CTA_LABEL = "Être rappelé";
@@ -148,7 +160,27 @@ const TRUST_ITEMS: { icon: IkiIconName; label: ReactNode }[] = [
   { icon: "user-check", label: <>Courtier spécialisé</> },
 ];
 
-function IkiHero() {
+function IkiTrustpilotNote({ className = "" }: { className?: string }) {
+  return (
+    <p
+      className={`m-0 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[1.05rem] text-[var(--encre-700)] ${className}`}
+    >
+      <Stars size={20} className="text-[var(--or-500)]" />
+      <span>
+        <strong className="text-[var(--encre-900)]">4,7/5</strong> sur
+        Trustpilot
+      </span>
+    </p>
+  );
+}
+
+function IkiHero({
+  formFocused,
+  onStepChange,
+}: {
+  formFocused: boolean;
+  onStepChange: (step: FormStepId, questionNumber: number | null) => void;
+}) {
   return (
     <section
       aria-labelledby="hero-titre"
@@ -168,71 +200,84 @@ function IkiHero() {
       <div aria-hidden="true" className="iki-hero-veil" />
 
       {/* Mobile order: text, form, reviews, points. Desktop: the form spans
-          the right column; text, reviews and points stack on the left. */}
-      <Container className="iki-hero-grid relative z-[2] grid gap-7 pb-6 pt-7 min-[1000px]:gap-x-14 min-[1000px]:gap-y-7 min-[1000px]:pb-10 min-[1000px]:pt-12">
+          the right column; text, reviews and points stack on the left.
+          From Q2 onward, marketing under the form collapses to Trustpilot. */}
+      <Container
+        className={`iki-hero-grid relative z-[2] grid gap-7 pb-6 pt-7 min-[1000px]:gap-x-14 min-[1000px]:gap-y-7 min-[1000px]:pb-10 min-[1000px]:pt-12 ${formFocused ? "iki-hero-grid--focused" : ""}`}
+      >
         <div className="grid content-start gap-5 [grid-area:text] min-[1000px]:gap-5 min-[1000px]:pt-2">
-          <p className="iki-eyebrow text-[var(--mandarine-700)]">
-            Mutuelle santé senior
-          </p>
           <h1 id="hero-titre" className="iki-display text-balance">
-            Votre mutuelle santé, avec un conseiller à vos côtés.
+            Comparer votre mutuelle avec un{" "}
+            <span className="iki-logo-word">expert</span>.
           </h1>
           <p className="iki-lead max-w-[34ch] text-[var(--encre-700)] min-[1000px]:max-w-[46ch]">
             Un conseiller IKI vous rappelle, compare les garanties et vous dit
             exactement ce que vous payez.
           </p>
           <p className="iki-claim">
-            <IkiIcon name="discount" size={24} className="text-[var(--mandarine-600)]" />
+            <span className="iki-claim-icon" aria-hidden="true">
+              <IkiIcon name="discount" size={22} />
+            </span>
             <span>{MARKET_CLAIM}</span>
           </p>
         </div>
 
         <div
           id="devis"
-          className="iki-form-shell mx-auto w-full max-w-[560px] [grid-area:form]"
+          className="iki-form-shell mx-auto grid w-full max-w-[560px] gap-4 [grid-area:form]"
         >
-          <SeniorQuoteForm />
+          <SeniorQuoteForm
+            consentVariant="iki"
+            onStepChange={onStepChange}
+          />
+          {formFocused ? <IkiTrustpilotNote /> : null}
         </div>
 
-        <div className="min-w-0 [grid-area:reviews]">
-          <IkiReviews />
-        </div>
+        {!formFocused ? (
+          <>
+            <div className="min-w-0 [grid-area:reviews]">
+              <IkiReviews />
+            </div>
 
-        <div className="grid content-start gap-6 [grid-area:points]">
-          <CheckList items={HERO_POINTS} />
-          <div className="iki-advisor hidden min-[1000px]:flex">
-            <span className="grid h-12 w-12 flex-none place-items-center rounded-full bg-[var(--violet-50)] text-[var(--violet-500)]">
-              <IkiIcon name="phone-call" size={24} />
-            </span>
-            <span className="grid gap-0.5">
-              <strong className="text-[1.1rem] text-[var(--encre-900)]">
-                Une vraie personne au téléphone
-              </strong>
-              <span className="text-[1rem] text-[var(--encre-600)]">
-                Du lundi au vendredi, 9 h – 18 h
-              </span>
-            </span>
-          </div>
-        </div>
+            <div className="grid content-start gap-6 [grid-area:points]">
+              <CheckList items={HERO_POINTS} />
+              <div className="iki-advisor hidden min-[1000px]:flex">
+                <span className="grid h-12 w-12 flex-none place-items-center rounded-full bg-[var(--violet-50)] text-[var(--violet-500)]">
+                  <IkiIcon name="phone-call" size={24} />
+                </span>
+                <span className="grid gap-0.5">
+                  <strong className="text-[1.1rem] text-[var(--encre-900)]">
+                    Une vraie personne au téléphone
+                  </strong>
+                  <span className="text-[1rem] text-[var(--encre-600)]">
+                    Du lundi au vendredi, 9 h – 18 h
+                  </span>
+                </span>
+              </div>
+            </div>
+          </>
+        ) : null}
       </Container>
 
-      <Container className="relative z-[2] pb-4 min-[1000px]:pb-6">
-        <ul
-          className="iki-trustbar"
-          aria-label="IKI Assurances en quelques chiffres"
-        >
-          {TRUST_ITEMS.map(({ icon, label }, index) => (
-            <li key={index}>
-              <IkiIcon
-                name={icon}
-                size={22}
-                className="text-[var(--violet-500)]"
-              />
-              <span>{label}</span>
-            </li>
-          ))}
-        </ul>
-      </Container>
+      {!formFocused ? (
+        <Container className="relative z-[2] pb-4 min-[1000px]:pb-6">
+          <ul
+            className="iki-trustbar"
+            aria-label="IKI Assurances en quelques chiffres"
+          >
+            {TRUST_ITEMS.map(({ icon, label }, index) => (
+              <li key={index}>
+                <IkiIcon
+                  name={icon}
+                  size={22}
+                  className="text-[var(--violet-500)]"
+                />
+                <span>{label}</span>
+              </li>
+            ))}
+          </ul>
+        </Container>
+      ) : null}
     </section>
   );
 }
@@ -594,22 +639,41 @@ function IkiFinalCta() {
  * built on IKI's design system and reference senior landing page.
  * Same quote form as the homepage (SeniorQuoteForm, logic and tracking
  * untouched); only its look is re-skinned by scoped CSS (iki-theme.css).
+ * From question 2 onward, content below the form is replaced by the
+ * Trustpilot rating (5 stars + 4,7/5).
  */
 export function IkiLanding() {
+  const [formFocused, setFormFocused] = useState(false);
+
+  const onStepChange = useCallback(
+    (step: FormStepId, questionNumber: number | null) => {
+      setFormFocused(isIkiFormFocused(step, questionNumber));
+    },
+    [],
+  );
+
   return (
     <div className="theme-iki flex min-h-0 flex-1 flex-col">
       <IkiHeader ctaLabel={HEADER_CTA_LABEL} />
       <main className="w-full flex-1">
-        <IkiHero />
-        <IkiSupport />
-        <IkiFigures />
-        <IkiGuarantees />
-        <IkiSteps />
-        <IkiFaq />
-        <IkiFinalCta />
+        <IkiHero formFocused={formFocused} onStepChange={onStepChange} />
+        {!formFocused ? (
+          <>
+            <IkiSupport />
+            <IkiFigures />
+            <IkiGuarantees />
+            <IkiSteps />
+            <IkiFaq />
+            <IkiFinalCta />
+          </>
+        ) : null}
       </main>
-      <IkiFooter />
-      <IkiStickyCta ctaLabel={CTA_LABEL} />
+      {!formFocused ? (
+        <>
+          <IkiFooter />
+          <IkiStickyCta ctaLabel={CTA_LABEL} />
+        </>
+      ) : null}
     </div>
   );
 }

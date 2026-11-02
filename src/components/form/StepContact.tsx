@@ -8,8 +8,14 @@ import type { FieldErrors } from "./validation";
 import {
   CONSENT_OPTIN_TEXT,
   CONSENT_VALIDITY_TEXT,
+  IKI_CONSENT_OPTIN_TEXT,
+  IKI_CONSENT_VALIDITY_TEXT,
+  IKI_PARTNER_CONSENT_OPTIN_TEXT,
+  IKI_PRIVACY_POLICY_LABEL,
+  IKI_PRIVACY_POLICY_URL,
   SENIOR_CONSENT_OPTIN_TEXT,
   SENIOR_CONSENT_VALIDITY_TEXT,
+  type ConsentVariantId,
 } from "@/lib/consent";
 import {
   SENIOR_ERROR,
@@ -23,12 +29,44 @@ const DEFAULT_INPUT =
   "mt-2 w-full rounded-2xl border-2 border-[#c4b5fd] bg-white px-4 py-3.5 text-base outline-none ring-brand/30 focus:border-brand focus:ring-2";
 
 const PARTNERS_MARKER = "ses partenaires";
+const IKI_PARTNERS_LINK_LABEL = "liste des partenaires";
 const [consentOptinBeforePartners, consentOptinAfterPartners] =
   CONSENT_OPTIN_TEXT.split(PARTNERS_MARKER);
 const [seniorConsentBefore, seniorConsentAfter] =
   SENIOR_CONSENT_OPTIN_TEXT.split(PARTNERS_MARKER);
+const [ikiPartnerBeforeList, ikiPartnerAfterList] =
+  IKI_PARTNER_CONSENT_OPTIN_TEXT.split(IKI_PARTNERS_LINK_LABEL);
 const LINK_CLASS =
   "font-semibold text-brand underline underline-offset-2 hover:text-[#5b21b6]";
+
+/** Bold the lead clause of each IKI opt-in (matches the mock). */
+function IkiOptinLabel({
+  htmlFor,
+  text,
+  boldUntil,
+}: {
+  htmlFor: string;
+  text: string;
+  boldUntil: string;
+}) {
+  const index = text.indexOf(boldUntil);
+  if (index < 0) {
+    return (
+      <label htmlFor={htmlFor} className="cursor-pointer">
+        {text}
+      </label>
+    );
+  }
+  const end = index + boldUntil.length;
+  return (
+    <label htmlFor={htmlFor} className="cursor-pointer">
+      <strong className="font-semibold text-[var(--encre-900,#18181b)]">
+        {text.slice(0, end)}
+      </strong>
+      {text.slice(end)}
+    </label>
+  );
+}
 
 type Props = {
   data: QuoteFormData;
@@ -36,6 +74,7 @@ type Props = {
   disabled?: boolean;
   offersCount?: number | null;
   submitError?: string | null;
+  consentVariant?: ConsentVariantId;
   onPatch: (patch: Partial<QuoteFormData>) => void;
   onNext: () => void;
 };
@@ -46,11 +85,13 @@ export function StepContact({
   disabled = false,
   offersCount = null,
   submitError = null,
+  consentVariant = "default",
   onPatch,
   onNext,
 }: Props) {
   const [partnersOpen, setPartnersOpen] = useState(false);
   const senior = useSeniorForm();
+  const iki = consentVariant === "iki";
   const labelClass = senior ? SENIOR_LABEL : "block text-sm font-medium";
   const inputClass = senior ? SENIOR_INPUT : DEFAULT_INPUT;
   const errorClass = senior ? SENIOR_ERROR : "mt-2 text-sm text-error";
@@ -243,7 +284,82 @@ export function StepContact({
         ) : null}
       </div>
 
-      {senior ? (
+      {iki ? (
+        <div className="mt-4 rounded-[18px] border border-[var(--encre-200,#e4e4e7)] bg-[var(--encre-50,#fafafa)] p-4 text-[0.95rem] leading-relaxed text-[var(--encre-800,#27272a)]">
+          <div className="flex items-start gap-3">
+            <input
+              id="consent-opt-in"
+              type="checkbox"
+              checked={data.consent}
+              onChange={(event) => onPatch({ consent: event.target.checked })}
+              className="mt-[3px] h-6 w-6 shrink-0 accent-brand"
+            />
+            <p className="min-w-0">
+              <IkiOptinLabel
+                htmlFor="consent-opt-in"
+                text={IKI_CONSENT_OPTIN_TEXT}
+                boldUntil="IKI Assurance"
+              />
+            </p>
+          </div>
+
+          <div
+            className="my-3.5 border-t border-[var(--encre-200,#e4e4e7)]"
+            aria-hidden="true"
+          />
+
+          <div className="flex items-start gap-3">
+            <input
+              id="partner-consent-opt-in"
+              type="checkbox"
+              checked={data.partnerConsent}
+              onChange={(event) =>
+                onPatch({ partnerConsent: event.target.checked })
+              }
+              className="mt-[3px] h-6 w-6 shrink-0 accent-brand"
+            />
+            <p className="min-w-0">
+              <IkiOptinLabel
+                htmlFor="partner-consent-opt-in"
+                text={ikiPartnerBeforeList}
+                boldUntil="assureur partenaire"
+              />
+              <button
+                type="button"
+                onClick={() => setPartnersOpen(true)}
+                className="font-semibold text-[var(--violet-600,#5b21b6)] underline underline-offset-2 hover:text-[var(--violet-500,#7c3aed)]"
+              >
+                {IKI_PARTNERS_LINK_LABEL}
+              </button>
+              <label htmlFor="partner-consent-opt-in" className="cursor-pointer">
+                {ikiPartnerAfterList}
+              </label>
+            </p>
+          </div>
+
+          <p className="mt-3.5 text-[0.78rem] leading-snug text-[var(--encre-500,#71717a)]">
+            {IKI_CONSENT_VALIDITY_TEXT}{" "}
+            <a
+              href={IKI_PRIVACY_POLICY_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-2 hover:text-[var(--violet-600,#5b21b6)]"
+            >
+              Politique de confidentialité
+            </a>
+          </p>
+          <p className="mt-1.5 text-[0.78rem] leading-snug text-[var(--encre-500,#71717a)]">
+            <a
+              href={IKI_PRIVACY_POLICY_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline underline-offset-2 hover:text-[var(--violet-600,#5b21b6)]"
+            >
+              {IKI_PRIVACY_POLICY_LABEL}
+            </a>
+          </p>
+        </div>
+      ) : senior ? (
         <div className="mt-4 rounded-[18px] border-2 border-brand-muted bg-[#f7f4ff] p-4 text-[0.98rem] leading-relaxed text-foreground">
           <div className="flex items-start gap-3">
             <input
@@ -359,7 +475,13 @@ export function StepContact({
 
       <FormNavigation
         onNext={onNext}
-        nextLabel={disabled ? "Envoi en cours…" : "Valider ma demande"}
+        nextLabel={
+          disabled
+            ? "Envoi en cours…"
+            : iki
+              ? "Envoyer mon dossier"
+              : "Valider ma demande"
+        }
         disabled={disabled}
       />
 

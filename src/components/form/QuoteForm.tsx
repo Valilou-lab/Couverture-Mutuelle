@@ -48,6 +48,7 @@ import {
   trackMetaLeadPixel,
 } from "@/lib/meta/pixel";
 import type { MetaLeadTracking } from "@/lib/meta/events";
+import type { ConsentVariantId } from "@/lib/consent";
 import { scrollQuoteFormIntoView } from "./scrollQuoteFormIntoView";
 import { SeniorFormContext } from "./seniorForm";
 import {
@@ -161,6 +162,20 @@ type QuoteFormProps = {
   funnel?: QuoteFormFunnel;
   /** "senior": homepage layout (larger type / tap targets). Logic is identical. */
   variant?: "default" | "senior";
+  /**
+   * Fires whenever the active step changes.
+   * `questionNumber` is 1-based among visible questions, or null on
+   * analyzing / confirmation.
+   */
+  onStepChange?: (
+    step: FormStepId,
+    questionNumber: number | null,
+  ) => void;
+  /**
+   * Consent copy / layout sent to Vertikl (allowlisted server-side).
+   * Defaults to `"senior"` for the senior variant, otherwise `"default"`.
+   */
+  consentVariant?: ConsentVariantId;
 };
 
 function questionStepNumber(
@@ -186,8 +201,12 @@ export function QuoteForm({
   accentQuestions = true,
   funnel,
   variant = "default",
+  onStepChange,
+  consentVariant: consentVariantProp,
 }: QuoteFormProps = {}) {
   const senior = variant === "senior";
+  const consentVariant: ConsentVariantId =
+    consentVariantProp ?? (senior ? "senior" : "default");
   const router = useRouter();
   const {
     calculator,
@@ -289,6 +308,10 @@ export function QuoteForm({
       .filter((item) => item !== "analyzing" && item !== "confirmation")
       .length || 1,
   );
+
+  useEffect(() => {
+    onStepChange?.(step, questionStepNumber(step, visibleSteps));
+  }, [onStepChange, step, visibleSteps]);
 
   const patch = useCallback(
     (partial: Partial<QuoteFormData>) => {
@@ -398,14 +421,19 @@ export function QuoteForm({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          form: senior ? { ...data, whatsappAvailable: false } : data,
+          form:
+            consentVariant === "senior" || consentVariant === "iki"
+              ? { ...data, whatsappAvailable: false }
+              : data,
           meta: {
             landingPageUrl: storedAcquisition.landingPageUrl,
             referrer: storedAcquisition.referrer,
             acquisition: storedAcquisition.acquisition,
           },
           metaTracking,
-          ...(senior ? { consentVariant: "senior" } : {}),
+          ...(consentVariant !== "default"
+            ? { consentVariant }
+            : {}),
         }),
       });
 
@@ -821,6 +849,7 @@ export function QuoteForm({
           disabled={isAdvancing || isSubmitting || otpSending}
           offersCount={offersCount}
           submitError={submitError}
+          consentVariant={consentVariant}
           onPatch={patch}
           onNext={goNext}
         />
