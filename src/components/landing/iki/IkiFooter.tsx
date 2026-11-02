@@ -62,7 +62,7 @@ export function IkiFooter() {
         </p>
         <div className="grid gap-1 text-[0.95rem] text-[var(--encre-400)]">
           <p id="note-marche">*Selon IKI Assurance.</p>
-          <p>© {new Date().getFullYear()} IKI Assurances. Tous droits réservés.</p>
+          <p>Tous droits réservés.</p>
         </div>
       </div>
     </footer>
