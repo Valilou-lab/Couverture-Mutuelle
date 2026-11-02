@@ -52,7 +52,50 @@ export const SENIOR_CONSENT_OPTIN_TEXT_FULL = `${SENIOR_CONSENT_OPTIN_TEXT} ${SE
 
 export const SENIOR_CONSENT_CHANNELS = ["telephone", "email"] as const;
 
-export type ConsentVariantId = "default" | "senior";
+/** IKI LP (/iki) — dual independent opt-ins. */
+export const IKI_CONSENT_OPTIN_TEXT_VERSION = "2026-11-02.iki.1";
+export const IKI_CONSENT_OPTIN_TEXT_VERSION_WITH_PARTNERS =
+  "2026-11-02.iki.partners.1";
+
+export const IKI_CONSENT_OPTIN_TEXT =
+  "J'accepte d'être contacté(e) par téléphone et e-mail par IKI Assurance pour recevoir une proposition de complémentaire santé adaptée à mes besoins.";
+
+export const IKI_PARTNER_CONSENT_OPTIN_TEXT =
+  "Si IKI Assurance ne peut pas donner suite à ma demande, j'accepte d'être contacté(e) par un autre assureur partenaire figurant dans la liste des partenaires, afin de recevoir une autre proposition de complémentaire santé.";
+
+export const IKI_CONSENT_VALIDITY_TEXT =
+  "Consentements facultatifs, indépendants et révocables. Durée de validité : 12 mois maximum pour le démarchage téléphonique.";
+
+export const IKI_PRIVACY_POLICY_URL =
+  "https://iki-assurances.fr/politique-de-protection-des-donnees";
+
+export const IKI_PRIVACY_POLICY_LABEL = "Protection des données IKI";
+
+export const IKI_CONSENT_CHANNELS = ["telephone", "email"] as const;
+
+/** Full Vertikl proof when only the IKI checkbox is checked. */
+export const IKI_CONSENT_OPTIN_TEXT_FULL = `${IKI_CONSENT_OPTIN_TEXT} ${IKI_CONSENT_VALIDITY_TEXT} ${IKI_PRIVACY_POLICY_LABEL}.`;
+
+/** Full Vertikl proof when both IKI + partenaires checkboxes are checked. */
+export const IKI_CONSENT_OPTIN_TEXT_FULL_WITH_PARTNERS = `${IKI_CONSENT_OPTIN_TEXT} ${IKI_PARTNER_CONSENT_OPTIN_TEXT} ${IKI_CONSENT_VALIDITY_TEXT} ${IKI_PRIVACY_POLICY_LABEL}.`;
+
+export function buildIkiConsentOptinText(partnerConsent: boolean): {
+  optinText: string;
+  optinTextVersion: string;
+} {
+  if (partnerConsent) {
+    return {
+      optinText: IKI_CONSENT_OPTIN_TEXT_FULL_WITH_PARTNERS,
+      optinTextVersion: IKI_CONSENT_OPTIN_TEXT_VERSION_WITH_PARTNERS,
+    };
+  }
+  return {
+    optinText: IKI_CONSENT_OPTIN_TEXT_FULL,
+    optinTextVersion: IKI_CONSENT_OPTIN_TEXT_VERSION,
+  };
+}
+
+export type ConsentVariantId = "default" | "senior" | "iki";
 
 export type ConsentVariant = {
   optinText: string;
@@ -75,9 +118,16 @@ export const CONSENT_VARIANTS: Record<ConsentVariantId, ConsentVariant> = {
     channels: SENIOR_CONSENT_CHANNELS,
     whatsapp: false,
   },
+  iki: {
+    optinText: IKI_CONSENT_OPTIN_TEXT_FULL,
+    optinTextVersion: IKI_CONSENT_OPTIN_TEXT_VERSION,
+    channels: IKI_CONSENT_CHANNELS,
+    whatsapp: false,
+  },
 };
 
 /** Allowlist lookup: anything unknown falls back to the default variant. */
 export function resolveConsentVariantId(value: unknown): ConsentVariantId {
-  return value === "senior" ? "senior" : "default";
+  if (value === "senior" || value === "iki") return value;
+  return "default";
 }

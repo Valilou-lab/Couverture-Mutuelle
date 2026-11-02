@@ -272,6 +272,7 @@ function parseForm(raw: unknown): QuoteFormData | null {
     email: typeof raw.email === "string" ? raw.email : "",
     whatsappAvailable: Boolean(raw.whatsappAvailable),
     consent: Boolean(raw.consent),
+    partnerConsent: Boolean(raw.partnerConsent),
   };
 }
 
