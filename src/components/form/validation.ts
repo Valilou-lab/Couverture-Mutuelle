@@ -186,6 +186,16 @@ function isObviousEmailDomainTypo(value: string): boolean {
   return OBVIOUS_EMAIL_DOMAIN_TYPOS.has(domain);
 }
 
+/** Same rules as the contact-step email check — public for V2 UX reuse. */
+export function isValidEmailAddress(value: string): boolean {
+  return isValidEmail(value);
+}
+
+/** Same domain-typo allowlist as the contact step. */
+export function hasObviousEmailDomainTypo(value: string): boolean {
+  return isObviousEmailDomainTypo(value);
+}
+
 export function needsSpouseBirthDate(data: QuoteFormData): boolean {
   const option = COVERED_PERSONS.find((item) => item.id === data.coveredPersons);
   return Boolean(option?.needsSpouseDob);
