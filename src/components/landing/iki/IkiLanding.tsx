@@ -84,6 +84,35 @@ function CheckList({
   );
 }
 
+function Stars({ size = 22, className = "" }: { size?: number; className?: string }) {
+  return (
+    <span className={`flex gap-0.5 ${className}`} aria-hidden="true">
+      {Array.from({ length: 5 }, (_, i) => (
+        <svg
+          key={i}
+          viewBox="0 0 24 24"
+          width={size}
+          height={size}
+          fill="currentColor"
+        >
+          <path d="M8.243 7.34l-6.38 .925l-.113 .023a1 1 0 0 0 -.44 1.684l4.622 4.499l-1.09 6.355l-.013 .11a1 1 0 0 0 1.464 .944l5.706 -3l5.693 3l.1 .046a1 1 0 0 0 1.352 -1.1l-1.091 -6.355l4.624 -4.5l.078 -.085a1 1 0 0 0 -.633 -1.62l-6.38 -.926l-2.852 -5.78a1 1 0 0 0 -1.794 0l-2.853 5.78z" />
+        </svg>
+      ))}
+    </span>
+  );
+}
+
+/** « −11 % » claim, sourced by the footnote in the footer (#note-marche). */
+const MARKET_CLAIM = (
+  <>
+    Une offre en moyenne <strong>11&nbsp;% moins chère</strong> que le
+    marché
+    <a href="#note-marche" className="iki-claim-ref" aria-label="voir la note">
+      *
+    </a>
+  </>
+);
+
 /* ---------- Hero « photo fondue » + formulaire ---------- */
 
 const HERO_POINTS = [
@@ -166,6 +195,10 @@ function IkiHero() {
             Un conseiller IKI vous rappelle, compare les garanties et vous dit
             exactement ce que vous payez.
           </p>
+          <p className="iki-claim">
+            <IkiIcon name="discount" size={24} className="text-[var(--mandarine-600)]" />
+            <span>{MARKET_CLAIM}</span>
+          </p>
           <CheckList items={HERO_POINTS} className="hidden min-[1000px]:grid" />
           <div className="iki-advisor hidden min-[1000px]:flex">
             <span className="grid h-12 w-12 flex-none place-items-center rounded-full bg-[var(--violet-50)] text-[var(--violet-500)]">
@@ -202,6 +235,108 @@ function IkiHero() {
                 className="text-[var(--violet-500)]"
               />
               <span>{label}</span>
+            </li>
+          ))}
+        </ul>
+      </Container>
+    </section>
+  );
+}
+
+/* ---------- Avis Google (bandeau d’avis sous le hero) ---------- */
+
+const REVIEWS = [
+  {
+    author: "Mimouna I.",
+    date: "il y a 3 mois",
+    text: "La conversation que j’ai eue avec la conseillère s’est très bien déroulée, elle a été d’une gentillesse exceptionnelle et très claire.",
+  },
+  {
+    author: "Jean-Michel P.",
+    date: "il y a un an",
+    text: "Merci pour la qualité et l’écoute, la prise en compte des besoins et la détermination d’une mutuelle répondant à mes attentes avec beaucoup de professionnalisme. C’est très appréciable.",
+  },
+  {
+    author: "Frédérique J.",
+    date: "il y a 8 mois",
+    text: "Interlocutrice très professionnelle, aimable, patiente et n’hésitant pas à redire les choses plusieurs fois s’il y a une incompréhension de la part de la cliente, c’est très appréciable. Merci à elle.",
+  },
+  {
+    author: "Alain T.",
+    date: "il y a 3 mois",
+    text: "Très bons tarifs et excellent suivi.",
+  },
+] as const;
+
+const AVATAR_TONES = [
+  "bg-[var(--violet-50)] text-[var(--violet-600)]",
+  "bg-[var(--mandarine-50)] text-[var(--mandarine-700)]",
+  "bg-[var(--menthe-100)] text-[var(--menthe-700)]",
+  "bg-[var(--encre-100)] text-[var(--encre-800)]",
+] as const;
+
+/** First-name initial + last-name initial (« Jean-Michel P. » → « JP »). */
+function initials(name: string) {
+  const parts = name.split(/\s+/).filter(Boolean);
+  return (parts[0][0] + (parts.at(-1)?.[0] ?? "")).toUpperCase();
+}
+
+function GoogleLabel() {
+  return (
+    <span className="iki-google-label">
+      <span aria-hidden="true" className="iki-google-g">
+        G
+      </span>
+      Avis Google
+    </span>
+  );
+}
+
+function IkiReviews() {
+  return (
+    <section aria-labelledby="avis-titre" className="iki-reviews">
+      <Container className="grid gap-6">
+        <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
+          <div className="grid gap-2">
+            <GoogleLabel />
+            <h2 id="avis-titre" className="iki-h2 text-balance">
+              Nos clients parlent de leur conseiller
+            </h2>
+          </div>
+          <p className="flex items-center gap-2 text-[1.05rem] font-medium text-[var(--encre-700)]">
+            <Stars size={20} className="text-[var(--or-500)]" />
+            Avis 5 étoiles
+          </p>
+        </div>
+        <ul className="iki-reviews-track" aria-label="Avis Google de clients IKI">
+          {REVIEWS.map((review, index) => (
+            <li key={review.author} className="iki-review">
+              <div className="flex items-center justify-between gap-3">
+                <Stars size={20} className="text-[var(--or-500)]" />
+                <span className="sr-only">5 étoiles sur 5</span>
+                <span aria-hidden="true" className="iki-google-g iki-google-g-sm">
+                  G
+                </span>
+              </div>
+              <blockquote className="m-0 flex-1 text-[1.08rem] leading-[1.55] text-[var(--encre-800)]">
+                « {review.text} »
+              </blockquote>
+              <div className="flex items-center gap-3">
+                <span
+                  aria-hidden="true"
+                  className={`grid h-11 w-11 flex-none place-items-center rounded-full font-semibold ${AVATAR_TONES[index % AVATAR_TONES.length]}`}
+                >
+                  {initials(review.author)}
+                </span>
+                <span className="grid leading-tight">
+                  <strong className="text-[1.05rem] text-[var(--encre-900)]">
+                    {review.author}
+                  </strong>
+                  <span className="text-[0.95rem] text-[var(--encre-600)]">
+                    {review.date} · Avis Google
+                  </span>
+                </span>
+              </div>
             </li>
           ))}
         </ul>
@@ -295,26 +430,23 @@ function IkiFigures() {
             </h2>
           </div>
           <ul className="m-0 grid list-none grid-cols-2 gap-3 p-0 min-[640px]:gap-4 min-[1000px]:grid-cols-4">
+            <li className="iki-figure-highlight col-span-full">
+              <span className="iki-figure !text-[var(--mandarine-400)] [font-variant-numeric:normal]">
+                −11&nbsp;%
+                <a href="#note-marche" className="iki-claim-ref" aria-label="voir la note">
+                  *
+                </a>
+              </span>
+              <span className="text-[1.05rem] leading-snug text-[var(--encre-200)] min-[640px]:text-[1.2rem]">
+                Une offre IKI en moyenne <strong className="text-white">11&nbsp;% moins chère</strong> que
+                le marché.
+              </span>
+            </li>
             {FIGURES.map((item) => (
               <li key={item.figure} className="iki-figure-tile">
                 <span className="iki-figure">{item.figure}</span>
                 {"stars" in item ? (
-                  <span
-                    className="flex gap-1 text-[var(--mandarine-400)]"
-                    aria-hidden="true"
-                  >
-                    {Array.from({ length: 5 }, (_, i) => (
-                      <svg
-                        key={i}
-                        viewBox="0 0 24 24"
-                        width="22"
-                        height="22"
-                        fill="currentColor"
-                      >
-                        <path d="M8.243 7.34l-6.38 .925l-.113 .023a1 1 0 0 0 -.44 1.684l4.622 4.499l-1.09 6.355l-.013 .11a1 1 0 0 0 1.464 .944l5.706 -3l5.693 3l.1 .046a1 1 0 0 0 1.352 -1.1l-1.091 -6.355l4.624 -4.5l.078 -.085a1 1 0 0 0 -.633 -1.62l-6.38 -.926l-2.852 -5.78a1 1 0 0 0 -1.794 0l-2.853 5.78z" />
-                      </svg>
-                    ))}
-                  </span>
+                  <Stars className="text-[var(--mandarine-400)]" />
                 ) : null}
                 <span className="leading-snug text-[var(--encre-200)]">
                   {item.label}
@@ -566,7 +698,7 @@ function IkiFinalCta() {
 }
 
 /**
- * Co-branded proposal page « IKI Assurances × Couverture Mutuelle » (/iki),
+ * IKI-branded proposal page (/iki),
  * built on IKI's design system and reference senior landing page.
  * Same quote form as the homepage (SeniorQuoteForm, logic and tracking
  * untouched); only its look is re-skinned by scoped CSS (iki-theme.css).
@@ -577,6 +709,7 @@ export function IkiLanding() {
       <IkiHeader ctaLabel={HEADER_CTA_LABEL} />
       <main className="w-full flex-1">
         <IkiHero />
+        <IkiReviews />
         <IkiSupport />
         <IkiFigures />
         <IkiGuarantees />

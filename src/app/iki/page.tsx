@@ -18,14 +18,14 @@ const manrope = Manrope({
   display: "swap",
 });
 
-const TITLE = "IKI Assurances × Couverture Mutuelle — Mutuelle santé senior";
+const TITLE = "IKI Assurances — Mutuelle santé senior";
 const DESCRIPTION =
   "Avec IKI Assurances, courtier spécialisé depuis 2008 : un conseiller compare les garanties pour vous. 5 questions, gratuit et sans engagement.";
 
 /**
- * Co-branded landing PROPOSAL for IKI Assurances.
+ * IKI-branded landing PROPOSAL for IKI Assurances.
  * Same quote form as the homepage (logic untouched); everything visible follows
- * the IKI design system, Couverture Mutuelle only appears as a small co-brand.
+ * the IKI design system.
  * Not indexed (proposal, not meant for search engines).
  */
 export const metadata: Metadata = {
