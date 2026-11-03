@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import { WhatsAppHeaderButton } from "@/components/landing/WhatsAppHeaderButton";
 
 export function SeniorHeader() {
   return (
@@ -16,9 +17,7 @@ export function SeniorHeader() {
             className="block h-11 w-auto"
           />
         </Link>
-        <span className="whitespace-nowrap rounded-full bg-[#f7f4ff] px-2.5 py-1 text-[0.8rem] font-semibold text-brand">
-          Service gratuit • Sans engagement
-        </span>
+        <WhatsAppHeaderButton />
       </div>
     </header>
   );

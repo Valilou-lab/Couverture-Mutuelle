@@ -12,6 +12,10 @@ export type LeadCompletedDataLayerEvent = {
   event: "lead_completed";
 };
 
+export type WhatsappHeaderClickDataLayerEvent = {
+  event: "whatsapp_header_click";
+};
+
 declare global {
   interface Window {
     dataLayer?: Array<Record<string, unknown>>;
@@ -52,4 +56,17 @@ export function pushLeadCompletedToDataLayer(): void {
   };
   ensureDataLayer().push(payload);
   console.log("[GTM DEBUG] lead_completed pushed");
+}
+
+/**
+ * Header WhatsApp CTA click (Couverture Mutuelle LPs only — never IKI).
+ * Payload is only { event: "whatsapp_header_click" } — no PII.
+ */
+export function pushWhatsappHeaderClickToDataLayer(): void {
+  if (typeof window === "undefined") return;
+
+  const payload: WhatsappHeaderClickDataLayerEvent = {
+    event: "whatsapp_header_click",
+  };
+  ensureDataLayer().push(payload);
 }
