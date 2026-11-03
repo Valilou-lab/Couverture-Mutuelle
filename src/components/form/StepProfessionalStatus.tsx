@@ -38,9 +38,6 @@ export function StepProfessionalStatus({
           <p className="font-semibold text-[#3b0764]">
             Votre profession nous aide à trouver la meilleure mutuelle.
           </p>
-          <p className="mt-1 text-[0.95rem] text-zinc-600">
-            Les garanties et tarifs varient selon votre statut professionnel.
-          </p>
         </div>
         <h2 className={SENIOR_QUESTION_TITLE}>Quelle est votre profession ?</h2>
         <div
@@ -74,9 +71,6 @@ export function StepProfessionalStatus({
       <div className="rounded-2xl border border-brand/20 bg-brand-soft/80 px-4 py-3 text-center sm:px-5 sm:py-3.5">
         <p className="text-sm font-semibold leading-snug text-[#3b0764] sm:text-[0.9375rem]">
           Votre profession nous aide à trouver la meilleure mutuelle.
-        </p>
-        <p className="mt-1 text-xs leading-snug text-zinc-600 sm:text-sm">
-          Les garanties et tarifs varient selon votre statut professionnel.
         </p>
       </div>
 

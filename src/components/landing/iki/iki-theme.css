@@ -117,7 +117,7 @@ html :is(.theme-iki, .theme-iki *, .iki-route *):is(.font-poppins, .font-manrope
 /* ======================= Typography ======================= */
 
 .theme-iki .iki-display {
-  font: 700 clamp(2.25rem, 5.4vw, 4.25rem) / 1.04 var(--font-core);
+  font: 700 clamp(1.85rem, 4.6vw, 3.5rem) / 1.04 var(--font-core);
   letter-spacing: -0.02em;
   color: var(--encre-900);
 }
@@ -160,14 +160,15 @@ html :is(.theme-iki, .theme-iki *, .iki-route *):is(.font-poppins, .font-manrope
   font-variant-numeric: tabular-nums;
 }
 
-/* « −11 % » claim (hero badge) — primary conversion hook */
+/* Savings claim (hero badge) — primary conversion hook */
 .theme-iki .iki-claim {
   display: flex;
   width: fit-content;
   max-width: 100%;
   align-items: center;
-  gap: 12px;
-  padding: 14px 18px 14px 14px;
+  gap: 10px;
+  margin-top: 0.15rem;
+  padding: 10px 14px 10px 12px;
   border: 2px solid var(--menthe-500);
   border-radius: var(--radius-floating);
   background-color: var(--menthe-100);
@@ -771,13 +772,13 @@ html :is(.theme-iki, .theme-iki *, .iki-route *):is(.font-poppins, .font-manrope
   box-shadow: var(--shadow-xl);
 }
 
-/* Header bar: white, Outfit title, logo-gradient rule « par touche ». */
-.theme-iki #formulaire-devis > div:first-child {
+/* Header bar (only when intro title is present): white, Outfit title. */
+.theme-iki #formulaire-devis > .form-intro-bar {
   position: relative;
   border-bottom: 1px solid var(--encre-200);
   background-color: #fff;
 }
-.theme-iki #formulaire-devis > div:first-child > p {
+.theme-iki #formulaire-devis > .form-intro-bar > p {
   font-family: var(--font-core);
   font-weight: 700;
   letter-spacing: -0.01em;
