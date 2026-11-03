@@ -18,12 +18,18 @@ export const VERTIKL_ACQUISITION_SOURCES = [
 export type VertiklAcquisitionSource =
   (typeof VERTIKL_ACQUISITION_SOURCES)[number];
 
-/** Single mapping: normalized source → env var holding the Vertikl campaignId. */
+/**
+ * Single mapping: normalized source → env var holding the Vertikl campaignId.
+ *
+ * `facebook_paid` = Meta Ads → landing page form (`/api/leads`) → META_FACEBOOK_LP.
+ * Instant Forms (META_FACEBOOK_FORM / FACEBOOKPAID) are outside this app and must
+ * keep using their own Vertikl campaign — never wire them here.
+ */
 export const VERTIKL_CAMPAIGN_ID_ENV = {
   instagram_organic: "VERTIKL_CAMPAIGN_ID_INSTAGRAM_ORGANIC",
   instagram_paid: "VERTIKL_CAMPAIGN_ID_META_INSTAGRAM_PAID",
   facebook_organic: "VERTIKL_CAMPAIGN_ID_FACEBOOK_ORGANIC",
-  facebook_paid: "VERTIKL_CAMPAIGN_ID_META_FACEBOOK_PAID",
+  facebook_paid: "VERTIKL_CAMPAIGN_ID_META_FACEBOOK_LP",
   google_paid: "VERTIKL_CAMPAIGN_ID_GOOGLE_PAID",
   tiktok_organic: "VERTIKL_CAMPAIGN_ID_TIKTOK_ORGANIC",
   tiktok_paid: "VERTIKL_CAMPAIGN_ID_TIKTOK_PAID",
@@ -31,6 +37,14 @@ export const VERTIKL_CAMPAIGN_ID_ENV = {
   direct: "VERTIKL_CAMPAIGN_ID_DIRECT",
   meta_paid_unattributed: "VERTIKL_CAMPAIGN_ID_META_PAID_UNATTRIBUTED",
 } as const satisfies Record<VertiklAcquisitionSource, string>;
+
+/** Vertikl-facing source label for server logs (campaign association lives in Vertikl). */
+export function vertiklSourceLabel(
+  source: VertiklAcquisitionSource,
+): string {
+  if (source === "facebook_paid") return "META_FACEBOOK_LP";
+  return source;
+}
 
 const PAID_MEDIUMS = new Set(["cpc", "paid", "paid_social", "paidsocial"]);
 const GOOGLE_PAID_MEDIUMS = new Set(["cpc", "paid"]);

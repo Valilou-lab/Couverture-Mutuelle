@@ -13,7 +13,10 @@ import {
   type FieldErrors,
 } from "@/components/form/validation";
 import { buildVertiklFields } from "@/lib/vertikl/build-payload";
-import { resolveVertiklCampaign } from "@/lib/vertikl/campaigns";
+import {
+  resolveVertiklCampaign,
+  vertiklSourceLabel,
+} from "@/lib/vertikl/campaigns";
 import { sendLeadToVertikl } from "@/lib/vertikl/client";
 import { VertiklMappingError } from "@/lib/vertikl/mappers";
 import {
@@ -380,15 +383,19 @@ export async function POST(request: NextRequest) {
     acquisition_channel: meta.acquisition?.acquisition_channel,
   });
 
-  console.info("[api/leads] acquisition routing", {
+  console.info("[api/leads] VERTIKL ROUTING", {
+    sourceDetected: routing.source,
+    source: vertiklSourceLabel(routing.source),
     utm_source: meta.acquisition?.utm_source ?? null,
     utm_medium: meta.acquisition?.utm_medium ?? null,
+    utm_campaign: meta.acquisition?.utm_campaign ?? null,
     acquisition_channel: meta.acquisition?.acquisition_channel ?? null,
-    hasFbclid: Boolean(meta.acquisition?.fbclid),
+    fbclid: Boolean(meta.acquisition?.fbclid),
     hasGclid: Boolean(meta.acquisition?.gclid),
+    origin: "LANDING_PAGE",
     landingPagePathAndQuery: landingPagePathAndQuery(meta.landingPageUrl),
-    source: routing.source,
-    campaignId: routing.campaignId ?? null,
+    campaignIdSelected: routing.campaignId ?? null,
+    campaignEnv: routing.campaignEnv,
   });
 
   if (!routing.campaignId) {
