@@ -101,7 +101,8 @@ function CheckList({
 /** Hero savings claim. */
 const MARKET_CLAIM = (
   <>
-    Économisez en moyenne <strong>150&nbsp;€&nbsp;/&nbsp;an</strong>&nbsp;!
+    Avec IKI, l’économie constatée est en moyenne de{" "}
+    <strong>150&nbsp;€</strong> par an
   </>
 );
 
@@ -199,16 +200,16 @@ function IkiHero({
           the right column; text, reviews and points stack on the left.
           From Q2 onward, marketing under the form collapses to Trustpilot. */}
       <Container
-        className={`iki-hero-grid relative z-[2] grid gap-7 pb-6 pt-7 min-[1000px]:gap-x-14 min-[1000px]:gap-y-7 min-[1000px]:pb-10 min-[1000px]:pt-12 ${formFocused ? "iki-hero-grid--focused" : ""}`}
+        className={`iki-hero-grid relative z-[2] grid gap-4 pb-4 pt-3 min-[1000px]:gap-x-14 min-[1000px]:gap-y-5 min-[1000px]:pb-8 min-[1000px]:pt-6 ${formFocused ? "iki-hero-grid--focused" : ""}`}
       >
-        <div className="grid content-start gap-5 [grid-area:text] min-[1000px]:gap-5 min-[1000px]:pt-2">
-          <h1 id="hero-titre" className="iki-display text-balance">
-            Comparer votre mutuelle avec un{" "}
-            <span className="iki-logo-word">expert</span>.
+        <div className="grid content-start justify-items-center gap-2 text-center [grid-area:text] min-[1000px]:gap-2.5 min-[1000px]:pt-0">
+          <h1 id="hero-titre" className="iki-display text-balance text-center">
+            <span className="iki-logo-word">1&nbsp;minute</span> pour
+            économiser
           </h1>
           <p className="iki-lead max-w-[34ch] text-[var(--encre-700)] min-[1000px]:max-w-[46ch]">
-            Un conseiller IKI vous rappelle, compare les garanties et vous dit
-            exactement ce que vous payez.
+            Répondez à 5 questions pour vérifier les offres adaptées à votre
+            profil
           </p>
           <p className="iki-claim">
             <span className="iki-claim-icon" aria-hidden="true">

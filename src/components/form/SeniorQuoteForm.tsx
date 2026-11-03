@@ -33,7 +33,9 @@ export function SeniorQuoteForm({
     <QuoteForm
       variant="senior"
       firstStep="currentMutualTariff"
-      firstStepIntro="Votre devis en 1 minute"
+      firstStepIntro={
+        consentVariant === "iki" ? "" : "Votre devis en 1 minute"
+      }
       coveredPersonsTitle="Qui doit être assuré ?"
       accentQuestions
       funnel={SENIOR_FORM_FUNNEL}
