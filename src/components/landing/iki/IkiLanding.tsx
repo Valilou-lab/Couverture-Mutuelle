@@ -98,14 +98,10 @@ function CheckList({
   );
 }
 
-/** « −11 % » claim, sourced by the footnote in the footer (#note-marche). */
+/** Hero savings claim. */
 const MARKET_CLAIM = (
   <>
-    Une offre en moyenne <strong>11&nbsp;% moins chère</strong> que le
-    marché
-    <a href="#note-marche" className="iki-claim-ref" aria-label="voir la note">
-      *
-    </a>
+    Économisez en moyenne <strong>150&nbsp;€&nbsp;/&nbsp;an</strong>&nbsp;!
   </>
 );
 

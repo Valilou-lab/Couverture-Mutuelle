@@ -17,6 +17,7 @@ import {
   resolveVertiklCampaign,
   vertiklSourceLabel,
 } from "@/lib/vertikl/campaigns";
+import { resolveIkiCampaign } from "@/lib/vertikl/iki-campaigns";
 import { sendLeadToVertikl } from "@/lib/vertikl/client";
 import { VertiklMappingError } from "@/lib/vertikl/mappers";
 import {
@@ -372,36 +373,68 @@ export async function POST(request: NextRequest) {
     });
   }
 
-  const routing = resolveVertiklCampaign({
-    utm_source: meta.acquisition?.utm_source,
-    utm_medium: meta.acquisition?.utm_medium,
-    utm_content: meta.acquisition?.utm_content,
-    fbclid: meta.acquisition?.fbclid,
-    gclid: meta.acquisition?.gclid,
-    referrer: meta.referrer,
-    landingPageUrl: meta.landingPageUrl,
-    acquisition_channel: meta.acquisition?.acquisition_channel,
-  });
+  const consentVariant = resolveConsentVariantId(body.consentVariant);
 
-  console.info("[api/leads] VERTIKL ROUTING", {
-    sourceDetected: routing.source,
-    source: vertiklSourceLabel(routing.source),
-    utm_source: meta.acquisition?.utm_source ?? null,
-    utm_medium: meta.acquisition?.utm_medium ?? null,
-    utm_campaign: meta.acquisition?.utm_campaign ?? null,
-    acquisition_channel: meta.acquisition?.acquisition_channel ?? null,
-    fbclid: Boolean(meta.acquisition?.fbclid),
-    hasGclid: Boolean(meta.acquisition?.gclid),
-    origin: "LANDING_PAGE",
-    landingPagePathAndQuery: landingPagePathAndQuery(meta.landingPageUrl),
-    campaignIdSelected: routing.campaignId ?? null,
-    campaignEnv: routing.campaignEnv,
-  });
+  let campaignId: string | undefined;
+  let campaignEnv: string;
+  let cmSource: string | undefined;
 
-  if (!routing.campaignId) {
-    console.error("[api/leads] Vertikl campaign id missing", {
-      source: routing.source,
+  if (consentVariant === "iki") {
+    // /iki form entry → brand=iki + flow=lp (not inferred from UTMs).
+    // Future Instant Form / Chatbot entry points will pass meta_form / chatbot.
+    const ikiFlow = "lp" as const;
+    const ikiRouting = resolveIkiCampaign(ikiFlow, {
+      landingPageUrl: meta.landingPageUrl,
+    });
+    campaignId = ikiRouting.campaignId;
+    campaignEnv = ikiRouting.campaignEnv;
+    if (!ikiRouting.landingPageLooksLikeIki) {
+      console.warn(
+        `[Vertikl routing] brand=iki flow=${ikiFlow} landingPageUrl not /iki`,
+        {
+          landingPagePathAndQuery: landingPagePathAndQuery(meta.landingPageUrl),
+        },
+      );
+    }
+    console.info(
+      `[Vertikl routing] brand=iki flow=${ikiFlow} campaign=${campaignId ?? "missing"}`,
+    );
+  } else {
+    const routing = resolveVertiklCampaign({
+      utm_source: meta.acquisition?.utm_source,
+      utm_medium: meta.acquisition?.utm_medium,
+      utm_content: meta.acquisition?.utm_content,
+      fbclid: meta.acquisition?.fbclid,
+      gclid: meta.acquisition?.gclid,
+      referrer: meta.referrer,
+      landingPageUrl: meta.landingPageUrl,
+      acquisition_channel: meta.acquisition?.acquisition_channel,
+    });
+    campaignId = routing.campaignId;
+    campaignEnv = routing.campaignEnv;
+    cmSource = routing.source;
+
+    console.info("[api/leads] VERTIKL ROUTING", {
+      sourceDetected: routing.source,
+      source: vertiklSourceLabel(routing.source),
+      utm_source: meta.acquisition?.utm_source ?? null,
+      utm_medium: meta.acquisition?.utm_medium ?? null,
+      utm_campaign: meta.acquisition?.utm_campaign ?? null,
+      acquisition_channel: meta.acquisition?.acquisition_channel ?? null,
+      fbclid: Boolean(meta.acquisition?.fbclid),
+      hasGclid: Boolean(meta.acquisition?.gclid),
+      origin: "LANDING_PAGE",
+      landingPagePathAndQuery: landingPagePathAndQuery(meta.landingPageUrl),
+      campaignIdSelected: routing.campaignId ?? null,
       campaignEnv: routing.campaignEnv,
+    });
+  }
+
+  if (!campaignId) {
+    console.error("[api/leads] Vertikl campaign id missing", {
+      consentVariant,
+      source: cmSource ?? null,
+      campaignEnv,
     });
     return failure(500, "SERVER_MISCONFIGURED");
   }
@@ -416,7 +449,7 @@ export async function POST(request: NextRequest) {
       form,
       meta,
       consentAt,
-      consentVariant: resolveConsentVariantId(body.consentVariant),
+      consentVariant,
       ipAddress,
       userAgent,
     });
@@ -433,13 +466,14 @@ export async function POST(request: NextRequest) {
   // (a quarantined lead is still a real conversion).
   scheduleMetaLead(request, form, meta, body.metaTracking);
 
-  const result = await sendLeadToVertikl(fields, routing.campaignId);
+  const result = await sendLeadToVertikl(fields, campaignId);
   console.info("[api/leads] vertikl result", {
     ok: result.ok,
     httpStatus: result.httpStatus,
     failureMessage: result.failureMessage,
-    source: routing.source,
-    campaignId: routing.campaignId,
+    consentVariant,
+    source: cmSource ?? null,
+    campaignId,
     returnedFieldNames: result.returnedFieldNames,
     consentWhatsappReturned: result.consentWhatsappReturned,
     sentFieldNames: Object.keys(fields).sort(),
