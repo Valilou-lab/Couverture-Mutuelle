@@ -21,12 +21,16 @@ const DEFAULT_SUBTITLE = (
 type SeniorHeroProps = {
   title?: ReactNode;
   subtitle?: ReactNode;
+  imageSrc?: string;
+  imageAlt?: string;
 };
 
 /** Defaults render the homepage (/) hero; /tranches-age overrides the copy. */
 export function SeniorHero({
   title = DEFAULT_TITLE,
   subtitle = DEFAULT_SUBTITLE,
+  imageSrc = "/images/hero-couple-economisez-v2.png",
+  imageAlt = "Couple de retraités souriants",
 }: SeniorHeroProps = {}) {
   return (
     <>
@@ -40,12 +44,12 @@ export function SeniorHero({
             <p className="text-base text-zinc-600">{subtitle}</p>
           </div>
           <Image
-            src="/images/hero-couple-economisez-v2.png"
-            alt="Couple de retraités souriants"
+            src={imageSrc}
+            alt={imageAlt}
             width={1024}
             height={535}
             sizes="(min-width: 1100px) 590px, 50vw"
-            className="mt-2 hidden h-auto w-full rounded-[28px] shadow-[0_24px_60px_-30px_rgba(59,7,100,0.45)] min-[900px]:block"
+            className="mt-2 hidden aspect-[1024/535] h-auto w-full object-cover rounded-[28px] shadow-[0_24px_60px_-30px_rgba(59,7,100,0.45)] min-[900px]:block"
           />
         </div>
 

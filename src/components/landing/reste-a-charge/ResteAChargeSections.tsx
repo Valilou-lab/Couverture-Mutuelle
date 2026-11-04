@@ -187,6 +187,7 @@ const FAQ = [
 export function RacFaq({
   items = FAQ,
 }: {
+  /** Optional override (homepage). Default = FAQ /reste-a-charge de Romain. */
   items?: ReadonlyArray<{ question: string; answer: string }>;
 } = {}) {
   return (
