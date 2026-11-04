@@ -38,6 +38,22 @@ export type BuildVertiklFieldsInput = {
   userAgent?: string;
 };
 
+/**
+ * Vertikl rejects consent_landing_page_url when it includes long query strings
+ * (utm_*, fbclid, …). Send origin + pathname only; attribution stays on
+ * meta.acquisition for campaign routing / Meta CAPI.
+ */
+export function normalizeConsentLandingPageUrl(raw: string): string {
+  const trimmed = raw.trim();
+  if (!trimmed) return "";
+  try {
+    const url = new URL(trimmed);
+    return `${url.origin}${url.pathname}`;
+  } catch {
+    return trimmed.split(/[?#]/)[0] ?? trimmed;
+  }
+}
+
 export function buildVertiklFields(
   input: BuildVertiklFieldsInput,
 ): VertiklLeadFields {
@@ -146,7 +162,9 @@ export function buildVertiklFields(
     fields.consent_ip_address = ipAddress;
   }
 
-  const landingUrl = meta?.landingPageUrl?.trim();
+  const landingUrl = meta?.landingPageUrl
+    ? normalizeConsentLandingPageUrl(meta.landingPageUrl)
+    : "";
   if (landingUrl) {
     fields.consent_landing_page_url = landingUrl;
   }
