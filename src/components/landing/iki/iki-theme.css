@@ -251,7 +251,7 @@ html :is(.theme-iki, .theme-iki *, .iki-route *):is(.font-poppins, .font-manrope
   font: 400 clamp(0.95rem, 3.9vw, 1.2rem) / 1.35 var(--font-core);
   color: var(--violet-50);
 }
-/* Round mandarine badge (approved claim only, repeated from the sub line). */
+/* Round mandarine badge (approved claim only). */
 .theme-iki .iki-badge {
   display: grid;
   place-content: center;
@@ -276,11 +276,6 @@ html :is(.theme-iki, .theme-iki *, .iki-route *):is(.font-poppins, .font-manrope
 }
 .theme-iki .iki-form-shell {
   width: 100%;
-}
-@media (max-width: 899.98px) {
-  .theme-iki .iki-hero-sub-extra {
-    display: none;
-  }
 }
 .theme-iki .iki-hero-reassurance {
   display: flex;

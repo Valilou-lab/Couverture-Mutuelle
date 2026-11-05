@@ -81,12 +81,7 @@ function IkiHero({
               <span className="whitespace-nowrap">en 2 minutes</span> seulement
             </h1>
             <p className="iki-hero-sub">
-              Jusqu’à 150&nbsp;€ d’économies par rapport aux autres offres du
-              marché.
-              <span className="iki-hero-sub-extra">
-                {" "}
-                Un conseiller IKI compare pour vous, gratuitement.
-              </span>
+              Sans perdre les garanties qui comptent pour vous.
             </p>
           </div>
           <p className="iki-badge" aria-hidden="true">
