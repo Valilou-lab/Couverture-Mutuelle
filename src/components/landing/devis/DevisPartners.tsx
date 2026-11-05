@@ -5,7 +5,6 @@ const NOTE = "text-[0.82rem] text-zinc-600";
 const PARTNERS = [
   { src: "/images/partners/santiane.webp", alt: "Santiane", width: 300, height: 60 },
   { src: "/images/partners/spvie.webp", alt: "SPVIE Assurances", width: 309, height: 160 },
-  { src: "/images/partners/majelis.webp", alt: "Majelis", width: 119, height: 160 },
   {
     src: "/images/partners/aveyronnaise.webp",
     alt: "L’Aveyronnaise d’Assurances",
@@ -13,7 +12,7 @@ const PARTNERS = [
     height: 160,
   },
   { src: "/images/partners/skarlett.webp", alt: "Skarlett", width: 720, height: 128 },
-  { src: "/images/partners/iki.jpg", alt: "IKI Assurance", width: 371, height: 273 },
+  { src: "/images/partners/iki.jpg", alt: "IKI Assurance", width: 1024, height: 537 },
   {
     src: "/images/partners/assu-france.jpg",
     alt: "Assu France Courtage",

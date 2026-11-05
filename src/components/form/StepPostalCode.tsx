@@ -3,7 +3,7 @@
 import type { QuoteFormData } from "./types";
 import { FormNavigation } from "./FormNavigation";
 import { useCommuneLookup } from "./useCommuneLookup";
-import type { FieldErrors } from "./validation";
+import { validateStep, type FieldErrors } from "./validation";
 
 type Props = {
   data: QuoteFormData;
@@ -26,6 +26,9 @@ export function StepPostalCode({
   onNext,
 }: Props) {
   const lookup = useCommuneLookup(data.postalCode, onCitiesLoaded, onCity);
+  const canContinue =
+    lookup.status !== "loading" &&
+    Object.keys(validateStep("postalCode", data)).length === 0;
 
   function handlePostalCodeChange(value: string) {
     const next = value.replace(/\D/g, "").slice(0, 5);
@@ -103,7 +106,11 @@ export function StepPostalCode({
         </p>
       ) : null}
 
-      <FormNavigation onNext={onNext} disabled={disabled} />
+      <FormNavigation
+        onNext={onNext}
+        disabled={disabled}
+        canContinue={canContinue}
+      />
     </div>
   );
 }

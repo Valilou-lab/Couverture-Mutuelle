@@ -84,7 +84,11 @@ export function StepCareNeeds({
           {errors.careNeeds}
         </p>
       ) : null}
-      <FormNavigation onNext={onNext} disabled={disabled} />
+      <FormNavigation
+        onNext={onNext}
+        disabled={disabled}
+        canContinue={data.careNeeds.length > 0}
+      />
     </div>
   );
 }

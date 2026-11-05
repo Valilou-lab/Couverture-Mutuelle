@@ -19,9 +19,11 @@ import { StepProfessionalStatus } from "./StepProfessionalStatus";
 import { StepAlreadyInsured } from "./StepAlreadyInsured";
 import { StepAnalyzing } from "./StepAnalyzing";
 import { StepContact } from "./StepContact";
-import { randomOffersCount } from "./mascotGuideConfig";
 import { useQuoteJourney } from "@/context/QuoteJourneyContext";
-import { getStoredAcquisition } from "@/lib/acquisition";
+import {
+  getCurrentConsentLandingPageUrl,
+  getStoredAcquisition,
+} from "@/lib/acquisition";
 import { pushLeadCompletedToDataLayer } from "@/lib/gtm-consent";
 import { scrollQuoteFormIntoView } from "./scrollQuoteFormIntoView";
 import { isHiddenFormStep } from "./formConfig";
@@ -101,7 +103,6 @@ export function SavingsQuoteForm() {
   const [isAdvancing, setIsAdvancing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [offersCount, setOffersCount] = useState<number | null>(null);
   const advanceLock = useRef(false);
   const timers = useRef<number[]>([]);
   const lastFocusToken = useRef(0);
@@ -238,6 +239,7 @@ export function SavingsQuoteForm() {
           form: data,
           meta: {
             landingPageUrl: storedAcquisition.landingPageUrl,
+            consentLandingPageUrl: getCurrentConsentLandingPageUrl(),
             referrer: storedAcquisition.referrer,
             acquisition: storedAcquisition.acquisition,
             ...(Object.keys(calculatorMeta).length > 0
@@ -326,24 +328,6 @@ export function SavingsQuoteForm() {
   }, [goTo]);
 
   const showProgress = step !== "analyzing" && step !== "confirmation";
-
-  useEffect(() => {
-    if (step !== "contact") {
-      setOffersCount(null);
-      return;
-    }
-
-    const target = randomOffersCount();
-    setOffersCount(0);
-    let value = 0;
-    const id = window.setInterval(() => {
-      value += 1;
-      setOffersCount(value);
-      if (value >= target) window.clearInterval(id);
-    }, 70);
-
-    return () => window.clearInterval(id);
-  }, [step]);
 
   return (
     <div
@@ -449,7 +433,6 @@ export function SavingsQuoteForm() {
             data={data}
             errors={errors}
             disabled={isAdvancing || isSubmitting}
-            offersCount={offersCount}
             submitError={submitError}
             onPatch={patch}
             onNext={goNext}

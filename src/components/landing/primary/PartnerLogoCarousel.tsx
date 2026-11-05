@@ -14,10 +14,10 @@ const PARTNER_LOGOS = [
     height: 160,
   },
   {
-    src: "/images/partners/majelis.webp",
-    alt: "Majelis",
-    width: 119,
-    height: 160,
+    src: "/images/partners/iki.jpg",
+    alt: "IKI Assurance",
+    width: 1024,
+    height: 537,
   },
   {
     src: "/images/partners/aveyronnaise.webp",

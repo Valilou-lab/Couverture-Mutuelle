@@ -36,10 +36,13 @@ import { StepCurrentMutualTariff } from "./StepCurrentMutualTariff";
 import { StepBirthAndPostal } from "./StepBirthAndPostal";
 import { StepAnalyzing } from "./StepAnalyzing";
 import { StepContact } from "./StepContact";
+import { StepIdentity } from "./StepIdentity";
 import { StepPhoneVerify } from "./StepPhoneVerify";
-import { randomOffersCount } from "./mascotGuideConfig";
 import { useQuoteJourney } from "@/context/QuoteJourneyContext";
-import { getStoredAcquisition } from "@/lib/acquisition";
+import {
+  getCurrentConsentLandingPageUrl,
+  getStoredAcquisition,
+} from "@/lib/acquisition";
 import { pushLeadCompletedToDataLayer } from "@/lib/gtm-consent";
 import {
   prepareMetaLeadTracking,
@@ -50,7 +53,7 @@ import {
 import type { MetaLeadTracking } from "@/lib/meta/events";
 import type { ConsentVariantId } from "@/lib/consent";
 import { scrollQuoteFormIntoView } from "./scrollQuoteFormIntoView";
-import { SeniorFormContext } from "./seniorForm";
+import { RedesignFormContext, SeniorFormContext } from "./seniorForm";
 import {
   COMBINE_BIRTH_AND_POSTAL_STEP,
   SHOW_ALREADY_INSURED_STEP,
@@ -66,17 +69,22 @@ function orderedFormSteps(firstStep?: FormStepId): FormStepId[] {
   return [firstStep, ...FORM_STEPS.filter((step) => step !== firstStep)];
 }
 
+type VisibleStepOptions = {
+  skipBirthDate: boolean;
+  skipPostalCode: boolean;
+  firstStep?: FormStepId;
+  /** Main LP (/) + /tiktok redesign: identity before analyzing. */
+  splitContactIdentity?: boolean;
+};
+
 function getVisibleSteps(
   data: QuoteFormData,
-  options: {
-    skipBirthDate: boolean;
-    skipPostalCode: boolean;
-    firstStep?: FormStepId;
-  },
+  options: VisibleStepOptions,
 ): FormStepId[] {
   return orderedFormSteps(options.firstStep).filter((step) => {
     if (isHiddenFormStep(step)) return false;
     if (step === "alreadyInsured" && !SHOW_ALREADY_INSURED_STEP) return false;
+    if (step === "identity") return Boolean(options.splitContactIdentity);
     if (step === "birthAndPostal") {
       if (!COMBINE_BIRTH_AND_POSTAL_STEP) return false;
       if (options.skipBirthDate && options.skipPostalCode) return false;
@@ -100,16 +108,13 @@ function getVisibleSteps(
 
 function findFirstNeededStep(
   data: QuoteFormData,
-  options: {
-    skipBirthDate: boolean;
-    skipPostalCode: boolean;
-    firstStep?: FormStepId;
-  },
+  options: VisibleStepOptions,
 ): FormStepId {
   const steps = getVisibleSteps(data, options);
+  const contactPhoneOnly = Boolean(options.splitContactIdentity);
   for (const stepId of steps) {
     if (stepId === "analyzing" || stepId === "confirmation") continue;
-    const errors = validateStep(stepId, data);
+    const errors = validateStep(stepId, data, { contactPhoneOnly });
     if (Object.keys(errors).length > 0) {
       return stepId;
     }
@@ -148,7 +153,8 @@ function applyCalculatorDefaults(
 
 type QuoteFormFunnel = {
   onInteract?: () => void;
-  onStepCompleted?: (stepNumber: number) => void;
+  /** stepNumber = 1-based index; stepKey = stable FormStepId (e.g. identity, contact). */
+  onStepCompleted?: (stepNumber: number, stepKey: string) => void;
   onSubmitSuccess?: () => void;
 };
 
@@ -158,6 +164,12 @@ type QuoteFormProps = {
   firstStep?: FormStepId;
   firstStepIntro?: ReactNode;
   firstStepNote?: string;
+  /**
+   * Intro strip above the form.
+   * `"brand"` = dark purple (main LP + /tiktok redesign).
+   * `"soft"` = light lavender (other LPs). Default.
+   */
+  introBarStyle?: "soft" | "brand";
   accentQuestions?: boolean;
   funnel?: QuoteFormFunnel;
   /** "senior": homepage layout (larger type / tap targets). Logic is identical. */
@@ -198,6 +210,7 @@ export function QuoteForm({
   firstStep = "currentMutualTariff",
   firstStepIntro = "Votre devis en 1 minute",
   firstStepNote,
+  introBarStyle = "soft",
   accentQuestions = true,
   funnel,
   variant = "default",
@@ -205,6 +218,9 @@ export function QuoteForm({
   consentVariant: consentVariantProp,
 }: QuoteFormProps = {}) {
   const senior = variant === "senior";
+  const brandIntroBar = introBarStyle === "brand";
+  /** Redesign LPs: name/email before analyzing; phone(+consent) only at the end. */
+  const splitContactIdentity = brandIntroBar;
   const consentVariant: ConsentVariantId =
     consentVariantProp ?? (senior ? "senior" : "default");
   const router = useRouter();
@@ -241,7 +257,6 @@ export function QuoteForm({
   const [isAdvancing, setIsAdvancing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
-  const [offersCount, setOffersCount] = useState<number | null>(null);
   const [phoneVerifyOpen, setPhoneVerifyOpen] = useState(false);
   const [phoneProofReady, setPhoneProofReady] = useState(false);
   const [otpSending, setOtpSending] = useState(false);
@@ -289,8 +304,13 @@ export function QuoteForm({
   }, []);
 
   const stepOptions = useMemo(
-    () => ({ skipBirthDate, skipPostalCode, firstStep }),
-    [firstStep, skipBirthDate, skipPostalCode],
+    () => ({
+      skipBirthDate,
+      skipPostalCode,
+      firstStep,
+      splitContactIdentity,
+    }),
+    [firstStep, skipBirthDate, skipPostalCode, splitContactIdentity],
   );
 
   const visibleSteps = useMemo(
@@ -366,7 +386,9 @@ export function QuoteForm({
 
   const goNextFrom = useCallback(
     (currentStep: FormStepId, nextData: QuoteFormData) => {
-      const validation = validateStep(currentStep, nextData);
+      const validation = validateStep(currentStep, nextData, {
+        contactPhoneOnly: splitContactIdentity,
+      });
       if (Object.keys(validation).length > 0) {
         setErrors(validation);
         advanceLock.current = false;
@@ -378,7 +400,7 @@ export function QuoteForm({
       const currentIndex = steps.indexOf(currentStep);
       const completed = questionStepNumber(currentStep, steps);
       if (completed != null) {
-        funnel?.onStepCompleted?.(completed);
+        funnel?.onStepCompleted?.(completed, currentStep);
         // Meta FormStep: step number + internal step key only (no answers).
         if (!metaStepsTrackedRef.current.has(currentStep)) {
           metaStepsTrackedRef.current.add(currentStep);
@@ -391,13 +413,15 @@ export function QuoteForm({
       }
       unlockLater();
     },
-    [funnel, goTo, stepOptions, unlockLater],
+    [funnel, goTo, splitContactIdentity, stepOptions, unlockLater],
   );
 
   const submitLead = useCallback(async () => {
     if (advanceLock.current || isSubmitting) return;
 
-    const validation = validateStep("contact", data);
+    const validation = validateStep("contact", data, {
+      contactPhoneOnly: splitContactIdentity,
+    });
     if (Object.keys(validation).length > 0) {
       setErrors(validation);
       setPhoneVerifyOpen(false);
@@ -427,6 +451,7 @@ export function QuoteForm({
               : data,
           meta: {
             landingPageUrl: storedAcquisition.landingPageUrl,
+            consentLandingPageUrl: getCurrentConsentLandingPageUrl(),
             referrer: storedAcquisition.referrer,
             acquisition: storedAcquisition.acquisition,
           },
@@ -469,7 +494,7 @@ export function QuoteForm({
       setIsAdvancing(false);
       advanceLock.current = false;
     }
-  }, [data, funnel, isSubmitting, router, senior]);
+  }, [data, funnel, isSubmitting, router, senior, splitContactIdentity]);
 
   const startResendCooldown = useCallback(() => {
     setResendCooldownSec(30);
@@ -537,7 +562,9 @@ export function QuoteForm({
   const beginPhoneVerify = useCallback(async () => {
     if (advanceLock.current || isSubmitting || otpSending) return;
 
-    const validation = validateStep("contact", data);
+    const validation = validateStep("contact", data, {
+      contactPhoneOnly: splitContactIdentity,
+    });
     if (Object.keys(validation).length > 0) {
       setErrors(validation);
       return;
@@ -549,7 +576,7 @@ export function QuoteForm({
     setPhoneVerifyOpen(true);
     setOtpErrorMessage(null);
     await sendPhoneOtp();
-  }, [data, isSubmitting, otpSending, sendPhoneOtp]);
+  }, [data, isSubmitting, otpSending, sendPhoneOtp, splitContactIdentity]);
 
   const confirmPhoneOtp = useCallback(
     async (code: string) => {
@@ -672,25 +699,6 @@ export function QuoteForm({
   const handleAnalyzingDone = useCallback(() => {
     goTo("contact");
   }, [goTo]);
-
-  // Jump past prefilled steps if we land on them.
-  useEffect(() => {
-    if (step !== "contact") {
-      setOffersCount(null);
-      return;
-    }
-
-    const target = randomOffersCount();
-    setOffersCount(0);
-    let value = 0;
-    const id = window.setInterval(() => {
-      value += 1;
-      setOffersCount(value);
-      if (value >= target) window.clearInterval(id);
-    }, 70);
-
-    return () => window.clearInterval(id);
-  }, [step]);
 
   useEffect(() => {
     if (!visibleSteps.includes(step)) {
@@ -815,6 +823,16 @@ export function QuoteForm({
         />
       ) : null}
 
+      {step === "identity" ? (
+        <StepIdentity
+          data={data}
+          errors={errors}
+          disabled={isAdvancing}
+          onPatch={patch}
+          onNext={goNext}
+        />
+      ) : null}
+
       {step === "analyzing" ? (
         <StepAnalyzing onDone={handleAnalyzingDone} />
       ) : null}
@@ -847,9 +865,9 @@ export function QuoteForm({
           data={data}
           errors={errors}
           disabled={isAdvancing || isSubmitting || otpSending}
-          offersCount={offersCount}
           submitError={submitError}
           consentVariant={consentVariant}
+          phoneOnly={splitContactIdentity}
           onPatch={patch}
           onNext={goNext}
         />
@@ -861,23 +879,39 @@ export function QuoteForm({
     const showIntroBar = Boolean(firstStepIntro);
     return (
       <SeniorFormContext.Provider value>
+        <RedesignFormContext.Provider value={brandIntroBar}>
         <div
           ref={formRootRef}
           id="formulaire-devis"
           className="relative scroll-mt-4 overflow-hidden rounded-[28px] border border-[#ddd6fe] bg-white shadow-[0_10px_30px_-18px_rgba(98,41,208,0.45)]"
         >
           {showIntroBar ? (
-            <div className="form-intro-bar grid grid-cols-[44px_1fr_44px] items-center border-b border-brand-muted bg-[#ddd6fe] px-2 py-3.5">
+            <div
+              className={`form-intro-bar grid grid-cols-[44px_1fr_44px] items-center border-b px-2 py-3.5 ${
+                brandIntroBar
+                  ? "border-brand bg-brand"
+                  : "border-brand-muted bg-[#ddd6fe]"
+              }`}
+            >
               {canGoBack ? (
                 <FormBackButton
                   onBack={goBack}
                   disabled={isAdvancing || isSubmitting}
                   label="Question précédente"
+                  className={
+                    brandIntroBar ? "!text-white hover:!bg-white/15" : ""
+                  }
                 />
               ) : (
                 <span aria-hidden="true" />
               )}
-              <p className="text-balance text-center font-poppins text-[1.25rem] font-extrabold leading-tight tracking-[-0.02em] text-[#3b0764] sm:text-[1.7rem]">
+              <p
+                className={`text-balance text-center font-poppins font-extrabold leading-tight tracking-[-0.02em] ${
+                  brandIntroBar
+                    ? "text-[clamp(1.35rem,5.5vw,1.85rem)] text-white"
+                    : "text-[1.25rem] text-[#3b0764] sm:text-[1.7rem]"
+                }`}
+              >
                 {firstStepIntro}
               </p>
               <span aria-hidden="true" />
@@ -894,7 +928,7 @@ export function QuoteForm({
                 />
               </div>
             ) : null}
-            {showProgress ? (
+            {showProgress && !brandIntroBar ? (
               <ProgressBar current={progressCurrent} total={progressTotal} />
             ) : null}
 
@@ -912,11 +946,13 @@ export function QuoteForm({
             </p>
           </div>
         </div>
+        </RedesignFormContext.Provider>
       </SeniorFormContext.Provider>
     );
   }
 
   return (
+    <RedesignFormContext.Provider value={brandIntroBar}>
     <div
       ref={formRootRef}
       id="formulaire-devis"
@@ -934,26 +970,40 @@ export function QuoteForm({
 
       {showProgress && (firstStepIntro || firstStepNote) ? (
         <div
-          className={`-mx-3.5 -mt-3.5 mb-3 rounded-t-[1.6rem] border-b border-brand/20 bg-[#ddd6fe] pb-3.5 pt-4 text-center sm:-mx-5 sm:-mt-5 sm:mb-4 sm:pb-4 sm:pt-5 lg:-mx-7 lg:-mt-6 lg:mb-4 lg:pb-3.5 lg:pt-4 ${
+          className={`-mx-3.5 -mt-3.5 mb-3 rounded-t-[1.6rem] border-b pb-3.5 pt-4 text-center sm:-mx-5 sm:-mt-5 sm:mb-4 sm:pb-4 sm:pt-5 lg:-mx-7 lg:-mt-6 lg:mb-4 lg:pb-3.5 lg:pt-4 ${
+            brandIntroBar
+              ? "border-brand bg-brand"
+              : "border-brand/20 bg-[#ddd6fe]"
+          } ${
             canGoBack
               ? "pl-12 pr-3.5 sm:pl-14 sm:pr-5 lg:pr-7"
               : "px-3.5 sm:px-5 lg:px-7"
           }`}
         >
           {firstStepIntro ? (
-            <p className="font-manrope text-xl font-extrabold tracking-tight text-[#3b0764] sm:text-2xl lg:text-[1.75rem]">
+            <p
+              className={`font-manrope font-extrabold tracking-tight ${
+                brandIntroBar
+                  ? "text-[clamp(1.35rem,5.2vw,1.85rem)] leading-tight text-white sm:text-[1.9rem] lg:text-[1.95rem]"
+                  : "text-xl leading-tight text-[#3b0764] sm:text-2xl lg:text-[1.75rem]"
+              }`}
+            >
               {firstStepIntro}
             </p>
           ) : null}
           {firstStepNote ? (
-            <p className="mt-2 text-sm font-medium leading-snug text-brand sm:text-base">
+            <p
+              className={`mt-2 text-sm font-medium leading-snug sm:text-base ${
+                brandIntroBar ? "text-white/90" : "text-brand"
+              }`}
+            >
               {firstStepNote}
             </p>
           ) : null}
         </div>
       ) : null}
 
-      {showProgress ? (
+      {showProgress && !brandIntroBar ? (
         <ProgressBar current={progressCurrent} total={progressTotal} />
       ) : null}
 
@@ -970,5 +1020,6 @@ export function QuoteForm({
         Vos données sont sécurisées
       </p>
     </div>
+    </RedesignFormContext.Provider>
   );
 }

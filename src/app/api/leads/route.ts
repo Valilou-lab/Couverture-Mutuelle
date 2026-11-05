@@ -359,6 +359,10 @@ export async function POST(request: NextRequest) {
       typeof body.meta?.landingPageUrl === "string"
         ? body.meta.landingPageUrl.slice(0, 2000)
         : undefined,
+    consentLandingPageUrl:
+      typeof body.meta?.consentLandingPageUrl === "string"
+        ? body.meta.consentLandingPageUrl.slice(0, 2000)
+        : undefined,
     referrer:
       typeof body.meta?.referrer === "string"
         ? body.meta.referrer.slice(0, 2000)

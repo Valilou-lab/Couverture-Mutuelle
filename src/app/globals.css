@@ -179,16 +179,25 @@ body {
   }
 }
 
+/* Main LP (/) + /tiktok redesign — Tahoma across headings and body. */
+.main-lp-redesign,
+.main-lp-redesign .font-poppins,
+.main-lp-redesign .font-manrope,
+.main-lp-redesign .font-sora,
+.main-lp-redesign .font-baloo,
+.main-lp-redesign .font-nunito,
+.main-lp-redesign .font-sans,
 .primary-lp,
 .primary-lp .font-manrope,
 .primary-lp .font-sora,
 .primary-lp .font-baloo,
 .primary-lp .font-nunito,
 .primary-lp .font-sans,
+.primary-lp .font-poppins,
 .primary-lp-overlay,
 .primary-lp-overlay .font-manrope,
 .primary-lp-overlay .font-sora {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: Tahoma, Geneva, sans-serif;
 }
 
 .primary-lp :is(h1, h2, h3)[class],

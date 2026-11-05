@@ -9,7 +9,12 @@ import { OptionCard } from "./OptionCard";
 import { goalChoiceIcon } from "./GoalChoiceIcons";
 import type { FieldErrors } from "./validation";
 import { seniorGoalIcon } from "./SeniorChoiceIcons";
-import { SENIOR_ERROR, SENIOR_QUESTION_TITLE, useSeniorForm } from "./seniorForm";
+import {
+  SENIOR_ERROR,
+  useQuestionTitleClass,
+  useRedesignForm,
+  useSeniorForm,
+} from "./seniorForm";
 
 const PRIMARY_GOALS = HEALTH_INSURANCE_GOALS.filter(
   (item) => item.id !== "unknown",
@@ -38,11 +43,13 @@ export function StepCurrentMutualTariff({
   onSelectAndAdvance,
 }: Props) {
   const senior = useSeniorForm();
+  const redesign = useRedesignForm();
+  const questionTitleClass = useQuestionTitleClass();
 
   if (senior) {
     return (
       <div>
-        <h2 className={SENIOR_QUESTION_TITLE}>
+        <h2 className={questionTitleClass}>
           Qu’aimeriez-vous améliorer avec votre mutuelle&nbsp;?
         </h2>
         <div
@@ -72,7 +79,13 @@ export function StepCurrentMutualTariff({
 
   return (
     <div>
-      <h2 className="text-center text-xl font-semibold tracking-tight text-foreground sm:text-2xl lg:text-[1.45rem]">
+      <h2
+        className={
+          redesign
+            ? "text-center text-xl font-normal tracking-tight text-black sm:text-2xl lg:text-[1.45rem]"
+            : "text-center text-xl font-semibold tracking-tight text-foreground sm:text-2xl lg:text-[1.45rem]"
+        }
+      >
         Qu’aimeriez-vous améliorer avec votre mutuelle&nbsp;?
       </h2>
 
@@ -101,7 +114,7 @@ export function StepCurrentMutualTariff({
           surface="light"
           selected={data.healthInsuranceGoal === UNKNOWN_GOAL.id}
           disabled={disabled}
-          className="min-h-14 sm:min-h-[3.75rem] lg:min-h-[4.35rem]"
+          className="min-h-[3.5rem]"
           labelClassName={UNKNOWN_LABEL_CLASS}
           onClick={() => onSelectAndAdvance(UNKNOWN_GOAL.id)}
         />

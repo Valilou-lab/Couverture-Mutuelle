@@ -8,6 +8,7 @@ import {
   getBirthDateAgeError,
   isValidBirthDate,
   shouldAskSpouseBirthDate,
+  validateStep,
   type FieldErrors,
 } from "./validation";
 
@@ -136,7 +137,11 @@ export function StepBirthDate({
         ) : null}
       </div>
 
-      <FormNavigation onNext={onNext} disabled={disabled} />
+      <FormNavigation
+        onNext={onNext}
+        disabled={disabled}
+        canContinue={Object.keys(validateStep("birthDate", data)).length === 0}
+      />
     </div>
   );
 }

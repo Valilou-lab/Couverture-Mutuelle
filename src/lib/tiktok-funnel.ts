@@ -75,7 +75,7 @@ function debug(eventName: TikTokFunnelEventName, payload: Record<string, string>
 
 function pushEvent(
   eventName: TikTokFunnelEventName,
-  extra: { step?: string } = {},
+  extra: { step?: string; step_key?: string } = {},
 ): void {
   if (typeof window === "undefined") return;
 
@@ -86,6 +86,9 @@ function pushEvent(
   };
   if (extra.step) {
     payload.step = extra.step;
+  }
+  if (extra.step_key) {
+    payload.step_key = extra.step_key;
   }
 
   ensureDataLayer().push(payload);
@@ -130,14 +133,25 @@ export function trackTikTokFormStart(): void {
   fireOnce("Form_Start", "Form_Start");
 }
 
-export function trackTikTokFormStepCompleted(stepNumber: number): void {
+/**
+ * GTM / TikTok funnel step completion.
+ * Keeps legacy `step: "step_N"` and adds stable `step_key` (e.g. "identity", "contact").
+ */
+export function trackTikTokFormStepCompleted(
+  stepNumber: number,
+  stepKey?: string,
+): void {
   if (!Number.isInteger(stepNumber) || stepNumber < 1) return;
   const state = getState();
   if (!state) return;
   const step = `step_${stepNumber}`;
   if (state.steps.has(step)) return;
   state.steps.add(step);
-  pushEvent("Form_Step_Completed", { step });
+  const key = stepKey?.trim();
+  pushEvent("Form_Step_Completed", {
+    step,
+    ...(key ? { step_key: key } : {}),
+  });
 }
 
 export function trackTikTokSubmitForm(): void {
