@@ -25,14 +25,13 @@ export function IkiFooter() {
 
   return (
     <footer className="iki-footer">
-      <div className="mx-auto grid max-w-[1248px] gap-6 px-4 pb-[120px] pt-10 min-[760px]:pb-10 min-[900px]:px-6">
+      <div className="mx-auto grid max-w-[1248px] gap-6 px-4 pb-10 pt-10 min-[900px]:px-6">
         <div className="flex flex-wrap items-center justify-between gap-6">
           <Image
-            src="/images/iki/logo-iki-blanc.svg"
+            src="/images/iki/logo-iki-blanc.png"
             alt="IKI Assurances"
-            width={145}
-            height={97}
-            unoptimized
+            width={60}
+            height={40}
             className="block h-10 w-auto"
           />
           <nav
@@ -61,7 +60,6 @@ export function IkiFooter() {
           an d’engagement.
         </p>
         <div className="grid gap-1 text-[0.95rem] text-[var(--encre-400)]">
-          <p id="note-marche">*Selon IKI Assurance.</p>
           <p>Tous droits réservés.</p>
         </div>
       </div>
