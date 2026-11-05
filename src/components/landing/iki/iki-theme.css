@@ -90,15 +90,15 @@
 }
 
 html.iki-route {
-  /* Sticky header: keep anchors and the form's scrollIntoView clear of it. */
-  scroll-padding-top: 84px;
+  /* Header is not sticky: a small gap above anchors / the form's scrollIntoView. */
+  scroll-padding-top: 12px;
 }
 
 .theme-iki,
 html.iki-route body {
   font-family: var(--font-core);
   color: var(--encre-900);
-  background-color: var(--craie);
+  background-color: #fff;
 }
 .theme-iki {
   font-size: 18px;
@@ -116,12 +116,6 @@ html :is(.theme-iki, .theme-iki *, .iki-route *):is(.font-poppins, .font-manrope
 
 /* ======================= Typography ======================= */
 
-.theme-iki .iki-display {
-  font: 700 clamp(1.85rem, 4.6vw, 3.5rem) / 1.04 var(--font-core);
-  letter-spacing: -0.02em;
-  color: var(--encre-900);
-}
-
 /* Logo gradient « par touches » on a single emphasis word. */
 .theme-iki .iki-logo-word {
   background-image: var(--iki-gradient);
@@ -131,11 +125,6 @@ html :is(.theme-iki, .theme-iki *, .iki-route *):is(.font-poppins, .font-manrope
   -webkit-text-fill-color: transparent;
 }
 
-.theme-iki .iki-display-2 {
-  font: 700 clamp(1.9rem, 3.8vw, 3rem) / 1.08 var(--font-core);
-  letter-spacing: -0.02em;
-  color: var(--encre-900);
-}
 .theme-iki .iki-h2 {
   font: 700 clamp(1.75rem, 3vw, 2.25rem) / 1.15 var(--font-core);
   letter-spacing: -0.01em;
@@ -153,71 +142,6 @@ html :is(.theme-iki, .theme-iki *, .iki-route *):is(.font-poppins, .font-manrope
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
-.theme-iki .iki-figure {
-  font: 700 clamp(1.75rem, 4vw, 3rem) / 1 var(--font-accent);
-  white-space: nowrap;
-  color: #fff;
-  font-variant-numeric: tabular-nums;
-}
-
-/* Savings claim (hero badge) — primary conversion hook */
-.theme-iki .iki-claim {
-  display: flex;
-  width: fit-content;
-  max-width: 100%;
-  align-items: center;
-  gap: 10px;
-  margin-top: 0.15rem;
-  padding: 10px 14px 10px 12px;
-  border: 2px solid var(--menthe-500);
-  border-radius: var(--radius-floating);
-  background-color: var(--menthe-100);
-  font-size: 1.125rem;
-  font-weight: 600;
-  line-height: 1.35;
-  color: var(--menthe-700);
-  box-shadow:
-    0 10px 28px -16px rgba(14, 158, 126, 0.55),
-    0 0 0 4px rgba(214, 245, 236, 0.9);
-}
-.theme-iki .iki-claim strong {
-  font-weight: 800;
-  color: var(--menthe-700);
-  font-size: 1.08em;
-}
-.theme-iki .iki-claim .iki-claim-icon {
-  display: inline-flex;
-  flex-shrink: 0;
-  align-items: center;
-  justify-content: center;
-  width: 2.25rem;
-  height: 2.25rem;
-  border-radius: 999px;
-  background-color: #fff;
-  color: var(--menthe-500);
-  box-shadow: 0 1px 0 rgba(7, 107, 85, 0.12);
-}
-@media (min-width: 1000px) {
-  .theme-iki .iki-claim {
-    gap: 14px;
-    padding: 16px 22px 16px 16px;
-    font-size: 1.25rem;
-  }
-  .theme-iki .iki-claim .iki-claim-icon {
-    width: 2.5rem;
-    height: 2.5rem;
-  }
-}
-.theme-iki .iki-claim-ref {
-  margin-left: 1px;
-  color: inherit;
-  text-decoration: none;
-  vertical-align: super;
-  font-size: 0.7em;
-  line-height: 0;
-  font-weight: 700;
-}
-
 /* ======================= Buttons & tags ======================= */
 
 .theme-iki .iki-btn {
@@ -263,276 +187,437 @@ html :is(.theme-iki, .theme-iki *, .iki-route *):is(.font-poppins, .font-manrope
   outline: none;
   box-shadow: 0 0 0 4px rgba(90, 0, 255, 0.35);
 }
-.theme-iki .iki-btn-header {
-  min-height: 46px;
-  padding: 10px 16px;
-  font-size: 1.05rem;
-}
-
-.theme-iki .iki-tag {
-  display: inline-flex;
-  width: fit-content;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border-radius: 999px;
-  font: 700 0.85rem / 1.2 var(--font-accent);
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-}
-.theme-iki .iki-tag-menthe {
-  background-color: var(--menthe-100);
-  color: var(--menthe-700);
-}
-.theme-iki .iki-tag-inverse {
-  background-color: rgba(255, 255, 255, 0.12);
-  color: #fff;
-}
-
-/* ======================= Header ======================= */
+/* ======================= Header (comparator claim) ======================= */
 
 .theme-iki .iki-header {
-  background: rgba(255, 249, 243, 0.9);
-  backdrop-filter: saturate(150%) blur(14px);
-  -webkit-backdrop-filter: saturate(150%) blur(14px);
+  background-color: #fff;
   border-bottom: 1px solid var(--encre-200);
 }
+.theme-iki .iki-header-claim {
+  display: grid;
+  justify-items: start;
+  gap: 2px;
+  margin: 0;
+  line-height: 1.1;
+}
+.theme-iki .iki-header-claim-top {
+  font: 700 clamp(0.95rem, 3.9vw, 1.35rem) / 1.15 var(--font-core);
+  color: var(--encre-900);
+}
+.theme-iki .iki-header-claim-mark {
+  padding: 2px 8px 3px;
+  background-color: var(--violet-500);
+  font: 700 clamp(1.2rem, 5.6vw, 2.3rem) / 1.1 var(--font-core);
+  letter-spacing: -0.01em;
+  color: #fff;
+  white-space: nowrap;
+}
 
-/* ======================= Hero « photo fondue » ======================= */
+/* ======================= Hero (violet comparator band) ======================= */
 
 .theme-iki .iki-hero {
-  background-color: var(--craie);
+  background-color: var(--violet-500);
+  color: #fff;
 }
-.theme-iki .iki-hero-photo {
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 420px;
-  z-index: 0;
-  -webkit-mask-image: linear-gradient(#000 0%, #000 40%, rgba(0, 0, 0, 0.35) 75%, transparent 100%);
-  mask-image: linear-gradient(#000 0%, #000 40%, rgba(0, 0, 0, 0.35) 75%, transparent 100%);
+.theme-iki .iki-hero-inner {
+  display: grid;
+  gap: 12px;
+  max-width: 760px;
+  padding-top: 14px;
+  padding-bottom: 22px;
 }
-.theme-iki .iki-hero-veil {
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 420px;
-  z-index: 1;
-  /* Mobile: strong veil so the text stays high-contrast over the photo. */
-  background: linear-gradient(180deg, rgba(255, 249, 243, 0.8) 0%, rgba(255, 249, 243, 0.9) 50%, var(--craie) 100%);
-}
-@media (min-width: 1000px) {
-  .theme-iki .iki-hero-photo,
-  .theme-iki .iki-hero-veil {
-    height: 720px;
-  }
-  .theme-iki .iki-hero-veil {
-    background: linear-gradient(
-      96deg,
-      rgba(255, 249, 243, 0.97) 0%,
-      rgba(255, 249, 243, 0.92) 30%,
-      rgba(255, 249, 243, 0.55) 58%,
-      rgba(255, 249, 243, 0.16) 80%,
-      rgba(255, 249, 243, 0) 100%
-    );
-  }
-}
-
-.theme-iki .iki-advisor {
-  width: fit-content;
+.theme-iki .iki-hero-head {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  gap: 14px;
-  padding: 14px 20px 14px 14px;
-  border: 1px solid var(--encre-200);
-  border-radius: var(--radius-floating);
-  background-color: rgba(255, 255, 255, 0.85);
-  backdrop-filter: saturate(140%) blur(14px);
-  -webkit-backdrop-filter: saturate(140%) blur(14px);
-  box-shadow: var(--shadow-md);
+  gap: 12px;
 }
-
-/* TrustBar: the only pill-shaped band of the system. */
-.theme-iki .iki-trustbar {
+.theme-iki .iki-hero-text {
+  display: grid;
+  gap: 4px;
+}
+.theme-iki .iki-hero-title {
+  margin: 0;
+  font: 500 clamp(1.3rem, 5.4vw, 2.4rem) / 1.15 var(--font-core);
+  letter-spacing: -0.01em;
+  color: #fff;
+}
+.theme-iki .iki-hero-title strong {
+  font-weight: 800;
+}
+.theme-iki .iki-hero-sub {
+  margin: 0;
+  font: 400 clamp(0.95rem, 3.9vw, 1.2rem) / 1.35 var(--font-core);
+  color: var(--violet-50);
+}
+/* Round mandarine badge (approved claim only). */
+.theme-iki .iki-badge {
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  width: 100px;
+  height: 100px;
+  margin: 0;
+  border-radius: 999px;
+  background-color: var(--mandarine-600);
+  box-shadow: 0 10px 24px -8px rgba(23, 18, 39, 0.45);
+  color: #fff;
+  text-align: center;
+  transform: rotate(-6deg);
+}
+.theme-iki .iki-badge-small {
+  font: 600 0.78rem / 1.1 var(--font-core);
+}
+.theme-iki .iki-badge-big {
+  font: 800 1.6rem / 1.05 var(--font-accent);
+  letter-spacing: -0.02em;
+  white-space: nowrap;
+}
+.theme-iki .iki-form-shell {
+  width: 100%;
+}
+.theme-iki .iki-hero-reassurance {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 12px 28px;
-  margin: 0;
-  padding: 16px 24px;
+  gap: 6px 18px;
+  margin: 2px 0 0;
+  padding: 0;
   list-style: none;
-  border-radius: 28px;
-  background-color: var(--craie-2);
-}
-@media (min-width: 900px) {
-  .theme-iki .iki-trustbar {
-    border-radius: 999px;
-  }
-}
-.theme-iki .iki-trustbar li {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 1.1rem;
-  font-weight: 500;
-  color: var(--encre-900);
-}
-.theme-iki .iki-trustbar strong {
-  font-weight: 700;
-}
-
-/* ======================= Surfaces ======================= */
-
-.theme-iki .iki-section {
-  padding-top: 64px;
-}
-@media (min-width: 900px) {
-  .theme-iki .iki-section {
-    padding-top: 96px;
-  }
-}
-
-.theme-iki .iki-card {
-  padding: 24px;
-  border: 1px solid var(--encre-200);
-  border-radius: var(--radius-card);
-  background-color: #fff;
-  box-shadow: var(--shadow-sm);
-  transition: all 200ms cubic-bezier(0.22, 0.61, 0.36, 1);
-}
-.theme-iki .iki-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.theme-iki .iki-panel {
-  padding: 20px;
-  border: 1px solid var(--encre-200);
-  border-radius: var(--radius-sheet);
-  background-color: #fff;
-  box-shadow: var(--shadow-sm);
-}
-@media (min-width: 900px) {
-  .theme-iki .iki-panel {
-    padding: 36px;
-  }
-}
-
-.theme-iki .iki-floating-tag {
-  position: absolute;
-  left: 14px;
-  bottom: 14px;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 10px 14px;
-  border-radius: var(--radius-floating);
-  background-color: rgba(255, 255, 255, 0.86);
-  backdrop-filter: saturate(140%) blur(14px);
-  -webkit-backdrop-filter: saturate(140%) blur(14px);
+  font-size: 1rem;
   font-weight: 600;
-  font-size: 1.05rem;
-  color: var(--encre-900);
-  box-shadow: var(--shadow-md);
-}
-
-.theme-iki .iki-ink-card {
-  position: relative;
-  overflow: hidden;
-  padding: 40px 20px;
-  border-radius: var(--radius-sheet);
-  background-color: var(--encre-900);
   color: #fff;
 }
-.theme-iki .iki-ink-card::before {
-  /* Logo gradient « par touches »: a thin rule, never a background. */
-  content: "";
-  position: absolute;
-  inset: 0 0 auto 0;
-  height: 4px;
-  background-image: var(--iki-gradient);
+.theme-iki .iki-hero-reassurance li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 @media (min-width: 900px) {
-  .theme-iki .iki-ink-card {
-    padding: 56px 48px;
+  .theme-iki .iki-hero-inner {
+    gap: 22px;
+    padding-top: 36px;
+    padding-bottom: 48px;
   }
-}
-.theme-iki .iki-figure-tile > span:last-child {
-  font-size: 1rem;
-}
-@media (min-width: 640px) {
-  .theme-iki .iki-figure-tile {
-    padding: 24px 16px;
+  .theme-iki .iki-hero-head {
+    display: block;
+    text-align: center;
   }
-  .theme-iki .iki-figure-tile > span:last-child {
+  .theme-iki .iki-hero-text {
+    gap: 10px;
+  }
+  .theme-iki .iki-hero-title {
+    max-width: 16ch;
+    margin: 0 auto;
+  }
+  .theme-iki .iki-hero-sub {
+    max-width: 44ch;
+    margin: 0 auto;
+  }
+  .theme-iki .iki-badge {
+    position: absolute;
+    top: -12px;
+    right: -150px;
+    width: 160px;
+    height: 160px;
+  }
+  .theme-iki .iki-badge-small {
+    font-size: 1.15rem;
+  }
+  .theme-iki .iki-badge-big {
+    font-size: 2.6rem;
+  }
+  .theme-iki .iki-hero-reassurance {
     font-size: 1.1rem;
+    gap: 8px 28px;
   }
 }
-.theme-iki .iki-figure-tile {
-  display: grid;
-  align-content: start;
-  justify-items: center;
-  gap: 10px;
-  padding: 20px 10px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  border-radius: var(--radius-card);
-  background-color: rgba(255, 255, 255, 0.05);
-  text-align: center;
+@media (min-width: 900px) and (max-width: 1199.98px) {
+  .theme-iki .iki-badge {
+    right: -40px;
+    width: 128px;
+    height: 128px;
+  }
+  .theme-iki .iki-badge-big {
+    font-size: 2rem;
+  }
 }
 
-.theme-iki .iki-figure-highlight {
+/* ======================= Sections ======================= */
+
+.theme-iki .iki-section,
+.theme-iki .iki-band {
+  padding-top: 44px;
+  padding-bottom: 44px;
+  background-color: #fff;
+}
+.theme-iki .iki-band-lavender {
+  background-color: var(--violet-50);
+}
+@media (min-width: 900px) {
+  .theme-iki .iki-section,
+  .theme-iki .iki-band {
+    padding-top: 72px;
+    padding-bottom: 72px;
+  }
+}
+.theme-iki .iki-lead-text {
+  margin: 0;
+  font-size: 1.1rem;
+  line-height: 1.6;
+  color: var(--encre-800);
+}
+
+/* Illustrative before / after example */
+.theme-iki .iki-example {
   display: grid;
   justify-items: center;
-  gap: 8px;
-  padding: 22px 16px;
-  border: 1px solid rgba(255, 148, 41, 0.45);
+  gap: 14px;
+  padding: 22px 18px;
+  border: 2px solid;
   border-radius: var(--radius-card);
-  background-color: rgba(255, 148, 41, 0.1);
+  background-color: #fff;
   text-align: center;
 }
-@media (min-width: 640px) {
-  .theme-iki .iki-figure-highlight {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 20px;
-    padding: 24px 32px;
-    text-align: left;
+.theme-iki .iki-example-avant {
+  border-color: var(--danger-500);
+}
+.theme-iki .iki-example-apres {
+  border-color: var(--menthe-500);
+}
+.theme-iki .iki-example-tag {
+  padding: 3px 10px;
+  border-radius: 999px;
+  background-color: var(--encre-100);
+  font: 700 0.75rem / 1.3 var(--font-accent);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--encre-700);
+}
+.theme-iki .iki-example-title {
+  display: grid;
+  margin: 0;
+  line-height: 1.2;
+}
+.theme-iki .iki-example-title strong {
+  font-size: clamp(1.4rem, 5.4vw, 1.9rem);
+  font-weight: 700;
+}
+.theme-iki .iki-example-avant .iki-example-title strong {
+  color: #c01f1f;
+}
+.theme-iki .iki-example-apres .iki-example-title strong {
+  color: var(--menthe-700);
+}
+.theme-iki .iki-example-title span {
+  font-size: 1.15rem;
+  color: var(--encre-800);
+}
+.theme-iki .iki-split {
+  display: flex;
+  width: 100%;
+  max-width: 420px;
+  height: 44px;
+  overflow: hidden;
+  border-radius: 10px;
+}
+.theme-iki .iki-split > span {
+  display: grid;
+  place-items: center;
+  min-width: 6px;
+  font-weight: 700;
+  font-size: 1rem;
+  color: var(--encre-900);
+}
+.theme-iki .iki-split-secu {
+  background-color: #8fb8e6;
+}
+.theme-iki .iki-split-mutuelle {
+  background-color: #86d39b;
+}
+.theme-iki .iki-split-reste {
+  background-color: var(--mandarine-300);
+}
+.theme-iki .iki-split-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 4px 14px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.98rem;
+  color: var(--encre-700);
+}
+.theme-iki .iki-split-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.theme-iki .iki-split-legend li > span {
+  width: 16px;
+  height: 16px;
+  border-radius: 4px;
+}
+.theme-iki .iki-example-note {
+  margin: 0;
+  font-size: 1.1rem;
+  color: var(--encre-900);
+}
+
+/* Advantages */
+.theme-iki .iki-checks {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 1.15rem;
+  color: var(--encre-800);
+}
+.theme-iki .iki-checks li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.theme-iki .iki-care-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 26px 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.theme-iki .iki-care-grid li {
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 6px;
+  text-align: center;
+}
+.theme-iki .iki-care-grid strong {
+  margin-top: 4px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--encre-900);
+}
+.theme-iki .iki-care-grid span {
+  font-size: 1rem;
+  line-height: 1.4;
+  color: var(--encre-600);
+}
+@media (min-width: 900px) {
+  .theme-iki .iki-care-grid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 0;
   }
+  .theme-iki .iki-care-grid li {
+    padding: 4px 20px;
+  }
+  .theme-iki .iki-care-grid li + li {
+    border-left: 2px solid var(--violet-500);
+  }
+}
+
+/* 3 steps */
+.theme-iki .iki-steps-grid {
+  display: grid;
+  gap: 24px;
+}
+.theme-iki .iki-steps-art {
+  display: none;
+}
+.theme-iki .iki-steps {
+  display: grid;
+  gap: 18px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.theme-iki .iki-steps li {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+  font-size: 1.05rem;
+  line-height: 1.45;
+  color: var(--encre-700);
+}
+.theme-iki .iki-steps strong {
+  font-size: 1.15rem;
+  color: var(--encre-900);
+}
+.theme-iki .iki-step-num {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 48px;
+  height: 48px;
+  border-radius: 999px;
+  background-color: #fff;
+  box-shadow: var(--shadow-sm);
+  font: 700 1.4rem / 1 var(--font-accent);
+  color: var(--violet-500);
+}
+@media (min-width: 900px) {
+  .theme-iki .iki-steps-grid {
+    grid-template-columns: 340px minmax(0, 1fr);
+    align-items: center;
+    gap: 56px;
+  }
+  .theme-iki .iki-steps-art {
+    display: grid;
+    place-items: center;
+  }
+  .theme-iki .iki-steps-art-circle {
+    display: grid;
+    place-items: center;
+    width: 280px;
+    height: 280px;
+    border-radius: 999px;
+    background:
+      radial-gradient(circle at 30% 30%, #fff 0%, var(--violet-100) 70%);
+    color: var(--violet-500);
+    box-shadow: inset 0 0 0 10px rgba(255, 255, 255, 0.6);
+  }
+  .theme-iki .iki-steps-art-circle svg {
+    width: 120px;
+    height: 120px;
+  }
+}
+
+/* Orange « → Comparer » link */
+.theme-iki .iki-compare-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+  color: var(--mandarine-600);
+  text-decoration: none;
+}
+.theme-iki .iki-compare-link:hover {
+  color: var(--mandarine-700);
+  text-decoration: underline;
+  text-underline-offset: 4px;
 }
 
 /* ======================= Avis Google ======================= */
 
-/* Hero layout: form spans the right column on desktop. */
-.theme-iki .iki-hero-grid {
-  grid-template-areas: "text" "form" "reviews" "points";
-}
-@media (min-width: 1000px) {
-  .theme-iki .iki-hero-grid {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 560px);
-    grid-template-rows: auto auto 1fr;
-    grid-template-areas: "text form" "reviews form" "points form";
-    align-items: start;
-  }
-}
-/* From Q2: only headline + form (+ Trustpilot under the form). */
-.theme-iki .iki-hero-grid--focused {
-  grid-template-areas: "text" "form";
-  padding-bottom: 2.5rem;
-}
-@media (min-width: 1000px) {
-  .theme-iki .iki-hero-grid--focused {
-    grid-template-rows: auto;
-    grid-template-areas: "text form";
-  }
+.theme-iki .iki-reviews {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
 }
 .theme-iki .iki-reviews-nav {
   display: grid;
   place-items: center;
-  width: 40px;
-  height: 40px;
+  width: 48px;
+  height: 48px;
   border: 1px solid var(--encre-200);
   border-radius: 999px;
   background-color: #fff;
   color: var(--violet-500);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md);
   cursor: pointer;
   transition: all 200ms cubic-bezier(0.22, 0.61, 0.36, 1);
 }
@@ -544,11 +629,54 @@ html :is(.theme-iki, .theme-iki *, .iki-route *):is(.font-poppins, .font-manrope
   outline: none;
   box-shadow: var(--shadow-focus);
 }
+/* Mobile: arrows centred under the swipe track. */
+.theme-iki .iki-reviews-prev,
+.theme-iki .iki-reviews-next {
+  grid-row: 2;
+  grid-column: 1;
+  margin-top: 4px;
+}
+.theme-iki .iki-reviews-prev {
+  justify-self: center;
+  transform: translateX(-30px);
+}
+.theme-iki .iki-reviews-next {
+  justify-self: center;
+  transform: translateX(30px);
+}
+@media (min-width: 900px) {
+  .theme-iki .iki-reviews-prev,
+  .theme-iki .iki-reviews-next {
+    position: absolute;
+    top: 50%;
+    grid-row: auto;
+    grid-column: auto;
+    margin: 0;
+    z-index: 1;
+  }
+  .theme-iki .iki-reviews-prev {
+    left: -22px;
+    transform: translateY(-50%);
+  }
+  .theme-iki .iki-reviews-next {
+    right: -22px;
+    transform: translateY(-50%);
+  }
+}
+@media (min-width: 1240px) {
+  .theme-iki .iki-reviews-prev {
+    left: -64px;
+  }
+  .theme-iki .iki-reviews-next {
+    right: -64px;
+  }
+}
 .theme-iki .iki-google-label {
   display: inline-flex;
   width: fit-content;
   align-items: center;
   gap: 8px;
+  margin: 0;
   font: 700 0.875rem / 1.2 var(--font-accent);
   letter-spacing: 0.14em;
   text-transform: uppercase;
@@ -579,21 +707,26 @@ html :is(.theme-iki, .theme-iki *, .iki-route *):is(.font-poppins, .font-manrope
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: min(84%, 340px);
-  gap: 14px;
+  gap: 16px;
   margin: 0 -16px;
   padding: 4px 16px 12px;
   list-style: none;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   scroll-padding-inline: 16px;
-  scrollbar-width: thin;
+  scrollbar-width: none;
 }
 @media (min-width: 640px) {
   .theme-iki .iki-reviews-track {
-    grid-auto-columns: calc((100% - 14px) / 2);
+    grid-auto-columns: calc((100% - 16px) / 2);
     margin: 0;
     padding: 4px 0 12px;
     scroll-padding-inline: 0;
+  }
+}
+@media (min-width: 900px) {
+  .theme-iki .iki-reviews-track {
+    grid-auto-columns: calc((100% - 32px) / 3);
   }
 }
 .theme-iki .iki-review {
@@ -607,45 +740,6 @@ html :is(.theme-iki, .theme-iki *, .iki-route *):is(.font-poppins, .font-manrope
   background-color: #fff;
   box-shadow: var(--shadow-sm);
   scroll-snap-align: start;
-}
-
-.theme-iki .iki-callout {
-  display: flex;
-  gap: 14px;
-  padding: 18px 22px;
-  border: 1px solid var(--violet-200);
-  border-radius: var(--radius-floating);
-  background-color: var(--violet-50);
-  font-size: 1.1rem;
-  line-height: 1.55;
-  color: var(--encre-800);
-}
-.theme-iki .iki-callout strong {
-  color: var(--violet-700);
-}
-
-.theme-iki .iki-sheet {
-  padding: 28px 20px;
-  border-radius: var(--radius-sheet);
-  background-color: var(--craie-2);
-}
-@media (min-width: 900px) {
-  .theme-iki .iki-sheet {
-    padding: 48px 40px;
-  }
-}
-.theme-iki .iki-step {
-  display: flex;
-  align-items: flex-start;
-  gap: 16px;
-  padding: 20px 22px;
-  border: 1px solid var(--encre-200);
-  border-radius: var(--radius-floating);
-  background-color: #fff;
-}
-.theme-iki .iki-step-num {
-  font: 700 1.5rem / 1.2 var(--font-accent);
-  color: var(--violet-500);
 }
 
 .theme-iki .iki-accordion {
@@ -679,20 +773,22 @@ html :is(.theme-iki, .theme-iki *, .iki-route *):is(.font-poppins, .font-manrope
   outline: none;
   box-shadow: inset 0 0 0 3px var(--violet-500);
 }
-.theme-iki .iki-accordion p {
+.theme-iki .iki-accordion-body {
+  display: grid;
+  justify-items: start;
+  gap: 12px;
   padding: 16px 22px 20px;
   border-top: 1px solid var(--violet-100);
-  font-size: 1.15rem;
+}
+.theme-iki .iki-accordion-body p {
+  margin: 0;
+  font-size: 1.12rem;
   line-height: 1.6;
   color: var(--encre-700);
 }
 
-.theme-iki .iki-final {
-  background-color: var(--encre-900);
-  color: #fff;
-}
 .theme-iki .iki-footer {
-  background-color: var(--encre-900);
+  background-color: #23263f; /* dark navy, as on IKI's comparator page */
   color: var(--encre-200);
 }
 .theme-iki .iki-footer::before {
@@ -700,14 +796,6 @@ html :is(.theme-iki, .theme-iki *, .iki-route *):is(.font-poppins, .font-manrope
   display: block;
   height: 3px;
   background-image: var(--iki-gradient);
-}
-
-.theme-iki .iki-sticky-cta {
-  background: rgba(255, 249, 243, 0.94);
-  backdrop-filter: saturate(150%) blur(14px);
-  -webkit-backdrop-filter: saturate(150%) blur(14px);
-  border-top: 1px solid var(--encre-200);
-  box-shadow: 0 -10px 24px -14px rgba(23, 18, 39, 0.3);
 }
 
 /* ======================= Hard-coded CM purples → IKI ======================= */
@@ -990,6 +1078,30 @@ html.iki-route :is([aria-labelledby="cookie-banner-title"], [aria-labelledby="co
   outline: 3px solid var(--violet-500);
   outline-offset: 3px;
 }
+/* Mobile: compact banner (same texts and buttons) so the first form
+   question stays visible: accept / refuse side by side, equal weight. */
+@media (max-width: 1023.98px) {
+  html.iki-route [role="region"][aria-labelledby="cookie-banner-title"] > div {
+    gap: 10px;
+    padding-top: 12px;
+    padding-bottom: 8px;
+  }
+  html.iki-route [role="region"][aria-labelledby="cookie-banner-title"] > div > div:last-child {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  html.iki-route [role="region"][aria-labelledby="cookie-banner-title"] > div > div:last-child > button {
+    min-height: 48px;
+  }
+  html.iki-route [role="region"][aria-labelledby="cookie-banner-title"] > div > div:last-child > button:last-child {
+    grid-column: 1 / -1;
+    padding-top: 0;
+  }
+  html.iki-route #cookie-banner-desc {
+    margin-top: 2px;
+  }
+}
 html.iki-route [aria-labelledby="cookie-prefs-title"] {
   border-color: var(--encre-200);
   border-radius: var(--radius-card);
@@ -1005,7 +1117,6 @@ html.iki-route #chatbot-slot {
 
 @media (prefers-reduced-motion: reduce) {
   .theme-iki .iki-btn,
-  .theme-iki .iki-card,
   .theme-iki #formulaire-devis button {
     transition: none;
     transform: none;

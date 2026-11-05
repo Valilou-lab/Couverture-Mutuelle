@@ -4,9 +4,8 @@ import { useRef } from "react";
 import { IkiIcon } from "./IkiIcon";
 import { Stars } from "./IkiStars";
 
-/* Avis Google, placed inside the hero: right after the form on mobile
- * (swipe carousel), under the hero text on desktop (2 cards visible,
- * previous / next buttons). */
+/* The 4 real Google reviews of IKI: 3-up carousel with previous / next
+ * arrows on desktop, swipe carousel (arrows below) on mobile. */
 
 const REVIEWS = [
   {
@@ -44,17 +43,6 @@ function initials(name: string) {
   return (parts[0][0] + (parts.at(-1)?.[0] ?? "")).toUpperCase();
 }
 
-function GoogleLabel() {
-  return (
-    <span className="iki-google-label">
-      <span aria-hidden="true" className="iki-google-g">
-        G
-      </span>
-      Avis Google
-    </span>
-  );
-}
-
 export function IkiReviews() {
   const trackRef = useRef<HTMLUListElement>(null);
 
@@ -63,45 +51,21 @@ export function IkiReviews() {
     const card = track?.querySelector("li");
     if (!track || !card) return;
     track.scrollBy({
-      left: direction * (card.getBoundingClientRect().width + 14),
+      left: direction * (card.getBoundingClientRect().width + 16),
       behavior: "smooth",
     });
   }
 
   return (
-    <section aria-labelledby="avis-titre" className="iki-reviews grid gap-3">
-      <div className="grid gap-1.5">
-        <div className="flex items-center justify-between gap-3">
-          <p className="flex flex-wrap items-center gap-x-3 gap-y-1">
-            <GoogleLabel />
-            <span className="flex items-center gap-2 text-[1rem] font-medium text-[var(--encre-700)]">
-              <Stars size={18} className="text-[var(--or-500)]" />
-              Avis 5 étoiles
-            </span>
-          </p>
-          <span className="hidden flex-none gap-2 min-[640px]:flex">
-            <button
-              type="button"
-              className="iki-reviews-nav"
-              aria-label="Avis précédents"
-              onClick={() => scrollByCard(-1)}
-            >
-              <IkiIcon name="arrow-right" size={20} className="rotate-180" />
-            </button>
-            <button
-              type="button"
-              className="iki-reviews-nav"
-              aria-label="Avis suivants"
-              onClick={() => scrollByCard(1)}
-            >
-              <IkiIcon name="arrow-right" size={20} />
-            </button>
-          </span>
-        </div>
-        <h2 id="avis-titre" className="iki-h3 text-balance">
-          Nos clients parlent de leur conseiller
-        </h2>
-      </div>
+    <div className="iki-reviews">
+      <button
+        type="button"
+        className="iki-reviews-nav iki-reviews-prev"
+        aria-label="Avis précédents"
+        onClick={() => scrollByCard(-1)}
+      >
+        <IkiIcon name="arrow-right" size={20} className="rotate-180" />
+      </button>
       <ul
         ref={trackRef}
         className="iki-reviews-track"
@@ -138,6 +102,14 @@ export function IkiReviews() {
           </li>
         ))}
       </ul>
-    </section>
+      <button
+        type="button"
+        className="iki-reviews-nav iki-reviews-next"
+        aria-label="Avis suivants"
+        onClick={() => scrollByCard(1)}
+      >
+        <IkiIcon name="arrow-right" size={20} />
+      </button>
+    </div>
   );
 }
