@@ -20,7 +20,7 @@ function isIkiFormFocused(
   return questionNumber != null && questionNumber >= 2;
 }
 
-const CTA_LABEL = "Je compare gratuitement";
+const CTA_LABEL = "Comparer les mutuelles seniors";
 
 function Container({
   children,
@@ -38,43 +38,30 @@ function Container({
   );
 }
 
-/** One-line reassurance under the headline (approved IKI facts only). */
-function IkiProofLine() {
+function SectionTitle({ id, children }: { id: string; children: ReactNode }) {
   return (
-    <p className="iki-proof">
-      <span className="iki-proof-item">
-        <span aria-hidden="true" className="iki-proof-star">
-          ★
-        </span>{" "}
-        <strong>4,7/5</strong> Trustpilot
-      </span>
-      <span aria-hidden="true" className="iki-proof-dot">
-        ·
-      </span>
-      <span className="iki-proof-item">
-        <strong>300&nbsp;000</strong> clients
-      </span>
-      <span aria-hidden="true" className="iki-proof-dot">
-        ·
-      </span>
-      <span className="iki-proof-item">depuis 2008</span>
-    </p>
+    <h2 id={id} className="iki-h2 text-balance text-center">
+      {children}
+    </h2>
   );
 }
 
-function IkiTrustpilotNote() {
+function CompareLink() {
   return (
-    <p className="m-0 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-[1.05rem] text-[var(--encre-700)]">
-      <Stars size={20} className="text-[var(--or-500)]" />
-      <span>
-        <strong className="text-[var(--encre-900)]">4,7/5</strong> sur
-        Trustpilot
-      </span>
-    </p>
+    <a href="#devis" className="iki-compare-link">
+      <IkiIcon name="arrow-right" size={20} />
+      {CTA_LABEL}
+    </a>
   );
 }
 
-/* ---------- Hero: logo (header), headline, proof line, form ---------- */
+/* ---------- Hero: violet comparator band with the quote form ---------- */
+
+const HERO_REASSURANCE: { icon: IkiIconName; label: string }[] = [
+  { icon: "circle-check", label: "Gratuit" },
+  { icon: "circle-check", label: "Sans engagement" },
+  { icon: "lock", label: "Données protégées" },
+];
 
 function IkiHero({
   formFocused,
@@ -86,98 +73,279 @@ function IkiHero({
   return (
     <section aria-labelledby="hero-titre" className="iki-hero">
       <TikTokFunnelTracker />
-      <Container className="iki-hero-grid">
-        <div className="iki-hero-text">
-          <h1 id="hero-titre" className="iki-hero-title text-balance">
-            Jusqu’à{" "}
-            <span className="iki-logo-word">150&nbsp;€ d’économies</span> sur
-            votre mutuelle senior
-          </h1>
-          <p className="iki-hero-sub text-balance">
-            Par rapport aux autres offres du marché. Un conseiller IKI compare
-            pour vous, gratuitement.
+      <Container className="iki-hero-inner">
+        <div className="iki-hero-head">
+          <div className="iki-hero-text">
+            <h1 id="hero-titre" className="iki-hero-title">
+              Votre <strong>DEVIS GRATUIT</strong>{" "}
+              <span className="whitespace-nowrap">en 2 minutes</span> seulement
+            </h1>
+            <p className="iki-hero-sub">
+              Jusqu’à 150&nbsp;€ d’économies par rapport aux autres offres du
+              marché.
+              <span className="iki-hero-sub-extra">
+                {" "}
+                Un conseiller IKI compare pour vous, gratuitement.
+              </span>
+            </p>
+          </div>
+          <p className="iki-badge" aria-hidden="true">
+            <span className="iki-badge-small">Jusqu’à</span>
+            <span className="iki-badge-big">150&nbsp;€</span>
+            <span className="iki-badge-small">d’économies</span>
           </p>
-          <IkiProofLine />
         </div>
 
-        <div
-          id="devis"
-          className="iki-form-shell mx-auto grid w-full max-w-[560px] gap-4"
-        >
+        <div id="devis" className="iki-form-shell">
           <SeniorQuoteForm consentVariant="iki" onStepChange={onStepChange} />
-          {formFocused ? <IkiTrustpilotNote /> : null}
         </div>
+
+        <ul className="iki-hero-reassurance">
+          {HERO_REASSURANCE.map((item) => (
+            <li key={item.label}>
+              <IkiIcon name={item.icon} size={20} />
+              {item.label}
+            </li>
+          ))}
+          {formFocused ? (
+            <li>
+              <Stars size={16} className="text-[var(--or-500)]" />
+              4,7/5 Trustpilot
+            </li>
+          ) : null}
+        </ul>
       </Container>
     </section>
   );
 }
 
-/* ---------- Pourquoi IKI (trust, approved facts only) ---------- */
+/* ---------- Avis clients (Trustpilot rating text + Google reviews) ---------- */
 
-const TRUST_FIGURES: {
-  icon: IkiIconName | null;
-  figure: string;
-  label: string;
+function IkiReviewsSection() {
+  return (
+    <section aria-labelledby="avis-titre" className="iki-section">
+      <Container className="grid gap-6">
+        <div className="grid justify-items-center gap-3 text-center">
+          <SectionTitle id="avis-titre">
+            Avis clients mutuelle senior&nbsp;: nos clients témoignent
+          </SectionTitle>
+          <div className="grid justify-items-center gap-1.5">
+            <Stars size={26} className="text-[var(--or-500)]" />
+            <p className="m-0 text-[1.1rem] text-[var(--encre-800)]">
+              <span className="whitespace-nowrap">
+                Note de <strong>4,7/5</strong> sur Trustpilot
+              </span>{" "}
+              ·{" "}
+              <strong className="whitespace-nowrap">plus de 3&nbsp;200 avis</strong>
+            </p>
+          </div>
+          <p className="iki-google-label">
+            <span aria-hidden="true" className="iki-google-g">
+              G
+            </span>
+            Quelques avis Google
+          </p>
+        </div>
+        <IkiReviews />
+      </Container>
+    </section>
+  );
+}
+
+/* ---------- Comparaison : exemple illustratif avant / après ---------- */
+
+type Split = { secu: number; mutuelle: number; reste: number };
+
+const EXAMPLE: {
+  tone: "avant" | "apres";
+  title: string;
+  subtitle: string;
+  split: Split;
+  note: ReactNode;
 }[] = [
-  { icon: null, figure: "4,7/5", label: "sur Trustpilot" },
-  { icon: "message-circle", figure: "3 200+", label: "avis clients" },
-  { icon: "users", figure: "300 000", label: "clients" },
-  { icon: "clock", figure: "Depuis 2008", label: "courtier spécialisé" },
+  {
+    tone: "avant",
+    title: "Remboursements avant",
+    subtitle: "mutuelle classique",
+    split: { secu: 20, mutuelle: 9, reste: 31 },
+    note: (
+      <>
+        Reste à charge&nbsp;: <strong>31&nbsp;€</strong>
+      </>
+    ),
+  },
+  {
+    tone: "apres",
+    title: "Remboursements après",
+    subtitle: "mutuelle senior adaptée",
+    split: { secu: 20, mutuelle: 39, reste: 1 },
+    note: (
+      <>
+        Reste à charge&nbsp;: <strong>1&nbsp;€</strong>
+      </>
+    ),
+  },
 ];
 
-function IkiTrust() {
+const SPLIT_PARTS: { key: keyof Split; label: string }[] = [
+  { key: "secu", label: "Remboursement Sécu" },
+  { key: "mutuelle", label: "Mutuelle" },
+  { key: "reste", label: "Reste à charge" },
+];
+
+function SplitBar({ split }: { split: Split }) {
+  const total = split.secu + split.mutuelle + split.reste;
   return (
-    <section aria-labelledby="confiance-titre" className="iki-section">
+    <div className="iki-split" role="img" aria-label={SPLIT_PARTS.map((p) => `${p.label} ${split[p.key]} €`).join(", ")}>
+      {SPLIT_PARTS.map((part) => (
+        <span
+          key={part.key}
+          className={`iki-split-${part.key}`}
+          style={{ flexGrow: split[part.key] / total, flexBasis: 0 }}
+        >
+          {split[part.key] >= 5 ? `${split[part.key]} €` : ""}
+        </span>
+      ))}
+    </div>
+  );
+}
+
+function IkiComparison() {
+  return (
+    <section aria-labelledby="comparaison-titre" className="iki-band iki-band-lavender">
       <Container className="grid gap-6">
-        <div className="grid gap-2 text-center">
-          <p className="iki-eyebrow text-[var(--violet-500)]">
-            Pourquoi IKI
+        <div className="mx-auto grid max-w-[820px] gap-3 text-center">
+          <SectionTitle id="comparaison-titre">
+            Comparaison mutuelle senior&nbsp;: économisez sur vos frais de santé
+          </SectionTitle>
+          <p className="iki-lead-text">
+            Une mutuelle senior répond aux besoins spécifiques après 60 ans.
+            Elle couvre les frais de santé essentiels comme l’<strong>optique</strong>,
+            le <strong>dentaire</strong> et l’<strong>audition</strong>, souvent
+            mal remboursés par l’Assurance Maladie.
           </p>
-          <h2 id="confiance-titre" className="iki-h2 text-balance">
-            Un courtier spécialisé, à vos côtés
-          </h2>
         </div>
-        <ul className="m-0 grid list-none grid-cols-2 gap-3 p-0 min-[900px]:grid-cols-4 min-[900px]:gap-4">
-          {TRUST_FIGURES.map((item) => (
-            <li key={item.figure} className="iki-trust-tile">
-              {item.icon ? (
-                <IkiIcon
-                  name={item.icon}
-                  size={24}
-                  className="text-[var(--violet-500)]"
-                />
-              ) : (
-                <Stars size={18} className="text-[var(--or-500)]" />
-              )}
-              <span className="iki-trust-figure">{item.figure}</span>
-              <span className="iki-trust-label">{item.label}</span>
-            </li>
+        <div className="grid gap-4 min-[900px]:grid-cols-2 min-[900px]:gap-6">
+          {EXAMPLE.map((item) => (
+            <div key={item.tone} className={`iki-example iki-example-${item.tone}`}>
+              <span className="iki-example-tag">Exemple illustratif</span>
+              <p className="iki-example-title">
+                <strong>{item.title}</strong>
+                <span>{item.subtitle}</span>
+              </p>
+              <SplitBar split={item.split} />
+              <ul className="iki-split-legend">
+                {SPLIT_PARTS.map((part) => (
+                  <li key={part.key}>
+                    <span aria-hidden="true" className={`iki-split-${part.key}`} />
+                    {part.label}
+                  </li>
+                ))}
+              </ul>
+              <p className="iki-example-note">{item.note}</p>
+            </div>
           ))}
-        </ul>
-        <p className="iki-trust-note">
-          <IkiIcon
-            name="user-check"
-            size={26}
-            className="mt-0.5 flex-none text-[var(--violet-500)]"
-          />
-          <span>
-            <strong>Courtier spécialisé en mutuelle santé</strong>, IKI compare
-            pour vous les offres d’un réseau de partenaires assureurs et
-            mutuelles reconnus. Gratuit et sans engagement.
-          </span>
+        </div>
+        <p className="m-0 text-center text-[0.95rem] text-[var(--encre-600)]">
+          Exemple illustratif, montants non contractuels&nbsp;: les
+          remboursements dépendent du contrat et des garanties choisies.
         </p>
       </Container>
     </section>
   );
 }
 
-/* ---------- Avis Google ---------- */
+/* ---------- Avantages ---------- */
 
-function IkiReviewsSection() {
+const ADVANTAGES_CHECKS = [
+  "Tiers payant – sans avance de frais",
+  "On s’occupe de résilier votre ancienne mutuelle",
+] as const;
+
+const CARE_AREAS: { icon: IkiIconName; title: string; caption: string }[] = [
+  { icon: "vaccine", title: "Médecine générale", caption: "Consultations, analyses, pharmacie" },
+  { icon: "eyeglass", title: "Optique senior", caption: "Lunettes et lentilles" },
+  { icon: "ear", title: "Audition senior", caption: "Appareils auditifs" },
+  { icon: "dental", title: "Dentaire senior", caption: "Soins et prothèses" },
+];
+
+function IkiAdvantages() {
   return (
-    <section className="iki-section">
-      <Container>
-        <IkiReviews />
+    <section aria-labelledby="avantages-titre" className="iki-band">
+      <Container className="grid gap-7">
+        <div className="grid justify-items-center gap-4">
+          <SectionTitle id="avantages-titre">
+            Avantages d’une mutuelle senior adaptée à vos besoins
+          </SectionTitle>
+          <ul className="iki-checks">
+            {ADVANTAGES_CHECKS.map((label) => (
+              <li key={label}>
+                <IkiIcon name="circle-check" size={24} className="text-[var(--menthe-500)]" />
+                {label}
+              </li>
+            ))}
+          </ul>
+        </div>
+        <ul className="iki-care-grid">
+          {CARE_AREAS.map((area) => (
+            <li key={area.title}>
+              <IkiIcon name={area.icon} size={56} strokeWidth={1.5} className="text-[var(--violet-500)]" />
+              <strong>{area.title}</strong>
+              <span>{area.caption}</span>
+            </li>
+          ))}
+        </ul>
+      </Container>
+    </section>
+  );
+}
+
+/* ---------- 3 étapes ---------- */
+
+const STEPS = [
+  {
+    title: "Devis mutuelle senior personnalisé",
+    text: "Répondez à 5 questions sur votre profil et vos besoins, depuis chez vous.",
+  },
+  {
+    title: "Comparaison des offres senior",
+    text: "Un conseiller IKI compare gratuitement les offres de nos partenaires assureurs et mutuelles reconnus.",
+  },
+  {
+    title: "Souscription et résiliation simplifiées",
+    text: "Vous choisissez librement. Nous résilions votre ancien contrat pour vous simplifier les démarches.",
+  },
+] as const;
+
+function IkiSteps() {
+  return (
+    <section aria-labelledby="etapes-titre" className="iki-band iki-band-lavender">
+      <Container className="iki-steps-grid">
+        <div aria-hidden="true" className="iki-steps-art">
+          <span className="iki-steps-art-circle">
+            <IkiIcon name="file-text" size={72} strokeWidth={1.5} />
+          </span>
+        </div>
+        <div className="grid gap-6">
+          <h2 id="etapes-titre" className="iki-h2 text-balance">
+            Souscrire une mutuelle senior en 3 étapes simples
+          </h2>
+          <ol className="iki-steps">
+            {STEPS.map((step, index) => (
+              <li key={step.title}>
+                <span aria-hidden="true" className="iki-step-num">
+                  {index + 1}
+                </span>
+                <span className="grid gap-1">
+                  <strong>
+                    Étape {index + 1}&nbsp;: {step.title}
+                  </strong>
+                  <span>{step.text}</span>
+                </span>
+              </li>
+            ))}
+          </ol>
+        </div>
       </Container>
     </section>
   );
@@ -187,43 +355,45 @@ function IkiReviewsSection() {
 
 const FAQ = [
   {
-    question: "Le service est-il vraiment gratuit ?",
+    question: "Pourquoi comparer les mutuelles seniors ?",
     answer:
-      "Oui, entièrement gratuit et sans engagement. Vous êtes libre de ne rien changer.",
+      "Avec l’âge, les besoins en santé évoluent : lunettes, prothèses dentaires, appareils auditifs, hospitalisation… Comparer plusieurs offres permet de trouver le meilleur rapport garanties / prix, sans payer pour des options inutiles.",
   },
   {
-    question: "Qui va me rappeler ?",
+    question: "À partir de quel âge peut-on souscrire une mutuelle senior ?",
     answer:
-      "Un conseiller IKI Assurances, courtier spécialisé en mutuelle santé. Il étudie votre situation et vous présente des offres adaptées de nos partenaires assureurs et mutuelles.",
+      "Il n’y a pas d’âge minimum légal. Les offres dites « senior » s’adressent en général aux personnes de 60 ans et plus, retraitées ou non.",
   },
   {
-    question: "Je suis déjà assuré ailleurs. Puis-je changer ?",
+    question: "Quels soins sont particulièrement couverts par une mutuelle senior ?",
     answer:
-      "Oui. Après un an de contrat, votre complémentaire santé est résiliable à tout moment, sans frais et sans justification.",
+      "Les postes les plus utiles après 60 ans : optique, dentaire, audition et hospitalisation. Le niveau de remboursement dépend des garanties choisies.",
   },
   {
-    question: "Comment sont utilisées mes données ?",
+    question: "Est-ce payant d’utiliser le comparateur ?",
     answer:
-      "Uniquement pour vous proposer des offres de complémentaire santé. Vous pouvez retirer votre accord à tout moment.",
+      "Non. Le service est entièrement gratuit et sans engagement : vous êtes libre de ne rien changer.",
+  },
+  {
+    question: "Combien de temps faut-il pour recevoir les devis ?",
+    answer:
+      "Répondre aux 5 questions prend environ 2 minutes. Un conseiller IKI, courtier spécialisé en mutuelle santé, vous recontacte ensuite pour vous présenter les offres adaptées.",
   },
 ] as const;
 
 function IkiFaq() {
   return (
-    <section aria-labelledby="faq-titre" className="iki-section">
+    <section aria-labelledby="faq-titre" className="iki-band">
       <Container>
-        <div className="mx-auto grid max-w-[760px] gap-6">
-          <div className="grid gap-2 text-center">
-            <p className="iki-eyebrow text-[var(--violet-500)]">
-              Questions fréquentes
-            </p>
-            <h2 id="faq-titre" className="iki-h2 text-balance">
-              Vos questions, nos réponses
-            </h2>
-          </div>
+        <div className="mx-auto grid max-w-[880px] gap-6">
+          <SectionTitle id="faq-titre">Questions fréquentes</SectionTitle>
           <div className="grid gap-3">
-            {FAQ.map((item) => (
-              <details key={item.question} className="iki-accordion group">
+            {FAQ.map((item, index) => (
+              <details
+                key={item.question}
+                className="iki-accordion group"
+                open={index === 0}
+              >
                 <summary>
                   {item.question}
                   <IkiIcon
@@ -232,18 +402,12 @@ function IkiFaq() {
                     className="flex-none text-[var(--violet-500)] transition-transform group-open:rotate-180"
                   />
                 </summary>
-                <p>{item.answer}</p>
+                <div className="iki-accordion-body">
+                  <p>{item.answer}</p>
+                  <CompareLink />
+                </div>
               </details>
             ))}
-          </div>
-          <div className="grid justify-items-center pt-2">
-            <a
-              href="#devis"
-              className="iki-btn iki-btn-accent iki-btn-lg w-full max-w-[420px]"
-            >
-              {CTA_LABEL}
-              <IkiIcon name="arrow-right" size={22} />
-            </a>
           </div>
         </div>
       </Container>
@@ -252,15 +416,14 @@ function IkiFaq() {
 }
 
 /**
- * IKI landing (/iki) for Meta senior traffic — short, form-first.
- * First mobile screen: IKI logo, headline echoing the ads (up to 150 €
- * saved on a senior health plan), one proof line, and the
- * first question of the quote form. Below: trust, Google reviews, FAQ.
+ * IKI comparator landing (/iki) for Meta senior traffic, modelled on IKI's
+ * own « comparateur mutuelle senior » page: white header with the comparator
+ * claim, violet band holding the quote form, reviews, illustrative
+ * before / after example, advantages, 3 steps, FAQ, footer.
  * The quote form (SeniorQuoteForm, consentVariant="iki") is the shared one:
  * questions, texts, logic, submission and tracking are untouched; only its
  * look is re-skinned by scoped CSS (iki-theme.css).
- * From question 2 onward, content below the form is replaced by the
- * Trustpilot rating.
+ * From question 2 onward, content below the form is hidden.
  */
 export function IkiLanding() {
   const [formFocused, setFormFocused] = useState(false);
@@ -275,12 +438,14 @@ export function IkiLanding() {
   return (
     <div className="theme-iki flex min-h-0 flex-1 flex-col">
       <IkiHeader />
-      <main className="w-full flex-1 pb-14 min-[900px]:pb-20">
+      <main className="w-full flex-1">
         <IkiHero formFocused={formFocused} onStepChange={onStepChange} />
         {!formFocused ? (
           <>
-            <IkiTrust />
             <IkiReviewsSection />
+            <IkiComparison />
+            <IkiAdvantages />
+            <IkiSteps />
             <IkiFaq />
           </>
         ) : null}
