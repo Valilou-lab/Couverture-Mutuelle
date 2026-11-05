@@ -34,7 +34,7 @@ function Block({
 const PARTNERS = [
   { src: "/images/partners/santiane.webp", alt: "Santiane", width: 300, height: 60 },
   { src: "/images/partners/spvie.webp", alt: "SPVIE Assurances", width: 309, height: 160 },
-  { src: "/images/partners/majelis.webp", alt: "Majelis", width: 119, height: 160 },
+  { src: "/images/partners/iki.jpg", alt: "IKI Assurance", width: 1024, height: 537 },
   {
     src: "/images/partners/aveyronnaise.webp",
     alt: "L’Aveyronnaise d’Assurances",

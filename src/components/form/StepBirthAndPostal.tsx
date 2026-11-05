@@ -6,18 +6,16 @@ import { useCommuneLookup } from "./useCommuneLookup";
 import {
   formatBirthDateInput,
   getBirthDateAgeError,
+  validateStep,
   type FieldErrors,
 } from "./validation";
 import {
   SENIOR_ERROR,
-  SENIOR_INPUT,
   SENIOR_LABEL,
-  SENIOR_QUESTION_TITLE,
+  useFormInputClass,
+  useQuestionTitleClass,
   useSeniorForm,
 } from "./seniorForm";
-
-const DEFAULT_INPUT =
-  "mt-2 w-full rounded-2xl border-2 border-[#c4b5fd] bg-white px-4 py-3.5 text-base outline-none ring-brand/30 focus:border-brand focus:ring-2";
 
 type Props = {
   data: QuoteFormData;
@@ -45,13 +43,14 @@ export function StepBirthAndPostal({
   onNext,
 }: Props) {
   const senior = useSeniorForm();
+  const seniorTitleClass = useQuestionTitleClass();
   const titleClass = senior
-    ? SENIOR_QUESTION_TITLE
+    ? seniorTitleClass
     : "text-center text-xl font-semibold tracking-tight text-foreground sm:text-2xl";
   const labelClass = senior
     ? SENIOR_LABEL
     : "block text-sm font-medium text-foreground";
-  const inputClass = senior ? SENIOR_INPUT : DEFAULT_INPUT;
+  const inputClass = useFormInputClass();
   const errorClass = senior ? SENIOR_ERROR : "mt-2 text-sm text-error";
   const lookup = useCommuneLookup(
     hidePostalCode ? "" : data.postalCode,
@@ -63,6 +62,16 @@ export function StepBirthAndPostal({
     ? null
     : getBirthDateAgeError(data.birthDate);
 
+  const stepErrors: FieldErrors = { ...validateStep("birthAndPostal", data) };
+  if (hideOwnBirthDate) delete stepErrors.birthDate;
+  if (hidePostalCode) {
+    delete stepErrors.postalCode;
+    delete stepErrors.city;
+  }
+  const canContinue =
+    lookup.status !== "loading" &&
+    Object.keys(stepErrors).length === 0 &&
+    (hideOwnBirthDate || !ownAgeError);
   function handlePostalCodeChange(value: string) {
     const next = value.replace(/\D/g, "").slice(0, 5);
     onPostalCode(next);
@@ -95,11 +104,7 @@ export function StepBirthAndPostal({
               onChange={(event) =>
                 onChangeBirthDate(formatBirthDateInput(event.target.value))
               }
-              className={
-                senior
-                  ? inputClass
-                  : "mt-2 min-h-14 w-full rounded-2xl border-2 border-[#c4b5fd] bg-white px-4 py-3.5 text-base outline-none ring-brand/30 placeholder:text-zinc-300 focus:border-brand focus:ring-2"
-              }
+              className={inputClass}
             />
             {errors.birthDate ? (
               <p className={errorClass} role="alert">
@@ -200,7 +205,11 @@ export function StepBirthAndPostal({
         )}
       </div>
 
-      <FormNavigation onNext={onNext} disabled={disabled} />
+      <FormNavigation
+        onNext={onNext}
+        disabled={disabled}
+        canContinue={canContinue}
+      />
     </div>
   );
 }

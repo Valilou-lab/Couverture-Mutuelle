@@ -18,10 +18,11 @@ export function PrimaryHeader({ homeHref }: PrimaryHeaderProps) {
       </div>
 
       <header className="border-b border-border/60 bg-white">
-        <div className="mx-auto flex max-w-[84rem] items-center justify-between gap-3 px-4 py-3 sm:px-6 sm:py-3.5 lg:px-10">
+        <div className="mx-auto grid max-w-[84rem] grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 py-3 sm:px-6 sm:py-3.5 lg:px-10 lg:pb-1 lg:pt-3">
+          <span aria-hidden="true" />
           <Link
             href={homeHref}
-            className="min-w-0 shrink-0"
+            className="min-w-0 shrink-0 justify-self-center"
             aria-label="Couverture Mutuelle"
           >
             <Image
@@ -30,10 +31,12 @@ export function PrimaryHeader({ homeHref }: PrimaryHeaderProps) {
               width={280}
               height={72}
               priority
-              className="h-10 w-auto max-w-[9.5rem] object-contain object-left sm:h-12 sm:max-w-[11rem] md:h-[3.25rem] md:max-w-none"
+              className="h-10 w-auto max-w-[9.5rem] object-contain sm:h-12 sm:max-w-[11rem] md:h-[3.25rem] md:max-w-none lg:h-[4.25rem]"
             />
           </Link>
-          <WhatsAppHeaderButton />
+          <div className="justify-self-end lg:self-start lg:pt-0.5">
+            <WhatsAppHeaderButton showLabel={false} />
+          </div>
         </div>
       </header>
     </div>

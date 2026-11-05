@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useSeniorForm } from "./seniorForm";
+import { useFormInputClass, useRedesignForm, useSeniorForm } from "./seniorForm";
 
 type Props = {
   phone: string;
@@ -27,6 +27,8 @@ export function StepPhoneVerify({
   onEditPhone,
 }: Props) {
   const senior = useSeniorForm();
+  const redesign = useRedesignForm();
+  const formInputClass = useFormInputClass();
   const [code, setCode] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -97,9 +99,11 @@ export function StepPhoneVerify({
           }
         }}
         className={
-          senior
-            ? "mt-2 w-full rounded-[18px] border-2 border-[#c4b5fd] bg-white px-4 py-4 text-center text-[1.75rem] font-extrabold tracking-[0.35em] text-[#3b0764] outline-none ring-brand/30 focus:border-brand focus:ring-2"
-            : "mt-2 w-full rounded-2xl border-2 border-[#c4b5fd] bg-white px-4 py-3.5 text-center text-2xl font-semibold tracking-[0.4em] text-[#3b0764] outline-none ring-brand/30 focus:border-brand focus:ring-2"
+          redesign
+            ? `${formInputClass} text-center text-[1.75rem] font-extrabold tracking-[0.35em] text-[#3b0764]`
+            : senior
+              ? "mt-2 w-full rounded-[18px] border-2 border-[#c4b5fd] bg-white px-4 py-4 text-center text-[1.75rem] font-extrabold tracking-[0.35em] text-[#3b0764] outline-none ring-brand/30 focus:border-brand focus:ring-2"
+              : "mt-2 w-full rounded-2xl border-2 border-[#c4b5fd] bg-white px-4 py-3.5 text-center text-2xl font-semibold tracking-[0.4em] text-[#3b0764] outline-none ring-brand/30 focus:border-brand focus:ring-2"
         }
         aria-describedby="phone-otp-help"
       />

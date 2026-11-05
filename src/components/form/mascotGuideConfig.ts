@@ -102,6 +102,15 @@ const GUIDE_BY_STEP: Partial<Record<FormStepId, FormMascotContent>> = {
     ],
     bubbleTone: "sky",
   },
+  identity: {
+    pose: "enveloppe",
+    title: "Presque terminé !",
+    lines: [
+      "Indiquez votre nom et votre e-mail",
+      "pour préparer vos devis.",
+    ],
+    bubbleTone: "cream",
+  },
   alreadyInsured: {
     pose: "curieuse",
     title: "Parfait !",
@@ -183,6 +192,7 @@ export function getFormProgressPercent(step: FormStepId): number {
     birthDate: 70,
     postalCode: 70,
     alreadyInsured: 85,
+    identity: 90,
     analyzing: 94,
     contact: 97,
     confirmation: 100,

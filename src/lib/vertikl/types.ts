@@ -176,7 +176,13 @@ export type LeadCalculatorMeta = {
 };
 
 export type LeadSubmissionMeta = {
+  /** First-touch landing URL (attribution / campaign routing). */
   landingPageUrl?: string;
+  /**
+   * Page where the prospect consents and submits (submit-time).
+   * Prefer origin+pathname; used for Vertikl consent_landing_page_url only.
+   */
+  consentLandingPageUrl?: string;
   referrer?: string;
   acquisition?: AcquisitionParams;
   calculator?: LeadCalculatorMeta;

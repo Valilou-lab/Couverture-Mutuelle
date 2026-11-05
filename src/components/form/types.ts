@@ -159,6 +159,7 @@ export type FormStepId =
   | "postalCode"
   | "careNeeds"
   | "alreadyInsured"
+  | "identity"
   | "analyzing"
   | "contact"
   | "confirmation";
@@ -172,6 +173,8 @@ export const FORM_STEPS: FormStepId[] = [
   "postalCode",
   "careNeeds",
   "alreadyInsured",
+  /** Main LP (/) + /tiktok redesign only — see getVisibleSteps. */
+  "identity",
   "analyzing",
   "contact",
   "confirmation",

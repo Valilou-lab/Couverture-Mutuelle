@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { QuoteForm } from "@/components/form/QuoteForm";
 import type { FormStepId } from "@/components/form/types";
 import type { ConsentVariantId } from "@/lib/consent";
@@ -15,27 +16,47 @@ const SENIOR_FORM_FUNNEL = {
   onSubmitSuccess: trackTikTokSubmitForm,
 } as const;
 
+const DEFAULT_INTRO = "Votre devis en 1 minute";
+const REDESIGN_INTRO =
+  "Répondez à ces questions pour obtenir différents devis";
+
 type SeniorQuoteFormProps = {
   onStepChange?: (step: FormStepId, questionNumber: number | null) => void;
   /** Defaults to `"senior"`. Pass `"iki"` on the IKI LP for dual opt-ins. */
   consentVariant?: Extract<ConsentVariantId, "senior" | "iki">;
+  /**
+   * Main LP (/) redesign only. Other LPs keep the default soft intro.
+   * When true: redesign intro copy + dark purple intro bar.
+   */
+  redesignIntro?: boolean;
+  firstStepIntro?: ReactNode;
 };
 
 /**
- * Homepage (/) conversion form, senior layout. Same steps, validation,
- * Vertikl mapping and tracking as ConversionQuoteForm (/tiktok).
+ * Senior layout form. Same steps, validation, Vertikl mapping and tracking
+ * as ConversionQuoteForm (/tiktok). Redesign intro is opt-in (main LP only).
  */
 export function SeniorQuoteForm({
   onStepChange,
   consentVariant = "senior",
+  redesignIntro = false,
+  firstStepIntro,
 }: SeniorQuoteFormProps = {}) {
+  const intro =
+    firstStepIntro !== undefined
+      ? firstStepIntro
+      : consentVariant === "iki"
+        ? ""
+        : redesignIntro
+          ? REDESIGN_INTRO
+          : DEFAULT_INTRO;
+
   return (
     <QuoteForm
       variant="senior"
       firstStep="currentMutualTariff"
-      firstStepIntro={
-        consentVariant === "iki" ? "" : "Votre devis en 1 minute"
-      }
+      firstStepIntro={intro}
+      introBarStyle={redesignIntro ? "brand" : "soft"}
       coveredPersonsTitle="Qui doit être assuré ?"
       accentQuestions
       funnel={SENIOR_FORM_FUNNEL}

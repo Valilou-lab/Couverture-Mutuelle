@@ -18,11 +18,18 @@ function WhatsAppGlyph({ className }: { className?: string }) {
   );
 }
 
+type WhatsAppHeaderButtonProps = {
+  /** When false, icon only (main LP + /tiktok). Default shows the label. */
+  showLabel?: boolean;
+};
+
 /**
  * Header WhatsApp CTA for Couverture Mutuelle LPs (SeniorHeader / PrimaryHeader).
  * Not used on `/iki` — IkiHeader stays untouched.
  */
-export function WhatsAppHeaderButton() {
+export function WhatsAppHeaderButton({
+  showLabel = true,
+}: WhatsAppHeaderButtonProps = {}) {
   return (
     <a
       href={WHATSAPP_URL}
@@ -30,12 +37,24 @@ export function WhatsAppHeaderButton() {
       rel="noopener noreferrer"
       aria-label="Contacter Couverture Mutuelle sur WhatsApp"
       onClick={() => pushWhatsappHeaderClickToDataLayer()}
-      className="group inline-flex shrink-0 cursor-pointer items-center gap-2 no-underline sm:gap-2.5"
+      className={
+        showLabel
+          ? "group inline-flex shrink-0 cursor-pointer items-center gap-2 no-underline sm:gap-2.5"
+          : "inline-flex shrink-0 cursor-pointer items-center no-underline"
+      }
     >
-      <WhatsAppGlyph className="h-6 w-6 shrink-0 text-[#25D366] sm:h-7 sm:w-7" />
-      <span className="inline-flex items-center rounded-full bg-[#25D366] px-2.5 py-1 text-[0.72rem] font-semibold leading-none text-white shadow-[0_1px_2px_rgba(37,211,102,0.25)] transition-colors group-hover:bg-[#1ebe57] sm:px-3 sm:py-1.5 sm:text-[0.8125rem]">
-        Nous contacter
-      </span>
+      <WhatsAppGlyph
+        className={
+          showLabel
+            ? "h-6 w-6 shrink-0 text-[#25D366] sm:h-7 sm:w-7 lg:h-9 lg:w-9"
+            : "h-6 w-6 shrink-0 text-[#25D366] transition-opacity hover:opacity-80 sm:h-7 sm:w-7 lg:h-11 lg:w-11"
+        }
+      />
+      {showLabel ? (
+        <span className="inline-flex items-center rounded-full bg-[#25D366] px-2.5 py-1 text-[0.72rem] font-semibold leading-none text-white shadow-[0_1px_2px_rgba(37,211,102,0.25)] transition-colors group-hover:bg-[#1ebe57] sm:px-3 sm:py-1.5 sm:text-[0.8125rem] lg:px-3.5 lg:py-2 lg:text-[0.875rem]">
+          Nous contacter
+        </span>
+      ) : null}
     </a>
   );
 }

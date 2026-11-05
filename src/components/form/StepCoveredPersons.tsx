@@ -9,7 +9,11 @@ import { OptionCard } from "./OptionCard";
 import { householdChoiceIcon } from "./HouseholdChoiceIcons";
 import type { FieldErrors } from "./validation";
 import { seniorHouseholdIcon } from "./SeniorChoiceIcons";
-import { SENIOR_ERROR, SENIOR_QUESTION_TITLE, useSeniorForm } from "./seniorForm";
+import {
+  SENIOR_ERROR,
+  useQuestionTitleClass,
+  useSeniorForm,
+} from "./seniorForm";
 
 /** Senior layout lists couples before children (same ids and Vertikl mapping). */
 const SENIOR_ORDER: CoveredPersonId[] = [
@@ -35,11 +39,12 @@ export function StepCoveredPersons({
   onSelectAndAdvance,
 }: Props) {
   const senior = useSeniorForm();
+  const questionTitleClass = useQuestionTitleClass();
 
   if (senior) {
     return (
       <div>
-        <h2 className={SENIOR_QUESTION_TITLE}>{title}</h2>
+        <h2 className={questionTitleClass}>{title}</h2>
         <div className="mt-4 grid gap-3" role="group" aria-label={title}>
           {SENIOR_ORDER.map((id) => {
             const item = COVERED_PERSONS.find((person) => person.id === id)!;

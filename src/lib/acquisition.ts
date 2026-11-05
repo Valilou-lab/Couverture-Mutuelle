@@ -324,3 +324,12 @@ export function getStoredAcquisition(): StoredAcquisition {
     acquisition: { acquisition_channel: "direct" },
   };
 }
+
+/**
+ * Submit-time page for consent proof (origin + pathname only).
+ * Independent of first-touch `landingPageUrl` used for attribution/routing.
+ */
+export function getCurrentConsentLandingPageUrl(): string {
+  if (!isBrowser()) return "";
+  return `${window.location.origin}${window.location.pathname}`;
+}

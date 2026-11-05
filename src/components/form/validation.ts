@@ -228,9 +228,18 @@ function validatePostalCodeFields(data: QuoteFormData): FieldErrors {
   return errors;
 }
 
+export type ValidateStepOptions = {
+  /**
+   * Main LP (/) + /tiktok redesign: name/email collected on `identity`,
+   * so the final `contact` step only validates phone + consent.
+   */
+  contactPhoneOnly?: boolean;
+};
+
 export function validateStep(
   step: FormStepId,
   data: QuoteFormData,
+  options: ValidateStepOptions = {},
 ): FieldErrors {
   const errors: FieldErrors = {};
 
@@ -295,14 +304,9 @@ export function validateStep(
       }
       break;
 
-    case "contact":
+    case "identity":
       if (!data.firstName.trim()) errors.firstName = "Indiquez votre prénom.";
       if (!data.lastName.trim()) errors.lastName = "Indiquez votre nom.";
-      if (!data.phone.trim()) {
-        errors.phone = "Indiquez votre numéro de téléphone.";
-      } else if (!isValidPhone(data.phone)) {
-        errors.phone = "Merci de renseigner un numéro valide.";
-      }
       if (!data.email.trim()) {
         errors.email = "Indiquez votre adresse e-mail.";
       } else if (!isValidEmail(data.email)) {
@@ -311,11 +315,33 @@ export function validateStep(
         errors.email =
           "Vérifiez l’orthographe de votre adresse e-mail (ex. gmail.com).";
       }
+      break;
+
+    case "contact": {
+      const phoneOnly = Boolean(options.contactPhoneOnly);
+      if (!phoneOnly) {
+        if (!data.firstName.trim()) errors.firstName = "Indiquez votre prénom.";
+        if (!data.lastName.trim()) errors.lastName = "Indiquez votre nom.";
+        if (!data.email.trim()) {
+          errors.email = "Indiquez votre adresse e-mail.";
+        } else if (!isValidEmail(data.email)) {
+          errors.email = "Adresse e-mail invalide.";
+        } else if (isObviousEmailDomainTypo(data.email)) {
+          errors.email =
+            "Vérifiez l’orthographe de votre adresse e-mail (ex. gmail.com).";
+        }
+      }
+      if (!data.phone.trim()) {
+        errors.phone = "Indiquez votre numéro de téléphone.";
+      } else if (!isValidPhone(data.phone)) {
+        errors.phone = "Merci de renseigner un numéro valide.";
+      }
       if (!data.consent) {
         errors.consent =
           "Le consentement est nécessaire pour être contacté(e).";
       }
       break;
+    }
 
     default:
       break;

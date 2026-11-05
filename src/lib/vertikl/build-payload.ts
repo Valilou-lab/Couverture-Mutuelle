@@ -162,8 +162,11 @@ export function buildVertiklFields(
     fields.consent_ip_address = ipAddress;
   }
 
-  const landingUrl = meta?.landingPageUrl
-    ? normalizeConsentLandingPageUrl(meta.landingPageUrl)
+  // Consent proof = submit-time page; first-touch stays on meta.landingPageUrl for routing.
+  const consentPageRaw =
+    meta?.consentLandingPageUrl?.trim() || meta?.landingPageUrl?.trim() || "";
+  const landingUrl = consentPageRaw
+    ? normalizeConsentLandingPageUrl(consentPageRaw)
     : "";
   if (landingUrl) {
     fields.consent_landing_page_url = landingUrl;
