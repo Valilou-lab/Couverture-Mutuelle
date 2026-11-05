@@ -89,14 +89,13 @@ function IkiHero({
       <Container className="iki-hero-grid">
         <div className="iki-hero-text">
           <h1 id="hero-titre" className="iki-hero-title text-balance">
-            Une offre{" "}
-            <span className="iki-logo-word">11&nbsp;% moins chère</span> que
-            le marché
+            Jusqu’à{" "}
+            <span className="iki-logo-word">150&nbsp;€ d’économies</span> sur
+            votre mutuelle senior
           </h1>
           <p className="iki-hero-sub text-balance">
-            Jusqu’à <strong>150&nbsp;€ d’économie</strong> par rapport aux
-            autres offres du marché. Un conseiller IKI compare pour vous,
-            gratuitement.
+            Par rapport aux autres offres du marché. Un conseiller IKI compare
+            pour vous, gratuitement.
           </p>
           <IkiProofLine />
         </div>
@@ -254,8 +253,8 @@ function IkiFaq() {
 
 /**
  * IKI landing (/iki) for Meta senior traffic — short, form-first.
- * First mobile screen: IKI logo, headline echoing the ads (one offer 11 %
- * cheaper than the market / up to 150 € saved), one proof line, and the
+ * First mobile screen: IKI logo, headline echoing the ads (up to 150 €
+ * saved on a senior health plan), one proof line, and the
  * first question of the quote form. Below: trust, Google reviews, FAQ.
  * The quote form (SeniorQuoteForm, consentVariant="iki") is the shared one:
  * questions, texts, logic, submission and tracking are untouched; only its
