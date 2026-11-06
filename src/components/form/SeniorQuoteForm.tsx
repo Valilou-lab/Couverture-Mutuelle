@@ -18,7 +18,7 @@ const SENIOR_FORM_FUNNEL = {
 
 const DEFAULT_INTRO = "Votre devis en 1 minute";
 const REDESIGN_INTRO =
-  "Répondez à ces questions pour obtenir différents devis";
+  "Répondez à ces 5 questions pour obtenir différents devis";
 
 type SeniorQuoteFormProps = {
   onStepChange?: (step: FormStepId, questionNumber: number | null) => void;

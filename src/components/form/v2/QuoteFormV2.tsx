@@ -8,6 +8,7 @@ import {
   useState,
 } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import {
   COVERED_PERSONS,
   initialFormData,
@@ -427,22 +428,24 @@ export function QuoteFormV2() {
           id="formulaire-devis"
           className="relative scroll-mt-4 overflow-hidden rounded-[28px] border border-[#ddd6fe] bg-white shadow-[0_10px_30px_-18px_rgba(98,41,208,0.45)]"
         >
-          <div className="form-intro-bar grid grid-cols-[44px_1fr_44px] items-center border-b border-brand bg-brand px-2 py-3.5">
-            {canGoBack ? (
-              <FormBackButton
-                onBack={goBack}
-                disabled={isAdvancing || isCheckingEligibility || otpVerifying}
-                label="Étape précédente"
-                className="!text-white hover:!bg-white/15"
-              />
-            ) : (
+          {step !== "confirmation" ? (
+            <div className="form-intro-bar grid grid-cols-[44px_1fr_44px] items-center border-b border-brand bg-brand px-2 py-3.5">
+              {canGoBack ? (
+                <FormBackButton
+                  onBack={goBack}
+                  disabled={isAdvancing || isCheckingEligibility || otpVerifying}
+                  label="Étape précédente"
+                  className="!text-white hover:!bg-white/15"
+                />
+              ) : (
+                <span aria-hidden="true" />
+              )}
+              <p className="text-balance text-center font-poppins text-[clamp(1.35rem,5.5vw,1.85rem)] font-extrabold leading-tight tracking-[-0.02em] text-white">
+                Répondez à ces 5 questions pour obtenir différents devis
+              </p>
               <span aria-hidden="true" />
-            )}
-            <p className="text-balance text-center font-poppins text-[clamp(1.35rem,5.5vw,1.85rem)] font-extrabold leading-tight tracking-[-0.02em] text-white">
-              Répondez à ces questions pour obtenir différents devis
-            </p>
-            <span aria-hidden="true" />
-          </div>
+            </div>
+          ) : null}
 
           <div className="grid gap-4 px-4 pb-4 pt-[18px] min-[760px]:px-7 min-[760px]:pb-5 min-[760px]:pt-[22px]">
             {stepContent}
@@ -457,6 +460,34 @@ export function QuoteFormV2() {
               />
               Vos données sont sécurisées
             </p>
+
+            {step === "confirmation" ? (
+              <nav
+                aria-label="Informations légales"
+                className="flex flex-wrap items-center justify-center gap-x-2 gap-y-1 text-center text-[0.8125rem] text-zinc-500"
+              >
+                <Link
+                  href="/politique-de-confidentialite"
+                  className="underline underline-offset-2 hover:text-brand"
+                >
+                  Politique de confidentialité
+                </Link>
+                <span aria-hidden="true">/</span>
+                <Link
+                  href="/retirer-mon-consentement"
+                  className="underline underline-offset-2 hover:text-brand"
+                >
+                  Gérer mon consentement
+                </Link>
+                <span aria-hidden="true">/</span>
+                <Link
+                  href="/partenaires"
+                  className="underline underline-offset-2 hover:text-brand"
+                >
+                  Partenaires
+                </Link>
+              </nav>
+            ) : null}
           </div>
         </div>
       </RedesignFormContext.Provider>

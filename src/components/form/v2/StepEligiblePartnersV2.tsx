@@ -257,12 +257,9 @@ export function StepEligiblePartnersV2({
 
       <FormNavigation
         onNext={onConfirm}
-        nextLabel={
-          dossierReady
-            ? "Confirmer mon dossier"
-            : "Complétez vos informations"
-        }
+        nextLabel="Envoyer"
         disabled={!dossierReady}
+        canContinue={dossierReady}
       />
       {!dossierReady ? (
         <p className="mt-2 text-center text-[0.8125rem] leading-snug text-zinc-500">

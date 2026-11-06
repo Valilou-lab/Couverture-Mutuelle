@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { PrimaryLanding } from "@/components/landing/primary/PrimaryLanding";
+import { HomeLanding } from "@/components/landing/home/HomeLanding";
 
 export const metadata: Metadata = {
   title: "Couverture Mutuelle — Comparez les mutuelles santé",
@@ -8,6 +8,11 @@ export const metadata: Metadata = {
   robots: { index: false, follow: true },
 };
 
+/**
+ * TikTok LP — same visual as the redesigned homepage (`HomeLanding`).
+ * Keeps TikTok-specific infrastructure: noindex metadata, pathname-based
+ * acquisition / Vertikl campaign routing, and TikTokFunnelTracker (inside HomeLanding).
+ */
 export default function TikTokLandingPage() {
-  return <PrimaryLanding homeHref="/tiktok" />;
+  return <HomeLanding />;
 }

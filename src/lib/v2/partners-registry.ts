@@ -135,9 +135,13 @@ export function resolveV2PartnersFromIds(
   return partners;
 }
 
-/** Scaffold mock: all currently distributable partners until the real engine lands. */
+/** Scaffold mock subset until the real eligibility engine lands (max 3). */
+const MOCK_ELIGIBLE_PARTNER_IDS = [
+  "iki",
+  "assu_france",
+  "santiane",
+] as const satisfies readonly V2PartnerId[];
+
 export function getMockEligiblePartners(): V2RegisteredPartner[] {
-  return (Object.keys(V2_PARTNERS_REGISTRY) as V2PartnerId[])
-    .map((id) => V2_PARTNERS_REGISTRY[id])
-    .filter(isV2PartnerDistributable);
+  return resolveV2PartnersFromIds(MOCK_ELIGIBLE_PARTNER_IDS);
 }

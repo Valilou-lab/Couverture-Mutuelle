@@ -68,15 +68,10 @@ export function StepConfirmationV2() {
 
   return (
     <div className="relative py-4 text-center sm:py-6">
-      <h2 className="font-poppins text-xl font-extrabold tracking-tight text-brand sm:text-2xl">
-        Félicitations, votre dossier est confirmé.
+      <h2 className="font-poppins text-xl font-extrabold tracking-tight text-[#3f76bc] sm:text-2xl">
+        C&apos;est fait&nbsp;! Votre demande de devis est en cours.&nbsp;✅
       </h2>
-      <p className="mx-auto mt-2 max-w-md text-sm font-medium leading-snug text-zinc-700 sm:text-base">
-        Un conseiller Couverture Mutuelle va vous appeler pour finaliser votre
-        comparaison et vous présenter vos offres.
-      </p>
-
-      <div className="mx-auto mt-5 max-w-md rounded-2xl border border-[#ddd6fe] bg-[#f5f0ff] px-4 py-4 text-left text-[#3b0764] sm:px-5">
+      <div className="mx-auto mt-4 max-w-md rounded-2xl border border-[#ddd6fe] bg-[#f5f0ff] px-4 py-4 text-center text-[#3b0764] sm:mt-5 sm:px-5">
         <p className="font-poppins text-sm font-bold leading-snug sm:text-base">
           Gardez votre téléphone à proximité
         </p>
@@ -91,6 +86,34 @@ export function StepConfirmationV2() {
         Pensez à décrocher même si le numéro n’est pas enregistré dans vos
         contacts.
       </p>
+
+      <div className="mx-auto mt-4 max-w-md rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-4 text-center sm:mt-5 sm:px-5">
+        <p className="font-poppins text-sm font-bold leading-snug text-emerald-900 sm:text-base">
+          3 conseils pour bien choisir votre mutuelle&nbsp;💜
+        </p>
+        <p className="mt-2 text-sm font-medium leading-snug text-emerald-900/80">
+          Pendant l&apos;appel avec votre conseiller, pensez à vérifier&nbsp;:
+        </p>
+        <ul className="mt-2 list-none space-y-1.5 p-0 text-sm font-medium leading-snug text-emerald-900/80">
+          <li>
+            <strong className="font-bold text-emerald-900">Votre budget</strong>
+            &nbsp;: combien payez-vous aujourd&apos;hui&nbsp;?
+          </li>
+          <li>
+            <strong className="font-bold text-emerald-900">Vos priorités</strong>
+            &nbsp;: dentaire, optique, hospitalisation…
+          </li>
+          <li>
+            <strong className="font-bold text-emerald-900">Vos garanties</strong>
+            &nbsp;: lesquelles utilisez-vous vraiment&nbsp;?
+          </li>
+        </ul>
+        <p className="mt-3 text-sm font-medium leading-snug text-emerald-900/80">
+          <strong className="font-bold text-emerald-900">Un bon conseil</strong>
+          &nbsp;: posez toutes vos questions pour trouver une mutuelle adaptée,
+          sans payer pour le superflu&nbsp;!
+        </p>
+      </div>
     </div>
   );
 }

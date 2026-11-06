@@ -28,7 +28,7 @@ export function ConversionQuoteForm({
   return (
     <QuoteForm
       firstStep="currentMutualTariff"
-      firstStepIntro="Répondez à ces questions pour obtenir différents devis"
+      firstStepIntro="Répondez à ces 5 questions pour obtenir différents devis"
       introBarStyle="brand"
       careNeedsTitle="Qu’est-ce qui compte le plus pour vous dans votre mutuelle ?"
       coveredPersonsTitle="Qui doit-être assuré ?"
