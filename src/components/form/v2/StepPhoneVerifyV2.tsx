@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useFormInputClass } from "@/components/form/seniorForm";
 
 type Props = {
   phone: string;
@@ -12,7 +13,7 @@ type Props = {
 
 /**
  * V2 OTP screen — scaffold only (local adapter).
- * No Twilio / `/api/verify` calls.
+ * No Twilio / `/api/verify` calls. Presentation aligned with main LP.
  */
 export function StepPhoneVerifyV2({
   phone,
@@ -23,6 +24,7 @@ export function StepPhoneVerifyV2({
 }: Props) {
   const [code, setCode] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
+  const inputClass = useFormInputClass();
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -37,15 +39,10 @@ export function StepPhoneVerifyV2({
           Plus qu’une étape&nbsp;!
         </p>
         <p className="mt-1.5 text-[0.95rem] leading-snug text-zinc-600">
-          Vérification de votre numéro (scaffold V2 — local).
+          Saisissez le code reçu par SMS pour confirmer votre numéro.
         </p>
         <p className="mt-2 text-sm font-semibold text-[#3b0764]">{phone}</p>
       </div>
-
-      <p className="mt-4 rounded-[18px] border border-amber-200 bg-amber-50 px-3.5 py-3 text-center text-[0.85rem] leading-snug text-amber-900">
-        Mode scaffold — aucun SMS réel. Saisissez n’importe quel code à 6
-        chiffres pour continuer.
-      </p>
 
       <label
         htmlFor="v2-phone-otp"
@@ -71,7 +68,7 @@ export function StepPhoneVerifyV2({
             onConfirm(code);
           }
         }}
-        className="mt-2 w-full rounded-[18px] border-2 border-[#c4b5fd] bg-white px-4 py-4 text-center text-[1.75rem] font-extrabold tracking-[0.35em] text-[#3b0764] outline-none ring-brand/30 focus:border-brand focus:ring-2"
+        className={`${inputClass} text-center text-[1.75rem] font-extrabold tracking-[0.35em] text-[#3b0764]`}
       />
 
       {errorMessage ? (
@@ -85,7 +82,7 @@ export function StepPhoneVerifyV2({
           type="button"
           disabled={!canSubmit}
           onClick={() => onConfirm(code)}
-          className="inline-flex min-h-16 w-full items-center justify-center rounded-full bg-brand px-6 py-3.5 text-[1.2rem] font-extrabold text-white shadow-[0_8px_20px_-10px_rgba(98,41,208,0.7)] transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex min-h-16 w-full items-center justify-center rounded-full bg-[#3f76bc] px-6 py-3.5 text-[1.2rem] font-extrabold text-white shadow-[0_12px_28px_-10px_rgba(63,118,188,0.8)] ring-2 ring-[#3f76bc]/40 transition hover:bg-[#3566a6] hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {verifying ? "Vérification…" : "Confirmer mon numéro"}
         </button>

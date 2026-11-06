@@ -6,8 +6,8 @@ import { FormNavigation } from "@/components/form/FormNavigation";
 import type { FieldErrors } from "@/components/form/validation";
 import {
   SENIOR_ERROR,
-  SENIOR_INPUT,
   SENIOR_LABEL,
+  useFormInputClass,
 } from "@/components/form/seniorForm";
 import {
   getV2PhoneInputError,
@@ -21,9 +21,6 @@ import {
   V2_EMAIL_VERIFYING_MESSAGE,
 } from "./emailValidation";
 
-const PHONE_INPUT_ERROR =
-  `${SENIOR_INPUT} border-error focus:border-error focus:ring-error/20`;
-
 type Props = {
   data: QuoteFormData;
   errors: FieldErrors;
@@ -32,9 +29,6 @@ type Props = {
   onPatch: (patch: Partial<QuoteFormData>) => void;
   onNext: () => void;
 };
-
-const EMAIL_INPUT_ERROR =
-  `${SENIOR_INPUT} border-error focus:border-error focus:ring-error/20`;
 
 type EmailUiState =
   | { status: "idle" }
@@ -59,6 +53,8 @@ export function StepContactV2({
   onPatch,
   onNext,
 }: Props) {
+  const inputClass = useFormInputClass();
+  const inputErrorClass = `${inputClass} border-error focus:border-error focus:ring-error/20`;
   const [emailUi, setEmailUi] = useState<EmailUiState>({ status: "idle" });
   const [emailTouched, setEmailTouched] = useState(false);
   const [phoneTouched, setPhoneTouched] = useState(false);
@@ -249,7 +245,7 @@ export function StepContactV2({
             void handleEmailBlur();
           }}
           aria-invalid={showEmailError}
-          className={showEmailError ? EMAIL_INPUT_ERROR : SENIOR_INPUT}
+          className={showEmailError ? inputErrorClass : inputClass}
         />
         {showVerifying ? (
           <p className="mt-2 text-sm text-zinc-500" aria-live="polite">
@@ -286,7 +282,7 @@ export function StepContactV2({
           onChange={(event) => onPatch({ phone: event.target.value })}
           onBlur={handlePhoneBlur}
           aria-invalid={showPhoneError}
-          className={showPhoneError ? PHONE_INPUT_ERROR : SENIOR_INPUT}
+          className={showPhoneError ? inputErrorClass : inputClass}
         />
         {phoneErrorMessage ? (
           <p className={SENIOR_ERROR} role="alert">

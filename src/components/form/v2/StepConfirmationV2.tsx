@@ -1,19 +1,95 @@
 "use client";
 
-/** Local confirmation only — no Vertikl / leads / CAPI. */
+import { useEffect } from "react";
+import confetti from "canvas-confetti";
+
+const CONFETTI_COLORS = [
+  "#6d28d9",
+  "#a855f7",
+  "#c4b5fd",
+  "#f472b6",
+  "#fbbf24",
+  "#34d399",
+  "#ffffff",
+];
+
+function fireConfirmationConfetti() {
+  const defaults = {
+    colors: CONFETTI_COLORS,
+    disableForReducedMotion: true,
+    zIndex: 80,
+  };
+
+  confetti({
+    ...defaults,
+    particleCount: 90,
+    spread: 72,
+    startVelocity: 38,
+    origin: { x: 0.5, y: 0.28 },
+  });
+
+  window.setTimeout(() => {
+    confetti({
+      ...defaults,
+      particleCount: 55,
+      angle: 60,
+      spread: 58,
+      startVelocity: 42,
+      origin: { x: 0.08, y: 0.55 },
+    });
+    confetti({
+      ...defaults,
+      particleCount: 55,
+      angle: 120,
+      spread: 58,
+      startVelocity: 42,
+      origin: { x: 0.92, y: 0.55 },
+    });
+  }, 180);
+}
+
+/**
+ * V2 confirmation — same visual universe as the main LP.
+ * Lead wiring remains via the existing V2 adapters (unchanged).
+ */
 export function StepConfirmationV2() {
+  useEffect(() => {
+    const reduced =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) return;
+
+    const id = window.setTimeout(() => {
+      fireConfirmationConfetti();
+    }, 120);
+
+    return () => window.clearTimeout(id);
+  }, []);
+
   return (
     <div className="relative py-4 text-center sm:py-6">
-      <p className="mb-3 inline-flex rounded-full bg-violet-100 px-3 py-1 text-[0.75rem] font-bold uppercase tracking-wide text-violet-800">
-        Scaffold V2
-      </p>
       <h2 className="font-poppins text-xl font-extrabold tracking-tight text-brand sm:text-2xl">
-        Dossier confirmé — aucun lead envoyé
+        Félicitations, votre dossier est confirmé.
       </h2>
       <p className="mx-auto mt-2 max-w-md text-sm font-medium leading-snug text-zinc-700 sm:text-base">
-        Scaffold V2 : éligibilité + consentement serveur via `/api/v2/*`, OTP
-        local. Pas d’appel à `/api/leads`, Vertikl, Twilio ni Lead Meta/GTM.
-        Ces branchements viendront ensuite sur `/api/v2/leads`.
+        Un conseiller Couverture Mutuelle va vous appeler pour finaliser votre
+        comparaison et vous présenter vos offres.
+      </p>
+
+      <div className="mx-auto mt-5 max-w-md rounded-2xl border border-[#ddd6fe] bg-[#f5f0ff] px-4 py-4 text-left text-[#3b0764] sm:px-5">
+        <p className="font-poppins text-sm font-bold leading-snug sm:text-base">
+          Gardez votre téléphone à proximité
+        </p>
+        <p className="mt-1.5 text-sm font-medium leading-snug text-zinc-700">
+          Votre conseiller vous appellera dans les{" "}
+          <strong className="font-bold text-[#3b0764]">1 à 5 minutes</strong>,
+          depuis un numéro de téléphone français classique.
+        </p>
+      </div>
+
+      <p className="mx-auto mt-3 max-w-md px-1 text-center text-xs font-medium leading-snug text-zinc-500 sm:text-[0.8125rem]">
+        Pensez à décrocher même si le numéro n’est pas enregistré dans vos
+        contacts.
       </p>
     </div>
   );

@@ -1,4 +1,10 @@
-const STEPS = [
+export type FormReassuranceStep = {
+  number: string;
+  title: string;
+  text: string;
+};
+
+const DEFAULT_STEPS: FormReassuranceStep[] = [
   {
     number: "1",
     title: "Vous nous indiquez vos besoins",
@@ -14,13 +20,27 @@ const STEPS = [
     title: "Vous décidez, tout simplement",
     text: "Vous choisissez l’offre qui vous convient, en ligne ou avec l’aide d’un conseiller.",
   },
-] as const;
+];
+
+const DEFAULT_NOTE =
+  "Aucun engagement : vous restez libre de poursuivre, de comparer… ou de ne rien changer.";
+
+type FormReassuranceStepsProps = {
+  /** Defaults to the main LP (/) copy. */
+  steps?: FormReassuranceStep[];
+  /** Cartouche under the 3 cards. */
+  note?: string;
+};
 
 /**
- * Reassurance block under the main Couverture Mutuelle form (/ and /tiktok).
+ * Reassurance block under the Couverture Mutuelle form.
  * Presentation only — no form, tracking, or lead logic.
+ * Shared shell for `/`, `/tiktok`, `/devis` (copy can vary per LP).
  */
-export function FormReassuranceSteps() {
+export function FormReassuranceSteps({
+  steps = DEFAULT_STEPS,
+  note = DEFAULT_NOTE,
+}: FormReassuranceStepsProps = {}) {
   return (
     <section
       aria-labelledby="comment-ca-se-passe-titre"
@@ -34,7 +54,7 @@ export function FormReassuranceSteps() {
       </h2>
 
       <ol className="mt-8 grid list-none gap-4 p-0 sm:mt-10 sm:gap-5 lg:grid-cols-3 lg:items-stretch lg:gap-5">
-        {STEPS.map((step, index) => {
+        {steps.map((step, index) => {
           const tinted = index % 2 === 0;
           return (
             <li
@@ -64,8 +84,7 @@ export function FormReassuranceSteps() {
       </ol>
 
       <p className="mx-auto mt-8 max-w-[36rem] rounded-2xl border border-[#ddd6fe]/80 bg-[#faf7ff] px-5 py-4 text-center text-[1.05rem] font-semibold leading-snug text-[#3b0764] sm:mt-10 sm:px-7 sm:py-[1.125rem] sm:text-[1.12rem]">
-        Aucun engagement&nbsp;: vous restez libre de poursuivre, de comparer…
-        ou de ne rien changer.
+        {note}
       </p>
     </section>
   );

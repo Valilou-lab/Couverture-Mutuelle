@@ -5,8 +5,8 @@ import type { QuoteFormData } from "@/components/form/types";
 import type { FieldErrors } from "@/components/form/validation";
 import {
   SENIOR_ERROR,
-  SENIOR_INPUT,
   SENIOR_LABEL,
+  useFormInputClass,
 } from "@/components/form/seniorForm";
 import { buildV2PartnerConsentText } from "@/lib/v2/consent";
 import {
@@ -49,6 +49,7 @@ export function StepEligiblePartnersV2({
   onPatch,
   onConfirm,
 }: Props) {
+  const inputClass = useFormInputClass();
   // Drop any id that is not distributable in the allowlist (defense in depth).
   const safePartners = resolveV2PartnersFromIds(partners.map((p) => p.id));
 
@@ -74,12 +75,11 @@ export function StepEligiblePartnersV2({
   return (
     <div>
       <h2 className="text-balance text-center font-poppins text-[1.3rem] font-extrabold leading-tight tracking-[-0.02em] text-[#3b0764] sm:text-[1.5rem]">
-        Ces organismes peuvent vous proposer des devis{" "}
-        <span aria-hidden="true">🎉</span>
+        Ces organismes peuvent vous proposer des devis
       </h2>
 
       {safePartners.length === 0 ? (
-        <p className="mt-5 rounded-[18px] border border-brand-muted bg-[#f7f4ff] px-4 py-4 text-center text-[0.98rem] text-[#3b0764]">
+        <p className="mt-5 rounded-[18px] border border-[#ddd6fe] bg-[#f5f0ff] px-4 py-4 text-center text-[0.98rem] text-[#3b0764]">
           Aucun partenaire éligible pour le moment.
         </p>
       ) : (
@@ -90,7 +90,7 @@ export function StepEligiblePartnersV2({
             return (
               <li
                 key={partner.id}
-                className="flex flex-col rounded-[16px] border border-brand/15 bg-white px-2 py-2.5 shadow-[0_1px_0_rgba(109,40,217,0.04)] sm:px-3 sm:py-3"
+                className="flex flex-col rounded-[18px] border border-[#ddd6fe] bg-white px-2 py-2.5 shadow-[0_6px_18px_-14px_rgba(98,41,208,0.22)] sm:px-3 sm:py-3"
               >
                 <div className="flex h-12 items-center justify-center sm:h-14">
                   {logoSrc ? (
@@ -129,10 +129,10 @@ export function StepEligiblePartnersV2({
         </ul>
       )}
 
-      <div className="mt-5 flex gap-3 rounded-[18px] border border-emerald-200/80 bg-emerald-50/80 px-3.5 py-3.5 text-left sm:px-4">
+      <div className="mt-5 flex gap-3 rounded-[18px] border border-[#ddd6fe] bg-[#f5f0ff] px-3.5 py-3.5 text-left sm:px-4">
         <span
           aria-hidden="true"
-          className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700"
+          className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand text-white"
         >
           <svg
             viewBox="0 0 24 24"
@@ -148,7 +148,7 @@ export function StepEligiblePartnersV2({
           </svg>
         </span>
         <div className="min-w-0">
-          <p className="font-poppins text-[0.98rem] font-bold text-[#064e3b]">
+          <p className="font-poppins text-[0.98rem] font-bold text-[#3b0764]">
             Vous gardez le contrôle
           </p>
           <p className="mt-1 text-[0.85rem] leading-snug text-zinc-600 sm:text-[0.9rem]">
@@ -173,7 +173,7 @@ export function StepEligiblePartnersV2({
             autoComplete="given-name"
             value={data.firstName}
             onChange={(event) => onPatch({ firstName: event.target.value })}
-            className={SENIOR_INPUT}
+            className={inputClass}
           />
           {errors.firstName ? (
             <p className={SENIOR_ERROR} role="alert">
@@ -190,7 +190,7 @@ export function StepEligiblePartnersV2({
             autoComplete="family-name"
             value={data.lastName}
             onChange={(event) => onPatch({ lastName: event.target.value })}
-            className={SENIOR_INPUT}
+            className={inputClass}
           />
           {errors.lastName ? (
             <p className={SENIOR_ERROR} role="alert">
@@ -200,7 +200,7 @@ export function StepEligiblePartnersV2({
         </div>
       </div>
 
-      <div className="mt-4 rounded-[18px] border-2 border-brand-muted bg-[#f7f4ff] p-4 text-[0.98rem] leading-relaxed text-foreground">
+      <div className="mt-4 rounded-[18px] border-2 border-[#ddd6fe] bg-[#f5f0ff] p-4 text-[0.98rem] leading-relaxed text-foreground">
         <div className="flex items-start gap-3">
           <input
             id="v2-consent-opt-in"

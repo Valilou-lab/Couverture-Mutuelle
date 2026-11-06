@@ -3,7 +3,7 @@ import { DevisLanding } from "@/components/landing/devis/DevisLanding";
 
 const TITLE = "Devis mutuelle — Couverture Mutuelle";
 const DESCRIPTION =
-  "Parcours V2 : éligibilité partenaires avant consentement. Preview de développement.";
+  "Comparez gratuitement les mutuelles santé et obtenez un accompagnement personnalisé. Service sans engagement.";
 
 /**
  * Future production LP at /devis.

@@ -26,12 +26,14 @@ import {
   V2_EMAIL_INVALID_MESSAGE,
 } from "./emailValidation";
 import { FormBackButton } from "@/components/form/FormBackButton";
-import { ProgressBar } from "@/components/form/ProgressBar";
 import { StepCoveredPersons } from "@/components/form/StepCoveredPersons";
 import { StepProfessionalStatusV2 } from "./StepProfessionalStatusV2";
 import { StepCurrentMutualTariff } from "@/components/form/StepCurrentMutualTariff";
 import { StepBirthAndPostalV2 } from "./StepBirthAndPostalV2";
-import { SeniorFormContext } from "@/components/form/seniorForm";
+import {
+  RedesignFormContext,
+  SeniorFormContext,
+} from "@/components/form/seniorForm";
 import { scrollQuoteFormIntoView } from "@/components/form/scrollQuoteFormIntoView";
 import {
   ELIGIBILITY_MIN_LOADING_MS,
@@ -419,49 +421,45 @@ export function QuoteFormV2() {
 
   return (
     <SeniorFormContext.Provider value>
-      <div
-        ref={formRootRef}
-        id="formulaire-devis"
-        className="relative scroll-mt-4 overflow-hidden rounded-[28px] border border-[#ddd6fe] bg-white shadow-[0_10px_30px_-18px_rgba(98,41,208,0.45)]"
-      >
-        <div className="grid grid-cols-[44px_1fr_44px] items-center border-b border-brand-muted bg-[#ddd6fe] px-2 py-3.5">
-          {canGoBack ? (
-            <FormBackButton
-              onBack={goBack}
-              disabled={isAdvancing || isCheckingEligibility || otpVerifying}
-              label="Étape précédente"
-            />
-          ) : (
+      <RedesignFormContext.Provider value>
+        <div
+          ref={formRootRef}
+          id="formulaire-devis"
+          className="relative scroll-mt-4 overflow-hidden rounded-[28px] border border-[#ddd6fe] bg-white shadow-[0_10px_30px_-18px_rgba(98,41,208,0.45)]"
+        >
+          <div className="form-intro-bar grid grid-cols-[44px_1fr_44px] items-center border-b border-brand bg-brand px-2 py-3.5">
+            {canGoBack ? (
+              <FormBackButton
+                onBack={goBack}
+                disabled={isAdvancing || isCheckingEligibility || otpVerifying}
+                label="Étape précédente"
+                className="!text-white hover:!bg-white/15"
+              />
+            ) : (
+              <span aria-hidden="true" />
+            )}
+            <p className="text-balance text-center font-poppins text-[clamp(1.35rem,5.5vw,1.85rem)] font-extrabold leading-tight tracking-[-0.02em] text-white">
+              Répondez à ces questions pour obtenir différents devis
+            </p>
             <span aria-hidden="true" />
-          )}
-          <p className="text-balance text-center font-poppins text-[1.25rem] font-extrabold leading-tight tracking-[-0.02em] text-[#3b0764] sm:text-[1.7rem]">
-            Votre devis en 1 minute
-          </p>
-          <span aria-hidden="true" />
+          </div>
+
+          <div className="grid gap-4 px-4 pb-4 pt-[18px] min-[760px]:px-7 min-[760px]:pb-5 min-[760px]:pt-[22px]">
+            {stepContent}
+
+            <p className="flex items-center justify-center gap-2 text-[0.95rem] text-zinc-600">
+              <Image
+                src="/images/Pictos/picto-securite-donnees.png"
+                alt=""
+                width={22}
+                height={20}
+                className="h-5 w-[22px] shrink-0 object-contain"
+              />
+              Vos données sont sécurisées
+            </p>
+          </div>
         </div>
-
-        <div className="grid gap-4 px-4 pb-4 pt-[18px] min-[760px]:px-7 min-[760px]:pb-5 min-[760px]:pt-[22px]">
-          {showProgress ? (
-            <ProgressBar
-              current={progressCurrent}
-              total={V2_QUESTION_STEPS.length}
-            />
-          ) : null}
-
-          {stepContent}
-
-          <p className="flex items-center justify-center gap-2 text-[0.95rem] text-zinc-600">
-            <Image
-              src="/images/Pictos/picto-securite-donnees.png"
-              alt=""
-              width={22}
-              height={20}
-              className="h-5 w-[22px] shrink-0 object-contain"
-            />
-            Vos données sont sécurisées
-          </p>
-        </div>
-      </div>
+      </RedesignFormContext.Provider>
     </SeniorFormContext.Provider>
   );
 }

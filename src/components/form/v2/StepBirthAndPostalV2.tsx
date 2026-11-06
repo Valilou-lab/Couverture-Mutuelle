@@ -11,7 +11,8 @@ import {
   SENIOR_ERROR,
   SENIOR_INPUT,
   SENIOR_LABEL,
-  SENIOR_QUESTION_TITLE,
+  useFormInputClass,
+  useQuestionTitleClass,
   useSeniorForm,
 } from "@/components/form/seniorForm";
 import {
@@ -51,13 +52,15 @@ export function StepBirthAndPostalV2({
   onNext,
 }: Props) {
   const senior = useSeniorForm();
+  const questionTitleClass = useQuestionTitleClass();
+  const formInputClass = useFormInputClass();
   const titleClass = senior
-    ? SENIOR_QUESTION_TITLE
+    ? questionTitleClass
     : "text-center text-xl font-semibold tracking-tight text-foreground sm:text-2xl";
   const labelClass = senior
     ? SENIOR_LABEL
     : "block text-sm font-medium text-foreground";
-  const inputClass = senior ? SENIOR_INPUT : undefined;
+  const inputClass = senior ? formInputClass || SENIOR_INPUT : undefined;
   const errorClass = senior ? SENIOR_ERROR : "mt-2 text-sm text-error";
   const lookup = useCommuneLookup(
     hidePostalCode ? "" : data.postalCode,
