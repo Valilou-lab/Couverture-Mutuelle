@@ -13,6 +13,8 @@ type Props = {
   isFirstStep?: boolean;
   /** Used on the last step: « Bonne nouvelle {prénom} ! » */
   firstName?: string;
+  /** `/devis` email + phone step mascot copy. */
+  devisContact?: boolean;
 };
 
 function prefersReducedMotion(): boolean {
@@ -95,12 +97,17 @@ export function FormMascotBubble({
   step,
   isFirstStep = false,
   firstName,
+  devisContact = false,
 }: Props) {
-  const content = getFormMascotContent(step, { isFirstStep, firstName });
+  const content = getFormMascotContent(step, {
+    isFirstStep,
+    firstName,
+    devisContact,
+  });
   const title = content?.title ?? "";
   const message = content?.lines.join(" ") ?? "";
   const reassurance = content?.reassurance ?? "";
-  const featured = step === "contact";
+  const featured = step === "contact" && !devisContact;
 
   const typedTitle = useTypedText(title, Boolean(content));
   const typedMessage = useTypedText(message, typedTitle.done && Boolean(message));

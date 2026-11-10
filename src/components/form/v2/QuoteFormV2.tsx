@@ -441,6 +441,7 @@ export function QuoteFormV2() {
           step={mascotStep}
           isFirstStep={step === "currentMutualTariff"}
           firstName={data.firstName}
+          devisContact={step === "contact"}
         />
         <div
           id="formulaire-devis"

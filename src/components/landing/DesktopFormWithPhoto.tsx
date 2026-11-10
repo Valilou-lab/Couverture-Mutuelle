@@ -10,9 +10,8 @@ type Props = {
   /** Extra classes on the outer wrapper (e.g. padding overrides). */
   className?: string;
   /**
-   * Desktop photo badge.
-   * `free` = main LP only (« Gratuit & sans engagement »).
-   * Default `savings` keeps the existing badge on other LPs.
+   * Desktop photo badge. Default `free` (« Gratuit & sans engagement »)
+   * on every LP that uses this photo. `savings` is kept as an opt-in.
    */
   photoBadge?: PhotoBadgeVariant;
 };
@@ -49,7 +48,7 @@ function PhotoBadge({ variant }: { variant: PhotoBadgeVariant }) {
 }
 
 /**
- * Desktop-only (/ and /tiktok): faded couple photo left of the form.
+ * Desktop-only: faded photo left of the form.
  * Mobile unchanged — form only, same max width as before.
  * Photo + form are centered as one composition.
  */
@@ -57,7 +56,7 @@ export function DesktopFormWithPhoto({
   children,
   id = "devis",
   className = "",
-  photoBadge = "savings",
+  photoBadge = "free",
 }: Props) {
   return (
     <div
@@ -72,12 +71,12 @@ export function DesktopFormWithPhoto({
         <div className="relative hidden h-[min(40rem,78vh)] w-[min(100%,32rem)] shrink-0 lg:block">
           <div className="absolute inset-0 overflow-hidden rounded-[1.75rem] lg:rounded-r-none">
             <Image
-              src="/images/hero-couple-hiver.jpg"
-              alt="Couple senior"
+              src="/images/hero-senior-jardin.jpg"
+              alt=""
               fill
               priority
               sizes="512px"
-              className="object-cover object-[center_18%]"
+              className="object-cover object-[center_40%]"
             />
             {/* Soft fade into the pastel LP background toward the form */}
             <div

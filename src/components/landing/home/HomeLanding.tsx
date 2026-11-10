@@ -55,7 +55,7 @@ function isPastFirstQuestion(
  * White band runs from the header through the titles, stopping just above the form.
  */
 export function HomeLanding({
-  photoBadge = "savings",
+  photoBadge = "free",
 }: {
   photoBadge?: PhotoBadgeVariant;
 } = {}) {

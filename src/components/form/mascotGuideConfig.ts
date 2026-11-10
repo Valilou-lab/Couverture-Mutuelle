@@ -156,7 +156,12 @@ function contactTitle(firstName?: string): string {
 
 export function getFormMascotContent(
   step: FormStepId,
-  options?: { isFirstStep?: boolean; firstName?: string },
+  options?: {
+    isFirstStep?: boolean;
+    firstName?: string;
+    /** `/devis` Q5 — phone + email, not the savings “Bonne nouvelle” copy. */
+    devisContact?: boolean;
+  },
 ): FormMascotContent | null {
   if (options?.isFirstStep && step === "currentMutualTariff") {
     return {
@@ -182,6 +187,18 @@ export function getFormMascotContent(
       bubbleTone: "mint",
     };
   }
+  if (options?.devisContact && step === "contact") {
+    return {
+      pose: "enveloppe",
+      title: "Presque terminé !",
+      lines: [
+        "Indiquez votre téléphone et votre e-mail",
+        "pour préparer vos devis.",
+      ],
+      bubbleTone: "cream",
+    };
+  }
+
   const content = GUIDE_BY_STEP[step] ?? null;
   if (content && step === "contact") {
     return { ...content, title: contactTitle(options?.firstName) };

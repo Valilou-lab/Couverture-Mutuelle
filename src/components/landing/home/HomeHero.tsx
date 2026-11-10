@@ -24,7 +24,7 @@ export function HomeHeroTitles() {
 
 export function HomeHeroForm({
   onStepChange,
-  photoBadge = "savings",
+  photoBadge = "free",
 }: {
   onStepChange?: (step: FormStepId, questionNumber: number | null) => void;
   photoBadge?: PhotoBadgeVariant;
