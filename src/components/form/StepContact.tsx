@@ -28,7 +28,7 @@ const CM_CONSENT_LABEL =
 const [cmConsentBeforePartners, cmConsentAfterPartners] =
   CM_CONSENT_LABEL.split(CM_PARTNERS_MARKER);
 
-const IKI_PARTNERS_LINK_LABEL = "liste des partenaires";
+const IKI_PARTNERS_LINK_LABEL = "partenaires sélectionnés";
 const [ikiPartnerBeforeList, ikiPartnerAfterList] =
   IKI_PARTNER_CONSENT_OPTIN_TEXT.split(IKI_PARTNERS_LINK_LABEL);
 const LINK_CLASS =
@@ -295,7 +295,7 @@ export function StepContact({
               <IkiOptinLabel
                 htmlFor="partner-consent-opt-in"
                 text={ikiPartnerBeforeList}
-                boldUntil="assureur partenaire"
+                boldUntil="3 offres"
               />
               <button
                 type="button"

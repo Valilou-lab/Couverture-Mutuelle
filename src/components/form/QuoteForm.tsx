@@ -892,11 +892,13 @@ export function QuoteForm({
       <SeniorFormContext.Provider value>
         <RedesignFormContext.Provider value={brandIntroBar}>
         <div ref={formRootRef} className="w-full scroll-mt-24">
-        <FormMascotBubble
-          step={step}
-          isFirstStep={step === firstStep}
-          firstName={data.firstName}
-        />
+        {consentVariant !== "iki" ? (
+          <FormMascotBubble
+            step={step}
+            isFirstStep={step === firstStep}
+            firstName={data.firstName}
+          />
+        ) : null}
         <div
           id="formulaire-devis"
           className="relative overflow-hidden rounded-[28px] border border-[#ddd6fe] bg-white shadow-[0_10px_30px_-18px_rgba(98,41,208,0.45)]"

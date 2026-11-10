@@ -55,13 +55,13 @@ export const SENIOR_CONSENT_CHANNELS = ["telephone", "email"] as const;
 /** IKI LP (/iki) — dual independent opt-ins. */
 export const IKI_CONSENT_OPTIN_TEXT_VERSION = "2026-11-02.iki.1";
 export const IKI_CONSENT_OPTIN_TEXT_VERSION_WITH_PARTNERS =
-  "2026-11-02.iki.partners.1";
+  "2026-11-10.iki.partners.2";
 
 export const IKI_CONSENT_OPTIN_TEXT =
   "J'accepte d'être contacté(e) par téléphone et e-mail par IKI Assurance pour recevoir une proposition de complémentaire santé adaptée à mes besoins.";
 
 export const IKI_PARTNER_CONSENT_OPTIN_TEXT =
-  "Si IKI Assurance ne peut pas donner suite à ma demande, j'accepte d'être contacté(e) par un autre assureur partenaire figurant dans la liste des partenaires, afin de recevoir une autre proposition de complémentaire santé.";
+  "Je souhaite comparer jusqu’à 3 offres et j’accepte d’être contacté(e) par les partenaires sélectionnés pour ma demande.";
 
 export const IKI_CONSENT_VALIDITY_TEXT =
   "Consentements facultatifs, indépendants et révocables. Durée de validité : 12 mois maximum pour le démarchage téléphonique.";
