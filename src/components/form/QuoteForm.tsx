@@ -25,6 +25,7 @@ import {
   type FieldErrors,
 } from "./validation";
 import { FormBackButton } from "./FormBackButton";
+import { FormMascotBubble } from "./FormMascotBubble";
 import { ProgressBar } from "./ProgressBar";
 import { StepCareNeeds } from "./StepCareNeeds";
 import { StepCoveredPersons } from "./StepCoveredPersons";
@@ -359,6 +360,16 @@ export function QuoteForm({
     setStep(next);
     scrollQuoteFormIntoView(formRootRef.current);
   }, []);
+
+  const skipStepScrollOnMount = useRef(true);
+  useEffect(() => {
+    if (skipStepScrollOnMount.current) {
+      skipStepScrollOnMount.current = false;
+      return;
+    }
+    if (step === "confirmation") return;
+    scrollQuoteFormIntoView(formRootRef.current);
+  }, [step]);
 
   useEffect(() => {
     if (formFocusToken === 0 || formFocusToken === lastFocusToken.current) {
@@ -880,10 +891,15 @@ export function QuoteForm({
     return (
       <SeniorFormContext.Provider value>
         <RedesignFormContext.Provider value={brandIntroBar}>
+        <div ref={formRootRef} className="w-full scroll-mt-24">
+        <FormMascotBubble
+          step={step}
+          isFirstStep={step === firstStep}
+          firstName={data.firstName}
+        />
         <div
-          ref={formRootRef}
           id="formulaire-devis"
-          className="relative scroll-mt-4 overflow-hidden rounded-[28px] border border-[#ddd6fe] bg-white shadow-[0_10px_30px_-18px_rgba(98,41,208,0.45)]"
+          className="relative overflow-hidden rounded-[28px] border border-[#ddd6fe] bg-white shadow-[0_10px_30px_-18px_rgba(98,41,208,0.45)]"
         >
           {showIntroBar ? (
             <div
@@ -918,15 +934,22 @@ export function QuoteForm({
             </div>
           ) : null}
 
-          <div className="grid gap-4 px-4 pb-4 pt-[18px] min-[760px]:px-7 min-[760px]:pb-5 min-[760px]:pt-[22px]">
+          <div
+            className={`relative grid gap-4 px-4 pb-4 min-[760px]:px-7 min-[760px]:pb-5 ${
+              showIntroBar
+                ? "pt-[18px] min-[760px]:pt-[22px]"
+                : canGoBack
+                  ? "pt-12 min-[760px]:pt-[3.25rem]"
+                  : "pt-4 min-[760px]:pt-5"
+            }`}
+          >
             {!showIntroBar && canGoBack ? (
-              <div className="-mb-1 -ml-1 -mt-1">
-                <FormBackButton
-                  onBack={goBack}
-                  disabled={isAdvancing || isSubmitting}
-                  label="Question précédente"
-                />
-              </div>
+              <FormBackButton
+                onBack={goBack}
+                disabled={isAdvancing || isSubmitting}
+                label="Question précédente"
+                className="absolute left-1.5 top-1.5 z-20 sm:left-2.5 sm:top-2"
+              />
             ) : null}
             {showProgress && !brandIntroBar ? (
               <ProgressBar current={progressCurrent} total={progressTotal} />
@@ -945,6 +968,7 @@ export function QuoteForm({
               Vos données sont sécurisées
             </p>
           </div>
+        </div>
         </div>
         </RedesignFormContext.Provider>
       </SeniorFormContext.Provider>

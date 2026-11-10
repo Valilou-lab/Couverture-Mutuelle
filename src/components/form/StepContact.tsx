@@ -17,6 +17,7 @@ import {
   SENIOR_ERROR,
   SENIOR_LABEL,
   useFormInputClass,
+  useQuestionTitleClass,
   useSeniorForm,
 } from "./seniorForm";
 
@@ -34,22 +35,6 @@ const LINK_CLASS =
   "font-semibold text-brand underline underline-offset-2 hover:text-[#5b21b6]";
 const CM_CONSENT_NOTE_LINK =
   "underline underline-offset-2 hover:text-brand";
-
-const PHONE_STEP_LEAD =
-  "Vous êtes éligible à une économie allant jusqu’à 400€/an 🥳";
-const PHONE_STEP_FALLBACK =
-  "Vous êtes éligible à une économie allant jusqu’à 400€/an 🥳";
-
-function phoneStepTitle(firstName: string, phoneOnly: boolean): string {
-  if (!phoneOnly) return "Bonne nouvelle";
-  const name = firstName.trim();
-  return name ? `Bonne nouvelle ${name} !` : "Bonne nouvelle !";
-}
-
-function phoneStepLead(firstName: string, phoneOnly: boolean): string {
-  if (!phoneOnly) return "Dernière étape pour recevoir vos nouveaux tarifs.";
-  return firstName.trim() ? PHONE_STEP_LEAD : PHONE_STEP_FALLBACK;
-}
 
 /** Bold the lead clause of each IKI opt-in (matches the mock). */
 function IkiOptinLabel({
@@ -105,6 +90,7 @@ export function StepContact({
   const [partnersOpen, setPartnersOpen] = useState(false);
   const senior = useSeniorForm();
   const iki = consentVariant === "iki";
+  const titleClass = useQuestionTitleClass();
   const labelClass = senior ? SENIOR_LABEL : "block text-sm font-medium";
   const inputClass = useFormInputClass();
   const errorClass = senior ? SENIOR_ERROR : "mt-2 text-sm text-error";
@@ -115,33 +101,6 @@ export function StepContact({
 
   return (
     <div>
-      <div className="text-center">
-        <p
-          className={
-            senior
-              ? "bonne-nouvelle-title text-[1.15rem] font-extrabold text-brand"
-              : "bonne-nouvelle-title font-manrope text-base font-bold text-brand sm:text-lg"
-          }
-        >
-          {phoneStepTitle(data.firstName, phoneOnly)}
-        </p>
-      </div>
-
-      <div
-        className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-3.5 py-3.5 text-left sm:px-4"
-        aria-live="polite"
-      >
-        <p className="flex items-start gap-2.5 font-poppins text-[1.05rem] font-bold leading-snug text-emerald-900 sm:text-[1.15rem]">
-          <span
-            aria-hidden="true"
-            className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-[0.75rem] font-bold text-white"
-          >
-            ✓
-          </span>
-          <span>{phoneStepLead(data.firstName, phoneOnly)}</span>
-        </p>
-      </div>
-
       {phoneOnly ? null : (
         <div
           className={
@@ -187,18 +146,17 @@ export function StepContact({
         </div>
       )}
 
-      <div className={phoneOnly ? "mt-4" : "mt-4"}>
-        <p
+      <div className={phoneOnly ? "mt-0" : "mt-4"}>
+        <h2
           className={
             senior
-              ? "mb-3 text-[0.95rem] italic leading-snug text-zinc-600"
-              : "mb-3 text-sm italic leading-snug text-zinc-600 sm:text-[0.9375rem]"
+              ? titleClass
+              : "text-center text-xl font-semibold tracking-tight text-foreground sm:text-2xl"
           }
         >
-          Vos données sont sécurisées et utilisées uniquement pour votre
-          demande. Vous restez libre, sans engagement.
-        </p>
-        <label htmlFor="phone" className={labelClass}>
+          Finalisation
+        </h2>
+        <label htmlFor="phone" className={`${labelClass} mt-4`}>
           Téléphone
         </label>
         <input
@@ -223,17 +181,6 @@ export function StepContact({
             ) : null}
           </div>
         ) : null}
-
-        <p
-          className={
-            senior
-              ? "mt-2 text-[0.95rem] leading-snug text-[#3f76bc]"
-              : "mt-2 text-sm leading-snug text-[#3f76bc]"
-          }
-        >
-          Un code de confirmation vous sera ensuite envoyé par SMS afin de
-          valider votre dossier.
-        </p>
 
         {!senior ? (
           <label

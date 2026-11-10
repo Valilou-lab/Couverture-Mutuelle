@@ -20,7 +20,7 @@ type ConversionQuoteFormProps = {
 
 /**
  * Conversion form for /tiktok (PrimaryLanding).
- * Uses the main-LP redesign intro (copy + dark purple bar).
+ * Redesign accents without intro-bar copy.
  */
 export function ConversionQuoteForm({
   onStepChange,
@@ -28,7 +28,7 @@ export function ConversionQuoteForm({
   return (
     <QuoteForm
       firstStep="currentMutualTariff"
-      firstStepIntro="Répondez à ces 5 questions pour obtenir différents devis"
+      firstStepIntro=""
       introBarStyle="brand"
       careNeedsTitle="Qu’est-ce qui compte le plus pour vous dans votre mutuelle ?"
       coveredPersonsTitle="Qui doit-être assuré ?"

@@ -32,6 +32,7 @@ export type VertiklGender = "Madame" | "Monsieur" | "Autre";
 export type VertiklProfessionalStatut =
   | "retraité"
   | "salarié"
+  | "travailleur non salarié"
   | "sans emploi"
   | "autre";
 

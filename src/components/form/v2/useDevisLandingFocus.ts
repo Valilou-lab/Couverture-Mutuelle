@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, type RefObject } from "react";
+import { scrollQuoteFormIntoView } from "@/components/form/scrollQuoteFormIntoView";
 
 const HIDDEN_FLAG = "devisFocusHidden";
 
@@ -54,7 +55,7 @@ export function useDevisLandingFocus(
       }
     }
 
-    form.scrollIntoView({ behavior: "auto", block: "start" });
+    scrollQuoteFormIntoView(form);
 
     return () => {
       for (const el of hidden) {

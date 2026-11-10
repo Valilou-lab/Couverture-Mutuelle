@@ -33,7 +33,7 @@ export function FormNavigation({
     const toneClass = incomplete
       ? "bg-zinc-300 text-zinc-500 shadow-none"
       : redesign
-        ? "bg-[#3f76bc] text-white shadow-[0_12px_28px_-10px_rgba(63,118,188,0.8)] ring-2 ring-[#3f76bc]/40 hover:bg-[#3566a6] hover:brightness-105"
+        ? "bg-[#9b4ff0] text-white shadow-[0_12px_28px_-10px_rgba(155,79,240,0.55)] ring-2 ring-[#9b4ff0]/35 hover:bg-[#8b3de0] hover:brightness-105"
         : "bg-brand text-white shadow-[0_8px_20px_-10px_rgba(98,41,208,0.7)] ring-2 ring-brand/30 hover:brightness-110";
 
     return (

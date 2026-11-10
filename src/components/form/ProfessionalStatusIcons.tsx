@@ -4,6 +4,7 @@ import {
   Armchair,
   BriefcaseBusiness,
   CirclePause,
+  Handshake,
   Shapes,
 } from "lucide-react";
 import type { ProfessionalStatusId } from "./types";
@@ -18,6 +19,7 @@ const ICON_PROPS = {
 export function professionalStatusIcon(id: ProfessionalStatusId) {
   if (id === "retired") return <Armchair {...ICON_PROPS} />;
   if (id === "employee") return <BriefcaseBusiness {...ICON_PROPS} />;
+  if (id === "self_employed") return <Handshake {...ICON_PROPS} />;
   if (id === "not_working") return <CirclePause {...ICON_PROPS} />;
   return <Shapes {...ICON_PROPS} />;
 }

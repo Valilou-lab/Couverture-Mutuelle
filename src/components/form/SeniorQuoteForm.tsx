@@ -17,8 +17,6 @@ const SENIOR_FORM_FUNNEL = {
 } as const;
 
 const DEFAULT_INTRO = "Votre devis en 1 minute";
-const REDESIGN_INTRO =
-  "Répondez à ces 5 questions pour obtenir différents devis";
 
 type SeniorQuoteFormProps = {
   onStepChange?: (step: FormStepId, questionNumber: number | null) => void;
@@ -26,7 +24,7 @@ type SeniorQuoteFormProps = {
   consentVariant?: Extract<ConsentVariantId, "senior" | "iki">;
   /**
    * Main LP (/) redesign only. Other LPs keep the default soft intro.
-   * When true: redesign intro copy + dark purple intro bar.
+   * When true: no intro-bar copy (cleaner header) + dark purple accents.
    */
   redesignIntro?: boolean;
   firstStepIntro?: ReactNode;
@@ -45,11 +43,9 @@ export function SeniorQuoteForm({
   const intro =
     firstStepIntro !== undefined
       ? firstStepIntro
-      : consentVariant === "iki"
+      : consentVariant === "iki" || redesignIntro
         ? ""
-        : redesignIntro
-          ? REDESIGN_INTRO
-          : DEFAULT_INTRO;
+        : DEFAULT_INTRO;
 
   return (
     <QuoteForm

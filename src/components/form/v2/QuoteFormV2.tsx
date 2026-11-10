@@ -27,6 +27,7 @@ import {
   V2_EMAIL_INVALID_MESSAGE,
 } from "./emailValidation";
 import { FormBackButton } from "@/components/form/FormBackButton";
+import { FormMascotBubble } from "@/components/form/FormMascotBubble";
 import { StepCoveredPersons } from "@/components/form/StepCoveredPersons";
 import { StepProfessionalStatusV2 } from "./StepProfessionalStatusV2";
 import { StepCurrentMutualTariff } from "@/components/form/StepCurrentMutualTariff";
@@ -291,7 +292,12 @@ export function QuoteFormV2() {
     [data, eligibilityToken, eligiblePartners, goTo, otpVerifying],
   );
 
+  const skipStepScrollOnMount = useRef(true);
   useEffect(() => {
+    if (skipStepScrollOnMount.current) {
+      skipStepScrollOnMount.current = false;
+      return;
+    }
     if (step === "confirmation") return;
     scrollQuoteFormIntoView(formRootRef.current);
   }, [step]);
@@ -420,38 +426,41 @@ export function QuoteFormV2() {
     </div>
   );
 
+  const mascotStep: FormStepId =
+    step === "searching" || step === "eligiblePartners"
+      ? "analyzing"
+      : step === "phoneVerify"
+        ? "contact"
+        : step;
+
   return (
     <SeniorFormContext.Provider value>
       <RedesignFormContext.Provider value>
+        <div ref={formRootRef} className="w-full scroll-mt-24">
+        <FormMascotBubble
+          step={mascotStep}
+          isFirstStep={step === "currentMutualTariff"}
+          firstName={data.firstName}
+        />
         <div
-          ref={formRootRef}
           id="formulaire-devis"
-          className="relative scroll-mt-4 overflow-hidden rounded-[28px] border border-[#ddd6fe] bg-white shadow-[0_10px_30px_-18px_rgba(98,41,208,0.45)]"
+          className="relative overflow-hidden rounded-[28px] border border-[#ddd6fe] bg-white shadow-[0_10px_30px_-18px_rgba(98,41,208,0.45)]"
         >
-          {step !== "confirmation" ? (
-            <div className="form-intro-bar grid grid-cols-[44px_1fr_44px] items-center border-b border-brand bg-brand px-2 py-3.5">
-              {canGoBack ? (
-                <FormBackButton
-                  onBack={goBack}
-                  disabled={isAdvancing || isCheckingEligibility || otpVerifying}
-                  label="Étape précédente"
-                  className="!text-white hover:!bg-white/15"
-                />
-              ) : (
-                <span aria-hidden="true" />
-              )}
-              <p className="text-balance text-center font-poppins text-[clamp(1.05rem,3.8vw,1.35rem)] font-extrabold leading-tight tracking-[-0.02em] text-white">
-                {step === "contact" ||
-                step === "eligiblePartners" ||
-                step === "searching"
-                  ? "Finalisation"
-                  : "Répondez à ces 5 questions pour obtenir différents devis"}
-              </p>
-              <span aria-hidden="true" />
-            </div>
-          ) : null}
-
-          <div className="grid gap-4 px-4 pb-4 pt-[18px] min-[760px]:px-7 min-[760px]:pb-5 min-[760px]:pt-[22px]">
+          <div
+            className={`relative grid gap-4 px-4 pb-4 min-[760px]:px-7 min-[760px]:pb-5 ${
+              step !== "confirmation" && canGoBack
+                ? "pt-12 min-[760px]:pt-[3.25rem]"
+                : "pt-4 min-[760px]:pt-5"
+            }`}
+          >
+            {step !== "confirmation" && canGoBack ? (
+              <FormBackButton
+                onBack={goBack}
+                disabled={isAdvancing || isCheckingEligibility || otpVerifying}
+                label="Étape précédente"
+                className="absolute left-1.5 top-1.5 z-20 sm:left-2.5 sm:top-2"
+              />
+            ) : null}
             {stepContent}
 
             <p className="flex items-center justify-center gap-2 text-[0.95rem] text-zinc-600">
@@ -493,6 +502,7 @@ export function QuoteFormV2() {
               </nav>
             ) : null}
           </div>
+        </div>
         </div>
       </RedesignFormContext.Provider>
     </SeniorFormContext.Provider>

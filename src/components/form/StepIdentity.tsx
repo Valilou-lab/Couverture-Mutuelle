@@ -48,9 +48,6 @@ export function StepIdentity({
       >
         Vos coordonnées
       </h2>
-      <p className="mt-2 text-center text-[1.05rem] leading-snug text-[#1f1f29] sm:text-[1.1rem]">
-        Pour préparer vos devis, indiquez votre nom et votre e-mail.
-      </p>
 
       <div
         className={

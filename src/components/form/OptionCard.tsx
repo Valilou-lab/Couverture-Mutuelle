@@ -22,11 +22,11 @@ type OptionCardProps = {
   seniorAlign?: "left" | "center";
 };
 
-/** Button blue from design reference screenshot (~#3f76bc). */
+/** Pastel violet — aligned with LP brand tokens. */
 const REDESIGN_BTN =
-  "rounded-none border-2 border-[#3f76bc] bg-[#3f76bc] text-white hover:border-[#3566a6] hover:bg-[#3566a6]";
+  "rounded-[18px] border-2 border-brand-muted bg-brand-soft text-[#3b0764] hover:border-brand hover:bg-[#ddd6fe]";
 const REDESIGN_BTN_SELECTED =
-  "rounded-none border-2 border-[#2f5a96] bg-[#2f5a96] text-white shadow-none";
+  "rounded-[18px] border-2 border-brand bg-brand-muted text-[#3b0764] shadow-[0_0_0_3px_rgba(98,41,208,0.18)]";
 
 export function OptionCard({
   label,
@@ -67,11 +67,7 @@ export function OptionCard({
       >
         <span
           className={`inline-flex justify-self-center ${
-            redesign
-              ? "text-white"
-              : selected
-                ? "text-[#8a6cf0]"
-                : "text-[#8b5cf6]"
+            selected ? "text-[#8a6cf0]" : "text-[#8b5cf6]"
           }`}
           aria-hidden="true"
         >
@@ -111,10 +107,10 @@ export function OptionCard({
             className={
               iconClassName ??
               (isStack
-                ? "inline-flex h-6 items-center justify-center text-white sm:h-7"
+                ? "inline-flex h-6 items-center justify-center text-[#8b5cf6] sm:h-7"
                 : isRow
-                  ? "inline-flex h-6 w-6 shrink-0 items-center justify-center text-white sm:h-7 sm:w-7"
-                  : "pointer-events-none absolute left-2.5 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center text-white sm:left-3 sm:h-8 sm:w-8")
+                  ? "inline-flex h-6 w-6 shrink-0 items-center justify-center text-[#8b5cf6] sm:h-7 sm:w-7"
+                  : "pointer-events-none absolute left-2.5 top-1/2 inline-flex h-7 w-7 -translate-y-1/2 items-center justify-center text-[#8b5cf6] sm:left-3 sm:h-8 sm:w-8")
             }
             aria-hidden="true"
           >
@@ -125,15 +121,15 @@ export function OptionCard({
         <span
           className={
             labelClassName
-              ? `${labelClassName} !text-white`
-              : "w-full max-w-full text-balance text-[13px] font-semibold leading-snug text-white sm:text-[15px]"
+              ? `${labelClassName} !text-[#3b0764]`
+              : "w-full max-w-full text-balance text-[13px] font-semibold leading-snug text-[#3b0764] sm:text-[15px]"
           }
         >
           {label}
         </span>
 
         {description ? (
-          <span className="mt-1 block w-full max-w-full text-pretty text-xs leading-snug text-white/90 sm:text-sm">
+          <span className="mt-1 block w-full max-w-full text-pretty text-xs leading-snug text-[#4c1d95]/90 sm:text-sm">
             {description}
           </span>
         ) : null}

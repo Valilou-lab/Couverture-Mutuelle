@@ -26,6 +26,7 @@ export const COVERED_PERSONS = [
 export const PROFESSIONAL_STATUSES = [
   { id: "retired", label: "Retraité" },
   { id: "employee", label: "Salarié" },
+  { id: "self_employed", label: "Travailleur non salarié" },
   { id: "not_working", label: "Sans activité professionnelle" },
   { id: "other", label: "Autre" },
 ] as const;

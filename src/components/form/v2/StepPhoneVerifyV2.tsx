@@ -82,7 +82,7 @@ export function StepPhoneVerifyV2({
           type="button"
           disabled={!canSubmit}
           onClick={() => onConfirm(code)}
-          className="inline-flex min-h-16 w-full items-center justify-center rounded-full bg-[#3f76bc] px-6 py-3.5 text-[1.2rem] font-extrabold text-white shadow-[0_12px_28px_-10px_rgba(63,118,188,0.8)] ring-2 ring-[#3f76bc]/40 transition hover:bg-[#3566a6] hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
+          className="inline-flex min-h-16 w-full items-center justify-center rounded-full bg-[#9b4ff0] px-6 py-3.5 text-[1.2rem] font-extrabold text-white shadow-[0_12px_28px_-10px_rgba(155,79,240,0.55)] ring-2 ring-[#9b4ff0]/35 transition hover:bg-[#8b3de0] hover:brightness-105 disabled:cursor-not-allowed disabled:opacity-60"
         >
           {verifying ? "Vérification…" : "Confirmer mon numéro"}
         </button>

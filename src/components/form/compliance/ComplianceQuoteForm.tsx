@@ -256,7 +256,12 @@ export function ComplianceQuoteForm() {
     [goTo, otpVerifying],
   );
 
+  const skipStepScrollOnMount = useRef(true);
   useEffect(() => {
+    if (skipStepScrollOnMount.current) {
+      skipStepScrollOnMount.current = false;
+      return;
+    }
     if (step === "confirmation") return;
     scrollQuoteFormIntoView(formRootRef.current);
   }, [step]);
@@ -388,7 +393,7 @@ export function ComplianceQuoteForm() {
       <div
         ref={formRootRef}
         id="formulaire-devis"
-        className="relative scroll-mt-4 overflow-hidden rounded-[28px] border border-[#ddd6fe] bg-white shadow-[0_10px_30px_-18px_rgba(98,41,208,0.45)]"
+        className="relative scroll-mt-24 overflow-hidden rounded-[28px] border border-[#ddd6fe] bg-white shadow-[0_10px_30px_-18px_rgba(98,41,208,0.45)]"
       >
         <div className="grid grid-cols-[44px_1fr_44px] items-center border-b border-brand-muted bg-[#ddd6fe] px-2 py-3.5">
           {canGoBack ? (

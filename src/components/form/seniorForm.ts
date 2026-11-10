@@ -38,14 +38,14 @@ export const SENIOR_LABEL = "block text-[1.05rem] font-medium text-foreground";
 export const SENIOR_INPUT =
   "mt-1.5 min-h-16 w-full min-w-0 rounded-[18px] border-2 border-brand-muted bg-white px-[18px] py-4 text-[1.2rem] text-foreground outline-none placeholder:text-zinc-400 focus:border-brand focus:ring-[3px] focus:ring-brand/15 disabled:opacity-60";
 
-/** Same size as SENIOR_INPUT; border matches redesign option buttons (~#3f76bc). */
+/** Same size as SENIOR_INPUT; border matches pastel violet option buttons. */
 export const REDESIGN_INPUT =
-  "mt-1.5 min-h-16 w-full min-w-0 rounded-[18px] border-2 border-[#3f76bc] bg-white px-[18px] py-4 text-[1.2rem] text-foreground outline-none placeholder:text-zinc-400 focus:border-[#3566a6] focus:ring-[3px] focus:ring-[#3f76bc]/25 disabled:opacity-60";
+  "mt-1.5 min-h-16 w-full min-w-0 rounded-[18px] border-2 border-brand-muted bg-white px-[18px] py-4 text-[1.2rem] text-foreground outline-none placeholder:text-zinc-400 focus:border-brand focus:ring-[3px] focus:ring-brand/15 disabled:opacity-60";
 
 const DEFAULT_FORM_INPUT =
   "mt-2 w-full rounded-2xl border-2 border-[#c4b5fd] bg-white px-4 py-3.5 text-base outline-none ring-brand/30 focus:border-brand focus:ring-2";
 
-/** Input frame for the active form variant (redesign blue / senior purple / default). */
+/** Input frame for the active form variant (redesign / senior purple / default). */
 export function useFormInputClass(): string {
   if (useRedesignForm()) return REDESIGN_INPUT;
   if (useSeniorForm()) return SENIOR_INPUT;

@@ -114,6 +114,7 @@ const PROFESSIONAL_STATUT_MAP: Record<
 > = {
   retired: "retraité",
   employee: "salarié",
+  self_employed: "travailleur non salarié",
   not_working: "sans emploi",
   other: "autre",
 };

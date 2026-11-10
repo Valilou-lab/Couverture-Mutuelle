@@ -16,7 +16,7 @@ export type FormMascotContent = {
   title: string;
   /** Static lines, or use renderMessage for dynamic content. */
   lines: string[];
-  bubbleTone?: "violet" | "mint" | "cream" | "sky";
+  bubbleTone?: "violet" | "mint" | "cream" | "sky" | "green";
   reassurance?: string;
 };
 
@@ -98,7 +98,7 @@ const GUIDE_BY_STEP: Partial<Record<FormStepId, FormMascotContent>> = {
     lines: [
       "Âge et code postal me permettent",
       "de sélectionner les offres",
-      "disponibles près de chez vous.",
+      "disponibles adaptées.",
     ],
     bubbleTone: "sky",
   },
@@ -133,15 +133,13 @@ const GUIDE_BY_STEP: Partial<Record<FormStepId, FormMascotContent>> = {
   },
   contact: {
     pose: "enveloppe",
-    title: "🎉 Bonne nouvelle !",
+    title: "Bonne nouvelle !",
     lines: [
-      "Dernière étape ! Indiquez",
-      "vos coordonnées pour recevoir",
-      "votre comparaison personnalisée.",
+      "Vous êtes éligible à une économie allant jusqu’à 400€/an 🥳",
     ],
-    bubbleTone: "mint",
+    bubbleTone: "green",
     reassurance:
-      "🔒 Vos infos restent confidentielles et ne serviront qu’à votre demande.",
+      "Vos données sont sécurisées et ne seront utilisées que pour la réception de devis, sans engagement.",
   },
   confirmation: {
     pose: "enveloppe",
@@ -151,15 +149,20 @@ const GUIDE_BY_STEP: Partial<Record<FormStepId, FormMascotContent>> = {
   },
 };
 
+function contactTitle(firstName?: string): string {
+  const name = firstName?.trim();
+  return name ? `Bonne nouvelle ${name} !` : "Bonne nouvelle !";
+}
+
 export function getFormMascotContent(
   step: FormStepId,
-  options?: { isFirstStep?: boolean },
+  options?: { isFirstStep?: boolean; firstName?: string },
 ): FormMascotContent | null {
   if (options?.isFirstStep && step === "currentMutualTariff") {
     return {
       pose: "sourit-et-salue",
       title: "Bienvenue !",
-      lines: ["Commençons par le tarif", "de votre mutuelle actuelle."],
+      lines: ["Répondez à 5 questions pour recevoir vos devis"],
       bubbleTone: "mint",
     };
   }
@@ -179,7 +182,11 @@ export function getFormMascotContent(
       bubbleTone: "mint",
     };
   }
-  return GUIDE_BY_STEP[step] ?? null;
+  const content = GUIDE_BY_STEP[step] ?? null;
+  if (content && step === "contact") {
+    return { ...content, title: contactTitle(options?.firstName) };
+  }
+  return content;
 }
 
 /** Narrative progress so étape 2 (coveredPersons) lands on 25%. */

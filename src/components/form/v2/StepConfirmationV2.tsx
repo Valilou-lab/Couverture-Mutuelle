@@ -68,7 +68,7 @@ export function StepConfirmationV2() {
 
   return (
     <div className="relative py-4 text-center sm:py-6">
-      <h2 className="font-poppins text-xl font-extrabold tracking-tight text-[#3f76bc] sm:text-2xl">
+      <h2 className="font-poppins text-xl font-extrabold tracking-tight text-brand sm:text-2xl">
         C&apos;est fait&nbsp;! Votre demande de devis est en cours.&nbsp;✅
       </h2>
       <div className="mx-auto mt-4 max-w-md rounded-2xl border border-[#ddd6fe] bg-[#f5f0ff] px-4 py-4 text-center text-[#3b0764] sm:mt-5 sm:px-5">

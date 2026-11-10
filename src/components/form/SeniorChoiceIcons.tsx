@@ -112,6 +112,15 @@ const STATUS_ICONS: Record<ProfessionalStatusId, ReactNode> = {
       <circle cx="23" cy="18" r="1.2" fill="currentColor" stroke="none" />
     </Icon>
   ),
+  self_employed: (
+    <Icon>
+      <path d="M10 20c2.2-3.5 5-5.5 8-5.5S23.8 16.5 26 20" />
+      <circle cx="18" cy="11" r="3.5" />
+      <path d="M28 20c1.6-2.6 3.6-4 6-4 2.2 0 4 1.1 5.5 3" />
+      <circle cx="34" cy="12.5" r="3" />
+      <path d="M8 28h16M28 28h10" />
+    </Icon>
+  ),
   not_working: (
     <Icon>
       <circle cx="23" cy="17" r="13" />
