@@ -1,6 +1,9 @@
 import { SeniorQuoteForm } from "@/components/form/SeniorQuoteForm";
 import type { FormStepId } from "@/components/form/types";
-import { DesktopFormWithPhoto } from "@/components/landing/DesktopFormWithPhoto";
+import {
+  DesktopFormWithPhoto,
+  type PhotoBadgeVariant,
+} from "@/components/landing/DesktopFormWithPhoto";
 import { TikTokFunnelTracker } from "@/components/landing/tiktok/TikTokFunnelTracker";
 
 /**
@@ -21,11 +24,13 @@ export function HomeHeroTitles() {
 
 export function HomeHeroForm({
   onStepChange,
+  photoBadge = "savings",
 }: {
   onStepChange?: (step: FormStepId, questionNumber: number | null) => void;
+  photoBadge?: PhotoBadgeVariant;
 } = {}) {
   return (
-    <DesktopFormWithPhoto>
+    <DesktopFormWithPhoto photoBadge={photoBadge}>
       <SeniorQuoteForm redesignIntro onStepChange={onStepChange} />
     </DesktopFormWithPhoto>
   );

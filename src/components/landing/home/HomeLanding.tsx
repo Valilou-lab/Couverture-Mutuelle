@@ -13,6 +13,7 @@ import {
 } from "@/components/landing/reste-a-charge/ResteAChargeSections";
 import { FormReassuranceSteps } from "@/components/landing/FormReassuranceSteps";
 import { TikTokFunnelTracker } from "@/components/landing/tiktok/TikTokFunnelTracker";
+import type { PhotoBadgeVariant } from "@/components/landing/DesktopFormWithPhoto";
 import { HomeHeroForm, HomeHeroTitles } from "./HomeHero";
 import { HomeWhy } from "./HomeWhy";
 
@@ -53,7 +54,11 @@ function isPastFirstQuestion(
  * then supporting blocks. Same form, header, footer and sticky CTA.
  * White band runs from the header through the titles, stopping just above the form.
  */
-export function HomeLanding() {
+export function HomeLanding({
+  photoBadge = "savings",
+}: {
+  photoBadge?: PhotoBadgeVariant;
+} = {}) {
   const [formFocused, setFormFocused] = useState(false);
 
   const onStepChange = useCallback(
@@ -77,7 +82,7 @@ export function HomeLanding() {
       </div>
       <main className="mx-auto w-full max-w-[640px] flex-1 px-4 pb-12 min-[700px]:max-w-[1000px] lg:max-w-[1220px]">
         <TikTokFunnelTracker />
-        <HomeHeroForm onStepChange={onStepChange} />
+        <HomeHeroForm onStepChange={onStepChange} photoBadge={photoBadge} />
         <div className="mx-auto w-full max-w-[640px] min-[700px]:max-w-[1000px]">
           <FormReassuranceSteps />
           {!formFocused ? (
