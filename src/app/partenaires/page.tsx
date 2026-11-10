@@ -23,6 +23,7 @@ export default function PartenairesPage() {
             key={`${partner.name}-${partner.orias}`}
             name={partner.name}
             orias={partner.orias}
+            privacyPolicyUrl={partner.privacyPolicyUrl}
           />
         ))}
       </ul>

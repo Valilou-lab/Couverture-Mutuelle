@@ -31,10 +31,10 @@ export function SeniorHero({
   return (
     <>
       <TikTokFunnelTracker />
-      <div className="min-[900px]:grid min-[900px]:grid-cols-[1fr_470px] min-[900px]:items-start min-[900px]:gap-10 min-[900px]:pt-6">
+      <div className="min-[900px]:grid min-[900px]:grid-cols-[1fr_470px] min-[900px]:items-start min-[900px]:gap-10 min-[900px]:pt-3">
         <div>
-          <div className="grid gap-2.5 pb-3.5 pt-[22px] text-center min-[900px]:pt-6 min-[900px]:text-left">
-            <h1 className="text-balance font-poppins text-[clamp(1.6rem,6.4vw,2.2rem)] font-extrabold leading-[1.2] tracking-[-0.02em] text-[#3b0764]">
+          <div className="grid gap-1.5 pb-3 pt-2 text-center min-[900px]:pt-3 min-[900px]:text-left">
+            <h1 className="text-balance font-poppins text-[clamp(1.45rem,5.8vw,2.05rem)] font-extrabold leading-[1.15] tracking-[-0.02em] text-[#3b0764]">
               {title}
             </h1>
             <p className="text-base text-zinc-600">{subtitle}</p>

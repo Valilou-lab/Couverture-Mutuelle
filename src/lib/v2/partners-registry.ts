@@ -45,7 +45,8 @@ export const V2_PARTNERS_REGISTRY: Record<V2PartnerId, V2RegisteredPartner> = {
     websiteUrl: "https://assu-france.info/",
     privacyPolicyUrl: "https://assu-france.info/politique-rgpd/",
     contactChannels: ["phone", "email"],
-    active: true,
+    /** Replaced in V2 mock distribution by 2A L'Adour. */
+    active: false,
   },
   iki: {
     id: "iki",
@@ -68,8 +69,9 @@ export const V2_PARTNERS_REGISTRY: Record<V2PartnerId, V2RegisteredPartner> = {
   },
   "2a_assurances": {
     id: "2a_assurances",
-    name: "2A Assurances",
+    name: "2A L'Adour",
     legalName: "ASSURANCES DE L'ADOUR",
+    logo: "/images/partners/2a-ladour.png",
     websiteUrl: "https://2a-assurances.fr/",
     privacyPolicyUrl: "https://2a-assurances.fr/politique-de-confidentialite/",
     contactChannels: ["phone", "email"],
@@ -138,7 +140,7 @@ export function resolveV2PartnersFromIds(
 /** Scaffold mock subset until the real eligibility engine lands (max 3). */
 const MOCK_ELIGIBLE_PARTNER_IDS = [
   "iki",
-  "assu_france",
+  "2a_assurances",
   "santiane",
 ] as const satisfies readonly V2PartnerId[];
 

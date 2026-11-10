@@ -221,10 +221,22 @@ export function StepContactV2({
         <h2 className="text-balance font-poppins text-[1.35rem] font-extrabold leading-tight tracking-[-0.02em] text-brand sm:text-[1.55rem]">
           Plus qu’une étape&nbsp;!
         </h2>
-        <p className="mt-1.5 text-[0.9rem] leading-snug text-zinc-500 sm:text-[0.95rem]">
-          Renseignez votre e-mail et votre numéro de téléphone pour vérifier
-          les offres disponibles pour votre profil.
-        </p>
+        <div className="mx-auto mt-3 max-w-md rounded-2xl border border-emerald-200 bg-emerald-50 px-3.5 py-3 text-left sm:px-4 sm:py-3.5">
+          <p className="flex items-start gap-2.5 text-[0.875rem] font-medium leading-snug text-emerald-900 sm:text-[0.9rem]">
+            <span
+              className="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-[0.65rem] font-bold text-white"
+              aria-hidden="true"
+            >
+              ✓
+            </span>
+            <span>
+              Renseignez votre e-mail et votre téléphone pour lancer la
+              recherche. Vous verrez juste après quels organismes peuvent vous
+              proposer un devis, avant de décider librement si vous souhaitez
+              être contacté(e).
+            </span>
+          </p>
+        </div>
       </header>
 
       <div className="mt-4">

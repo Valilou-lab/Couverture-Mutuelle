@@ -23,8 +23,8 @@ export function SeniorHeader({
       <div
         className={
           logoCentered
-            ? "mx-auto grid max-w-[640px] grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 py-3 lg:max-w-[84rem] lg:px-10 lg:pb-1 lg:pt-3"
-            : "mx-auto flex max-w-[640px] items-center justify-between gap-3 px-4 py-3"
+            ? "mx-auto grid max-w-[640px] grid-cols-[1fr_auto_1fr] items-center gap-2 px-4 py-2 lg:max-w-[84rem] lg:px-10 lg:py-1.5"
+            : "mx-auto flex max-w-[640px] items-center justify-between gap-2 px-4 py-2"
         }
       >
         {logoCentered ? <span aria-hidden="true" /> : null}
@@ -40,7 +40,7 @@ export function SeniorHeader({
             height={357}
             loading="eager"
             fetchPriority="high"
-            className="block h-11 w-auto lg:h-16"
+            className="block h-9 w-auto lg:h-12"
           />
         </Link>
         <div

@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { LegalPage } from "@/components/landing/LegalPage";
+import { PartnerCard } from "@/components/partners/PartnerCard";
+import { PARTNERS } from "@/lib/partners";
 
 export const metadata: Metadata = {
   title: "Mentions légales — Couverture Mutuelle",
@@ -238,16 +240,19 @@ export default function MentionsLegalesPage() {
       </p>
       <p>
         La liste des partenaires susceptibles de recevoir les données de
-        l’utilisateur est accessible depuis le site et au moment du recueil du
-        consentement (
-        <Link
-          href="/partenaires"
-          className="font-medium text-brand hover:underline"
-        >
-          voir la page Partenaires
-        </Link>
-        ).
+        l’utilisateur est la suivante&nbsp;:
       </p>
+      <ul className="!my-4 list-none !space-y-3 !p-0">
+        {PARTNERS.map((partner) => (
+          <PartnerCard
+            key={`${partner.name}-${partner.orias}`}
+            name={partner.name}
+            orias={partner.orias}
+            privacyPolicyUrl={partner.privacyPolicyUrl}
+            showBadge={false}
+          />
+        ))}
+      </ul>
       <p>
         Les professionnels partenaires sont responsables des offres, conseils,
         garanties, tarifs et contrats qu’ils proposent à l’utilisateur dans le

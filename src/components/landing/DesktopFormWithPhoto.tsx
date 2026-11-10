@@ -25,7 +25,7 @@ export function DesktopFormWithPhoto({
       className={
         className
           ? `mx-auto w-full max-w-[560px] scroll-mt-4 lg:max-w-[1180px] ${className}`
-          : "mx-auto w-full max-w-[560px] scroll-mt-4 pt-4 lg:max-w-[1180px] lg:pt-6"
+          : "mx-auto w-full max-w-[560px] scroll-mt-4 pt-2 lg:max-w-[1180px] lg:pt-3"
       }
     >
       <div className="lg:mx-auto lg:flex lg:max-w-[1120px] lg:items-center lg:justify-center">

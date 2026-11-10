@@ -23,7 +23,12 @@ function VerifiedBadge() {
   );
 }
 
-export function PartnerCard({ name, orias }: Partner) {
+export function PartnerCard({
+  name,
+  orias,
+  privacyPolicyUrl,
+  showBadge = true,
+}: Partner & { showBadge?: boolean }) {
   return (
     <li className="rounded-xl border border-brand/15 bg-white px-4 py-3.5 shadow-[0_1px_0_rgba(109,40,217,0.04)]">
       <div className="flex flex-col gap-2.5 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
@@ -38,8 +43,18 @@ export function PartnerCard({ name, orias }: Partner) {
               • ORIAS&nbsp;: {orias}
             </span>
           </p>
+          <p className="mt-1.5 text-[0.8125rem] leading-snug">
+            <a
+              href={privacyPolicyUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-medium text-brand underline underline-offset-2 hover:text-[#5b21b6]"
+            >
+              Politique de protection des données
+            </a>
+          </p>
         </div>
-        <VerifiedBadge />
+        {showBadge ? <VerifiedBadge /> : null}
       </div>
     </li>
   );

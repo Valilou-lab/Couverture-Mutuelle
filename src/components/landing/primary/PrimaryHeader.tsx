@@ -18,7 +18,7 @@ export function PrimaryHeader({ homeHref }: PrimaryHeaderProps) {
       </div>
 
       <header className="border-b border-border/60 bg-white">
-        <div className="mx-auto grid max-w-[84rem] grid-cols-[1fr_auto_1fr] items-center gap-3 px-4 py-3 sm:px-6 sm:py-3.5 lg:px-10 lg:pb-1 lg:pt-3">
+        <div className="mx-auto grid max-w-[84rem] grid-cols-[1fr_auto_1fr] items-center gap-2 px-4 py-2 sm:px-6 lg:px-10 lg:py-1.5">
           <span aria-hidden="true" />
           <Link
             href={homeHref}
@@ -31,7 +31,7 @@ export function PrimaryHeader({ homeHref }: PrimaryHeaderProps) {
               width={280}
               height={72}
               priority
-              className="h-10 w-auto max-w-[9.5rem] object-contain sm:h-12 sm:max-w-[11rem] md:h-[3.25rem] md:max-w-none lg:h-[4.25rem]"
+              className="h-9 w-auto max-w-[9rem] object-contain sm:h-11 sm:max-w-[10.5rem] lg:h-12"
             />
           </Link>
           <div className="justify-self-end lg:self-start lg:pt-0.5">
