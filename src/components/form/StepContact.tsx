@@ -15,7 +15,6 @@ import {
 } from "@/lib/consent";
 import {
   SENIOR_ERROR,
-  SENIOR_INFO,
   SENIOR_LABEL,
   useFormInputClass,
   useSeniorForm,
@@ -24,7 +23,7 @@ import {
 /** Visible CM classic checkbox label — display only (Vertikl proof unchanged). */
 const CM_PARTNERS_MARKER = "ses partenaires";
 const CM_CONSENT_LABEL =
-  "Je demande à être contacté(e) par téléphone et e-mail par Couverture Mutuelle et ses partenaires pour recevoir des offres de mutuelle adaptées à ma demande, pendant 12 mois.";
+  "Je demande à être contacté(e) par téléphone et e-mail par Couverture Mutuelle et ses partenaires pour ma demande de mutuelle.";
 const [cmConsentBeforePartners, cmConsentAfterPartners] =
   CM_CONSENT_LABEL.split(CM_PARTNERS_MARKER);
 
@@ -37,9 +36,9 @@ const CM_CONSENT_NOTE_LINK =
   "underline underline-offset-2 hover:text-brand";
 
 const PHONE_STEP_LEAD =
-  "Afin de recevoir vos devis de façon sécurisée, indiquez votre numéro de téléphone.";
+  "Vous êtes éligible à une économie allant jusqu’à 400€/an 🥳";
 const PHONE_STEP_FALLBACK =
-  "Dernière étape : indiquez votre numéro de téléphone pour recevoir vos devis de façon sécurisée.";
+  "Vous êtes éligible à une économie allant jusqu’à 400€/an 🥳";
 
 function phoneStepTitle(firstName: string, phoneOnly: boolean): string {
   if (!phoneOnly) return "Bonne nouvelle";
@@ -116,13 +115,7 @@ export function StepContact({
 
   return (
     <div>
-      <div
-        className={
-          senior
-            ? SENIOR_INFO
-            : "rounded-2xl bg-brand-soft/70 px-4 py-3.5 text-center sm:px-5 sm:py-4"
-        }
-      >
+      <div className="text-center">
         <p
           className={
             senior
@@ -132,14 +125,20 @@ export function StepContact({
         >
           {phoneStepTitle(data.firstName, phoneOnly)}
         </p>
-        <p
-          className={
-            senior
-              ? "mt-1 text-[0.95rem] leading-snug text-zinc-600"
-              : "mt-1.5 text-sm leading-snug text-zinc-600 sm:text-[0.9375rem]"
-          }
-        >
-          {phoneStepLead(data.firstName, phoneOnly)}
+      </div>
+
+      <div
+        className="mt-3 rounded-2xl border border-emerald-200 bg-emerald-50 px-3.5 py-3.5 text-left sm:px-4"
+        aria-live="polite"
+      >
+        <p className="flex items-start gap-2.5 font-poppins text-[1.05rem] font-bold leading-snug text-emerald-900 sm:text-[1.15rem]">
+          <span
+            aria-hidden="true"
+            className="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-[0.75rem] font-bold text-white"
+          >
+            ✓
+          </span>
+          <span>{phoneStepLead(data.firstName, phoneOnly)}</span>
         </p>
       </div>
 
@@ -189,6 +188,16 @@ export function StepContact({
       )}
 
       <div className={phoneOnly ? "mt-4" : "mt-4"}>
+        <p
+          className={
+            senior
+              ? "mb-3 text-[0.95rem] italic leading-snug text-zinc-600"
+              : "mb-3 text-sm italic leading-snug text-zinc-600 sm:text-[0.9375rem]"
+          }
+        >
+          Vos données sont sécurisées et utilisées uniquement pour votre
+          demande. Vous restez libre, sans engagement.
+        </p>
         <label htmlFor="phone" className={labelClass}>
           Téléphone
         </label>
@@ -419,24 +428,27 @@ export function StepContact({
                     : "mt-1.5 text-[0.75rem] leading-snug text-zinc-500"
                 }
               >
-                Consentement retirable à tout moment.{" "}
-                <a
-                  href="/politique-de-confidentialite"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={CM_CONSENT_NOTE_LINK}
-                >
-                  Politique de confidentialité
-                </a>
-                {" · "}
-                <a
-                  href="/partenaires"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className={CM_CONSENT_NOTE_LINK}
-                >
-                  Partenaires
-                </a>
+                Consentement valable jusqu’à 12 mois et retirable à tout
+                moment.
+                <span className="mt-1 block">
+                  <a
+                    href="/politique-de-confidentialite"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={CM_CONSENT_NOTE_LINK}
+                  >
+                    Politique de confidentialité
+                  </a>
+                  {" · "}
+                  <a
+                    href="/partenaires"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={CM_CONSENT_NOTE_LINK}
+                  >
+                    Partenaires
+                  </a>
+                </span>
               </p>
             </div>
           </div>
@@ -455,13 +467,7 @@ export function StepContact({
 
       <FormNavigation
         onNext={onNext}
-        nextLabel={
-          disabled
-            ? "Envoi en cours…"
-            : iki
-              ? "Envoyer mon dossier"
-              : "Valider ma demande"
-        }
+        nextLabel={disabled ? "Envoi en cours…" : "Envoyer"}
         disabled={disabled}
         canContinue={canContinue}
       />

@@ -908,11 +908,11 @@ export function QuoteForm({
               <p
                 className={`text-balance text-center font-poppins font-extrabold leading-tight tracking-[-0.02em] ${
                   brandIntroBar
-                    ? "text-[clamp(1.35rem,5.5vw,1.85rem)] text-white"
-                    : "text-[1.25rem] text-[#3b0764] sm:text-[1.7rem]"
+                    ? "text-[clamp(1.05rem,3.8vw,1.35rem)] text-white"
+                    : "text-[1.05rem] text-[#3b0764] sm:text-[1.25rem]"
                 }`}
               >
-                {firstStepIntro}
+                {step === "contact" ? "Finalisation" : firstStepIntro}
               </p>
               <span aria-hidden="true" />
             </div>
@@ -988,7 +988,7 @@ export function QuoteForm({
                   : "text-xl leading-tight text-[#3b0764] sm:text-2xl lg:text-[1.75rem]"
               }`}
             >
-              {firstStepIntro}
+              {step === "contact" ? "Finalisation" : firstStepIntro}
             </p>
           ) : null}
           {firstStepNote ? (

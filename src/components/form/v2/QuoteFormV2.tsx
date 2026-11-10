@@ -440,8 +440,12 @@ export function QuoteFormV2() {
               ) : (
                 <span aria-hidden="true" />
               )}
-              <p className="text-balance text-center font-poppins text-[clamp(1.35rem,5.5vw,1.85rem)] font-extrabold leading-tight tracking-[-0.02em] text-white">
-                Répondez à ces 5 questions pour obtenir différents devis
+              <p className="text-balance text-center font-poppins text-[clamp(1.05rem,3.8vw,1.35rem)] font-extrabold leading-tight tracking-[-0.02em] text-white">
+                {step === "contact" ||
+                step === "eligiblePartners" ||
+                step === "searching"
+                  ? "Finalisation"
+                  : "Répondez à ces 5 questions pour obtenir différents devis"}
               </p>
               <span aria-hidden="true" />
             </div>

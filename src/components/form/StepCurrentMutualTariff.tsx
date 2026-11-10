@@ -82,7 +82,7 @@ export function StepCurrentMutualTariff({
       <h2
         className={
           redesign
-            ? "text-center text-xl font-normal tracking-tight text-black sm:text-2xl lg:text-[1.45rem]"
+            ? "text-center text-xl font-bold tracking-tight text-black sm:text-2xl lg:text-[1.45rem]"
             : "text-center text-xl font-semibold tracking-tight text-foreground sm:text-2xl lg:text-[1.45rem]"
         }
       >

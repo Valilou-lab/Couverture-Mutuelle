@@ -1,7 +1,7 @@
 import type { V2RegisteredPartner } from "./partners-registry";
 
 /** Bump when the V2 partner-consent wording template changes. */
-export const V2_PARTNER_CONSENT_VERSION = "2026-11-06.v2.partners.3";
+export const V2_PARTNER_CONSENT_VERSION = "2026-11-10.v2.partners.4";
 
 /** French list: "A", "A et B", "A, B et C". */
 export function formatPartnerNamesFr(names: string[]): string {
@@ -28,7 +28,7 @@ export function buildV2PartnerConsentText(
   const verb = singular ? "me contacte" : "me contactent";
   const possessive = singular ? "ses" : "leurs";
   const linker = startsWithVowelSound(list) ? "qu’" : "que ";
-  return `Je demande ${linker}${list} ${verb} par téléphone et par e-mail afin de me présenter ${possessive} offres correspondant à ma demande.`;
+  return `J’accepte ${linker}${list} ${verb} par téléphone et par e-mail afin de me présenter ${possessive} offres correspondant à ma demande.`;
 }
 
 export type V2ConsentRecord = {
