@@ -1,6 +1,5 @@
 import Image from "next/image";
 import Link from "next/link";
-import { SeniorQuoteForm } from "@/components/form/SeniorQuoteForm";
 import { WhatsAppHeaderButton } from "@/components/landing/WhatsAppHeaderButton";
 import { SeniorFooter } from "@/components/landing/senior/SeniorFooter";
 import { SeniorPartners } from "@/components/landing/senior/SeniorSections";
@@ -12,6 +11,8 @@ import {
   RacPeople,
 } from "@/components/landing/reste-a-charge/ResteAChargeSections";
 import { TikTokFunnelTracker } from "@/components/landing/tiktok/TikTokFunnelTracker";
+import { HomeFormTrustButtons } from "./HomeFormTrustButtons";
+import { HomeHeroForm } from "./HomeHero";
 import { HomeWhy } from "./HomeWhy";
 
 const CTA_LABEL = "Je compare gratuitement";
@@ -70,14 +71,24 @@ function HomeClassicHero() {
           <span className="text-brand">économisez dès maintenant</span>
         </h1>
         <p className="text-balance font-poppins text-[clamp(1.1rem,4.4vw,1.4rem)] font-bold leading-snug text-[#3b0764]">
-          Comparez en 1 minute.{" "}
-          <span className="text-brand">Un conseiller vous rappelle</span> avec les
-          offres adaptées à votre âge.
+          Obtenez la{" "}
+          <span className="text-brand">Meilleure Mutuelle Santé Senior</span> en 2
+          minutes
         </p>
       </div>
-      <div id="devis" className="mx-auto w-full max-w-[560px] scroll-mt-4">
-        {/* Current lead form, unchanged from main (same props as HomeLanding). */}
-        <SeniorQuoteForm redesignIntro />
+      {/*
+        Current lead form block exactly as HomeLanding renders it on main:
+        same HomeHeroForm wrapper (id="devis", SeniorQuoteForm redesignIntro,
+        no side photo), same desktop width, same Tahoma font scope
+        (main-lp-redesign) and the Google rating line right under it.
+      */}
+      <div className="main-lp-redesign">
+        <div className="lg:mx-auto lg:max-w-[34rem]">
+          <HomeHeroForm showPhoto={false} />
+        </div>
+        <div className="py-3.5">
+          <HomeFormTrustButtons />
+        </div>
       </div>
     </>
   );
