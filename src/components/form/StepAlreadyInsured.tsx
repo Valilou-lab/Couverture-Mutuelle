@@ -21,11 +21,8 @@ export function StepAlreadyInsured({
   return (
     <div>
       <h2 className="text-center text-xl font-semibold tracking-tight text-foreground sm:text-2xl">
-        Êtes-vous déjà assuré(e) ?
+        Êtes-vous couvert(e) par une mutuelle ?
       </h2>
-      <p className="mt-2 text-center text-sm text-zinc-600 sm:text-base">
-        Même si vous avez déjà une mutuelle, vous pouvez comparer.
-      </p>
       <div className="mt-5 grid gap-2.5">
         <OptionCard
           label="Oui"

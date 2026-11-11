@@ -252,10 +252,10 @@ export function validateStep(
       break;
 
     case "currentMutualTariff":
-      // Primary LP uses healthInsuranceGoal; legacy/savings may still send tariff.
-      if (!data.healthInsuranceGoal && !data.currentMutualTariff) {
-        errors.healthInsuranceGoal =
-          "Indiquez ce que vous aimeriez améliorer.";
+      // Q1 is now coverage (alreadyInsured). Legacy tariff still implies an answer.
+      if (!data.alreadyInsured && !data.currentMutualTariff) {
+        errors.alreadyInsured =
+          "Indiquez si vous êtes couvert(e) par une mutuelle.";
       }
       break;
 
@@ -300,7 +300,8 @@ export function validateStep(
 
     case "alreadyInsured":
       if (!data.alreadyInsured) {
-        errors.alreadyInsured = "Indiquez si vous êtes déjà assuré(e).";
+        errors.alreadyInsured =
+          "Indiquez si vous êtes couvert(e) par une mutuelle.";
       }
       break;
 

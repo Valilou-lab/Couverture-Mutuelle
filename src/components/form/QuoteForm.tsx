@@ -9,6 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import Image from "next/image";
+import { Gift, Handshake, ShieldCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   FORM_STEPS,
@@ -727,13 +728,8 @@ export function QuoteForm({
           data={data}
           errors={errors}
           disabled={isAdvancing}
-          onSelectAndAdvance={(healthInsuranceGoal) =>
-            selectAndAdvance({
-              healthInsuranceGoal,
-              // Goal step no longer collects “no insurance”; keep Vertikl
-              // currently_insured required without reopening that question.
-              alreadyInsured: "oui",
-            })
+          onSelectAndAdvance={(alreadyInsured) =>
+            selectAndAdvance({ alreadyInsured })
           }
         />
       ) : null}
@@ -892,11 +888,18 @@ export function QuoteForm({
       <SeniorFormContext.Provider value>
         <RedesignFormContext.Provider value={brandIntroBar}>
         <div ref={formRootRef} className="w-full scroll-mt-24">
-        {consentVariant !== "iki" ? (
+        {consentVariant !== "iki" && !brandIntroBar ? (
           <FormMascotBubble
             step={step}
             isFirstStep={step === firstStep}
             firstName={data.firstName}
+          />
+        ) : null}
+        {brandIntroBar && showProgress ? (
+          <ProgressBar
+            current={progressCurrent}
+            total={progressTotal}
+            display="percent"
           />
         ) : null}
         <div
@@ -959,16 +962,36 @@ export function QuoteForm({
 
             {stepContent}
 
-            <p className="flex items-center justify-center gap-2 text-[0.95rem] text-zinc-600">
-              <Image
-                src="/images/Pictos/picto-securite-donnees.png"
-                alt=""
-                width={22}
-                height={20}
-                className="h-5 w-[22px] shrink-0 object-contain"
-              />
-              Vos données sont sécurisées
-            </p>
+            <div className="grid justify-items-center gap-1.5 text-[0.9rem] font-medium text-zinc-600">
+              <p className="flex items-center gap-1.5">
+                <ShieldCheck
+                  className="h-4 w-4 shrink-0 text-[#9b4ff0]"
+                  strokeWidth={2}
+                  aria-hidden
+                />
+                Vos données sont sécurisées
+              </p>
+              {brandIntroBar ? (
+                <>
+                  <p className="flex items-center gap-1.5">
+                    <Gift
+                      className="h-4 w-4 shrink-0 text-[#9b4ff0]"
+                      strokeWidth={2}
+                      aria-hidden
+                    />
+                    Gratuit
+                  </p>
+                  <p className="flex items-center gap-1.5">
+                    <Handshake
+                      className="h-4 w-4 shrink-0 text-[#9b4ff0]"
+                      strokeWidth={2}
+                      aria-hidden
+                    />
+                    Sans engagement
+                  </p>
+                </>
+              ) : null}
+            </div>
           </div>
         </div>
         </div>

@@ -237,11 +237,7 @@ function parseForm(raw: unknown): QuoteFormData | null {
     raw.alreadyInsured === "oui" || raw.alreadyInsured === "non"
       ? raw.alreadyInsured
       : "";
-  // Primary LP goal step sends alreadyInsured: "oui"; tariff path still derives.
-  const alreadyInsured =
-    explicitInsured ||
-    derivedInsured ||
-    (healthInsuranceGoal ? ("oui" as const) : "");
+  const alreadyInsured = explicitInsured || derivedInsured;
 
   return {
     ...initialFormData,
@@ -285,19 +281,7 @@ function validateLeadForm(form: QuoteFormData): FieldErrors {
 
   for (const step of FORM_VALIDATION_STEPS) {
     if (isHiddenFormStep(step)) continue;
-    if (
-      step === "alreadyInsured" &&
-      (form.currentMutualTariff || form.healthInsuranceGoal || form.alreadyInsured)
-    ) {
-      continue;
-    }
-    // Skip first-step validation only when neither goal nor legacy tariff is present
-    // (e.g. savings path that never asks this question).
-    if (
-      step === "currentMutualTariff" &&
-      !form.healthInsuranceGoal &&
-      !form.currentMutualTariff
-    ) {
+    if (step === "alreadyInsured" && form.alreadyInsured) {
       continue;
     }
     if (

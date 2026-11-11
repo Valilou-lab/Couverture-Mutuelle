@@ -33,7 +33,7 @@ function Block({
 
 const PARTNERS = [
   { src: "/images/partners/santiane.webp", alt: "Santiane", width: 300, height: 60 },
-  { src: "/images/partners/spvie.webp", alt: "SPVIE Assurances", width: 309, height: 160 },
+  { src: "/images/partners/assurances-de-ladour.png", alt: "2A Assurances de l’Adour", width: 800, height: 285 },
   { src: "/images/partners/iki.jpg", alt: "IKI Assurance", width: 1024, height: 537 },
   {
     src: "/images/partners/aveyronnaise.webp",

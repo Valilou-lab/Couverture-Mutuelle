@@ -24,7 +24,7 @@ import {
 /** Visible CM classic checkbox label — display only (Vertikl proof unchanged). */
 const CM_PARTNERS_MARKER = "ses partenaires";
 const CM_CONSENT_LABEL =
-  "Je demande à être contacté(e) par téléphone et e-mail par Couverture Mutuelle et ses partenaires pour ma demande de mutuelle.";
+  "J'accepte d'être contacté(e) par téléphone et e-mail par Couverture Mutuelle et ses partenaires pour ma demande de mutuelle.";
 const [cmConsentBeforePartners, cmConsentAfterPartners] =
   CM_CONSENT_LABEL.split(CM_PARTNERS_MARKER);
 

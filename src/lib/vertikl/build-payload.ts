@@ -86,9 +86,10 @@ export function buildVertiklFields(
 
   const consentVariantId = input.consentVariant ?? "default";
   const consentVariant = CONSENT_VARIANTS[consentVariantId];
+  const ikiPartnerConsent = form.partnerConsent === true;
   const ikiOptin =
     consentVariantId === "iki"
-      ? buildIkiConsentOptinText(Boolean(form.partnerConsent))
+      ? buildIkiConsentOptinText(ikiPartnerConsent)
       : null;
   const consentDatetime = formatVertiklDateTime(consentAt);
   const consentExpiration = formatVertiklDateTime(
@@ -107,6 +108,9 @@ export function buildVertiklFields(
     consent_whatsapp: consentVariant.whatsapp
       ? Boolean(form.whatsappAvailable)
       : false,
+    ...(consentVariantId === "iki"
+      ? { consent_partners_cm: ikiPartnerConsent }
+      : {}),
     consent_given: true,
     consent_campaign: CONSENT_CAMPAIGN,
     consent_datetime: consentDatetime,
@@ -192,10 +196,11 @@ export function buildVertiklFields(
   // professional_statut is mapped from professionalStatus when present.
   // cost_health is the selected tariff enum id when present (under_60, …).
   // health_insurance_goal is a Vertikl LIST of mapped codes (save_money, …).
-  // currently_insured defaults to true on the primary LP goal step.
+  // currently_insured comes from LP Q1 (alreadyInsured oui/non).
   // priority_care is omitted when unanswered (step can be hidden).
   // health_scheme is optional on Vertikl and no longer collected.
   // WhatsApp is ONLY consent_whatsapp — never added to consent_channels.
+  // IKI partner opt-in is consent_partners_cm (boolean from the 2nd checkbox).
   // Acquisition (utm_*, fbclid, gclid) not mapped to Vertikl fields yet.
 
   return fields;

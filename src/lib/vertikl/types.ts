@@ -79,6 +79,11 @@ export type VertiklLeadFields = {
   /** Optional — omitted when the care-priorities step is hidden. */
   priority_care?: VertiklPriorityCare[];
   consent_whatsapp: boolean;
+  /**
+   * IKI LP only — second independent opt-in (partenaires Couverture Mutuelle).
+   * Always `true` or `false` on IKI payloads; never omitted.
+   */
+  consent_partners_cm?: boolean;
   consent_given: boolean;
   consent_campaign: string;
   consent_datetime: string;

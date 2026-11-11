@@ -1,14 +1,9 @@
 "use client";
 
-import {
-  HEALTH_INSURANCE_GOALS,
-  type HealthInsuranceGoalId,
-  type QuoteFormData,
-} from "./types";
+import type { QuoteFormData } from "./types";
 import { OptionCard } from "./OptionCard";
-import { goalChoiceIcon } from "./GoalChoiceIcons";
 import type { FieldErrors } from "./validation";
-import { seniorGoalIcon } from "./SeniorChoiceIcons";
+import { seniorCoveredIcon } from "./SeniorChoiceIcons";
 import {
   SENIOR_ERROR,
   useQuestionTitleClass,
@@ -16,26 +11,24 @@ import {
   useSeniorForm,
 } from "./seniorForm";
 
-const PRIMARY_GOALS = HEALTH_INSURANCE_GOALS.filter(
-  (item) => item.id !== "unknown",
-);
-const UNKNOWN_GOAL = HEALTH_INSURANCE_GOALS.find(
-  (item) => item.id === "unknown",
-)!;
-
-const PRIMARY_LABEL_CLASS =
-  "w-full max-w-full text-balance text-center text-[0.9375rem] font-semibold leading-snug text-[#3b0764] sm:text-base";
-
-const UNKNOWN_LABEL_CLASS =
-  "min-w-0 text-pretty text-[0.9375rem] font-semibold leading-snug text-[#3b0764] sm:text-base";
+const QUESTION = "Êtes-vous couvert(e) par une mutuelle ?";
+const OPTIONS = [
+  { id: "oui" as const, label: "Oui" },
+  { id: "non" as const, label: "Non" },
+];
 
 type Props = {
   data: QuoteFormData;
   errors: FieldErrors;
   disabled?: boolean;
-  onSelectAndAdvance: (id: HealthInsuranceGoalId) => void;
+  onSelectAndAdvance: (value: "oui" | "non") => void;
 };
 
+/**
+ * First question on every LP form.
+ * Step id stays `currentMutualTariff` (progress, GTM step_1, mascot).
+ * The answer is `alreadyInsured` → Vertikl `currently_insured`.
+ */
 export function StepCurrentMutualTariff({
   data,
   errors,
@@ -46,83 +39,33 @@ export function StepCurrentMutualTariff({
   const redesign = useRedesignForm();
   const questionTitleClass = useQuestionTitleClass();
 
-  if (senior) {
-    return (
-      <div>
-        <h2 className={questionTitleClass}>
-          Qu’aimeriez-vous améliorer avec votre mutuelle&nbsp;?
-        </h2>
-        <div
-          className="mt-4 grid gap-3"
-          role="group"
-          aria-label="Qu’aimeriez-vous améliorer avec votre mutuelle ?"
-        >
-          {HEALTH_INSURANCE_GOALS.map((item) => (
-            <OptionCard
-              key={item.id}
-              label={item.label}
-              icon={seniorGoalIcon(item.id)}
-              selected={data.healthInsuranceGoal === item.id}
-              disabled={disabled}
-              onClick={() => onSelectAndAdvance(item.id)}
-            />
-          ))}
-        </div>
-        {errors.healthInsuranceGoal ? (
-          <p className={SENIOR_ERROR} role="alert">
-            {errors.healthInsuranceGoal}
-          </p>
-        ) : null}
-      </div>
-    );
-  }
+  const titleClass = senior
+    ? questionTitleClass
+    : redesign
+      ? "text-center text-xl font-bold tracking-tight text-black sm:text-2xl lg:text-[1.45rem]"
+      : "text-center text-xl font-semibold tracking-tight text-foreground sm:text-2xl lg:text-[1.45rem]";
 
   return (
     <div>
-      <h2
-        className={
-          redesign
-            ? "text-center text-xl font-bold tracking-tight text-black sm:text-2xl lg:text-[1.45rem]"
-            : "text-center text-xl font-semibold tracking-tight text-foreground sm:text-2xl lg:text-[1.45rem]"
-        }
-      >
-        Qu’aimeriez-vous améliorer avec votre mutuelle&nbsp;?
-      </h2>
-
-      <div className="mt-4 grid grid-cols-2 gap-2.5 sm:mt-5 sm:gap-3 lg:mt-4 lg:gap-3">
-        {PRIMARY_GOALS.map((item) => (
+      <h2 className={titleClass}>{QUESTION}</h2>
+      <div className="mt-4 grid gap-3" role="group" aria-label={QUESTION}>
+        {OPTIONS.map((item) => (
           <OptionCard
             key={item.id}
             label={item.label}
-            icon={goalChoiceIcon(item.id)}
-            layout="stack"
-            surface="light"
-            selected={data.healthInsuranceGoal === item.id}
+            icon={senior ? seniorCoveredIcon(item.id) : undefined}
+            selected={data.alreadyInsured === item.id}
             disabled={disabled}
-            className="min-h-[5rem] px-2 sm:min-h-[5.15rem] sm:px-3 lg:min-h-[5.25rem]"
-            labelClassName={PRIMARY_LABEL_CLASS}
             onClick={() => onSelectAndAdvance(item.id)}
           />
         ))}
       </div>
-
-      <div className="mt-2.5 sm:mt-3">
-        <OptionCard
-          label={UNKNOWN_GOAL.label}
-          icon={goalChoiceIcon(UNKNOWN_GOAL.id)}
-          layout="row"
-          surface="light"
-          selected={data.healthInsuranceGoal === UNKNOWN_GOAL.id}
-          disabled={disabled}
-          className="min-h-[3.5rem]"
-          labelClassName={UNKNOWN_LABEL_CLASS}
-          onClick={() => onSelectAndAdvance(UNKNOWN_GOAL.id)}
-        />
-      </div>
-
-      {errors.healthInsuranceGoal ? (
-        <p className="mt-3 text-sm text-error" role="alert">
-          {errors.healthInsuranceGoal}
+      {errors.alreadyInsured ? (
+        <p
+          className={senior ? SENIOR_ERROR : "mt-3 text-sm text-error"}
+          role="alert"
+        >
+          {errors.alreadyInsured}
         </p>
       ) : null}
     </div>

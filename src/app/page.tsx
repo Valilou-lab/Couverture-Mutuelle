@@ -1,5 +1,5 @@
-import { HomeClassicLanding } from "@/components/landing/home/HomeClassicLanding";
+import { HomeLanding } from "@/components/landing/home/HomeLanding";
 
 export default function Home() {
-  return <HomeClassicLanding />;
+  return <HomeLanding desktopBlurBackdrop />;
 }

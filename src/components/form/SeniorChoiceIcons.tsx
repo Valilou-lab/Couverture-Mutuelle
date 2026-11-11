@@ -136,8 +136,27 @@ const STATUS_ICONS: Record<ProfessionalStatusId, ReactNode> = {
   ),
 };
 
+const COVERED_ICONS: Record<"oui" | "non", ReactNode> = {
+  oui: (
+    <Icon>
+      <circle cx="23" cy="17" r="13" />
+      <path d="M15 18l5 5 11-12" />
+    </Icon>
+  ),
+  non: (
+    <Icon>
+      <circle cx="23" cy="17" r="13" />
+      <path d="M17 11l12 12M29 11L17 23" />
+    </Icon>
+  ),
+};
+
 export function seniorGoalIcon(id: HealthInsuranceGoalId) {
   return GOAL_ICONS[id];
+}
+
+export function seniorCoveredIcon(id: "oui" | "non") {
+  return COVERED_ICONS[id];
 }
 
 export function seniorHouseholdIcon(id: CoveredPersonId) {

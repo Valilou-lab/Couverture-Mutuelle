@@ -14,6 +14,8 @@ type Props = {
    * on every LP that uses this photo. `savings` is kept as an opt-in.
    */
   photoBadge?: PhotoBadgeVariant;
+  /** Desktop side photo. Set false when the page already has a background photo. */
+  showPhoto?: boolean;
 };
 
 function PhotoBadge({ variant }: { variant: PhotoBadgeVariant }) {
@@ -57,6 +59,7 @@ export function DesktopFormWithPhoto({
   id = "devis",
   className = "",
   photoBadge = "free",
+  showPhoto = true,
 }: Props) {
   return (
     <div
@@ -68,31 +71,39 @@ export function DesktopFormWithPhoto({
       }
     >
       <div className="lg:mx-auto lg:flex lg:max-w-[1120px] lg:items-center lg:justify-center">
-        <div className="relative hidden h-[min(40rem,78vh)] w-[min(100%,32rem)] shrink-0 lg:block">
-          <div className="absolute inset-0 overflow-hidden rounded-[1.75rem] lg:rounded-r-none">
-            <Image
-              src="/images/hero-senior-jardin.jpg"
-              alt=""
-              fill
-              priority
-              sizes="512px"
-              className="object-cover object-[center_40%]"
-            />
-            {/* Soft fade into the pastel LP background toward the form */}
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-y-0 right-0 w-[58%] bg-gradient-to-r from-transparent via-[#e8f2fb]/55 to-[#e8f2fb]"
-            />
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-[#e8f2fb]/80 to-transparent"
-            />
+        {showPhoto ? (
+          <div className="relative hidden h-[min(40rem,78vh)] w-[min(100%,32rem)] shrink-0 lg:block">
+            <div className="absolute inset-0 overflow-hidden rounded-[1.75rem] lg:rounded-r-none">
+              <Image
+                src="/images/hero-senior-jardin.jpg"
+                alt=""
+                fill
+                priority
+                sizes="512px"
+                className="object-cover object-[center_40%]"
+              />
+              {/* Soft fade into the pastel LP background toward the form */}
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-y-0 right-0 w-[58%] bg-gradient-to-r from-transparent via-[#e8f2fb]/55 to-[#e8f2fb]"
+              />
+              <div
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-[#e8f2fb]/80 to-transparent"
+              />
+            </div>
+
+            <PhotoBadge variant={photoBadge} />
           </div>
+        ) : null}
 
-          <PhotoBadge variant={photoBadge} />
-        </div>
-
-        <div className="relative z-10 w-full min-w-0 lg:-ml-14 lg:max-w-[34rem] lg:shrink-0">
+        <div
+          className={
+            showPhoto
+              ? "relative z-10 w-full min-w-0 lg:-ml-14 lg:max-w-[34rem] lg:shrink-0"
+              : "relative z-10 w-full min-w-0"
+          }
+        >
           {children}
         </div>
       </div>

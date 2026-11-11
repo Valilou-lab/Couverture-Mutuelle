@@ -5,9 +5,15 @@ import { useSeniorForm } from "./seniorForm";
 type ProgressBarProps = {
   current: number;
   total: number;
+  /** `percent` shows a compact bar with % — used above the main LP form. */
+  display?: "questions" | "percent";
 };
 
-export function ProgressBar({ current, total }: ProgressBarProps) {
+export function ProgressBar({
+  current,
+  total,
+  display = "questions",
+}: ProgressBarProps) {
   const senior = useSeniorForm();
   const safeTotal = Math.max(1, total);
   const safeCurrent = Math.min(safeTotal, Math.max(1, current));
@@ -21,12 +27,35 @@ export function ProgressBar({ current, total }: ProgressBarProps) {
         : "linear-gradient(105deg, #6d28d9 0%, #a855f7 25%, #d946ef 55%, #f472b6 80%, #fb7185 100%)";
 
   const lastQuestionNote =
-    safeCurrent === safeTotal ? (
+    display === "percent" || safeCurrent !== safeTotal ? null : (
       <p className="mt-2 text-balance text-center text-[0.9rem] font-medium leading-snug text-zinc-600 sm:text-[0.95rem]">
         Vos données sont précieuses et seront utilisées uniquement pour vos
         devis
       </p>
-    ) : null;
+    );
+
+  if (display === "percent") {
+    return (
+      <div className="mb-3 flex items-center gap-3 rounded-full bg-white px-3 py-2 shadow-[0_8px_20px_-12px_rgba(59,7,100,0.35)]">
+        <div
+          className="h-2.5 min-w-0 flex-1 overflow-hidden rounded-full bg-[#ede9fe]"
+          role="progressbar"
+          aria-valuenow={percent}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label={`Progression ${percent} pour cent`}
+        >
+          <div
+            className="h-full rounded-full bg-brand transition-[width] duration-500 ease-out motion-reduce:transition-none"
+            style={{ width: `${percent}%` }}
+          />
+        </div>
+        <span className="shrink-0 text-[0.95rem] font-extrabold tabular-nums text-[#3b0764]">
+          {percent}&nbsp;%
+        </span>
+      </div>
+    );
+  }
 
   if (senior) {
     const label = `Question ${safeCurrent} / ${safeTotal}`;

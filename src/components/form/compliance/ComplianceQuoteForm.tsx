@@ -283,14 +283,8 @@ export function ComplianceQuoteForm() {
           data={data}
           errors={errors}
           disabled={isAdvancing}
-          onSelectAndAdvance={(healthInsuranceGoal) =>
-            selectAndAdvance(
-              {
-                healthInsuranceGoal,
-                alreadyInsured: "oui",
-              },
-              "currentMutualTariff",
-            )
+          onSelectAndAdvance={(alreadyInsured) =>
+            selectAndAdvance({ alreadyInsured }, "currentMutualTariff")
           }
         />
       ) : null}

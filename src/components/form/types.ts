@@ -41,7 +41,7 @@ export const CURRENT_MUTUAL_TARIFFS = [
   { id: "no_insurance", label: "Je n’ai pas de mutuelle" },
 ] as const;
 
-/** First question on the primary conversion form (`health_insurance_goal`). */
+/** Optional leftover — no longer asked as LP Q1 (`health_insurance_goal`). */
 export const HEALTH_INSURANCE_GOALS = [
   { id: "pay_less", label: "Payer moins cher" },
   { id: "better_reimbursement", label: "Être mieux remboursé(e)" },
@@ -85,7 +85,7 @@ export function isHealthInsuranceGoalId(
 
 /**
  * Derived from the legacy tariff step (`no_insurance` → non).
- * On the primary LP, the goal step sets alreadyInsured to "oui" instead.
+ * LP Q1 now collects alreadyInsured directly (Oui / Non).
  */
 export function deriveAlreadyInsured(
   tariff: CurrentMutualTariffId | "",
@@ -109,8 +109,9 @@ export type QuoteFormData = {
   professionalStatus: ProfessionalStatusId | "";
   /** Optional legacy tariff — still mapped to Vertikl `cost_health` when present. */
   currentMutualTariff: CurrentMutualTariffId | "";
-  /** Primary LP first-step answer → Vertikl `health_insurance_goal`. */
+  /** Optional leftover — no longer asked on LP Q1. */
   healthInsuranceGoal: HealthInsuranceGoalId | "";
+  /** LP Q1 answer → Vertikl `currently_insured`. */
   alreadyInsured: "oui" | "non" | "";
   insurer: string;
   civility: CivilityId | "";
