@@ -11,7 +11,6 @@ import {
   RacPeople,
 } from "@/components/landing/reste-a-charge/ResteAChargeSections";
 import { TikTokFunnelTracker } from "@/components/landing/tiktok/TikTokFunnelTracker";
-import { HomeFormTrustButtons } from "./HomeFormTrustButtons";
 import { HomeHeroForm } from "./HomeHero";
 import { HomeWhy } from "./HomeWhy";
 
@@ -85,9 +84,6 @@ function HomeClassicHero() {
       <div className="main-lp-redesign">
         <div className="lg:mx-auto lg:max-w-[34rem]">
           <HomeHeroForm showPhoto={false} />
-        </div>
-        <div className="py-3.5">
-          <HomeFormTrustButtons />
         </div>
       </div>
     </>
