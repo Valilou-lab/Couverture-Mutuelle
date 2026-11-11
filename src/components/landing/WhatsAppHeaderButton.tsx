@@ -21,6 +21,11 @@ function WhatsAppGlyph({ className }: { className?: string }) {
 type WhatsAppHeaderButtonProps = {
   /** When false, icon only (main LP + /tiktok). Default shows the label. */
   showLabel?: boolean;
+  /**
+   * Homepage (/) restored 27 Oct–4 Nov layout only: same button without the
+   * later desktop (lg) size bump. Default false keeps every other LP unchanged.
+   */
+  classicSize?: boolean;
 };
 
 /**
@@ -29,6 +34,7 @@ type WhatsAppHeaderButtonProps = {
  */
 export function WhatsAppHeaderButton({
   showLabel = true,
+  classicSize = false,
 }: WhatsAppHeaderButtonProps = {}) {
   return (
     <a
@@ -45,13 +51,17 @@ export function WhatsAppHeaderButton({
     >
       <WhatsAppGlyph
         className={
-          showLabel
+          classicSize
+            ? "h-6 w-6 shrink-0 text-[#25D366] sm:h-7 sm:w-7"
+            : showLabel
             ? "h-6 w-6 shrink-0 text-[#25D366] sm:h-7 sm:w-7 lg:h-9 lg:w-9"
             : "h-6 w-6 shrink-0 text-[#25D366] transition-opacity hover:opacity-80 sm:h-7 sm:w-7 lg:h-11 lg:w-11"
         }
       />
       {showLabel ? (
-        <span className="inline-flex items-center rounded-full bg-[#25D366] px-2.5 py-1 text-[0.72rem] font-semibold leading-none text-white shadow-[0_1px_2px_rgba(37,211,102,0.25)] transition-colors group-hover:bg-[#1ebe57] sm:px-3 sm:py-1.5 sm:text-[0.8125rem] lg:px-3.5 lg:py-2 lg:text-[0.875rem]">
+        <span
+          className={`inline-flex items-center rounded-full bg-[#25D366] px-2.5 py-1 text-[0.72rem] font-semibold leading-none text-white shadow-[0_1px_2px_rgba(37,211,102,0.25)] transition-colors group-hover:bg-[#1ebe57] sm:px-3 sm:py-1.5 sm:text-[0.8125rem]${classicSize ? "" : " lg:px-3.5 lg:py-2 lg:text-[0.875rem]"}`}
+        >
           Nous contacter
         </span>
       ) : null}
