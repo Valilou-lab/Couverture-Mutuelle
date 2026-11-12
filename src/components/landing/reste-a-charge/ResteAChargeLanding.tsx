@@ -1,6 +1,5 @@
 import { SeniorFooter } from "@/components/landing/senior/SeniorFooter";
 import { SeniorHeader } from "@/components/landing/senior/SeniorHeader";
-import { SeniorStickyCta } from "@/components/landing/senior/SeniorStickyCta";
 import { HomeLpBelowForm } from "@/components/landing/home/HomeLpBelowForm";
 import { RacPageTitle, ResteAChargeHero } from "./ResteAChargeHero";
 import {
@@ -72,7 +71,6 @@ export function ResteAChargeLanding({
         <RacPeople mariePrice={39} />
       </main>
       <SeniorFooter />
-      <SeniorStickyCta ctaLabel={CTA_LABEL} />
     </div>
   );
 }

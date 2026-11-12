@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import confetti from "canvas-confetti";
+import { TrustpilotReviewCollector } from "@/components/trustpilot/TrustpilotReviewCollector";
 
 const CONFETTI_COLORS = [
   "#6d28d9",
@@ -91,6 +92,8 @@ export function StepConfirmation() {
         Pensez à décrocher même si le numéro n’est pas enregistré dans vos
         contacts.
       </p>
+
+      <TrustpilotReviewCollector />
     </div>
   );
 }

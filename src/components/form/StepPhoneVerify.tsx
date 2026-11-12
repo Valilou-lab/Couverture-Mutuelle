@@ -51,7 +51,7 @@ export function StepPhoneVerify({
         <p
           className={
             senior
-              ? "font-poppins text-[1.35rem] font-extrabold tracking-tight text-[#3b0764]"
+              ? "font-poppins text-[1.35rem] font-normal tracking-tight text-[#3b0764]"
               : "font-manrope text-xl font-extrabold tracking-tight text-[#3b0764] sm:text-2xl"
           }
         >

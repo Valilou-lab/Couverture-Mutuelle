@@ -15,7 +15,6 @@ import {
   SeniorPricing,
   SeniorSteps,
 } from "./SeniorSections";
-import { SeniorStickyCta } from "./SeniorStickyCta";
 
 const TRANCHES_FAQ = [
   {
@@ -47,7 +46,7 @@ type SeniorLandingProps = {
   className?: string;
   /** Defaults to the homepage hero (/). */
   hero?: ReactNode;
-  /** Main CTA label (final + sticky). Defaults to « Je compare gratuitement ». */
+  /** Main CTA label (final). Defaults to « Je compare gratuitement ». */
   ctaLabel?: string;
   /** New monthly price shown in Marie's testimonial. Defaults to 74. */
   mariePrice?: number;
@@ -130,7 +129,6 @@ export function SeniorLanding({
         <SeniorFinalCta ctaLabel={ctaLabel} />
       </main>
       <SeniorFooter />
-      <SeniorStickyCta ctaLabel={ctaLabel} />
     </div>
   );
 }

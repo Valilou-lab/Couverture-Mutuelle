@@ -1,7 +1,6 @@
 import { SeniorFooter } from "@/components/landing/senior/SeniorFooter";
 import { SeniorHeader } from "@/components/landing/senior/SeniorHeader";
 import { SeniorPartners } from "@/components/landing/senior/SeniorSections";
-import { SeniorStickyCta } from "@/components/landing/senior/SeniorStickyCta";
 import {
   RacAdvantages,
   RacCta,
@@ -69,11 +68,7 @@ export function DevisLanding() {
   return (
     <div className="main-lp-redesign flex min-h-0 flex-1 flex-col bg-[#e8f2fb] text-[18px] leading-[1.55] text-foreground">
       <div className="border-b border-[#ddd6fe] bg-white">
-        <SeniorHeader
-          bordered={false}
-          whatsappShowLabel={false}
-          logoCentered
-        />
+        <SeniorHeader bordered={false} logoCentered />
         <div className="mx-auto w-full max-w-[640px] px-4 min-[700px]:max-w-[1000px]">
           <DevisHero.Titles />
         </div>
@@ -100,7 +95,6 @@ export function DevisLanding() {
         </div>
       </main>
       <SeniorFooter />
-      <SeniorStickyCta ctaLabel={CTA_LABEL} />
     </div>
   );
 }

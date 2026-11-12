@@ -6,7 +6,6 @@ import type { FormStepId } from "@/components/form/types";
 import { SeniorFooter } from "@/components/landing/senior/SeniorFooter";
 import { SeniorHeader } from "@/components/landing/senior/SeniorHeader";
 import { SeniorPartners } from "@/components/landing/senior/SeniorSections";
-import { SeniorStickyCta } from "@/components/landing/senior/SeniorStickyCta";
 import {
   RacCta,
   RacFaq,
@@ -21,8 +20,6 @@ import {
 } from "./HomeFormTrustButtons";
 import { HomeLpBelowForm } from "./HomeLpBelowForm";
 import { TrustpilotMini } from "@/components/trustpilot/TrustpilotMini";
-
-const CTA_LABEL = "Je compare gratuitement";
 
 const FAQ = [
   {
@@ -56,7 +53,7 @@ function isPastFirstQuestion(
 
 /**
  * Homepage (/) with the /reste-a-charge layout: short, form-first page,
- * then supporting blocks. Same form, header, footer and sticky CTA.
+ * then supporting blocks. Same form, header and footer.
  * White band runs from the header through the titles and behind the form,
  * then the photo starts just below.
  * `/` can opt into a full-width blurred desktop photo behind the form.
@@ -176,7 +173,6 @@ export function HomeLanding({
       </main>
       <TrustpilotMini />
       <SeniorFooter />
-      {!formFocused ? <SeniorStickyCta ctaLabel={CTA_LABEL} /> : null}
     </div>
   );
 }

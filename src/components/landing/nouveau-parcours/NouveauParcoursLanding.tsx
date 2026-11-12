@@ -1,7 +1,6 @@
 import { SeniorFooter } from "@/components/landing/senior/SeniorFooter";
 import { SeniorHeader } from "@/components/landing/senior/SeniorHeader";
 import { SeniorPartners } from "@/components/landing/senior/SeniorSections";
-import { SeniorStickyCta } from "@/components/landing/senior/SeniorStickyCta";
 import {
   RacAdvantages,
   RacCta,
@@ -45,7 +44,6 @@ export function NouveauParcoursLanding() {
         <RacCta label={CTA_LABEL} />
       </main>
       <SeniorFooter />
-      <SeniorStickyCta ctaLabel={CTA_LABEL} />
     </div>
   );
 }

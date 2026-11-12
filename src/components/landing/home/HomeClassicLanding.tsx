@@ -1,9 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { WhatsAppHeaderButton } from "@/components/landing/WhatsAppHeaderButton";
 import { SeniorFooter } from "@/components/landing/senior/SeniorFooter";
 import { SeniorPartners } from "@/components/landing/senior/SeniorSections";
-import { SeniorStickyCta } from "@/components/landing/senior/SeniorStickyCta";
 import {
   RacAdvantages,
   RacCta,
@@ -38,11 +36,11 @@ const FAQ = [
   },
 ] as const;
 
-/** Header as on / between 27 Oct and 4 Nov (logo left, WhatsApp « Nous contacter » right). */
+/** Header as on / between 27 Oct and 4 Nov (logo left). */
 function HomeClassicHeader() {
   return (
     <header className="border-b border-[#ddd6fe] bg-white">
-      <div className="mx-auto flex max-w-[640px] items-center justify-between gap-3 px-4 py-3">
+      <div className="mx-auto flex max-w-[640px] items-center px-4 py-3">
         <Link href="/" className="shrink-0" aria-label="Couverture Mutuelle">
           <Image
             src="/logo-couverture-mutuelle.png"
@@ -54,7 +52,6 @@ function HomeClassicHeader() {
             className="block h-11 w-auto"
           />
         </Link>
-        <WhatsAppHeaderButton classicSize />
       </div>
     </header>
   );
@@ -114,7 +111,6 @@ export function HomeClassicLanding() {
         <RacPeople mariePrice={74} />
       </main>
       <SeniorFooter />
-      <SeniorStickyCta ctaLabel={CTA_LABEL} />
     </div>
   );
 }
