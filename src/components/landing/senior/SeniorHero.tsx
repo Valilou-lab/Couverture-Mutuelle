@@ -1,7 +1,5 @@
 import Image from "next/image";
 import type { ReactNode } from "react";
-import { SeniorQuoteForm } from "@/components/form/SeniorQuoteForm";
-import { TikTokFunnelTracker } from "@/components/landing/tiktok/TikTokFunnelTracker";
 
 const DEFAULT_TITLE = (
   <>
@@ -23,36 +21,27 @@ type SeniorHeroProps = {
   subtitle?: ReactNode;
 };
 
-/** Defaults render the homepage (/) hero; /tranches-age overrides the copy. */
+/** Desktop copy + photo for /tranches-age. The quote form lives in SeniorLanding (once). */
 export function SeniorHero({
   title = DEFAULT_TITLE,
   subtitle = DEFAULT_SUBTITLE,
 }: SeniorHeroProps = {}) {
   return (
-    <>
-      <TikTokFunnelTracker />
-      <div className="min-[900px]:grid min-[900px]:grid-cols-[1fr_470px] min-[900px]:items-start min-[900px]:gap-10 min-[900px]:pt-3">
-        <div>
-          <div className="grid gap-1.5 pb-3 pt-2 text-center min-[900px]:pt-3 min-[900px]:text-left">
-            <h1 className="text-balance font-poppins text-[clamp(1.45rem,5.8vw,2.05rem)] font-extrabold leading-[1.15] tracking-[-0.02em] text-[#3b0764]">
-              {title}
-            </h1>
-            <p className="text-base text-zinc-600">{subtitle}</p>
-          </div>
-          <Image
-            src="/images/hero-couple-economisez-v2.png"
-            alt="Couple de retraités souriants"
-            width={1024}
-            height={535}
-            sizes="(min-width: 1100px) 590px, 50vw"
-            className="mt-2 hidden h-auto w-full rounded-[28px] shadow-[0_24px_60px_-30px_rgba(59,7,100,0.45)] min-[900px]:block"
-          />
-        </div>
-
-        <div id="devis" className="scroll-mt-4">
-          <SeniorQuoteForm />
-        </div>
+    <div>
+      <div className="grid gap-1.5 pb-3 pt-2 text-center min-[900px]:pt-3 min-[900px]:text-left">
+        <h1 className="text-balance font-poppins text-[clamp(1.45rem,5.8vw,2.05rem)] font-extrabold leading-[1.15] tracking-[-0.02em] text-[#3b0764]">
+          {title}
+        </h1>
+        <p className="text-base text-zinc-600">{subtitle}</p>
       </div>
-    </>
+      <Image
+        src="/images/hero-couple-economisez-v2.png"
+        alt="Couple de retraités souriants"
+        width={1024}
+        height={535}
+        sizes="(min-width: 1100px) 590px, 50vw"
+        className="mt-2 hidden h-auto w-full rounded-[28px] shadow-[0_24px_60px_-30px_rgba(59,7,100,0.45)] min-[900px]:block"
+      />
+    </div>
   );
 }

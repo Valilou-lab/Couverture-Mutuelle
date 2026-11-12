@@ -487,3 +487,42 @@ body {
     mask-image: none;
   }
 }
+
+/* /tranches-age mobile only — Inter type scale from the LP mockup. */
+@media (max-width: 1023px) {
+  .tranches-age-type {
+    font-family: var(--font-inter-tranches), ui-sans-serif, sans-serif;
+    font-weight: 500;
+  }
+
+  .tranches-age-type
+    :is(.font-poppins, .font-manrope, .font-sans, .font-sora, .font-baloo, .font-nunito) {
+    font-family: var(--font-inter-tranches), ui-sans-serif, sans-serif;
+  }
+
+  .tranches-age-type h1 {
+    font-family: var(--font-inter-tranches), ui-sans-serif, sans-serif;
+    font-size: 29px;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+
+  .tranches-age-type :is(h2, h3) {
+    font-family: var(--font-inter-tranches), ui-sans-serif, sans-serif;
+    font-weight: 800;
+  }
+
+  .tranches-age-type :is(button, a[href="#devis"]) {
+    font-family: var(--font-inter-tranches), ui-sans-serif, sans-serif;
+    font-weight: 700;
+  }
+
+  .tranches-age-type p {
+    font-weight: 500;
+  }
+
+  .tranches-age-type p:is(.font-bold, .font-extrabold, .font-semibold) {
+    font-weight: 800;
+  }
+}

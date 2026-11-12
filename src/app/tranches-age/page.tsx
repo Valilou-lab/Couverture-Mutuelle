@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import { SeniorHero } from "@/components/landing/senior/SeniorHero";
 import { SeniorLanding } from "@/components/landing/senior/SeniorLanding";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter-tranches",
+  display: "swap",
+});
 
 const TITLE = "Votre tarif mutuelle selon votre âge — Couverture Mutuelle";
 const DESCRIPTION =
@@ -21,6 +28,7 @@ export const metadata: Metadata = {
 export default function TranchesAgePage() {
   return (
     <SeniorLanding
+      className={`${inter.variable} tranches-age-type`}
       ctaLabel="Je compare mon tarif"
       mariePrice={39}
       hidePricing

@@ -73,6 +73,8 @@ type Props = {
   consentVariant?: ConsentVariantId;
   /** Main LP (/) + /tiktok: name/email already collected — phone + consent only. */
   phoneOnly?: boolean;
+  /** `/tranches-age` only — intro above prénom / nom. */
+  lastStepProposalsIntro?: boolean;
   onPatch: (patch: Partial<QuoteFormData>) => void;
   onNext: () => void;
 };
@@ -84,6 +86,7 @@ export function StepContact({
   submitError = null,
   consentVariant = "default",
   phoneOnly = false,
+  lastStepProposalsIntro = false,
   onPatch,
   onNext,
 }: Props) {
@@ -102,11 +105,32 @@ export function StepContact({
   return (
     <div>
       {phoneOnly ? null : (
+        <>
+        {lastStepProposalsIntro ? (
+          <div className={senior ? "mb-4" : "mb-5"}>
+            <h2 className="text-balance text-center text-[1.375rem] font-bold leading-[1.2] tracking-[-0.02em] text-black sm:text-[1.75rem]">
+              <span className="font-bold text-black">Dernière étape</span>
+              <span className="font-bold text-[#9b4ff0]">
+                &nbsp;: où vous envoyer vos propositions&nbsp;?
+              </span>
+            </h2>
+            <p className="mt-3 text-pretty text-center text-[0.98rem] font-normal leading-snug text-zinc-500 sm:text-base">
+              Un courtier partenaire vous contacte pour vous les présenter.
+              S’il existe une offre plus avantageuse pour votre profil,{" "}
+              <strong className="font-bold">il vous la trouve</strong>. Vous
+              restez libre de refuser.
+            </p>
+          </div>
+        ) : null}
         <div
           className={
             senior
-              ? "mt-4 grid grid-cols-2 gap-3"
-              : "mt-5 grid grid-cols-2 gap-3 sm:gap-4"
+              ? lastStepProposalsIntro
+                ? "grid grid-cols-2 gap-3"
+                : "mt-4 grid grid-cols-2 gap-3"
+              : lastStepProposalsIntro
+                ? "grid grid-cols-2 gap-3 sm:gap-4"
+                : "mt-5 grid grid-cols-2 gap-3 sm:gap-4"
           }
         >
           <div>
@@ -144,19 +168,25 @@ export function StepContact({
             ) : null}
           </div>
         </div>
+        </>
       )}
 
       <div className={phoneOnly ? "mt-0" : "mt-4"}>
-        <h2
-          className={
-            senior
-              ? titleClass
-              : "text-center text-xl font-semibold tracking-tight text-foreground sm:text-2xl"
-          }
+        {lastStepProposalsIntro ? null : (
+          <h2
+            className={
+              senior
+                ? titleClass
+                : "text-center text-xl font-semibold tracking-tight text-foreground sm:text-2xl"
+            }
+          >
+            Finalisation
+          </h2>
+        )}
+        <label
+          htmlFor="phone"
+          className={`${labelClass} ${lastStepProposalsIntro ? "" : "mt-4"}`}
         >
-          Finalisation
-        </h2>
-        <label htmlFor="phone" className={`${labelClass} mt-4`}>
           Téléphone
         </label>
         <input

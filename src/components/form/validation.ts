@@ -10,6 +10,11 @@ import {
   MAX_ELIGIBLE_AGE,
   MIN_ELIGIBLE_AGE,
 } from "@/lib/savings-engine";
+import {
+  declaredAgeFromBirthDate,
+  getDeclaredAgeError,
+  isSyntheticAgeBirthDate,
+} from "@/lib/age-to-birth-date";
 
 export type FieldErrors = Partial<Record<keyof QuoteFormData, string>>;
 
@@ -41,7 +46,9 @@ export function getBirthDateAgeError(value: string): string | null {
     return "Date de naissance invalide.";
   }
 
-  const age = deriveAgeFromBirthDate(value);
+  const age = isSyntheticAgeBirthDate(value)
+    ? declaredAgeFromBirthDate(value)
+    : deriveAgeFromBirthDate(value);
   if (age === null) {
     return "Date de naissance invalide.";
   }
@@ -250,6 +257,17 @@ export function validateStep(
         errors.careNeeds = "Sélectionnez au moins un soin prioritaire.";
       }
       break;
+
+    case "age": {
+      const age = declaredAgeFromBirthDate(data.birthDate);
+      if (age == null) {
+        errors.birthDate = "Indiquez votre âge.";
+      } else {
+        const ageError = getDeclaredAgeError(age);
+        if (ageError) errors.birthDate = ageError;
+      }
+      break;
+    }
 
     case "currentMutualTariff":
       // Q1 is now coverage (alreadyInsured). Legacy tariff still implies an answer.

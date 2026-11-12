@@ -34,7 +34,7 @@ function Block({
 const PARTNERS = [
   { src: "/images/partners/santiane.webp", alt: "Santiane", width: 300, height: 60 },
   { src: "/images/partners/assurances-de-ladour.png", alt: "2A Assurances de l’Adour", width: 800, height: 285 },
-  { src: "/images/partners/iki.jpg", alt: "IKI Assurance", width: 1024, height: 537 },
+  { src: "/images/iki/logo-iki-couleur.png", alt: "IKI Assurance", width: 1731, height: 1161 },
   {
     src: "/images/partners/aveyronnaise.webp",
     alt: "L’Aveyronnaise d’Assurances",
@@ -44,44 +44,96 @@ const PARTNERS = [
   { src: "/images/partners/skarlett.webp", alt: "Skarlett", width: 720, height: 128 },
 ] as const;
 
-export function SeniorPartners() {
+function PartnerLogo({
+  src,
+  alt,
+  width,
+  height,
+}: (typeof PARTNERS)[number]) {
   return (
-    <Block labelledBy="partenaires-titre" className="text-center">
+    <div className="flex h-10 w-auto shrink-0 items-center justify-center sm:h-12">
+      <Image
+        src={src}
+        alt={alt}
+        width={width}
+        height={height}
+        sizes="156px"
+        className="h-full w-auto object-contain"
+      />
+    </div>
+  );
+}
+
+export function SeniorPartners({
+  carousel = false,
+}: {
+  /** Homepage: infinite logo strip, no cards. Other LPs keep the static grid. */
+  carousel?: boolean;
+} = {}) {
+  return (
+    <section
+      aria-labelledby="partenaires-titre"
+      className={
+        carousel
+          ? "mx-auto w-full pt-8 text-center"
+          : "mx-auto grid max-w-[760px] gap-4 pt-10 text-center"
+      }
+    >
       <p
         id="partenaires-titre"
         className="font-poppins text-[0.9rem] font-bold uppercase tracking-[0.06em] text-brand"
       >
-        Nos partenaires sélectionnés
+        {carousel
+          ? "Des courtiers certifiés France"
+          : "Nos partenaires sélectionnés"}
       </p>
-      <ul className="m-0 flex list-none flex-wrap justify-center gap-2.5 p-0">
-        {PARTNERS.map((logo) => (
-          <li
-            key={logo.src}
-            className="grid min-h-16 place-items-center rounded-[14px] border border-[#ddd6fe] bg-white px-3.5 py-2"
-          >
-            <Image
-              src={logo.src}
-              alt={logo.alt}
-              width={logo.width}
-              height={logo.height}
-              sizes="140px"
-              className="block h-10 w-auto max-w-[140px] object-contain"
-            />
-          </li>
-        ))}
-      </ul>
-      <p className={NOTE}>
+      {carousel ? (
+        <div className="partner-marquee mt-4">
+          <div className="partner-marquee-track">
+            {[0, 1].map((copy) => (
+              <div
+                key={copy}
+                className="partner-marquee-group"
+                aria-hidden={copy === 1}
+              >
+                {PARTNERS.map((logo) => (
+                  <PartnerLogo key={`${logo.src}-${copy}`} {...logo} />
+                ))}
+              </div>
+            ))}
+          </div>
+        </div>
+      ) : (
+        <ul className="m-0 flex list-none flex-wrap justify-center gap-2.5 p-0">
+          {PARTNERS.map((logo) => (
+            <li
+              key={logo.src}
+              className="grid min-h-16 place-items-center rounded-[14px] border border-[#ddd6fe] bg-white px-3.5 py-2"
+            >
+              <Image
+                src={logo.src}
+                alt={logo.alt}
+                width={logo.width}
+                height={logo.height}
+                sizes="140px"
+                className="block h-10 w-auto max-w-[140px] object-contain"
+              />
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className={`${NOTE} ${carousel ? "mt-4 px-1" : ""}`}>
         Votre demande peut être transmise à ces partenaires pour vous établir un
         devis.
       </p>
-    </Block>
+    </section>
   );
 }
 
 const STEPS = [
   {
     title: "Vous remplissez le formulaire",
-    text: "5 questions, moins d’une minute.",
+    text: "6 questions, moins d’une minute.",
   },
   {
     title: "Un conseiller étudie votre situation",
@@ -303,7 +355,7 @@ const FAQ = [
   },
   {
     question: "Combien de temps prend le formulaire ?",
-    answer: "Moins d’une minute : 5 questions.",
+    answer: "Moins d’une minute : 6 questions.",
   },
 ] as const;
 

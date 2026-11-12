@@ -153,6 +153,7 @@ export const initialFormData: QuoteFormData = {
 };
 
 export type FormStepId =
+  | "age"
   | "currentMutualTariff"
   | "coveredPersons"
   | "professionalStatus"
@@ -167,6 +168,8 @@ export type FormStepId =
   | "confirmation";
 
 export const FORM_STEPS: FormStepId[] = [
+  /** `/tranches-age` only — see getVisibleSteps `askAgeInsteadOfBirthDate`. */
+  "age",
   "currentMutualTariff",
   "coveredPersons",
   "professionalStatus",

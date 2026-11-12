@@ -9,7 +9,7 @@ import {
   type ReactNode,
 } from "react";
 import Image from "next/image";
-import { Gift, Handshake, ShieldCheck } from "lucide-react";
+import { Lock, ShieldCheck } from "lucide-react";
 import { useRouter } from "next/navigation";
 import {
   FORM_STEPS,
@@ -35,7 +35,9 @@ import { StepPostalCode } from "./StepPostalCode";
 import { StepProfessionalStatus } from "./StepProfessionalStatus";
 import { StepAlreadyInsured } from "./StepAlreadyInsured";
 import { StepCurrentMutualTariff } from "./StepCurrentMutualTariff";
+import { StepAge } from "./StepAge";
 import { StepBirthAndPostal } from "./StepBirthAndPostal";
+import { birthDateFromDeclaredAge } from "@/lib/age-to-birth-date";
 import { StepAnalyzing } from "./StepAnalyzing";
 import { StepContact } from "./StepContact";
 import { StepIdentity } from "./StepIdentity";
@@ -55,6 +57,7 @@ import {
 import type { MetaLeadTracking } from "@/lib/meta/events";
 import type { ConsentVariantId } from "@/lib/consent";
 import { scrollQuoteFormIntoView } from "./scrollQuoteFormIntoView";
+import { markOtpLeadConfirmed } from "@/lib/otp-lead-confirmed";
 import { RedesignFormContext, SeniorFormContext } from "./seniorForm";
 import {
   COMBINE_BIRTH_AND_POSTAL_STEP,
@@ -77,6 +80,8 @@ type VisibleStepOptions = {
   firstStep?: FormStepId;
   /** Main LP (/) + /tiktok redesign: identity before analyzing. */
   splitContactIdentity?: boolean;
+  /** `/tranches-age` only: ask age first, synthesize 15/06/YYYY for Vertikl. */
+  askAgeInsteadOfBirthDate?: boolean;
 };
 
 function getVisibleSteps(
@@ -85,6 +90,7 @@ function getVisibleSteps(
 ): FormStepId[] {
   return orderedFormSteps(options.firstStep).filter((step) => {
     if (isHiddenFormStep(step)) return false;
+    if (step === "age") return Boolean(options.askAgeInsteadOfBirthDate);
     if (step === "alreadyInsured" && !SHOW_ALREADY_INSURED_STEP) return false;
     if (step === "identity") return Boolean(options.splitContactIdentity);
     if (step === "birthAndPostal") {
@@ -172,6 +178,12 @@ type QuoteFormProps = {
    * `"soft"` = light lavender (other LPs). Default.
    */
   introBarStyle?: "soft" | "brand";
+  /**
+   * Option-card / progress chrome of the main LP redesign.
+   * Independent of `introBarStyle` so other LPs can match the look on mobile
+   * without changing the identity step split (`introBarStyle === "brand"`).
+   */
+  redesignVisual?: boolean;
   accentQuestions?: boolean;
   funnel?: QuoteFormFunnel;
   /** "senior": homepage layout (larger type / tap targets). Logic is identical. */
@@ -190,6 +202,11 @@ type QuoteFormProps = {
    * Defaults to `"senior"` for the senior variant, otherwise `"default"`.
    */
   consentVariant?: ConsentVariantId;
+  /**
+   * `/tranches-age` only: first question is « Quel âge avez-vous ? ».
+   * Own DOB is not asked later; Vertikl still receives `15/06/{année}`.
+   */
+  askAgeInsteadOfBirthDate?: boolean;
 };
 
 function questionStepNumber(
@@ -213,14 +230,17 @@ export function QuoteForm({
   firstStepIntro = "Votre devis en 1 minute",
   firstStepNote,
   introBarStyle = "soft",
+  redesignVisual,
   accentQuestions = true,
   funnel,
   variant = "default",
   onStepChange,
   consentVariant: consentVariantProp,
+  askAgeInsteadOfBirthDate = false,
 }: QuoteFormProps = {}) {
   const senior = variant === "senior";
   const brandIntroBar = introBarStyle === "brand";
+  const redesign = Boolean(redesignVisual ?? brandIntroBar);
   /** Redesign LPs: name/email before analyzing; phone(+consent) only at the end. */
   const splitContactIdentity = brandIntroBar;
   const consentVariant: ConsentVariantId =
@@ -248,6 +268,7 @@ export function QuoteForm({
       skipBirthDate,
       skipPostalCode,
       firstStep,
+      askAgeInsteadOfBirthDate,
     });
     if (firstStep && steps.includes(firstStep)) return firstStep;
     return (
@@ -311,8 +332,15 @@ export function QuoteForm({
       skipPostalCode,
       firstStep,
       splitContactIdentity,
+      askAgeInsteadOfBirthDate,
     }),
-    [firstStep, skipBirthDate, skipPostalCode, splitContactIdentity],
+    [
+      askAgeInsteadOfBirthDate,
+      firstStep,
+      skipBirthDate,
+      skipPostalCode,
+      splitContactIdentity,
+    ],
   );
 
   const visibleSteps = useMemo(
@@ -498,6 +526,7 @@ export function QuoteForm({
       }
       funnel?.onSubmitSuccess?.();
 
+      markOtpLeadConfirmed();
       router.push("/confirmation");
     } catch {
       setSubmitError(SUBMIT_ERROR_MESSAGE);
@@ -745,6 +774,17 @@ export function QuoteForm({
         />
       ) : null}
 
+      {step === "age" ? (
+        <StepAge
+          data={data}
+          errors={errors}
+          disabled={isAdvancing}
+          onConfirm={(age) =>
+            selectAndAdvance({ birthDate: birthDateFromDeclaredAge(age) })
+          }
+        />
+      ) : null}
+
       {step === "coveredPersons" ? (
         <StepCoveredPersons
           data={data}
@@ -769,7 +809,7 @@ export function QuoteForm({
           data={data}
           errors={errors}
           disabled={isAdvancing}
-          hideOwnBirthDate={skipBirthDate}
+          hideOwnBirthDate={skipBirthDate || askAgeInsteadOfBirthDate}
           hidePostalCode={skipPostalCode}
           onChangeBirthDate={(birthDate) => patch({ birthDate })}
           onPostalCode={setPostalCode}
@@ -784,7 +824,11 @@ export function QuoteForm({
           data={data}
           errors={errors}
           disabled={isAdvancing}
-          hideOwnBirthDate={COMBINE_BIRTH_AND_POSTAL_STEP || skipBirthDate}
+          hideOwnBirthDate={
+            COMBINE_BIRTH_AND_POSTAL_STEP ||
+            skipBirthDate ||
+            askAgeInsteadOfBirthDate
+          }
           onChangeBirthDate={(birthDate) => patch({ birthDate })}
           onChangeSpouseBirthDate={(spouseBirthDate) =>
             patch({ spouseBirthDate })
@@ -875,6 +919,7 @@ export function QuoteForm({
           submitError={submitError}
           consentVariant={consentVariant}
           phoneOnly={splitContactIdentity}
+          lastStepProposalsIntro={askAgeInsteadOfBirthDate}
           onPatch={patch}
           onNext={goNext}
         />
@@ -886,21 +931,23 @@ export function QuoteForm({
     const showIntroBar = Boolean(firstStepIntro);
     return (
       <SeniorFormContext.Provider value>
-        <RedesignFormContext.Provider value={brandIntroBar}>
+        <RedesignFormContext.Provider value={redesign}>
         <div ref={formRootRef} className="w-full scroll-mt-24">
-        {consentVariant !== "iki" && !brandIntroBar ? (
+        {consentVariant !== "iki" && !redesign ? (
           <FormMascotBubble
             step={step}
             isFirstStep={step === firstStep}
             firstName={data.firstName}
           />
         ) : null}
-        {brandIntroBar && showProgress ? (
-          <ProgressBar
-            current={progressCurrent}
-            total={progressTotal}
-            display="percent"
-          />
+        {redesign && showProgress ? (
+          <div className="mb-3 px-1">
+            <ProgressBar
+              current={progressCurrent}
+              total={progressTotal}
+              display="percent"
+            />
+          </div>
         ) : null}
         <div
           id="formulaire-devis"
@@ -909,7 +956,7 @@ export function QuoteForm({
           {showIntroBar ? (
             <div
               className={`form-intro-bar grid grid-cols-[44px_1fr_44px] items-center border-b px-2 py-3.5 ${
-                brandIntroBar
+                redesign
                   ? "border-brand bg-brand"
                   : "border-brand-muted bg-[#ddd6fe]"
               }`}
@@ -920,7 +967,7 @@ export function QuoteForm({
                   disabled={isAdvancing || isSubmitting}
                   label="Question précédente"
                   className={
-                    brandIntroBar ? "!text-white hover:!bg-white/15" : ""
+                    redesign ? "!text-white hover:!bg-white/15" : ""
                   }
                 />
               ) : (
@@ -928,7 +975,7 @@ export function QuoteForm({
               )}
               <p
                 className={`text-balance text-center font-poppins font-extrabold leading-tight tracking-[-0.02em] ${
-                  brandIntroBar
+                  redesign
                     ? "text-[clamp(1.05rem,3.8vw,1.35rem)] text-white"
                     : "text-[1.05rem] text-[#3b0764] sm:text-[1.25rem]"
                 }`}
@@ -956,14 +1003,27 @@ export function QuoteForm({
                 className="absolute left-1.5 top-1.5 z-20 sm:left-2.5 sm:top-2"
               />
             ) : null}
-            {showProgress && !brandIntroBar ? (
+            {showProgress && !redesign ? (
               <ProgressBar current={progressCurrent} total={progressTotal} />
             ) : null}
 
             {stepContent}
 
-            <div className="grid justify-items-center gap-1.5 text-[0.9rem] font-medium text-zinc-600">
-              <p className="flex items-center gap-1.5">
+            {redesign ? (
+              <p className="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1 text-[0.9rem] font-medium text-zinc-600">
+                <Lock
+                  className="h-4 w-4 shrink-0 text-emerald-600"
+                  strokeWidth={2.25}
+                  aria-hidden
+                />
+                <span>Sécurisé</span>
+                <span aria-hidden="true">·</span>
+                <span>Gratuit</span>
+                <span aria-hidden="true">·</span>
+                <span>Sans engagement</span>
+              </p>
+            ) : (
+              <p className="flex items-center justify-center gap-1.5 text-[0.9rem] font-medium text-zinc-600">
                 <ShieldCheck
                   className="h-4 w-4 shrink-0 text-[#9b4ff0]"
                   strokeWidth={2}
@@ -971,27 +1031,7 @@ export function QuoteForm({
                 />
                 Vos données sont sécurisées
               </p>
-              {brandIntroBar ? (
-                <>
-                  <p className="flex items-center gap-1.5">
-                    <Gift
-                      className="h-4 w-4 shrink-0 text-[#9b4ff0]"
-                      strokeWidth={2}
-                      aria-hidden
-                    />
-                    Gratuit
-                  </p>
-                  <p className="flex items-center gap-1.5">
-                    <Handshake
-                      className="h-4 w-4 shrink-0 text-[#9b4ff0]"
-                      strokeWidth={2}
-                      aria-hidden
-                    />
-                    Sans engagement
-                  </p>
-                </>
-              ) : null}
-            </div>
+            )}
           </div>
         </div>
         </div>
@@ -1001,7 +1041,7 @@ export function QuoteForm({
   }
 
   return (
-    <RedesignFormContext.Provider value={brandIntroBar}>
+    <RedesignFormContext.Provider value={redesign}>
     <div
       ref={formRootRef}
       id="formulaire-devis"

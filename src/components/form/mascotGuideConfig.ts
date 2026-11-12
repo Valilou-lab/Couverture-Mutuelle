@@ -36,6 +36,15 @@ export function getMascotPoseSrc(pose: FormMascotPose): string {
 }
 
 const GUIDE_BY_STEP: Partial<Record<FormStepId, FormMascotContent>> = {
+  age: {
+    pose: "curieuse",
+    title: "C’est parti !",
+    lines: [
+      "L’âge est essentiel pour",
+      "sélectionner les offres adaptées.",
+    ],
+    bubbleTone: "mint",
+  },
   currentMutualTariff: {
     pose: "curieuse",
     title: "C’est parti !",
@@ -209,6 +218,7 @@ export function getFormMascotContent(
 /** Narrative progress so étape 2 (coveredPersons) lands on 25%. */
 export function getFormProgressPercent(step: FormStepId): number {
   const map: Partial<Record<FormStepId, number>> = {
+    age: 8,
     currentMutualTariff: 12,
     coveredPersons: 25,
     professionalStatus: 40,
