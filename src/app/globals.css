@@ -502,7 +502,7 @@ body {
 
   .tranches-age-type h1 {
     font-family: var(--font-inter-tranches), ui-sans-serif, sans-serif;
-    font-size: 29px;
+    font-size: clamp(1.4rem, 7.2vw, 1.8125rem);
     font-weight: 800;
     letter-spacing: -0.02em;
     line-height: 1.15;

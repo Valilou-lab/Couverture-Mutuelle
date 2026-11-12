@@ -80,14 +80,15 @@ export function SeniorLanding({
       <div className="bg-white lg:hidden">
         <div className="mx-auto w-full max-w-[640px] px-4 min-[700px]:max-w-[1000px]">
           <div className="mx-auto grid max-w-[760px] pb-2 pt-2 text-center">
-            <h1 className="text-balance text-[29px] font-extrabold leading-[1.15] tracking-[-0.02em] [font-family:var(--font-inter-tranches),ui-sans-serif,sans-serif]">
-              <span className="block text-zinc-900">
+            <h1 className="text-[clamp(1.4rem,7.2vw,1.8125rem)] font-extrabold leading-[1.15] tracking-[-0.02em] [font-family:var(--font-inter-tranches),ui-sans-serif,sans-serif] [text-size-adjust:100%]">
+              <span className="block whitespace-nowrap text-zinc-900">
                 Quel tarif pour votre âge&nbsp;?
               </span>
               <span className="block text-[#9b4ff0]">
-                Recevez vos
-                <br />
-                propositions gratuitement
+                <span className="block whitespace-nowrap">Recevez vos</span>
+                <span className="block whitespace-nowrap">
+                  propositions gratuitement
+                </span>
               </span>
             </h1>
           </div>
