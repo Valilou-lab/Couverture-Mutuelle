@@ -14,16 +14,26 @@ import { TikTokFunnelTracker } from "@/components/landing/tiktok/TikTokFunnelTra
 export function HomeHeroTitles({ className }: { className?: string } = {}) {
   return (
     <div
-      className={`mx-auto grid max-w-[760px] gap-1.5 pb-3 pt-2 text-center lg:pb-3 lg:pt-1${
+      className={`mx-auto grid w-full min-w-0 max-w-[760px] gap-1.5 pb-3 pt-2 text-center lg:pb-3 lg:pt-1${
         className ? ` ${className}` : ""
       }`}
     >
-      <h1 className="text-balance font-poppins text-[clamp(1.6rem,6.2vw,2.4rem)] font-extrabold leading-[1.15] tracking-[-0.02em]">
+      <h1 className="min-w-0 w-full font-poppins text-[clamp(1.55rem,6.8vw,2.05rem)] font-extrabold leading-[1.12] tracking-[-0.03em] lg:text-balance lg:text-[clamp(1.75rem,4.2vw,2.4rem)] lg:leading-[1.15] lg:tracking-[-0.02em]">
         <span className="block text-zinc-900">
-          +25&nbsp;% en 3 ans sur votre mutuelle*
+          <span className="block whitespace-nowrap lg:inline lg:whitespace-normal">
+            Le bon tarif pour
+          </span>{" "}
+          <span className="block whitespace-nowrap lg:inline lg:whitespace-normal">
+            votre mutuelle
+          </span>
         </span>
         <span className="block text-[#9b4ff0]">
-          Il est temps de payer le juste prix
+          <span className="block whitespace-nowrap lg:inline lg:whitespace-normal">
+            sans perdre les
+          </span>{" "}
+          <span className="block whitespace-nowrap lg:inline lg:whitespace-normal">
+            garanties qui comptent
+          </span>
         </span>
       </h1>
     </div>
