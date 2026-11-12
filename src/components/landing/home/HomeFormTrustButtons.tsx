@@ -1,3 +1,5 @@
+import { Check } from "lucide-react";
+
 const HEADER_POINTS = [
   {
     key: "devis",
@@ -20,7 +22,7 @@ const HEADER_POINTS = [
 /** Light violet strip under the header — chips hug their text. */
 export function HomeHeaderTrustBar() {
   return (
-    <div className="bg-[#ede9fe]">
+    <div className="hidden bg-[#ede9fe] lg:block">
       <ul
         className="mx-auto flex max-w-[1000px] flex-wrap items-center justify-center gap-2 px-4 py-2.5 lg:gap-3 lg:py-3"
         aria-label="Pourquoi comparer"
@@ -38,9 +40,9 @@ export function HomeHeaderTrustBar() {
   );
 }
 
-function Stars() {
+function Stars({ className }: { className: string }) {
   return (
-    <span className="flex gap-0.5 text-[#f4b400]" aria-hidden="true">
+    <span className={`flex gap-0.5 ${className}`} aria-hidden="true">
       {Array.from({ length: 5 }, (_, i) => (
         <svg
           key={i}
@@ -55,7 +57,7 @@ function Stars() {
   );
 }
 
-/** Google rating under the main LP form — not interactive. */
+/** Google rating under the homepage form. */
 export function HomeFormTrustButtons({
   onPhoto = false,
 }: {
@@ -69,10 +71,57 @@ export function HomeFormTrustButtons({
           : "mx-auto flex items-center justify-center gap-2 text-[0.98rem] font-semibold text-[#3b0764] sm:text-[1.05rem]"
       }
     >
-      <Stars />
+      <Stars className={onPhoto ? "text-white" : "text-[#f4b400]"} />
       <span>
         <strong className="font-extrabold">4,8/5</strong> avis Google
       </span>
     </p>
+  );
+}
+
+const GET_BENEFITS = [
+  {
+    lead: "Le bon tarif",
+    rest: ", sans perdre les garanties qui comptent pour vous",
+  },
+  {
+    lead: "Aucune démarche pour changer",
+    rest: " : la résiliation est faite pour vous*",
+  },
+  {
+    lead: "Plusieurs propositions",
+    rest: " : vous choisissez, ou vous arrêtez quand vous voulez",
+  },
+] as const;
+
+/** Below the homepage form, on the white band — not inside the form card. */
+export function HomeFormGetBenefits() {
+  return (
+    <div className="mx-auto max-w-[34rem] px-1 pb-1">
+      <p className="text-[1.05rem] font-extrabold leading-snug text-[#3b0764] sm:text-[1.12rem]">
+        Gratuitement, vous obtenez :
+      </p>
+      <ul className="mt-3 grid gap-2.5">
+        {GET_BENEFITS.map((item) => (
+          <li
+            key={item.lead}
+            className="flex items-start gap-2.5 text-[0.98rem] leading-snug text-[#3b0764] sm:text-[1.02rem]"
+          >
+            <Check
+              className="mt-0.5 h-5 w-5 shrink-0 text-[#22c55e]"
+              strokeWidth={3}
+              aria-hidden
+            />
+            <span>
+              <strong className="font-extrabold">{item.lead}</strong>
+              {item.rest}
+            </span>
+          </li>
+        ))}
+      </ul>
+      <p className="mt-3 text-[0.82rem] leading-snug text-[#5b4a72]">
+        * Dès que votre contrat actuel a plus d’un an.
+      </p>
+    </div>
   );
 }

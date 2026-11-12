@@ -18,9 +18,13 @@ export function HomeHeroTitles({ className }: { className?: string } = {}) {
         className ? ` ${className}` : ""
       }`}
     >
-      <h1 className="text-balance font-poppins text-[clamp(1.6rem,6.2vw,2.4rem)] font-extrabold leading-[1.15] tracking-[-0.02em] text-[#3b0764]">
-        Comparez pour économiser jusqu&apos;à{" "}
-        <span className="text-[1.32em] text-[#9b4ff0]">450 euros</span> / an
+      <h1 className="text-balance font-poppins text-[clamp(1.6rem,6.2vw,2.4rem)] font-extrabold leading-[1.15] tracking-[-0.02em]">
+        <span className="block text-zinc-900">
+          +25&nbsp;% en 3 ans sur votre mutuelle*
+        </span>
+        <span className="block text-[#9b4ff0]">
+          Il est temps de payer le juste prix
+        </span>
       </h1>
     </div>
   );

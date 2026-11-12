@@ -19,7 +19,8 @@ import {
   HomeFormTrustButtons,
   HomeHeaderTrustBar,
 } from "./HomeFormTrustButtons";
-import { HomeWhy } from "./HomeWhy";
+import { HomeLpBelowForm } from "./HomeLpBelowForm";
+import { TrustpilotMini } from "@/components/trustpilot/TrustpilotMini";
 
 const CTA_LABEL = "Je compare gratuitement";
 
@@ -91,7 +92,7 @@ export function HomeLanding({
   );
 
   return (
-    <div className="main-lp-redesign flex min-h-0 flex-1 flex-col bg-[#f7f4ff] text-[18px] leading-[1.55] text-foreground">
+    <div className="main-lp-redesign flex min-h-0 flex-1 flex-col bg-white text-[18px] leading-[1.55] text-foreground">
       <div className="bg-white">
         <SeniorHeader
           bordered={false}
@@ -100,17 +101,14 @@ export function HomeLanding({
         />
         <HomeHeaderTrustBar />
         <div className="mx-auto w-full max-w-[640px] px-4 min-[700px]:max-w-[1000px]">
-          <HomeHeroTitles />
+          <HomeHeroTitles
+            className={desktopBlurBackdrop ? "pb-2 lg:pb-3" : undefined}
+          />
         </div>
-        {desktopBlurBackdrop ? null : (
-          <div className="mx-auto w-full max-w-[640px] px-4 pb-0 min-[700px]:max-w-[1000px] lg:max-w-[1220px]">
-            {form}
-          </div>
-        )}
       </div>
       {desktopBlurBackdrop ? (
         <>
-          <section className="relative w-full overflow-hidden bg-white lg:bg-transparent">
+          <section className="relative w-full overflow-hidden bg-[#ede9fe] lg:bg-transparent">
             <div className="pointer-events-none absolute inset-0 hidden lg:block">
               <Image
                 src="/images/hero-couple-laptops.jpg"
@@ -121,62 +119,62 @@ export function HomeLanding({
                 className="object-cover object-[center_40%]"
               />
             </div>
-            <div className="relative z-10 mx-auto w-full max-w-[640px] px-4 pb-0 min-[700px]:max-w-[1000px] lg:max-w-[1220px] lg:py-12">
+            <div className="relative z-10 mx-auto w-full max-w-[640px] px-4 pb-5 pt-4 min-[700px]:max-w-[1000px] lg:max-w-[1220px] lg:pb-8 lg:pt-12">
               {form}
             </div>
           </section>
-          <div className="bg-white py-3.5">
-            <HomeFormTrustButtons />
+          <HomeLpBelowForm />
+        </>
+      ) : (
+        <>
+          <section className="bg-[#ede9fe] lg:bg-white">
+            <div className="mx-auto w-full max-w-[640px] px-4 pb-5 pt-4 min-[700px]:max-w-[1000px] lg:max-w-[1220px] lg:pb-0 lg:pt-0">
+              {form}
+            </div>
+          </section>
+          <div className="lg:hidden">
+            <HomeLpBelowForm />
           </div>
-          <section className="relative overflow-hidden lg:hidden">
+          <section className="relative hidden overflow-hidden lg:block">
             <Image
               src="/images/hero-couple-cour.jpg"
               alt=""
               fill
               priority
               sizes="100vw"
-              className="object-cover object-[center_68%]"
+              className="object-cover object-[center_68%] lg:object-[center_58%]"
             />
             <div
               aria-hidden="true"
               className="absolute inset-0 bg-black/15"
             />
-            <div className="relative z-10 pb-[12rem] pt-3" />
+            <div className="relative z-10 mx-auto w-full max-w-[640px] px-4 pb-[12rem] pt-3 min-[700px]:max-w-[1000px] lg:max-w-[1220px] lg:pb-16 lg:pt-5">
+              <HomeFormTrustButtons onPhoto />
+            </div>
           </section>
         </>
-      ) : (
-        <section className="relative overflow-hidden">
-          <Image
-            src="/images/hero-couple-cour.jpg"
-            alt=""
-            fill
-            priority
-            sizes="100vw"
-            className="object-cover object-[center_68%] lg:object-[center_58%]"
-          />
-          <div
-            aria-hidden="true"
-            className="absolute inset-0 bg-black/15"
-          />
-          <div className="relative z-10 mx-auto w-full max-w-[640px] px-4 pb-[12rem] pt-3 min-[700px]:max-w-[1000px] lg:max-w-[1220px] lg:pb-16 lg:pt-5">
-            <HomeFormTrustButtons onPhoto />
-          </div>
-        </section>
       )}
       <main className="mx-auto w-full max-w-[640px] flex-1 px-4 pb-12 min-[700px]:max-w-[1000px] lg:max-w-[1220px]">
         <div className="mx-auto w-full max-w-[640px] min-[700px]:max-w-[1000px]">
-          <FormReassuranceSteps />
+          {desktopBlurBackdrop ? null : (
+            <div className="hidden lg:block">
+              <FormReassuranceSteps />
+            </div>
+          )}
           {!formFocused ? (
             <>
-              <SeniorPartners />
-              <HomeWhy />
-              <RacCta label={CTA_LABEL} />
+              {desktopBlurBackdrop ? null : (
+                <div className="hidden lg:block">
+                  <SeniorPartners />
+                </div>
+              )}
               <RacFaq items={FAQ} />
-              <RacCta label={CTA_LABEL} />
+              <RacCta label="MON DEVIS GRATUIT" />
             </>
           ) : null}
         </div>
       </main>
+      <TrustpilotMini />
       <SeniorFooter />
       {!formFocused ? <SeniorStickyCta ctaLabel={CTA_LABEL} /> : null}
     </div>
