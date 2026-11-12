@@ -27,7 +27,7 @@ export const SENIOR_QUESTION_TITLE =
 
 /** Same as SENIOR_QUESTION_TITLE but black — main LP (/) + /tiktok redesign. */
 export const REDESIGN_QUESTION_TITLE =
-  "text-balance text-center font-poppins text-[1.375rem] font-bold leading-[1.2] tracking-[-0.02em] text-black sm:text-[1.75rem]";
+  "text-balance text-center font-poppins text-[1.375rem] font-normal leading-[1.2] tracking-[-0.02em] text-black sm:text-[1.75rem]";
 
 export function useQuestionTitleClass(): string {
   return useRedesignForm() ? REDESIGN_QUESTION_TITLE : SENIOR_QUESTION_TITLE;

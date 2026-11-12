@@ -13,8 +13,8 @@ import {
 
 const QUESTION = "Êtes-vous couvert(e) par une mutuelle ?";
 const OPTIONS = [
-  { id: "oui" as const, label: "Oui" },
-  { id: "non" as const, label: "Non" },
+  { id: "oui" as const, label: "Oui", redesignLabel: "OUI" },
+  { id: "non" as const, label: "Non", redesignLabel: "NON" },
 ];
 
 type Props = {
@@ -42,7 +42,7 @@ export function StepCurrentMutualTariff({
   const titleClass = senior
     ? questionTitleClass
     : redesign
-      ? "text-center text-xl font-bold tracking-tight text-black sm:text-2xl lg:text-[1.45rem]"
+      ? "text-center text-xl font-normal tracking-tight text-black sm:text-2xl lg:text-[1.45rem]"
       : "text-center text-xl font-semibold tracking-tight text-foreground sm:text-2xl lg:text-[1.45rem]";
 
   return (
@@ -52,10 +52,11 @@ export function StepCurrentMutualTariff({
         {OPTIONS.map((item) => (
           <OptionCard
             key={item.id}
-            label={item.label}
-            icon={senior ? seniorCoveredIcon(item.id) : undefined}
+            label={redesign ? item.redesignLabel : item.label}
+            icon={senior && !redesign ? seniorCoveredIcon(item.id) : undefined}
             selected={data.alreadyInsured === item.id}
             disabled={disabled}
+            seniorAlign={redesign ? "center" : "left"}
             onClick={() => onSelectAndAdvance(item.id)}
           />
         ))}

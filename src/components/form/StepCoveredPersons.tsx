@@ -8,10 +8,12 @@ import {
 import { OptionCard } from "./OptionCard";
 import { householdChoiceIcon } from "./HouseholdChoiceIcons";
 import type { FieldErrors } from "./validation";
+import { householdPicto } from "./HouseholdPictos";
 import { seniorHouseholdIcon } from "./SeniorChoiceIcons";
 import {
   SENIOR_ERROR,
   useQuestionTitleClass,
+  useRedesignForm,
   useSeniorForm,
 } from "./seniorForm";
 
@@ -39,6 +41,7 @@ export function StepCoveredPersons({
   onSelectAndAdvance,
 }: Props) {
   const senior = useSeniorForm();
+  const redesign = useRedesignForm();
   const questionTitleClass = useQuestionTitleClass();
 
   if (senior) {
@@ -52,7 +55,11 @@ export function StepCoveredPersons({
               <OptionCard
                 key={item.id}
                 label={item.label}
-                icon={seniorHouseholdIcon(item.id)}
+                icon={
+                  redesign
+                    ? householdPicto(item.id)
+                    : seniorHouseholdIcon(item.id)
+                }
                 selected={data.coveredPersons === item.id}
                 disabled={disabled}
                 onClick={() => onSelectAndAdvance(item.id)}
