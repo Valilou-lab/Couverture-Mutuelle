@@ -1,6 +1,6 @@
 import Image from "next/image";
 import type { CSSProperties, ReactNode } from "react";
-import { ArrowRight, BadgeEuro } from "lucide-react";
+import { ArrowRight, BadgeEuro, ChevronDown } from "lucide-react";
 import { CTA_CLASS } from "@/components/landing/senior/SeniorSections";
 
 const H2 =
@@ -194,12 +194,21 @@ export function RacFaq({
       <h2 id="faq-titre" className={H2}>
         Questions fréquentes
       </h2>
-      <div className="grid gap-3.5 min-[700px]:grid-cols-2">
+      <div className="grid gap-3">
         {items.map((item) => (
-          <article key={item.question} className={`${CARD} grid content-start gap-2`}>
-            <h3 className={H3}>{item.question}</h3>
-            <p className={TEXT}>{item.answer}</p>
-          </article>
+          <details
+            key={item.question}
+            className={`group ${CARD} p-4 sm:p-5`}
+          >
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-3 [&::-webkit-details-marker]:hidden">
+              <h3 className={`${H3} text-left`}>{item.question}</h3>
+              <ChevronDown
+                className="h-5 w-5 shrink-0 text-brand transition duration-200 group-open:rotate-180"
+                aria-hidden
+              />
+            </summary>
+            <p className={`${TEXT} mt-2.5 pr-8`}>{item.answer}</p>
+          </details>
         ))}
       </div>
     </Block>

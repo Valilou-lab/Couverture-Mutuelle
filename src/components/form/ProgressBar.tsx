@@ -36,23 +36,26 @@ export function ProgressBar({
 
   if (display === "percent") {
     return (
-      <div className="mb-3 flex items-center gap-3 rounded-full bg-white px-3 py-2 shadow-[0_8px_20px_-12px_rgba(59,7,100,0.35)]">
+      <div>
+        <div className="mb-1.5 flex items-baseline justify-between gap-3">
+          <p className="text-[0.95rem] font-bold tabular-nums text-brand">
+            {safeCurrent}/{safeTotal}
+          </p>
+          <p className="text-[0.95rem] font-medium text-zinc-400">1 minute</p>
+        </div>
         <div
-          className="h-2.5 min-w-0 flex-1 overflow-hidden rounded-full bg-[#ede9fe]"
+          className="h-1.5 overflow-hidden rounded-full bg-white"
           role="progressbar"
-          aria-valuenow={percent}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-label={`Progression ${percent} pour cent`}
+          aria-valuenow={safeCurrent}
+          aria-valuemin={1}
+          aria-valuemax={safeTotal}
+          aria-label={`Étape ${safeCurrent} sur ${safeTotal}`}
         >
           <div
             className="h-full rounded-full bg-brand transition-[width] duration-500 ease-out motion-reduce:transition-none"
             style={{ width: `${percent}%` }}
           />
         </div>
-        <span className="shrink-0 text-[0.95rem] font-extrabold tabular-nums text-[#3b0764]">
-          {percent}&nbsp;%
-        </span>
       </div>
     );
   }
