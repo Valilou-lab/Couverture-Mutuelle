@@ -85,7 +85,9 @@ export function SeniorLanding({
                 Quel tarif pour votre âge&nbsp;?
               </span>
               <span className="block text-[#9b4ff0]">
-                Recevez vos propositions gratuitement
+                Recevez vos
+                <br />
+                propositions gratuitement
               </span>
             </h1>
           </div>
