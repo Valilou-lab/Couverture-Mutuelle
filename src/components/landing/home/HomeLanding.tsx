@@ -19,7 +19,6 @@ import {
   HomeHeaderTrustBar,
 } from "./HomeFormTrustButtons";
 import { HomeLpBelowForm } from "./HomeLpBelowForm";
-import { TrustpilotMini } from "@/components/trustpilot/TrustpilotMini";
 
 const FAQ = [
   {
@@ -91,11 +90,7 @@ export function HomeLanding({
   return (
     <div className="main-lp-redesign flex min-h-0 flex-1 flex-col bg-white text-[18px] leading-[1.55] text-foreground">
       <div className="bg-white">
-        <SeniorHeader
-          bordered={false}
-          whatsappShowLabel={false}
-          logoCentered
-        />
+        <SeniorHeader bordered={false} logoCentered showWhatsApp={false} />
         <HomeHeaderTrustBar />
         <div className="mx-auto w-full max-w-[640px] px-4 min-[700px]:max-w-[1000px]">
           <HomeHeroTitles
@@ -171,7 +166,6 @@ export function HomeLanding({
           ) : null}
         </div>
       </main>
-      <TrustpilotMini />
       <SeniorFooter />
     </div>
   );
