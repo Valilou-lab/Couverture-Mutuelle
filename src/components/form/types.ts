@@ -176,6 +176,7 @@ export const FORM_STEPS: FormStepId[] = [
   "birthAndPostal",
   "birthDate",
   "postalCode",
+  /** `/reste-a-charge` only — see getVisibleSteps `askCareNeedsFirst`. */
   "careNeeds",
   "alreadyInsured",
   /** Main LP (/) + /tiktok redesign only — see getVisibleSteps. */

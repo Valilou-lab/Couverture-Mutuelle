@@ -1,6 +1,9 @@
 import "server-only";
 
-import { toInternationalFrenchPhone } from "@/lib/vertikl/normalize";
+import {
+  requiresSmsPhoneVerification,
+  toInternationalFrenchPhone,
+} from "@/lib/vertikl/normalize";
 
 type TwilioVerifyConfig = {
   accountSid: string;
@@ -57,7 +60,7 @@ export async function startTwilioSmsVerification(
   phoneRaw: string,
 ): Promise<TwilioStartResult> {
   const phoneE164 = normalizeFrenchPhoneE164(phoneRaw);
-  if (!phoneE164) {
+  if (!phoneE164 || !requiresSmsPhoneVerification(phoneRaw)) {
     return { ok: false, error: "INVALID_PHONE" };
   }
 

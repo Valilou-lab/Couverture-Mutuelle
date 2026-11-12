@@ -58,3 +58,12 @@ export function toInternationalFrenchPhone(value: string): string | null {
 
   return null;
 }
+
+/**
+ * SMS OTP is only possible on French mobiles 06 / 07
+ * (also +336…, +337…, 00336…, 00337…). Landlines 01–05 skip verification.
+ */
+export function requiresSmsPhoneVerification(value: string): boolean {
+  const phone = toInternationalFrenchPhone(value);
+  return phone !== null && /^\+33[67]\d{8}$/.test(phone);
+}

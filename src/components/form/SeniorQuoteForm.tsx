@@ -31,6 +31,8 @@ type SeniorQuoteFormProps = {
   firstStepIntro?: ReactNode;
   /** `/tranches-age` only — age first, Vertikl DOB synthesized as 15/06/YYYY. */
   askAgeInsteadOfBirthDate?: boolean;
+  /** `/reste-a-charge` only — care-priorities (hospitalisation, dentaire…) first. */
+  askCareNeedsFirst?: boolean;
 };
 
 /**
@@ -43,6 +45,7 @@ export function SeniorQuoteForm({
   redesignIntro = false,
   firstStepIntro,
   askAgeInsteadOfBirthDate = false,
+  askCareNeedsFirst = false,
 }: SeniorQuoteFormProps = {}) {
   const lgUp = useLgUp();
   const fullRedesign = redesignIntro === true;
@@ -53,14 +56,28 @@ export function SeniorQuoteForm({
       ? firstStepIntro
       : consentVariant === "iki" || visualRedesign
         ? ""
-        : DEFAULT_INTRO;
+        : askCareNeedsFirst
+          ? "Votre devis en 2 minutes"
+          : DEFAULT_INTRO;
 
   return (
     <QuoteForm
       variant="senior"
-      firstStep={askAgeInsteadOfBirthDate ? "age" : "currentMutualTariff"}
+      firstStep={
+        askAgeInsteadOfBirthDate
+          ? "age"
+          : askCareNeedsFirst
+            ? "careNeeds"
+            : "currentMutualTariff"
+      }
       firstStepIntro={intro}
       askAgeInsteadOfBirthDate={askAgeInsteadOfBirthDate}
+      askCareNeedsFirst={askCareNeedsFirst}
+      careNeedsTitle={
+        askCareNeedsFirst
+          ? "Sur quels soins voulez-vous être mieux remboursé(e)\u00a0?"
+          : undefined
+      }
       introBarStyle={fullRedesign ? "brand" : "soft"}
       redesignVisual={visualRedesign}
       coveredPersonsTitle="Qui doit être assuré ?"

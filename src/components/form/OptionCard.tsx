@@ -60,6 +60,37 @@ export function OptionCard({
 
   if (senior) {
     const centered = seniorAlign === "center";
+    if (layout === "stack") {
+      return (
+        <button
+          type="button"
+          onClick={onClick}
+          disabled={disabled}
+          aria-pressed={selected}
+          className={`flex min-h-[5.5rem] w-full flex-col items-center justify-center gap-1 px-2 py-2.5 text-center text-[0.95rem] font-semibold leading-snug transition-[background-color,border-color,box-shadow,color] duration-150 active:scale-[0.99] disabled:cursor-not-allowed sm:min-h-[6rem] sm:text-[1.05rem] ${
+            redesign
+              ? selected
+                ? REDESIGN_BTN_SELECTED
+                : REDESIGN_BTN
+              : selected
+                ? "rounded-[18px] border-2 border-brand bg-brand-muted text-[#3b0764] shadow-[0_0_0_3px_rgba(98,41,208,0.18)]"
+                : "rounded-[18px] border-2 border-brand-muted bg-white text-[#3b0764] hover:border-brand hover:bg-[#f8f6ff]"
+          } ${className ?? ""}`}
+        >
+          {icon ? (
+            <span
+              className={`inline-flex h-8 w-8 items-center justify-center ${
+                selected && redesign ? "text-white" : "text-brand"
+              }`}
+              aria-hidden="true"
+            >
+              {icon}
+            </span>
+          ) : null}
+          <span className="text-pretty">{label}</span>
+        </button>
+      );
+    }
     if (showChoiceArrow) {
       const centered = seniorAlign === "center";
       return (

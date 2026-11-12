@@ -38,6 +38,7 @@ import { StepCurrentMutualTariff } from "./StepCurrentMutualTariff";
 import { StepAge } from "./StepAge";
 import { StepBirthAndPostal } from "./StepBirthAndPostal";
 import { birthDateFromDeclaredAge } from "@/lib/age-to-birth-date";
+import { requiresSmsPhoneVerification } from "@/lib/vertikl/normalize";
 import { StepAnalyzing } from "./StepAnalyzing";
 import { StepContact } from "./StepContact";
 import { StepIdentity } from "./StepIdentity";
@@ -82,6 +83,8 @@ type VisibleStepOptions = {
   splitContactIdentity?: boolean;
   /** `/tranches-age` only: ask age first, synthesize 15/06/YYYY for Vertikl. */
   askAgeInsteadOfBirthDate?: boolean;
+  /** `/reste-a-charge` only: care-priorities question first. */
+  askCareNeedsFirst?: boolean;
 };
 
 function getVisibleSteps(
@@ -89,6 +92,7 @@ function getVisibleSteps(
   options: VisibleStepOptions,
 ): FormStepId[] {
   return orderedFormSteps(options.firstStep).filter((step) => {
+    if (step === "careNeeds") return Boolean(options.askCareNeedsFirst);
     if (isHiddenFormStep(step)) return false;
     if (step === "age") return Boolean(options.askAgeInsteadOfBirthDate);
     if (step === "alreadyInsured" && !SHOW_ALREADY_INSURED_STEP) return false;
@@ -207,6 +211,8 @@ type QuoteFormProps = {
    * Own DOB is not asked later; Vertikl still receives `15/06/{année}`.
    */
   askAgeInsteadOfBirthDate?: boolean;
+  /** `/reste-a-charge` only: care-priorities question first. */
+  askCareNeedsFirst?: boolean;
 };
 
 function questionStepNumber(
@@ -237,6 +243,7 @@ export function QuoteForm({
   onStepChange,
   consentVariant: consentVariantProp,
   askAgeInsteadOfBirthDate = false,
+  askCareNeedsFirst = false,
 }: QuoteFormProps = {}) {
   const senior = variant === "senior";
   const brandIntroBar = introBarStyle === "brand";
@@ -269,6 +276,7 @@ export function QuoteForm({
       skipPostalCode,
       firstStep,
       askAgeInsteadOfBirthDate,
+      askCareNeedsFirst,
     });
     if (firstStep && steps.includes(firstStep)) return firstStep;
     return (
@@ -333,9 +341,11 @@ export function QuoteForm({
       firstStep,
       splitContactIdentity,
       askAgeInsteadOfBirthDate,
+      askCareNeedsFirst,
     }),
     [
       askAgeInsteadOfBirthDate,
+      askCareNeedsFirst,
       firstStep,
       skipBirthDate,
       skipPostalCode,
@@ -613,11 +623,24 @@ export function QuoteForm({
 
     setErrors({});
     setSubmitError(null);
+
+    if (!requiresSmsPhoneVerification(data.phone)) {
+      await submitLead();
+      return;
+    }
+
     setPhoneProofReady(false);
     setPhoneVerifyOpen(true);
     setOtpErrorMessage(null);
     await sendPhoneOtp();
-  }, [data, isSubmitting, otpSending, sendPhoneOtp, splitContactIdentity]);
+  }, [
+    data,
+    isSubmitting,
+    otpSending,
+    sendPhoneOtp,
+    splitContactIdentity,
+    submitLead,
+  ]);
 
   const confirmPhoneOtp = useCallback(
     async (code: string) => {
@@ -769,7 +792,17 @@ export function QuoteForm({
           errors={errors}
           disabled={isAdvancing}
           title={careNeedsTitle}
-          onChange={(careNeeds) => patch({ careNeeds })}
+          hint={
+            askCareNeedsFirst
+              ? "Plusieurs réponses possibles"
+              : undefined
+          }
+          racOrder={askCareNeedsFirst}
+          onChange={(careNeeds) => {
+            funnel?.onInteract?.();
+            markFormStarted();
+            patch({ careNeeds });
+          }}
           onNext={goNext}
         />
       ) : null}
@@ -919,7 +952,9 @@ export function QuoteForm({
           submitError={submitError}
           consentVariant={consentVariant}
           phoneOnly={splitContactIdentity}
-          lastStepProposalsIntro={askAgeInsteadOfBirthDate}
+          lastStepProposalsIntro={
+            askAgeInsteadOfBirthDate || askCareNeedsFirst
+          }
           onPatch={patch}
           onNext={goNext}
         />
@@ -946,6 +981,9 @@ export function QuoteForm({
               current={progressCurrent}
               total={progressTotal}
               display="percent"
+              durationLabel={
+                askCareNeedsFirst ? "2 minutes" : undefined
+              }
             />
           </div>
         ) : null}

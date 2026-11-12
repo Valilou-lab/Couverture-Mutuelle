@@ -2,7 +2,6 @@ import type { FormStepId, QuoteFormData } from "./types";
 import { COVERED_PERSONS } from "./types";
 import {
   COMBINE_BIRTH_AND_POSTAL_STEP,
-  SHOW_CARE_PRIORITIES_STEP,
   SHOW_SPOUSE_BIRTH_DATE_STEP,
 } from "./formConfig";
 import {
@@ -72,6 +71,36 @@ function normalizeFrenchPhoneDigits(value: string): string | null {
   }
   if (!/^(?:0[1-9]\d{8})$/.test(digits)) return null;
   return digits;
+}
+
+/** National 10 digits; +33 / 0033 keep their extra prefix digits. */
+function maxFrenchPhoneDigits(digits: string): number {
+  if (digits.startsWith("00")) return 13;
+  if (digits.startsWith("33")) return 11;
+  return 10;
+}
+
+/** Drop extra digits while typing / pasting. Separators and a leading + stay. */
+export function capFrenchPhoneInput(value: string): string {
+  let digits = "";
+  let out = "";
+
+  for (const ch of value) {
+    if (ch >= "0" && ch <= "9") {
+      const next = digits + ch;
+      if (next.length > maxFrenchPhoneDigits(next)) continue;
+      digits = next;
+      out += ch;
+      continue;
+    }
+    if (ch === "+" && !out.includes("+") && digits.length === 0) {
+      out += ch;
+      continue;
+    }
+    if (/[\s./-]/.test(ch)) out += ch;
+  }
+
+  return out;
 }
 
 /** Max 4 zeros in a row — 5+ consecutive zeros is blocked. */
@@ -252,7 +281,6 @@ export function validateStep(
 
   switch (step) {
     case "careNeeds":
-      if (!SHOW_CARE_PRIORITIES_STEP) break;
       if (data.careNeeds.length === 0) {
         errors.careNeeds = "Sélectionnez au moins un soin prioritaire.";
       }

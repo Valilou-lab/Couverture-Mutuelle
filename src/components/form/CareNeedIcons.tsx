@@ -16,7 +16,7 @@ const PICTO_SRC: Partial<Record<CareNeedId, string>> = {
 function PictoIcon({ src }: { src: string; alt: string }) {
   return (
     <span
-      className="block h-full w-full bg-[#6d28d9]"
+      className="block h-full w-full bg-current"
       style={{
         WebkitMaskImage: `url(${src})`,
         maskImage: `url(${src})`,

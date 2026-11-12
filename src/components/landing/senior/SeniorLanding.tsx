@@ -3,7 +3,6 @@ import { SeniorQuoteForm } from "@/components/form/SeniorQuoteForm";
 import { HomeLpBelowForm } from "@/components/landing/home/HomeLpBelowForm";
 import { RacCta, RacFaq } from "@/components/landing/reste-a-charge/ResteAChargeSections";
 import { TikTokFunnelTracker } from "@/components/landing/tiktok/TikTokFunnelTracker";
-import { TrustpilotMini } from "@/components/trustpilot/TrustpilotMini";
 import { SeniorFooter } from "./SeniorFooter";
 import { SeniorHeader } from "./SeniorHeader";
 import { SeniorHero } from "./SeniorHero";
@@ -119,7 +118,6 @@ export function SeniorLanding({
           <RacFaq items={TRANCHES_FAQ} />
           <RacCta label="MON DEVIS GRATUIT" />
         </div>
-        <TrustpilotMini />
       </div>
 
       <main className="mx-auto hidden w-full max-w-[640px] flex-1 px-4 min-[900px]:max-w-[1100px] lg:block">

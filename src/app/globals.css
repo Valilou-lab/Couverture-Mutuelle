@@ -488,41 +488,56 @@ body {
   }
 }
 
-/* /tranches-age mobile only — Inter type scale from the LP mockup. */
+/* /tranches-age + /reste-a-charge mobile — Inter type scale from the LP mockup. */
 @media (max-width: 1023px) {
-  .tranches-age-type {
+  .tranches-age-type,
+  .reste-a-charge-type {
     font-family: var(--font-inter-tranches), ui-sans-serif, sans-serif;
     font-weight: 500;
   }
 
   .tranches-age-type
+    :is(.font-poppins, .font-manrope, .font-sans, .font-sora, .font-baloo, .font-nunito),
+  .reste-a-charge-type
     :is(.font-poppins, .font-manrope, .font-sans, .font-sora, .font-baloo, .font-nunito) {
     font-family: var(--font-inter-tranches), ui-sans-serif, sans-serif;
   }
 
-  .tranches-age-type h1 {
+  .tranches-age-type h1,
+  .reste-a-charge-type h1 {
     font-family: var(--font-inter-tranches), ui-sans-serif, sans-serif;
-    font-size: clamp(1.4rem, 7.2vw, 1.8125rem);
     font-weight: 800;
     letter-spacing: -0.02em;
     line-height: 1.15;
   }
 
-  .tranches-age-type :is(h2, h3) {
+  .tranches-age-type h1 {
+    font-size: clamp(1.4rem, 7.2vw, 1.8125rem);
+  }
+
+  .reste-a-charge-type h1 {
+    font-size: 29px;
+  }
+
+  .tranches-age-type :is(h2, h3),
+  .reste-a-charge-type :is(h2, h3) {
     font-family: var(--font-inter-tranches), ui-sans-serif, sans-serif;
     font-weight: 800;
   }
 
-  .tranches-age-type :is(button, a[href="#devis"]) {
+  .tranches-age-type :is(button, a[href="#devis"]),
+  .reste-a-charge-type :is(button, a[href="#devis"]) {
     font-family: var(--font-inter-tranches), ui-sans-serif, sans-serif;
     font-weight: 700;
   }
 
-  .tranches-age-type p {
+  .tranches-age-type p,
+  .reste-a-charge-type p {
     font-weight: 500;
   }
 
-  .tranches-age-type p:is(.font-bold, .font-extrabold, .font-semibold) {
+  .tranches-age-type p:is(.font-bold, .font-extrabold, .font-semibold),
+  .reste-a-charge-type p:is(.font-bold, .font-extrabold, .font-semibold) {
     font-weight: 800;
   }
 }

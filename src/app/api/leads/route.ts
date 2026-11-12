@@ -41,6 +41,7 @@ import {
   clearPhoneVerifyCookie,
   verifyPhoneProofToken,
 } from "@/lib/phone-verify-proof";
+import { requiresSmsPhoneVerification } from "@/lib/vertikl/normalize";
 
 export const runtime = "nodejs";
 
@@ -323,11 +324,13 @@ export async function POST(request: NextRequest) {
     return failure(400, "CONSENT_REQUIRED");
   }
 
-  // Twilio Verify proof (HTTP-only cookie) — required before Vertikl / CAPI.
-  const phoneProof = request.cookies.get(PHONE_VERIFY_COOKIE)?.value;
-  if (!verifyPhoneProofToken(phoneProof, form.phone)) {
-    console.info("[api/leads] phone not verified");
-    return failure(403, "PHONE_NOT_VERIFIED");
+  // Twilio Verify proof — required for 06/07 only. Landlines cannot receive SMS.
+  if (requiresSmsPhoneVerification(form.phone)) {
+    const phoneProof = request.cookies.get(PHONE_VERIFY_COOKIE)?.value;
+    if (!verifyPhoneProofToken(phoneProof, form.phone)) {
+      console.info("[api/leads] phone not verified");
+      return failure(403, "PHONE_NOT_VERIFIED");
+    }
   }
 
   const validationErrors = validateLeadForm(form);

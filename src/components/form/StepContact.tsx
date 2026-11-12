@@ -4,7 +4,7 @@ import { useState } from "react";
 import { type QuoteFormData } from "./types";
 import { FormNavigation } from "./FormNavigation";
 import { PartnersModal } from "./PartnersModal";
-import { validateStep, type FieldErrors } from "./validation";
+import { capFrenchPhoneInput, validateStep, type FieldErrors } from "./validation";
 import {
   IKI_CONSENT_OPTIN_TEXT,
   IKI_CONSENT_VALIDITY_TEXT,
@@ -73,7 +73,7 @@ type Props = {
   consentVariant?: ConsentVariantId;
   /** Main LP (/) + /tiktok: name/email already collected — phone + consent only. */
   phoneOnly?: boolean;
-  /** `/tranches-age` only — intro above prénom / nom. */
+  /** `/tranches-age` and `/reste-a-charge` — intro above prénom / nom. */
   lastStepProposalsIntro?: boolean;
   onPatch: (patch: Partial<QuoteFormData>) => void;
   onNext: () => void;
@@ -196,7 +196,9 @@ export function StepContact({
           inputMode="tel"
           placeholder={senior ? "06 12 34 56 78" : undefined}
           value={data.phone}
-          onChange={(event) => onPatch({ phone: event.target.value })}
+          onChange={(event) =>
+            onPatch({ phone: capFrenchPhoneInput(event.target.value) })
+          }
           className={inputClass}
         />
         {errors.phone ? (

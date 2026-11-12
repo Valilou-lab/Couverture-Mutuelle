@@ -21,6 +21,7 @@ import {
   type FieldErrors,
 } from "@/components/form/validation";
 import { normalizeV2PhoneToE164 } from "@/lib/v2/phone";
+import { requiresSmsPhoneVerification } from "@/lib/vertikl/normalize";
 import {
   validateV2EmailOnServer,
   validateV2EmailPhone,
@@ -249,15 +250,48 @@ export function QuoteFormV2() {
     [data, goTo, isAdvancing, isCheckingEligibility, patch],
   );
 
+  const submitV2Dossier = useCallback(async () => {
+    if (!eligibilityToken) {
+      throw new Error(
+        "Preuve d’éligibilité manquante. Relancez la vérification des offres.",
+      );
+    }
+    await submitV2LeadScaffold({
+      data,
+      partners: eligiblePartners,
+      eligibilityToken,
+    });
+    goTo("confirmation");
+  }, [data, eligibilityToken, eligiblePartners, goTo]);
+
   const confirmDossier = useCallback(() => {
+    if (otpVerifying) return;
     const stepErrors = validateIdentityAndConsent(data);
     if (Object.keys(stepErrors).length > 0) {
       setErrors(stepErrors);
       return;
     }
-    // Scaffold: no /api/leads, Vertikl, or Meta Lead — OTP next via local adapter.
+    if (!requiresSmsPhoneVerification(data.phone)) {
+      void (async () => {
+        setOtpError(null);
+        setOtpVerifying(true);
+        try {
+          await submitV2Dossier();
+        } catch (error) {
+          setErrors({
+            consent:
+              error instanceof Error
+                ? error.message
+                : "Impossible d’enregistrer le dossier pour le moment.",
+          });
+        } finally {
+          setOtpVerifying(false);
+        }
+      })();
+      return;
+    }
     goTo("phoneVerify");
-  }, [data, goTo]);
+  }, [data, goTo, otpVerifying, submitV2Dossier]);
 
   const confirmOtp = useCallback(
     async (code: string) => {
@@ -267,18 +301,7 @@ export function QuoteFormV2() {
       try {
         // Local OTP scaffold — later: /api/verify/start|check (Main), then lead.
         await verifyOtpLocally(code);
-        if (!eligibilityToken) {
-          throw new Error(
-            "Preuve d’éligibilité manquante. Relancez la vérification des offres.",
-          );
-        }
-        // Scaffold /api/v2/leads — no Meta Lead / GTM lead_completed / Vertikl yet.
-        await submitV2LeadScaffold({
-          data,
-          partners: eligiblePartners,
-          eligibilityToken,
-        });
-        goTo("confirmation");
+        await submitV2Dossier();
       } catch (error) {
         setOtpError(
           error instanceof Error
@@ -289,7 +312,7 @@ export function QuoteFormV2() {
         setOtpVerifying(false);
       }
     },
-    [data, eligibilityToken, eligiblePartners, goTo, otpVerifying],
+    [otpVerifying, submitV2Dossier],
   );
 
   const skipStepScrollOnMount = useRef(true);

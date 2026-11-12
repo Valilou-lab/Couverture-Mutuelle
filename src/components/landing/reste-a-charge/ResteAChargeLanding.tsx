@@ -1,10 +1,8 @@
 import { SeniorFooter } from "@/components/landing/senior/SeniorFooter";
 import { SeniorHeader } from "@/components/landing/senior/SeniorHeader";
 import { SeniorStickyCta } from "@/components/landing/senior/SeniorStickyCta";
-import { HomeHeroTitles } from "@/components/landing/home/HomeHero";
 import { HomeLpBelowForm } from "@/components/landing/home/HomeLpBelowForm";
-import { TrustpilotMini } from "@/components/trustpilot/TrustpilotMini";
-import { ResteAChargeHero } from "./ResteAChargeHero";
+import { RacPageTitle, ResteAChargeHero } from "./ResteAChargeHero";
 import {
   RacAdvantages,
   RacCta,
@@ -20,19 +18,31 @@ const CTA_LABEL = "Je compare ma mutuelle";
  * Mobile: homepage `/` template. Desktop: existing layout, unchanged.
  * One quote form in the DOM.
  */
-export function ResteAChargeLanding() {
+export function ResteAChargeLanding({
+  className,
+}: {
+  className?: string;
+} = {}) {
   return (
-    <div className="flex min-h-0 flex-1 flex-col bg-surface text-[18px] leading-[1.55] text-foreground">
+    <div
+      className={`flex min-h-0 flex-1 flex-col bg-surface text-[18px] leading-[1.55] text-foreground${
+        className ? ` ${className}` : ""
+      }`}
+    >
       <div className="lg:hidden">
-        <SeniorHeader bordered={false} logoCentered />
+        <SeniorHeader bordered={false} logoCentered showWhatsApp={false} />
       </div>
       <div className="hidden lg:block">
-        <SeniorHeader />
+        <SeniorHeader showWhatsApp={false} />
       </div>
 
       <div className="bg-white lg:hidden">
         <div className="mx-auto w-full max-w-[640px] px-4 min-[700px]:max-w-[1000px]">
-          <HomeHeroTitles className="pb-2" />
+          <div className="mx-auto grid max-w-[760px] pb-2 pt-2 text-center">
+            <h1 className="text-[29px] font-extrabold leading-[1.15] tracking-[-0.02em] [font-family:var(--font-inter-tranches),ui-sans-serif,sans-serif]">
+              <RacPageTitle />
+            </h1>
+          </div>
         </div>
       </div>
 
@@ -46,12 +56,11 @@ export function ResteAChargeLanding() {
       </section>
 
       <div className="lg:hidden">
-        <HomeLpBelowForm />
+        <HomeLpBelowForm needsText="en 2 minutes" />
         <div className="mx-auto w-full max-w-[640px] px-4 pb-12 min-[700px]:max-w-[1000px]">
           <RacFaq />
           <RacCta label="MON DEVIS GRATUIT" />
         </div>
-        <TrustpilotMini />
       </div>
 
       <main className="mx-auto hidden w-full max-w-[640px] flex-1 px-4 pb-12 min-[700px]:max-w-[1000px] lg:block">

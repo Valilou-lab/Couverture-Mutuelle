@@ -1,5 +1,12 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import { ResteAChargeLanding } from "@/components/landing/reste-a-charge/ResteAChargeLanding";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter-tranches",
+  display: "swap",
+});
 
 const TITLE = "Encore un reste à charge ? Comparez votre mutuelle — Couverture Mutuelle";
 const DESCRIPTION =
@@ -17,5 +24,7 @@ export const metadata: Metadata = {
 };
 
 export default function ResteAChargePage() {
-  return <ResteAChargeLanding />;
+  return (
+    <ResteAChargeLanding className={`${inter.variable} reste-a-charge-type`} />
+  );
 }

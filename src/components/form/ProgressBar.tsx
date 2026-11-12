@@ -7,12 +7,15 @@ type ProgressBarProps = {
   total: number;
   /** `percent` shows a compact bar with % — used above the main LP form. */
   display?: "questions" | "percent";
+  /** Right-side duration on the percent bar. Default « 1 minute ». */
+  durationLabel?: string;
 };
 
 export function ProgressBar({
   current,
   total,
   display = "questions",
+  durationLabel = "1 minute",
 }: ProgressBarProps) {
   const senior = useSeniorForm();
   const safeTotal = Math.max(1, total);
@@ -41,7 +44,9 @@ export function ProgressBar({
           <p className="text-[0.95rem] font-bold tabular-nums text-brand">
             {safeCurrent}/{safeTotal}
           </p>
-          <p className="text-[0.95rem] font-medium text-zinc-400">1 minute</p>
+          <p className="text-[0.95rem] font-medium text-zinc-400">
+            {durationLabel}
+          </p>
         </div>
         <div
           className="h-1.5 overflow-hidden rounded-full bg-white"

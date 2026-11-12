@@ -27,6 +27,7 @@ import { StepCurrentMutualTariff } from "@/components/form/StepCurrentMutualTari
 import { StepBirthAndPostal } from "@/components/form/StepBirthAndPostal";
 import { SeniorFormContext } from "@/components/form/seniorForm";
 import { scrollQuoteFormIntoView } from "@/components/form/scrollQuoteFormIntoView";
+import { requiresSmsPhoneVerification } from "@/lib/vertikl/normalize";
 import {
   COMPLIANCE_FLOW_STEPS,
   COMPLIANCE_QUESTION_STEPS,
@@ -234,7 +235,10 @@ export function ComplianceQuoteForm() {
       setErrors(stepErrors);
       return;
     }
-    // Demo only — no /api/leads, Vertikl, or Meta Lead. OTP is local next.
+    if (!requiresSmsPhoneVerification(data.phone)) {
+      goTo("confirmation");
+      return;
+    }
     goTo("phoneVerify");
   }, [data, goTo]);
 
