@@ -11,9 +11,13 @@ import { TikTokFunnelTracker } from "@/components/landing/tiktok/TikTokFunnelTra
  * then the quote form (SeniorQuoteForm, id="devis"), centred.
  * Desktop: form over the homepage photo; mobile: form over the same photo.
  */
-export function HomeHeroTitles() {
+export function HomeHeroTitles({ className }: { className?: string } = {}) {
   return (
-    <div className="mx-auto grid max-w-[760px] gap-1.5 pb-3 pt-2 text-center lg:pb-3 lg:pt-1">
+    <div
+      className={`mx-auto grid max-w-[760px] gap-1.5 pb-3 pt-2 text-center lg:pb-3 lg:pt-1${
+        className ? ` ${className}` : ""
+      }`}
+    >
       <h1 className="text-balance font-poppins text-[clamp(1.6rem,6.2vw,2.4rem)] font-extrabold leading-[1.15] tracking-[-0.02em] text-[#3b0764]">
         Comparez pour économiser jusqu&apos;à{" "}
         <span className="text-[1.32em] text-[#9b4ff0]">450 euros</span> / an
