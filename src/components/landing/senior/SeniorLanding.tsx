@@ -71,10 +71,10 @@ export function SeniorLanding({
       }`}
     >
       <div className="lg:hidden">
-        <SeniorHeader bordered={false} logoCentered />
+        <SeniorHeader bordered={false} logoCentered showWhatsApp={false} />
       </div>
       <div className="hidden lg:block">
-        <SeniorHeader />
+        <SeniorHeader showWhatsApp={false} />
       </div>
 
       <div className="bg-white lg:hidden">
