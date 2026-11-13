@@ -42,11 +42,22 @@ export const SENIOR_INPUT =
 export const REDESIGN_INPUT =
   "mt-1.5 min-h-16 w-full min-w-0 rounded-[18px] border-2 border-brand-muted bg-white px-[18px] py-4 text-[1.2rem] text-foreground outline-none placeholder:text-zinc-400 focus:border-brand focus:ring-[3px] focus:ring-brand/15 disabled:opacity-60";
 
+/** `/tranches-age` — square fields, gray outline. */
+export const TRANCHES_INPUT =
+  "mt-1.5 min-h-16 w-full min-w-0 rounded-none border-2 border-[#9ca3af] bg-white px-[18px] py-4 text-[1.2rem] text-foreground outline-none placeholder:text-zinc-400 focus:border-[#6b7280] focus:ring-0 disabled:opacity-60";
+
 const DEFAULT_FORM_INPUT =
   "mt-2 w-full rounded-2xl border-2 border-[#c4b5fd] bg-white px-4 py-3.5 text-base outline-none ring-brand/30 focus:border-brand focus:ring-2";
 
+export const TranchesAgeFormContext = createContext(false);
+
+export function useTranchesAgeForm(): boolean {
+  return useContext(TranchesAgeFormContext);
+}
+
 /** Input frame for the active form variant (redesign / senior purple / default). */
 export function useFormInputClass(): string {
+  if (useTranchesAgeForm()) return TRANCHES_INPUT;
   if (useRedesignForm()) return REDESIGN_INPUT;
   if (useSeniorForm()) return SENIOR_INPUT;
   return DEFAULT_FORM_INPUT;

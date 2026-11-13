@@ -59,7 +59,11 @@ import type { MetaLeadTracking } from "@/lib/meta/events";
 import type { ConsentVariantId } from "@/lib/consent";
 import { scrollQuoteFormIntoView } from "./scrollQuoteFormIntoView";
 import { markOtpLeadConfirmed } from "@/lib/otp-lead-confirmed";
-import { RedesignFormContext, SeniorFormContext } from "./seniorForm";
+import {
+  RedesignFormContext,
+  SeniorFormContext,
+  TranchesAgeFormContext,
+} from "./seniorForm";
 import {
   COMBINE_BIRTH_AND_POSTAL_STEP,
   SHOW_ALREADY_INSURED_STEP,
@@ -965,10 +969,11 @@ export function QuoteForm({
   if (senior) {
     const showIntroBar = Boolean(firstStepIntro);
     return (
+      <TranchesAgeFormContext.Provider value={askAgeInsteadOfBirthDate}>
       <SeniorFormContext.Provider value>
         <RedesignFormContext.Provider value={redesign}>
         <div ref={formRootRef} className="w-full scroll-mt-24">
-        {consentVariant !== "iki" && !redesign ? (
+        {consentVariant !== "iki" && !redesign && !askAgeInsteadOfBirthDate ? (
           <FormMascotBubble
             step={step}
             isFirstStep={step === firstStep}
@@ -1075,6 +1080,7 @@ export function QuoteForm({
         </div>
         </RedesignFormContext.Provider>
       </SeniorFormContext.Provider>
+      </TranchesAgeFormContext.Provider>
     );
   }
 

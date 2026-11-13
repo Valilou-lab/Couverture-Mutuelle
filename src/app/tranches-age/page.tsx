@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import { SeniorHero } from "@/components/landing/senior/SeniorHero";
 import { SeniorLanding } from "@/components/landing/senior/SeniorLanding";
 
 const inter = Inter({
@@ -15,8 +14,7 @@ const DESCRIPTION =
 
 /**
  * Paid landing for the Meta ad « A01 | Tranches d’âge ».
- * Same page and form as the homepage; only the hero (ad headline and subline)
- * and CTA label differ.
+ * Mobile stays the validated template; desktop (`lg`) is a two-column layout.
  * Not indexed: duplicate of the homepage content, meant for ad traffic only.
  */
 export const metadata: Metadata = {
@@ -27,30 +25,6 @@ export const metadata: Metadata = {
 
 export default function TranchesAgePage() {
   return (
-    <SeniorLanding
-      className={`${inter.variable} tranches-age-type`}
-      ctaLabel="Je compare mon tarif"
-      mariePrice={39}
-      hidePricing
-      hero={
-        <SeniorHero
-          title={
-            <>
-              Quel tarif pour{" "}
-              <span className="text-brand">{"votre âge\u00a0?"}</span>
-            </>
-          }
-          subtitle={
-            <>
-              Après 55 ans, le prix d’une mutuelle augmente avec l’âge, et les
-              écarts entre assureurs aussi.{" "}
-              <strong className="text-brand">
-                Comparez gratuitement le tarif adapté à votre âge.
-              </strong>
-            </>
-          }
-        />
-      }
-    />
+    <SeniorLanding className={`${inter.variable} tranches-age-type`} />
   );
 }

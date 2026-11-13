@@ -541,3 +541,16 @@ body {
     font-weight: 800;
   }
 }
+
+/* /tranches-age — square fields, gray outline (beats Tailwind input utilities). */
+.tranches-age-type :is(input, textarea, select) {
+  border-radius: 0 !important;
+  border-color: #9ca3af !important;
+}
+
+.tranches-age-type :is(input, textarea, select):focus {
+  border-color: #6b7280 !important;
+  --tw-ring-color: transparent;
+  --tw-ring-shadow: 0 0 #0000;
+  box-shadow: none !important;
+}
