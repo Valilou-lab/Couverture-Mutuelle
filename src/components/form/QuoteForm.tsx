@@ -224,6 +224,11 @@ type QuoteFormProps = {
    * Defaults to `introBarStyle === "brand"` so V1 `/` and `/tiktok` stay unchanged.
    */
   splitContactIdentity?: boolean;
+  /**
+   * Keep the intro bar in the DOM and show it from `lg` only (CSS, not JS).
+   * Mobile first paint matches the previous hydrated look (no bar).
+   */
+  introBarFromLg?: boolean;
 };
 
 function questionStepNumber(
@@ -256,6 +261,7 @@ export function QuoteForm({
   askAgeInsteadOfBirthDate = false,
   askCareNeedsFirst = false,
   splitContactIdentity: splitContactIdentityProp,
+  introBarFromLg = false,
 }: QuoteFormProps = {}) {
   const senior = variant === "senior";
   const brandIntroBar = introBarStyle === "brand";
@@ -1014,7 +1020,9 @@ export function QuoteForm({
         >
           {showIntroBar ? (
             <div
-              className={`form-intro-bar grid grid-cols-[44px_1fr_44px] items-center border-b px-2 py-3.5 ${
+              className={`form-intro-bar grid-cols-[44px_1fr_44px] items-center border-b px-2 py-3.5 ${
+                introBarFromLg ? "hidden lg:grid" : "grid"
+              } ${
                 redesign
                   ? "border-brand bg-brand"
                   : "border-brand-muted bg-[#ddd6fe]"
@@ -1067,21 +1075,29 @@ export function QuoteForm({
 
           <div
             className={`relative grid gap-4 px-4 pb-4 min-[760px]:px-7 min-[760px]:pb-5 ${
-              showIntroBar
+              introBarFromLg
                 ? lastStepChrome && step === "contact"
-                  ? "pt-1 min-[760px]:pt-1.5"
-                  : "pt-[18px] min-[760px]:pt-[22px]"
-                : canGoBack
-                  ? "pt-12 min-[760px]:pt-[3.25rem]"
-                  : "pt-4 min-[760px]:pt-5"
+                  ? "pt-12 min-[760px]:pt-12 lg:pt-1 lg:min-[760px]:pt-1.5"
+                  : canGoBack
+                    ? "pt-12 min-[760px]:pt-[3.25rem] lg:pt-[18px] lg:min-[760px]:pt-[22px]"
+                    : "pt-4 min-[760px]:pt-5 lg:pt-[18px] lg:min-[760px]:pt-[22px]"
+                : showIntroBar
+                  ? lastStepChrome && step === "contact"
+                    ? "pt-1 min-[760px]:pt-1.5"
+                    : "pt-[18px] min-[760px]:pt-[22px]"
+                  : canGoBack
+                    ? "pt-12 min-[760px]:pt-[3.25rem]"
+                    : "pt-4 min-[760px]:pt-5"
             }`}
           >
-            {!showIntroBar && canGoBack ? (
+            {canGoBack && (!showIntroBar || introBarFromLg) ? (
               <FormBackButton
                 onBack={goBack}
                 disabled={isAdvancing || isSubmitting}
                 label="Question précédente"
-                className="absolute left-1.5 top-1.5 z-20 sm:left-2.5 sm:top-2"
+                className={`absolute left-1.5 top-1.5 z-20 sm:left-2.5 sm:top-2${
+                  introBarFromLg ? " lg:hidden" : ""
+                }`}
               />
             ) : null}
             {showProgress && !visionProgress ? (
@@ -1091,18 +1107,35 @@ export function QuoteForm({
             {stepContent}
 
             {redesign ? (
-              <p className="flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1 text-[0.9rem] font-medium text-zinc-600">
-                <Lock
-                  className="h-4 w-4 shrink-0 text-emerald-600"
-                  strokeWidth={2.25}
-                  aria-hidden
-                />
-                <span>Sécurisé</span>
-                <span aria-hidden="true">·</span>
-                <span>Gratuit</span>
-                <span aria-hidden="true">·</span>
-                <span>Sans engagement</span>
-              </p>
+              <>
+                <p className="form-lock-mobile flex flex-wrap items-center justify-center gap-x-1.5 gap-y-1 text-[0.9rem] font-medium text-zinc-600">
+                  <Lock
+                    className="h-4 w-4 shrink-0 text-emerald-600"
+                    strokeWidth={2.25}
+                    aria-hidden
+                  />
+                  <span>Sécurisé</span>
+                  <span aria-hidden="true">·</span>
+                  <span>Gratuit</span>
+                  <span aria-hidden="true">·</span>
+                  <span>Sans engagement</span>
+                </p>
+                {askAgeInsteadOfBirthDate || lpV2 ? (
+                  <p className="form-lock-desktop text-center text-[0.9rem] font-medium leading-snug text-zinc-600">
+                    <span className="inline-flex max-w-full items-start gap-1 text-pretty">
+                      <ShieldCheck
+                        className="mt-[0.15rem] h-4 w-4 shrink-0 text-[#9b4ff0]"
+                        strokeWidth={2}
+                        aria-hidden
+                      />
+                      <span>
+                        Vos données restent confidentielles et servent uniquement
+                        à votre recherche de mutuelle.
+                      </span>
+                    </span>
+                  </p>
+                ) : null}
+              </>
             ) : (
               <p className="text-center text-[0.9rem] font-medium leading-snug text-zinc-600">
                 <span className="inline-flex max-w-full items-start gap-1 text-pretty">

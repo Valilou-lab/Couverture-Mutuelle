@@ -1,5 +1,12 @@
 import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 import { HomeLanding } from "@/components/landing/home/HomeLanding";
+
+const inter = Inter({
+  subsets: ["latin"],
+  variable: "--font-inter-tranches",
+  display: "swap",
+});
 
 export const metadata: Metadata = {
   title: "Couverture Mutuelle — Comparez les mutuelles santé",
@@ -14,5 +21,5 @@ export const metadata: Metadata = {
  * acquisition / Vertikl campaign routing, and TikTokFunnelTracker (inside HomeLanding).
  */
 export default function TikTokLandingPage() {
-  return <HomeLanding />;
+  return <HomeLanding className={`${inter.variable} lp-v2-type`} />;
 }

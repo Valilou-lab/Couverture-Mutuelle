@@ -2,7 +2,11 @@
 
 import { useEffect, useState } from "react";
 
-/** Tailwind `lg` = 1024px. SSR assumes desktop so existing desktop LPs do not flash. */
+/**
+ * Tailwind `lg` = 1024px.
+ * Do not use this for form / LP visual chrome: it defaults to `true` on SSR and
+ * swaps after hydration (CLS). Prefer CSS `lg:` / `.lp-v2-type` / `.tranches-age-type`.
+ */
 export function useLgUp(): boolean {
   const [lgUp, setLgUp] = useState(true);
 

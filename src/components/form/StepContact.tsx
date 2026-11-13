@@ -19,7 +19,6 @@ import {
   useFormInputClass,
   useQuestionTitleClass,
   useSeniorForm,
-  useDeskFormChrome,
   useLpV2DesktopForm,
   useTranchesAgeForm,
 } from "./seniorForm";
@@ -97,7 +96,6 @@ export function StepContact({
   const senior = useSeniorForm();
   const tranches = useTranchesAgeForm();
   const lpV2 = useLpV2DesktopForm();
-  const taDesk = useDeskFormChrome();
   const accentLastStep = tranches || lpV2;
   const iki = consentVariant === "iki";
   const titleClass = useQuestionTitleClass();
@@ -115,15 +113,13 @@ export function StepContact({
         <>
         {lastStepProposalsIntro ? (
           <div className={senior ? "mb-4" : "mb-5"}>
-            {taDesk ? null : (
-            <h2 className="text-balance text-center text-[1.375rem] font-bold leading-[1.2] tracking-[-0.02em] text-black sm:text-[1.75rem]">
+            <h2 className="form-last-step-mobile-title text-balance text-center text-[1.375rem] font-bold leading-[1.2] tracking-[-0.02em] text-black sm:text-[1.75rem]">
               <span className="font-bold text-black">Dernière étape</span>
               <span className="font-bold text-[#9b4ff0]">
                 &nbsp;: où vous envoyer vos propositions&nbsp;?
               </span>
             </h2>
-            )}
-            <p className={`${taDesk ? "" : "mt-3 "}text-pretty text-center text-[0.98rem] font-normal leading-snug text-zinc-500 sm:text-base`}>
+            <p className="form-last-step-copy mt-3 text-pretty text-center text-[0.98rem] font-normal leading-snug text-zinc-500 sm:text-base">
               Un courtier partenaire vous contacte pour vous les présenter.
               S’il existe une offre{" "}
               {accentLastStep ? (

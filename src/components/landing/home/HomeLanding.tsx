@@ -1,23 +1,19 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import Image from "next/image";
 import type { FormStepId } from "@/components/form/types";
+import { SeniorQuoteForm } from "@/components/form/SeniorQuoteForm";
 import { SeniorFooter } from "@/components/landing/senior/SeniorFooter";
 import { SeniorHeader } from "@/components/landing/senior/SeniorHeader";
-import { SeniorPartners } from "@/components/landing/senior/SeniorSections";
+import { TranchesAgeDesktopAside } from "@/components/landing/senior/TranchesAgeDesktopAside";
 import {
   RacCta,
   RacFaq,
 } from "@/components/landing/reste-a-charge/ResteAChargeSections";
-import { FormReassuranceSteps } from "@/components/landing/FormReassuranceSteps";
 import { TikTokFunnelTracker } from "@/components/landing/tiktok/TikTokFunnelTracker";
-import type { PhotoBadgeVariant } from "@/components/landing/DesktopFormWithPhoto";
-import { HomeHeroForm, HomeHeroTitles } from "./HomeHero";
-import {
-  HomeFormTrustButtons,
-  HomeHeaderTrustBar,
-} from "./HomeFormTrustButtons";
+import { HomeHeroTitles } from "./HomeHero";
+import { HomeFormTrustButtons } from "./HomeFormTrustButtons";
+import { HomeHowItWorksSchema } from "./HomeHowItWorksSchema";
 import { HomeLpBelowForm } from "./HomeLpBelowForm";
 
 const FAQ = [
@@ -41,6 +37,9 @@ const FAQ = [
   },
 ] as const;
 
+const DESKTOP_H1 =
+  "mx-auto font-extrabold leading-[1.12] tracking-[-0.03em] [font-family:var(--font-inter-tranches),ui-sans-serif,sans-serif] text-[clamp(2.25rem,3vw,3rem)]";
+
 /** From question 2 onward — keep only « Comment ça se passe » under the form. */
 function isPastFirstQuestion(
   step: FormStepId,
@@ -51,19 +50,17 @@ function isPastFirstQuestion(
 }
 
 /**
- * Homepage (/) with the /reste-a-charge layout: short, form-first page,
- * then supporting blocks. Same form, header and footer.
- * White band runs from the header through the titles and behind the form,
- * then the photo starts just below.
- * `/` can opt into a full-width blurred desktop photo behind the form.
+ * `/` and `/tiktok`: own copy + questionnaire + mobile.
+ * Desktop (`lg`) matches the validated `/tranches-age` two-column composition.
+ * One quote form in the DOM.
  */
 export function HomeLanding({
-  photoBadge = "free",
   desktopBlurBackdrop = false,
+  className,
 }: {
-  photoBadge?: PhotoBadgeVariant;
-  /** Homepage (/) only: blurred full-width photo behind the form on desktop. */
+  /** Homepage (`/`) only — kept for the mobile title spacing; desktop no longer uses the photo. */
   desktopBlurBackdrop?: boolean;
+  className?: string;
 } = {}) {
   const [formFocused, setFormFocused] = useState(false);
 
@@ -74,98 +71,77 @@ export function HomeLanding({
     [],
   );
 
-  const form = (
-    <>
-      <TikTokFunnelTracker />
-      <div className="lg:mx-auto lg:max-w-[34rem]">
-        <HomeHeroForm
-          onStepChange={onStepChange}
-          photoBadge={photoBadge}
-          showPhoto={false}
-        />
-      </div>
-    </>
-  );
-
   return (
-    <div className="main-lp-redesign flex min-h-0 flex-1 flex-col bg-white text-[18px] leading-[1.55] text-foreground">
-      <div className="bg-white">
-        <SeniorHeader bordered={false} logoCentered showWhatsApp={false} />
-        <HomeHeaderTrustBar />
-        <div className="mx-auto w-full max-w-[640px] px-4 min-[700px]:max-w-[1000px]">
-          <HomeHeroTitles
-            className={desktopBlurBackdrop ? "pb-2 lg:pb-3" : undefined}
-          />
-        </div>
-      </div>
-      {desktopBlurBackdrop ? (
-        <>
-          <section className="relative w-full overflow-hidden bg-[#ede9fe] lg:bg-transparent">
-            <div className="pointer-events-none absolute inset-0 hidden lg:block">
-              <Image
-                src="/images/hero-couple-laptops.jpg"
-                alt=""
-                fill
-                priority
-                sizes="100vw"
-                className="object-cover object-[center_40%]"
-              />
-            </div>
-            <div className="relative z-10 mx-auto w-full max-w-[640px] px-4 pb-5 pt-4 min-[700px]:max-w-[1000px] lg:max-w-[1220px] lg:pb-8 lg:pt-12">
-              {form}
-            </div>
-          </section>
-          <HomeLpBelowForm />
-        </>
-      ) : (
-        <>
-          <section className="bg-[#ede9fe] lg:bg-white">
-            <div className="mx-auto w-full max-w-[640px] px-4 pb-5 pt-4 min-[700px]:max-w-[1000px] lg:max-w-[1220px] lg:pb-0 lg:pt-0">
-              {form}
-            </div>
-          </section>
+    <div
+      className={`main-lp-redesign flex min-h-0 flex-1 flex-col bg-white text-[18px] leading-[1.55] text-foreground${
+        className ? ` ${className}` : ""
+      }`}
+    >
+      <div className="lg:grid lg:grid-cols-2 lg:items-stretch">
+        <div className="min-w-0 lg:bg-white">
           <div className="lg:hidden">
-            <HomeLpBelowForm />
+            <div className="bg-white">
+              <SeniorHeader bordered={false} logoCentered showWhatsApp={false} />
+              <div className="mx-auto w-full max-w-[640px] px-4 min-[700px]:max-w-[1000px]">
+                <HomeHeroTitles
+                  className={desktopBlurBackdrop ? "pb-2" : undefined}
+                />
+              </div>
+            </div>
           </div>
-          <section className="relative hidden overflow-hidden lg:block">
-            <Image
-              src="/images/hero-couple-cour.jpg"
-              alt=""
-              fill
-              priority
-              sizes="100vw"
-              className="object-cover object-[center_68%] lg:object-[center_58%]"
-            />
-            <div
-              aria-hidden="true"
-              className="absolute inset-0 bg-black/15"
-            />
-            <div className="relative z-10 mx-auto w-full max-w-[640px] px-4 pb-[12rem] pt-3 min-[700px]:max-w-[1000px] lg:max-w-[1220px] lg:pb-16 lg:pt-5">
-              <HomeFormTrustButtons onPhoto />
+
+          <div className="hidden bg-white px-6 pb-3 pt-8 text-center lg:block xl:px-10 xl:pt-10">
+            <h1 className={DESKTOP_H1}>
+              <span className="block text-zinc-900">
+                Le bon tarif pour votre mutuelle
+              </span>
+              <span className="block text-[#9b4ff0]">
+                sans perdre les garanties qui comptent
+              </span>
+            </h1>
+          </div>
+
+          <section className="bg-[#ede9fe]">
+            <div className="mx-auto w-full max-w-[640px] px-4 min-[700px]:max-w-[1000px] lg:max-w-[34rem] lg:px-6 lg:pt-1">
+              <div
+                id="devis"
+                className="mx-auto w-full max-w-[560px] scroll-mt-4 pb-5 pt-4 lg:max-w-none lg:pb-8 lg:pt-5"
+              >
+                <TikTokFunnelTracker />
+                <SeniorQuoteForm
+                  redesignIntro
+                  lpV2Desktop
+                  splitContact
+                  onStepChange={onStepChange}
+                />
+              </div>
             </div>
           </section>
-        </>
-      )}
-      <main className="mx-auto w-full max-w-[640px] flex-1 px-4 pb-12 min-[700px]:max-w-[1000px] lg:max-w-[1220px]">
-        <div className="mx-auto w-full max-w-[640px] min-[700px]:max-w-[1000px]">
-          {desktopBlurBackdrop ? null : (
-            <div className="hidden lg:block">
-              <FormReassuranceSteps />
-            </div>
-          )}
-          {!formFocused ? (
-            <>
-              {desktopBlurBackdrop ? null : (
-                <div className="hidden lg:block">
-                  <SeniorPartners />
-                </div>
-              )}
-              <RacFaq items={FAQ} />
-              <RacCta label="MON DEVIS GRATUIT" />
-            </>
-          ) : null}
+
+          <div className="hidden bg-white px-4 pb-6 pt-4 lg:block xl:px-8">
+            <HomeFormTrustButtons />
+            <HomeHowItWorksSchema headingId="comment-ca-se-passe-schema-desktop" />
+          </div>
         </div>
-      </main>
+
+        <TranchesAgeDesktopAside />
+      </div>
+
+      <div className="hidden bg-white px-6 pb-16 lg:block xl:px-10">
+        <RacFaq headingId="faq-titre-desktop" items={FAQ} />
+        <RacCta label="DEVIS GRATUIT" />
+      </div>
+
+      <div className="lg:hidden">
+        <HomeLpBelowForm />
+        {!formFocused ? (
+          <div className="mx-auto w-full max-w-[640px] px-4 pb-12 min-[700px]:max-w-[1000px]">
+            <RacFaq items={FAQ} />
+            <RacCta label="MON DEVIS GRATUIT" />
+          </div>
+        ) : null}
+      </div>
+
       <SeniorFooter />
     </div>
   );

@@ -25,6 +25,8 @@ export const metadata: Metadata = {
 
 export default function ResteAChargePage() {
   return (
-    <ResteAChargeLanding className={`${inter.variable} reste-a-charge-type`} />
+    <ResteAChargeLanding
+      className={`${inter.variable} reste-a-charge-type lp-v2-type`}
+    />
   );
 }

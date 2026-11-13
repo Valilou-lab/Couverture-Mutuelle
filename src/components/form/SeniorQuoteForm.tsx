@@ -5,7 +5,6 @@ import { QuoteForm } from "@/components/form/QuoteForm";
 import type { FormStepId } from "@/components/form/types";
 import { LpV2DesktopFormContext } from "@/components/form/seniorForm";
 import type { ConsentVariantId } from "@/lib/consent";
-import { useLgUp } from "@/components/form/useLgUp";
 import {
   trackTikTokFormStart,
   trackTikTokFormStepCompleted,
@@ -25,8 +24,8 @@ type SeniorQuoteFormProps = {
   /** Defaults to `"senior"`. Pass `"iki"` on the IKI LP for dual opt-ins. */
   consentVariant?: Extract<ConsentVariantId, "senior" | "iki">;
   /**
-   * `true` = main LP (/) + /tiktok: brand intro + redesign chrome + identity split.
-   * `"mobile"` = redesign chrome under 1024px only; desktop and step order stay classic.
+   * `true` = main LP (/) + /tiktok: redesign chrome + identity split.
+   * `"mobile"` = same redesign HTML; desktop look is CSS (`lg`) on the LP wrapper.
    */
   redesignIntro?: boolean | "mobile";
   firstStepIntro?: ReactNode;
@@ -57,15 +56,11 @@ export function SeniorQuoteForm({
   lpV2Desktop = false,
   splitContact,
 }: SeniorQuoteFormProps = {}) {
-  const lgUp = useLgUp();
-  const lpV2Desk = lpV2Desktop && lgUp;
-  const fullRedesign = redesignIntro === true && !lpV2Desk;
-  const mobileRedesign = redesignIntro === "mobile" && !lgUp;
-  const visualRedesign = fullRedesign || mobileRedesign;
+  const visualRedesign = redesignIntro === true || redesignIntro === "mobile";
   const intro =
     firstStepIntro !== undefined
       ? firstStepIntro
-      : consentVariant === "iki" || visualRedesign
+      : consentVariant === "iki"
         ? ""
         : askCareNeedsFirst
           ? "Votre devis en 2 minutes"
@@ -83,6 +78,7 @@ export function SeniorQuoteForm({
               : "currentMutualTariff"
         }
         firstStepIntro={intro}
+        introBarFromLg={visualRedesign}
         askAgeInsteadOfBirthDate={askAgeInsteadOfBirthDate}
         askCareNeedsFirst={askCareNeedsFirst}
         careNeedsTitle={
@@ -90,9 +86,9 @@ export function SeniorQuoteForm({
             ? "Sur quels soins voulez-vous être mieux remboursé(e)\u00a0?"
             : undefined
         }
-        introBarStyle={fullRedesign ? "brand" : "soft"}
+        introBarStyle="soft"
         redesignVisual={visualRedesign}
-        splitContactIdentity={splitContact ?? fullRedesign}
+        splitContactIdentity={splitContact ?? redesignIntro === true}
         coveredPersonsTitle="Qui doit être assuré ?"
         accentQuestions
         funnel={SENIOR_FORM_FUNNEL}

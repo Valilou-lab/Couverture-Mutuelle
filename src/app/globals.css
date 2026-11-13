@@ -589,10 +589,18 @@ body {
     border-color: #9ca3af !important;
     background-color: #fff !important;
     box-shadow: none !important;
+    color: #3b0764 !important;
+    min-height: 4rem;
   }
 
   .tranches-age-type #formulaire-devis button[aria-pressed="true"] {
     border-color: #6b7280 !important;
+  }
+
+  .tranches-age-type #formulaire-devis button[aria-pressed] svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--brand) !important;
   }
 
   .tranches-age-type #formulaire-devis .form-intro-bar {
@@ -628,10 +636,18 @@ body {
     border-color: #9ca3af !important;
     background-color: #fff !important;
     box-shadow: none !important;
+    color: #3b0764 !important;
+    min-height: 4rem;
   }
 
   .lp-v2-type #formulaire-devis button[aria-pressed="true"] {
     border-color: #6b7280 !important;
+  }
+
+  .lp-v2-type #formulaire-devis button[aria-pressed] svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: var(--brand) !important;
   }
 
   .lp-v2-type #formulaire-devis .form-intro-bar {
@@ -662,5 +678,44 @@ body {
     --tw-ring-color: transparent;
     --tw-ring-shadow: 0 0 #0000;
     box-shadow: none !important;
+  }
+
+  .lp-v2-type .form-lock-mobile,
+  .tranches-age-type .form-lock-mobile {
+    display: none !important;
+  }
+
+  .lp-v2-type .form-lock-desktop,
+  .tranches-age-type .form-lock-desktop {
+    display: block;
+  }
+
+  .lp-v2-type .form-last-step-mobile-title,
+  .tranches-age-type .form-last-step-mobile-title {
+    display: none;
+  }
+
+  .lp-v2-type .form-last-step-copy,
+  .tranches-age-type .form-last-step-copy {
+    margin-top: 0;
+  }
+
+  .lp-v2-type #formulaire-devis h2,
+  .tranches-age-type #formulaire-devis h2 {
+    font-weight: 800 !important;
+    color: var(--brand) !important;
+  }
+}
+
+/* Same HTML on mobile: hide desktop-only form chrome from the first paint. */
+@media (max-width: 1023px) {
+  .lp-v2-type #formulaire-devis .form-intro-bar,
+  .tranches-age-type #formulaire-devis .form-intro-bar {
+    display: none !important;
+  }
+
+  .lp-v2-type .form-lock-desktop,
+  .tranches-age-type .form-lock-desktop {
+    display: none !important;
   }
 }
