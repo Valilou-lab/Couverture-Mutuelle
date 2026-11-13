@@ -6,12 +6,11 @@ import type { FieldErrors } from "./validation";
 import { seniorCoveredIcon } from "./SeniorChoiceIcons";
 import {
   SENIOR_ERROR,
+  useDeskFormChrome,
   useQuestionTitleClass,
   useRedesignForm,
   useSeniorForm,
-  useTranchesAgeForm,
 } from "./seniorForm";
-import { useLgUp } from "./useLgUp";
 
 const QUESTION = "Êtes-vous couvert(e) par une mutuelle ?";
 const OPTIONS = [
@@ -39,9 +38,7 @@ export function StepCurrentMutualTariff({
 }: Props) {
   const senior = useSeniorForm();
   const redesign = useRedesignForm();
-  const tranches = useTranchesAgeForm();
-  const lgUp = useLgUp();
-  const taDesk = tranches && lgUp;
+  const taDesk = useDeskFormChrome();
   const questionTitleClass = useQuestionTitleClass();
 
   const titleClass = senior

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { AcquisitionCapture } from "@/components/acquisition/AcquisitionCapture";
+import { LandingVariantTracker } from "@/components/landing/LandingVariantTracker";
 import { ChatbotSlot } from "@/components/chatbot/ChatbotSlot";
 import { CookieConsentUI } from "@/components/cookies/CookieConsentUI";
 import { GoogleAdsTag } from "@/components/gtm/GoogleAdsTag";
@@ -52,6 +53,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <GoogleAdsTag />
         <GoogleTagManager />
         <AcquisitionCapture />
+        <LandingVariantTracker />
         <CookieConsentProvider>
           <QuoteJourneyProvider>
             {children}

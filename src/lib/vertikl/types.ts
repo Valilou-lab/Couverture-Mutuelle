@@ -181,6 +181,12 @@ export type LeadCalculatorMeta = {
   insurerTenure?: "moins-2-ans" | "2-5-ans" | "plus-5-ans";
 };
 
+/** Internal ads A/B tag. Logged server-side; never sent as a Vertikl field. */
+export type LandingVariantMeta = {
+  lp_id: string;
+  lp_version: "v1" | "v2";
+};
+
 export type LeadSubmissionMeta = {
   /** First-touch landing URL (attribution / campaign routing). */
   landingPageUrl?: string;
@@ -192,4 +198,5 @@ export type LeadSubmissionMeta = {
   referrer?: string;
   acquisition?: AcquisitionParams;
   calculator?: LeadCalculatorMeta;
+  landingVariant?: LandingVariantMeta;
 };

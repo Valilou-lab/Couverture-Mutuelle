@@ -6,6 +6,8 @@
  * Never include PII, form answers, or health-related fields.
  */
 
+import { parseLandingVariant } from "@/lib/landing-variant";
+
 export const TIKTOK_FUNNEL_PAGE = "/tiktok";
 
 function funnelPage(): string {
@@ -79,10 +81,14 @@ function pushEvent(
 ): void {
   if (typeof window === "undefined") return;
 
+  const page = funnelPage();
+  const variant = parseLandingVariant(page);
   const payload: Record<string, string> = {
     event: eventName,
     event_name: eventName,
-    page: funnelPage(),
+    page,
+    lp_id: variant.lp_id,
+    lp_version: variant.lp_version,
   };
   if (extra.step) {
     payload.step = extra.step;

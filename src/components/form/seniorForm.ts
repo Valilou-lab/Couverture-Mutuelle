@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext } from "react";
+import { useLgUp } from "./useLgUp";
 
 /**
  * Senior homepage variant of the quote form (larger type and tap targets).
@@ -55,11 +56,34 @@ export function useTranchesAgeForm(): boolean {
   return useContext(TranchesAgeFormContext);
 }
 
+/**
+ * Desktop chrome of the validated `/tranches-age` form, for independent V2 URLs.
+ * Must stay false on V1 `/`, `/tiktok` and `/reste-a-charge`.
+ */
+export const LpV2DesktopFormContext = createContext(false);
+
+export function useLpV2DesktopForm(): boolean {
+  return useContext(LpV2DesktopFormContext);
+}
+
+/** Square gray fields / choice buttons: `/tranches-age` or any LP V2, from `lg`. */
+export function useDeskFormChrome(): boolean {
+  const tranches = useTranchesAgeForm();
+  const lpV2 = useLpV2DesktopForm();
+  const lgUp = useLgUp();
+  return (tranches || lpV2) && lgUp;
+}
+
 /** Input frame for the active form variant (redesign / senior purple / default). */
 export function useFormInputClass(): string {
-  if (useTranchesAgeForm()) return TRANCHES_INPUT;
-  if (useRedesignForm()) return REDESIGN_INPUT;
-  if (useSeniorForm()) return SENIOR_INPUT;
+  const tranches = useTranchesAgeForm();
+  const lpV2 = useLpV2DesktopForm();
+  const lgUp = useLgUp();
+  const redesign = useRedesignForm();
+  const senior = useSeniorForm();
+  if (tranches || (lpV2 && lgUp)) return TRANCHES_INPUT;
+  if (redesign) return REDESIGN_INPUT;
+  if (senior) return SENIOR_INPUT;
   return DEFAULT_FORM_INPUT;
 }
 

@@ -23,6 +23,7 @@ import { VertiklMappingError } from "@/lib/vertikl/mappers";
 import {
   isAcquisitionChannel,
   type AcquisitionParams,
+  type LandingVariantMeta,
   type LeadCalculatorMeta,
   type LeadSubmissionMeta,
 } from "@/lib/vertikl/types";
@@ -220,6 +221,18 @@ function sanitizeCalculator(value: unknown): LeadCalculatorMeta | undefined {
   return Object.keys(result).length > 0 ? result : undefined;
 }
 
+function sanitizeLandingVariant(value: unknown): LandingVariantMeta | undefined {
+  if (!isPlainObject(value)) return undefined;
+  const lpId = value.lp_id;
+  const lpVersion = value.lp_version;
+  if (typeof lpId !== "string" || !lpId.trim()) return undefined;
+  if (lpVersion !== "v1" && lpVersion !== "v2") return undefined;
+  return {
+    lp_id: lpId.trim().slice(0, 64),
+    lp_version: lpVersion,
+  };
+}
+
 function parseForm(raw: unknown): QuoteFormData | null {
   if (!isPlainObject(raw)) return null;
 
@@ -356,12 +369,17 @@ export async function POST(request: NextRequest) {
         : undefined,
     acquisition: sanitizeAcquisition(body.meta?.acquisition),
     calculator: sanitizeCalculator(body.meta?.calculator),
+    landingVariant: sanitizeLandingVariant(body.meta?.landingVariant),
   };
 
   if (meta.calculator) {
     console.info("[api/leads] calculator meta present", {
       keys: Object.keys(meta.calculator),
     });
+  }
+
+  if (meta.landingVariant) {
+    console.info("[api/leads] landing variant", meta.landingVariant);
   }
 
   const consentVariant = resolveConsentVariantId(body.consentVariant);
@@ -416,6 +434,8 @@ export async function POST(request: NextRequest) {
       hasGclid: Boolean(meta.acquisition?.gclid),
       origin: "LANDING_PAGE",
       landingPagePathAndQuery: landingPagePathAndQuery(meta.landingPageUrl),
+      lp_id: meta.landingVariant?.lp_id ?? null,
+      lp_version: meta.landingVariant?.lp_version ?? null,
       campaignIdSelected: routing.campaignId ?? null,
       campaignEnv: routing.campaignEnv,
     });

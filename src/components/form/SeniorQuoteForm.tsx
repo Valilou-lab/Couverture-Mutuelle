@@ -3,6 +3,7 @@
 import type { ReactNode } from "react";
 import { QuoteForm } from "@/components/form/QuoteForm";
 import type { FormStepId } from "@/components/form/types";
+import { LpV2DesktopFormContext } from "@/components/form/seniorForm";
 import type { ConsentVariantId } from "@/lib/consent";
 import { useLgUp } from "@/components/form/useLgUp";
 import {
@@ -33,6 +34,13 @@ type SeniorQuoteFormProps = {
   askAgeInsteadOfBirthDate?: boolean;
   /** `/reste-a-charge` only — care-priorities (hospitalisation, dentaire…) first. */
   askCareNeedsFirst?: boolean;
+  /**
+   * Independent V2 URLs: apply the validated `/tranches-age` desktop chrome
+   * from `lg`, without changing this LP's questions or V1 routes.
+   */
+  lpV2Desktop?: boolean;
+  /** Keep the homepage identity split even when V2 desktop chrome is on. */
+  splitContact?: boolean;
 };
 
 /**
@@ -46,9 +54,12 @@ export function SeniorQuoteForm({
   firstStepIntro,
   askAgeInsteadOfBirthDate = false,
   askCareNeedsFirst = false,
+  lpV2Desktop = false,
+  splitContact,
 }: SeniorQuoteFormProps = {}) {
   const lgUp = useLgUp();
-  const fullRedesign = redesignIntro === true;
+  const lpV2Desk = lpV2Desktop && lgUp;
+  const fullRedesign = redesignIntro === true && !lpV2Desk;
   const mobileRedesign = redesignIntro === "mobile" && !lgUp;
   const visualRedesign = fullRedesign || mobileRedesign;
   const intro =
@@ -61,30 +72,33 @@ export function SeniorQuoteForm({
           : DEFAULT_INTRO;
 
   return (
-    <QuoteForm
-      variant="senior"
-      firstStep={
-        askAgeInsteadOfBirthDate
-          ? "age"
-          : askCareNeedsFirst
-            ? "careNeeds"
-            : "currentMutualTariff"
-      }
-      firstStepIntro={intro}
-      askAgeInsteadOfBirthDate={askAgeInsteadOfBirthDate}
-      askCareNeedsFirst={askCareNeedsFirst}
-      careNeedsTitle={
-        askCareNeedsFirst
-          ? "Sur quels soins voulez-vous être mieux remboursé(e)\u00a0?"
-          : undefined
-      }
-      introBarStyle={fullRedesign ? "brand" : "soft"}
-      redesignVisual={visualRedesign}
-      coveredPersonsTitle="Qui doit être assuré ?"
-      accentQuestions
-      funnel={SENIOR_FORM_FUNNEL}
-      onStepChange={onStepChange}
-      consentVariant={consentVariant}
-    />
+    <LpV2DesktopFormContext.Provider value={lpV2Desktop}>
+      <QuoteForm
+        variant="senior"
+        firstStep={
+          askAgeInsteadOfBirthDate
+            ? "age"
+            : askCareNeedsFirst
+              ? "careNeeds"
+              : "currentMutualTariff"
+        }
+        firstStepIntro={intro}
+        askAgeInsteadOfBirthDate={askAgeInsteadOfBirthDate}
+        askCareNeedsFirst={askCareNeedsFirst}
+        careNeedsTitle={
+          askCareNeedsFirst
+            ? "Sur quels soins voulez-vous être mieux remboursé(e)\u00a0?"
+            : undefined
+        }
+        introBarStyle={fullRedesign ? "brand" : "soft"}
+        redesignVisual={visualRedesign}
+        splitContactIdentity={splitContact ?? fullRedesign}
+        coveredPersonsTitle="Qui doit être assuré ?"
+        accentQuestions
+        funnel={SENIOR_FORM_FUNNEL}
+        onStepChange={onStepChange}
+        consentVariant={consentVariant}
+      />
+    </LpV2DesktopFormContext.Provider>
   );
 }

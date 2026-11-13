@@ -3,11 +3,10 @@
 import type { ReactNode } from "react";
 import { ChevronRight } from "lucide-react";
 import {
+  useDeskFormChrome,
   useRedesignForm,
   useSeniorForm,
-  useTranchesAgeForm,
 } from "./seniorForm";
-import { useLgUp } from "./useLgUp";
 
 type OptionCardProps = {
   label: string;
@@ -76,9 +75,7 @@ export function OptionCard({
 }: OptionCardProps) {
   const senior = useSeniorForm();
   const redesign = useRedesignForm();
-  const tranches = useTranchesAgeForm();
-  const lgUp = useLgUp();
-  const taDesk = tranches && lgUp;
+  const taDesk = useDeskFormChrome();
   const showChoiceArrow = (redesign || showArrow) && !showCheckbox;
   const taDeskTone = selected ? TA_DESK_BTN_SELECTED : TA_DESK_BTN;
 

@@ -19,9 +19,10 @@ import {
   useFormInputClass,
   useQuestionTitleClass,
   useSeniorForm,
+  useDeskFormChrome,
+  useLpV2DesktopForm,
   useTranchesAgeForm,
 } from "./seniorForm";
-import { useLgUp } from "./useLgUp";
 
 /** Visible CM classic checkbox label — display only (Vertikl proof unchanged). */
 const CM_PARTNERS_MARKER = "ses partenaires";
@@ -95,8 +96,9 @@ export function StepContact({
   const [partnersOpen, setPartnersOpen] = useState(false);
   const senior = useSeniorForm();
   const tranches = useTranchesAgeForm();
-  const lgUp = useLgUp();
-  const taDesk = tranches && lgUp;
+  const lpV2 = useLpV2DesktopForm();
+  const taDesk = useDeskFormChrome();
+  const accentLastStep = tranches || lpV2;
   const iki = consentVariant === "iki";
   const titleClass = useQuestionTitleClass();
   const labelClass = senior ? SENIOR_LABEL : "block text-sm font-medium";
@@ -124,7 +126,7 @@ export function StepContact({
             <p className={`${taDesk ? "" : "mt-3 "}text-pretty text-center text-[0.98rem] font-normal leading-snug text-zinc-500 sm:text-base`}>
               Un courtier partenaire vous contacte pour vous les présenter.
               S’il existe une offre{" "}
-              {tranches ? (
+              {accentLastStep ? (
                 <strong className="font-bold text-[#9b4ff0]">
                   plus avantageuse
                 </strong>
@@ -134,7 +136,7 @@ export function StepContact({
               pour votre profil,{" "}
               <strong
                 className={
-                  tranches ? "font-bold text-[#9b4ff0]" : "font-bold"
+                  accentLastStep ? "font-bold text-[#9b4ff0]" : "font-bold"
                 }
               >
                 il vous la trouve

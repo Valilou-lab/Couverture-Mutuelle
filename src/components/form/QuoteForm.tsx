@@ -59,10 +59,12 @@ import type { MetaLeadTracking } from "@/lib/meta/events";
 import type { ConsentVariantId } from "@/lib/consent";
 import { scrollQuoteFormIntoView } from "./scrollQuoteFormIntoView";
 import { markOtpLeadConfirmed } from "@/lib/otp-lead-confirmed";
+import { parseLandingVariant } from "@/lib/landing-variant";
 import {
   RedesignFormContext,
   SeniorFormContext,
   TranchesAgeFormContext,
+  useLpV2DesktopForm,
 } from "./seniorForm";
 import {
   COMBINE_BIRTH_AND_POSTAL_STEP,
@@ -217,6 +219,11 @@ type QuoteFormProps = {
   askAgeInsteadOfBirthDate?: boolean;
   /** `/reste-a-charge` only: care-priorities question first. */
   askCareNeedsFirst?: boolean;
+  /**
+   * Homepage identity split (name/email mid-funnel, phone at the end).
+   * Defaults to `introBarStyle === "brand"` so V1 `/` and `/tiktok` stay unchanged.
+   */
+  splitContactIdentity?: boolean;
 };
 
 function questionStepNumber(
@@ -248,12 +255,15 @@ export function QuoteForm({
   consentVariant: consentVariantProp,
   askAgeInsteadOfBirthDate = false,
   askCareNeedsFirst = false,
+  splitContactIdentity: splitContactIdentityProp,
 }: QuoteFormProps = {}) {
   const senior = variant === "senior";
   const brandIntroBar = introBarStyle === "brand";
   const redesign = Boolean(redesignVisual ?? brandIntroBar);
   /** Redesign LPs: name/email before analyzing; phone(+consent) only at the end. */
-  const splitContactIdentity = brandIntroBar;
+  const splitContactIdentity = splitContactIdentityProp ?? brandIntroBar;
+  const lpV2 = useLpV2DesktopForm();
+  const lastStepChrome = askAgeInsteadOfBirthDate || lpV2;
   const consentVariant: ConsentVariantId =
     consentVariantProp ?? (senior ? "senior" : "default");
   const router = useRouter();
@@ -279,6 +289,7 @@ export function QuoteForm({
       skipBirthDate,
       skipPostalCode,
       firstStep,
+      splitContactIdentity,
       askAgeInsteadOfBirthDate,
       askCareNeedsFirst,
     });
@@ -508,6 +519,9 @@ export function QuoteForm({
             consentLandingPageUrl: getCurrentConsentLandingPageUrl(),
             referrer: storedAcquisition.referrer,
             acquisition: storedAcquisition.acquisition,
+            landingVariant: parseLandingVariant(
+              typeof window === "undefined" ? "" : window.location.pathname,
+            ),
           },
           metaTracking,
           ...(consentVariant !== "default"
@@ -957,7 +971,7 @@ export function QuoteForm({
           consentVariant={consentVariant}
           phoneOnly={splitContactIdentity}
           lastStepProposalsIntro={
-            askAgeInsteadOfBirthDate || askCareNeedsFirst
+            askAgeInsteadOfBirthDate || askCareNeedsFirst || lpV2
           }
           onPatch={patch}
           onNext={goNext}
@@ -969,13 +983,13 @@ export function QuoteForm({
   if (senior) {
     const showIntroBar = Boolean(firstStepIntro);
     /** Homepage chrome, or `/tranches-age` at every breakpoint: 1/6 + thin white track. */
-    const visionProgress = redesign || askAgeInsteadOfBirthDate;
+    const visionProgress = redesign || askAgeInsteadOfBirthDate || lpV2;
     return (
       <TranchesAgeFormContext.Provider value={askAgeInsteadOfBirthDate}>
       <SeniorFormContext.Provider value>
         <RedesignFormContext.Provider value={redesign}>
         <div ref={formRootRef} className="w-full scroll-mt-24">
-        {consentVariant !== "iki" && !redesign && !askAgeInsteadOfBirthDate ? (
+        {consentVariant !== "iki" && !redesign && !askAgeInsteadOfBirthDate && !lpV2 ? (
           <FormMascotBubble
             step={step}
             isFirstStep={step === firstStep}
@@ -1005,7 +1019,7 @@ export function QuoteForm({
                   ? "border-brand bg-brand"
                   : "border-brand-muted bg-[#ddd6fe]"
               }${
-                askAgeInsteadOfBirthDate && step === "contact"
+                lastStepChrome && step === "contact"
                   ? " form-intro-bar-ta-contact"
                   : ""
               }`}
@@ -1022,7 +1036,7 @@ export function QuoteForm({
               ) : (
                 <span aria-hidden="true" />
               )}
-              {askAgeInsteadOfBirthDate && step === "contact" ? (
+              {lastStepChrome && step === "contact" ? (
                 <div className="text-center">
                   <p className="font-poppins text-[1.25rem] font-extrabold leading-tight tracking-[-0.02em] text-[#9b4ff0] sm:text-[1.45rem]">
                     Parfait, vous y êtes presque&nbsp;!
@@ -1054,7 +1068,7 @@ export function QuoteForm({
           <div
             className={`relative grid gap-4 px-4 pb-4 min-[760px]:px-7 min-[760px]:pb-5 ${
               showIntroBar
-                ? askAgeInsteadOfBirthDate && step === "contact"
+                ? lastStepChrome && step === "contact"
                   ? "pt-1 min-[760px]:pt-1.5"
                   : "pt-[18px] min-[760px]:pt-[22px]"
                 : canGoBack
@@ -1098,7 +1112,7 @@ export function QuoteForm({
                     aria-hidden
                   />
                   <span>
-                    {askAgeInsteadOfBirthDate
+                    {askAgeInsteadOfBirthDate || lpV2
                       ? "Vos données restent confidentielles et servent uniquement à votre recherche de mutuelle."
                       : "Vos données sont sécurisées"}
                   </span>
