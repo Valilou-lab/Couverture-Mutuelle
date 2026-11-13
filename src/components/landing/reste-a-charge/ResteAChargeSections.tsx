@@ -186,12 +186,14 @@ const FAQ = [
 
 export function RacFaq({
   items = FAQ,
+  headingId = "faq-titre",
 }: {
   items?: ReadonlyArray<{ question: string; answer: string }>;
+  headingId?: string;
 } = {}) {
   return (
-    <Block labelledBy="faq-titre">
-      <h2 id="faq-titre" className={H2}>
+    <Block labelledBy={headingId}>
+      <h2 id={headingId} className={H2}>
         Questions fréquentes
       </h2>
       <div className="grid gap-3">

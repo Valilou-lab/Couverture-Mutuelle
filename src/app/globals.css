@@ -554,3 +554,45 @@ body {
   --tw-ring-shadow: 0 0 #0000;
   box-shadow: none !important;
 }
+
+/* /tranches-age desktop — flatten nested form chrome into the lavender band. */
+@media (min-width: 1024px) {
+  .tranches-age-type #formulaire-devis {
+    overflow: visible !important;
+    border: none !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  /* Choice buttons: same square gray frame as the age field. */
+  .tranches-age-type #formulaire-devis button[aria-pressed] {
+    border-radius: 0 !important;
+    border-width: 2px !important;
+    border-color: #9ca3af !important;
+    background-color: #fff !important;
+    box-shadow: none !important;
+  }
+
+  .tranches-age-type #formulaire-devis button[aria-pressed="true"] {
+    border-color: #6b7280 !important;
+  }
+
+  .tranches-age-type #formulaire-devis .form-intro-bar {
+    border-bottom: none !important;
+    background: transparent !important;
+    padding-top: 0.15rem;
+    padding-bottom: 0.85rem;
+  }
+
+  .tranches-age-type #formulaire-devis .form-intro-bar-ta-contact {
+    padding-bottom: 0.15rem !important;
+  }
+
+  .tranches-age-type #formulaire-devis .form-intro-bar:not(.form-intro-bar-ta-contact) p {
+    font-size: 1.45rem !important;
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: #3b0764 !important;
+  }
+}

@@ -1,48 +1,76 @@
 import Image from "next/image";
+import Link from "next/link";
 import { Check } from "lucide-react";
 
 const BENEFITS = [
-  "Le bon tarif, sans perdre les garanties qui comptent pour vous",
-  "Aucune démarche pour changer : la résiliation est faite pour vous*",
-  "Plusieurs propositions : vous choisissez, ou vous arrêtez quand vous voulez",
+  {
+    title: "Des propositions adaptées à votre profil",
+    text: "Selon votre âge, vos besoins et les garanties importantes pour vous.",
+  },
+  {
+    title: "Le juste prix pour votre mutuelle",
+    text: "Sans sacrifier les remboursements qui comptent pour vous.",
+  },
+  {
+    title: "Vous comparez gratuitement, sans engagement",
+    text: "Vous choisissez ensuite de continuer… ou non.",
+  },
 ] as const;
 
 /** Desktop-only reassurance column for `/tranches-age`. */
 export function TranchesAgeDesktopAside() {
   return (
-    <aside className="relative hidden min-h-full flex-col justify-between bg-[#6d28d9] px-8 py-10 text-white lg:flex xl:px-12 xl:py-12 2xl:px-14">
-      <div>
-        <h2 className="text-center font-extrabold leading-[1.12] tracking-[-0.03em] text-white [font-family:var(--font-inter-tranches),ui-sans-serif,sans-serif] text-[clamp(2.1rem,2.8vw,3.15rem)]">
-          Obtenez gratuitement
+    <aside className="relative hidden min-h-full bg-[#6d28d9] text-white lg:block">
+      <div className="sticky top-0 max-h-screen overflow-y-auto overscroll-contain px-8 py-10 xl:px-12 xl:py-12 2xl:px-14">
+        <div>
+        <div className="flex justify-center pb-8 pt-1 xl:pb-10 xl:pt-2">
+          <Link
+            href="/"
+            aria-label="Couverture Mutuelle"
+            className="flex size-[8.5rem] items-center justify-center rounded-full bg-white p-5 xl:size-[9.5rem] xl:p-6"
+          >
+            <Image
+              src="/logo-couverture-mutuelle.png"
+              alt="Couverture Mutuelle"
+              width={782}
+              height={357}
+              loading="eager"
+              className="h-auto w-full"
+            />
+          </Link>
+        </div>
+        <h2 className="text-center font-extrabold leading-[1.15] tracking-[-0.03em] text-white [font-family:var(--font-inter-tranches),ui-sans-serif,sans-serif] text-[clamp(1.7rem,2.4vw,2.45rem)]">
+          En 1 minute, obtenez gratuitement&nbsp;:
         </h2>
-        <ul className="mt-8 grid gap-5 xl:mt-10 xl:gap-6">
+        <ul className="mt-8 grid gap-6 xl:mt-10 xl:gap-7">
           {BENEFITS.map((item) => (
-            <li
-              key={item}
-              className="flex items-start gap-3.5 text-[1.18rem] font-semibold leading-snug xl:text-[1.32rem]"
-            >
-              <span className="mt-0.5 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white">
+            <li key={item.title} className="flex items-start gap-3.5 xl:gap-4">
+              <span className="mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white xl:h-11 xl:w-11">
                 <Check
-                  className="h-5 w-5 text-[#22c55e]"
-                  strokeWidth={3.2}
+                  className="h-6 w-6 text-[#22c55e] xl:h-7 xl:w-7"
+                  strokeWidth={3.4}
                   aria-hidden
                 />
               </span>
-              <span>{item}</span>
+              <div className="min-w-0 pt-0.5">
+                <p className="text-[1.2rem] font-extrabold leading-snug tracking-[-0.02em] text-white xl:text-[1.38rem]">
+                  {item.title}
+                </p>
+                <p className="mt-1 text-[0.95rem] font-medium leading-snug text-white/82 xl:text-[1.05rem]">
+                  {item.text}
+                </p>
+              </div>
             </li>
           ))}
         </ul>
-        <p className="mt-5 text-[0.98rem] font-medium leading-snug text-white/85 xl:text-[1.05rem]">
-          * Dès que votre contrat actuel a plus d’un an.
-        </p>
-      </div>
+        </div>
 
-      <div className="mt-5">
-        <div className="mb-2.5 h-px bg-white/70" />
+        <div className="mt-5">
+        <div className="mb-5 h-px bg-white/70" />
         <h3 className="text-center text-[1rem] font-extrabold leading-snug tracking-[-0.02em] text-white xl:text-[1.08rem]">
           Qui est derrière Couverture Mutuelle&nbsp;?
         </h3>
-        <div className="mt-2 flex items-stretch gap-2.5">
+        <div className="mt-7 flex items-stretch gap-2.5 xl:mt-8">
           <div className="min-w-0 flex-1 bg-white px-3 py-2.5 text-[#3b0764] xl:px-3.5 xl:py-3">
             <p className="text-[0.82rem] font-extrabold leading-snug xl:text-[0.88rem]">
               Je suis Valentine, fondatrice de Couverture Mutuelle.
@@ -73,6 +101,7 @@ export function TranchesAgeDesktopAside() {
               className="object-cover object-[center_18%]"
             />
           </div>
+        </div>
         </div>
       </div>
     </aside>

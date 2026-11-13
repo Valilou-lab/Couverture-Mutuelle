@@ -58,9 +58,6 @@ export function SeniorLanding({ className }: SeniorLandingProps = {}) {
           <div className="lg:hidden">
             <SeniorHeader bordered={false} logoCentered showWhatsApp={false} />
           </div>
-          <div className="hidden lg:block">
-            <SeniorHeader bordered={false} logoCentered showWhatsApp={false} />
-          </div>
 
           <div className="bg-white lg:hidden">
             <div className="mx-auto w-full max-w-[640px] px-4 min-[700px]:max-w-[1000px]">
@@ -79,8 +76,8 @@ export function SeniorLanding({ className }: SeniorLandingProps = {}) {
               </div>
             </div>
           </div>
-          <div className="hidden bg-white px-6 pb-3 pt-3 text-center lg:block xl:px-10">
-            <h1 className="mx-auto max-w-[34rem] font-extrabold leading-[1.15] tracking-[-0.02em] [font-family:var(--font-inter-tranches),ui-sans-serif,sans-serif] text-[clamp(1.7rem,2.2vw,2.25rem)]">
+          <div className="hidden bg-white px-6 pb-3 pt-8 text-center lg:block xl:px-10 xl:pt-10">
+            <h1 className="mx-auto font-extrabold leading-[1.12] tracking-[-0.03em] [font-family:var(--font-inter-tranches),ui-sans-serif,sans-serif] text-[clamp(2.25rem,3vw,3rem)]">
               <span className="block text-zinc-900">
                 Quel tarif pour votre âge&nbsp;?
               </span>
@@ -92,7 +89,7 @@ export function SeniorLanding({ className }: SeniorLandingProps = {}) {
 
           <section className="bg-[#ede9fe]">
             <div className="mx-auto w-full max-w-[640px] px-4 min-[900px]:max-w-[1100px] lg:max-w-[34rem] lg:px-6 lg:pt-1">
-              <div id="devis" className="scroll-mt-4 pb-5 pt-4 lg:pb-4 lg:pt-2">
+              <div id="devis" className="scroll-mt-4 pb-5 pt-4 lg:pb-8 lg:pt-5">
                 <TikTokFunnelTracker />
                 <SeniorQuoteForm
                   redesignIntro="mobile"
@@ -115,6 +112,11 @@ export function SeniorLanding({ className }: SeniorLandingProps = {}) {
         </div>
 
         <TranchesAgeDesktopAside />
+      </div>
+
+      <div className="hidden bg-white px-6 pb-16 lg:block xl:px-10">
+        <RacFaq headingId="faq-titre-desktop" items={TRANCHES_FAQ} />
+        <RacCta label="DEVIS GRATUIT" />
       </div>
 
       <div className="lg:hidden">

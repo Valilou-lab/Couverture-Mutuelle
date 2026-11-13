@@ -1,6 +1,10 @@
 "use client";
 
-import { useRedesignForm, useSeniorForm } from "./seniorForm";
+import {
+  useRedesignForm,
+  useSeniorForm,
+  useTranchesAgeForm,
+} from "./seniorForm";
 
 type FormNavigationProps = {
   onNext?: () => void;
@@ -24,17 +28,21 @@ export function FormNavigation({
 }: FormNavigationProps) {
   const senior = useSeniorForm();
   const redesign = useRedesignForm();
+  const tranches = useTranchesAgeForm();
   if (!showNext) return null;
 
   const incomplete = !canContinue;
   const blocked = disabled || incomplete;
+  const tranchesDesktopCta = tranches
+    ? " lg:min-h-[4.35rem] lg:text-[1.4rem] lg:tracking-[-0.02em]"
+    : "";
 
   if (senior) {
     const toneClass = incomplete
-      ? "bg-zinc-300 text-zinc-500 shadow-none"
+      ? `bg-zinc-300 text-zinc-500 shadow-none${tranchesDesktopCta}`
       : redesign
         ? "bg-[#9b4ff0] text-white shadow-[0_12px_28px_-10px_rgba(155,79,240,0.55)] ring-2 ring-[#9b4ff0]/35 hover:bg-[#8b3de0] hover:brightness-105"
-        : "bg-brand text-white shadow-[0_8px_20px_-10px_rgba(98,41,208,0.7)] ring-2 ring-brand/30 hover:brightness-110";
+        : `bg-brand text-white shadow-[0_8px_20px_-10px_rgba(98,41,208,0.7)] ring-2 ring-brand/30 hover:brightness-110${tranches ? ` lg:bg-[#6d28d9] lg:shadow-[0_16px_36px_-12px_rgba(109,40,217,0.7)] lg:ring-0${tranchesDesktopCta}` : ""}`;
 
     return (
       <div className="mt-5">
@@ -43,7 +51,9 @@ export function FormNavigation({
           onClick={onNext}
           disabled={blocked}
           aria-disabled={blocked}
-          className={`inline-flex min-h-16 w-full items-center justify-center rounded-full px-6 py-3.5 text-[1.2rem] font-extrabold transition-[background-color,box-shadow,opacity,filter] duration-200 disabled:cursor-not-allowed ${toneClass} ${
+          className={`inline-flex min-h-16 w-full items-center justify-center rounded-full px-6 py-3.5 text-[1.2rem] font-extrabold transition-[background-color,box-shadow,opacity,filter] duration-200 disabled:cursor-not-allowed ${
+            tranches ? "lg:rounded-none" : ""
+          } ${toneClass} ${
             disabled && !incomplete ? "opacity-60" : ""
           }`}
         >

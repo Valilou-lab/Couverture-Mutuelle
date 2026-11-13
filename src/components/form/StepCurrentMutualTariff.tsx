@@ -9,7 +9,9 @@ import {
   useQuestionTitleClass,
   useRedesignForm,
   useSeniorForm,
+  useTranchesAgeForm,
 } from "./seniorForm";
+import { useLgUp } from "./useLgUp";
 
 const QUESTION = "Êtes-vous couvert(e) par une mutuelle ?";
 const OPTIONS = [
@@ -37,6 +39,9 @@ export function StepCurrentMutualTariff({
 }: Props) {
   const senior = useSeniorForm();
   const redesign = useRedesignForm();
+  const tranches = useTranchesAgeForm();
+  const lgUp = useLgUp();
+  const taDesk = tranches && lgUp;
   const questionTitleClass = useQuestionTitleClass();
 
   const titleClass = senior
@@ -52,11 +57,16 @@ export function StepCurrentMutualTariff({
         {OPTIONS.map((item) => (
           <OptionCard
             key={item.id}
-            label={redesign ? item.redesignLabel : item.label}
-            icon={senior && !redesign ? seniorCoveredIcon(item.id) : undefined}
+            label={redesign || taDesk ? item.redesignLabel : item.label}
+            icon={
+              senior && !redesign && !taDesk
+                ? seniorCoveredIcon(item.id)
+                : undefined
+            }
             selected={data.alreadyInsured === item.id}
             disabled={disabled}
-            seniorAlign={redesign ? "center" : "left"}
+            seniorAlign={redesign || taDesk ? "center" : "left"}
+            showArrow={taDesk}
             onClick={() => onSelectAndAdvance(item.id)}
           />
         ))}

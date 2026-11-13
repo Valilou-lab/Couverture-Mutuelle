@@ -968,6 +968,8 @@ export function QuoteForm({
 
   if (senior) {
     const showIntroBar = Boolean(firstStepIntro);
+    /** Homepage chrome, or `/tranches-age` at every breakpoint: 1/6 + thin white track. */
+    const visionProgress = redesign || askAgeInsteadOfBirthDate;
     return (
       <TranchesAgeFormContext.Provider value={askAgeInsteadOfBirthDate}>
       <SeniorFormContext.Provider value>
@@ -980,7 +982,7 @@ export function QuoteForm({
             firstName={data.firstName}
           />
         ) : null}
-        {redesign && showProgress ? (
+        {visionProgress && showProgress ? (
           <div className="mb-3 px-1">
             <ProgressBar
               current={progressCurrent}
@@ -1002,6 +1004,10 @@ export function QuoteForm({
                 redesign
                   ? "border-brand bg-brand"
                   : "border-brand-muted bg-[#ddd6fe]"
+              }${
+                askAgeInsteadOfBirthDate && step === "contact"
+                  ? " form-intro-bar-ta-contact"
+                  : ""
               }`}
             >
               {canGoBack ? (
@@ -1016,6 +1022,21 @@ export function QuoteForm({
               ) : (
                 <span aria-hidden="true" />
               )}
+              {askAgeInsteadOfBirthDate && step === "contact" ? (
+                <div className="text-center">
+                  <p className="font-poppins text-[1.25rem] font-extrabold leading-tight tracking-[-0.02em] text-[#9b4ff0] sm:text-[1.45rem]">
+                    Parfait, vous y êtes presque&nbsp;!
+                  </p>
+                  <p className="mt-1.5 leading-snug text-zinc-500">
+                    <span className="text-[0.98rem] font-medium sm:text-[1.05rem]">
+                      Dernière étape&nbsp;:{" "}
+                    </span>
+                    <span className="text-[1.12rem] font-bold sm:text-[1.22rem]">
+                      où vous envoyer vos propositions&nbsp;?
+                    </span>
+                  </p>
+                </div>
+              ) : (
               <p
                 className={`text-balance text-center font-poppins font-extrabold leading-tight tracking-[-0.02em] ${
                   redesign
@@ -1025,6 +1046,7 @@ export function QuoteForm({
               >
                 {step === "contact" ? "Finalisation" : firstStepIntro}
               </p>
+              )}
               <span aria-hidden="true" />
             </div>
           ) : null}
@@ -1032,7 +1054,9 @@ export function QuoteForm({
           <div
             className={`relative grid gap-4 px-4 pb-4 min-[760px]:px-7 min-[760px]:pb-5 ${
               showIntroBar
-                ? "pt-[18px] min-[760px]:pt-[22px]"
+                ? askAgeInsteadOfBirthDate && step === "contact"
+                  ? "pt-1 min-[760px]:pt-1.5"
+                  : "pt-[18px] min-[760px]:pt-[22px]"
                 : canGoBack
                   ? "pt-12 min-[760px]:pt-[3.25rem]"
                   : "pt-4 min-[760px]:pt-5"
@@ -1046,7 +1070,7 @@ export function QuoteForm({
                 className="absolute left-1.5 top-1.5 z-20 sm:left-2.5 sm:top-2"
               />
             ) : null}
-            {showProgress && !redesign ? (
+            {showProgress && !visionProgress ? (
               <ProgressBar current={progressCurrent} total={progressTotal} />
             ) : null}
 
@@ -1066,13 +1090,19 @@ export function QuoteForm({
                 <span>Sans engagement</span>
               </p>
             ) : (
-              <p className="flex items-center justify-center gap-1.5 text-[0.9rem] font-medium text-zinc-600">
-                <ShieldCheck
-                  className="h-4 w-4 shrink-0 text-[#9b4ff0]"
-                  strokeWidth={2}
-                  aria-hidden
-                />
-                Vos données sont sécurisées
+              <p className="text-center text-[0.9rem] font-medium leading-snug text-zinc-600">
+                <span className="inline-flex max-w-full items-start gap-1 text-pretty">
+                  <ShieldCheck
+                    className="mt-[0.15rem] h-4 w-4 shrink-0 text-[#9b4ff0]"
+                    strokeWidth={2}
+                    aria-hidden
+                  />
+                  <span>
+                    {askAgeInsteadOfBirthDate
+                      ? "Vos données restent confidentielles et servent uniquement à votre recherche de mutuelle."
+                      : "Vos données sont sécurisées"}
+                  </span>
+                </span>
               </p>
             )}
           </div>

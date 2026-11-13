@@ -19,7 +19,9 @@ import {
   useFormInputClass,
   useQuestionTitleClass,
   useSeniorForm,
+  useTranchesAgeForm,
 } from "./seniorForm";
+import { useLgUp } from "./useLgUp";
 
 /** Visible CM classic checkbox label — display only (Vertikl proof unchanged). */
 const CM_PARTNERS_MARKER = "ses partenaires";
@@ -92,6 +94,9 @@ export function StepContact({
 }: Props) {
   const [partnersOpen, setPartnersOpen] = useState(false);
   const senior = useSeniorForm();
+  const tranches = useTranchesAgeForm();
+  const lgUp = useLgUp();
+  const taDesk = tranches && lgUp;
   const iki = consentVariant === "iki";
   const titleClass = useQuestionTitleClass();
   const labelClass = senior ? SENIOR_LABEL : "block text-sm font-medium";
@@ -108,17 +113,33 @@ export function StepContact({
         <>
         {lastStepProposalsIntro ? (
           <div className={senior ? "mb-4" : "mb-5"}>
+            {taDesk ? null : (
             <h2 className="text-balance text-center text-[1.375rem] font-bold leading-[1.2] tracking-[-0.02em] text-black sm:text-[1.75rem]">
               <span className="font-bold text-black">Dernière étape</span>
               <span className="font-bold text-[#9b4ff0]">
                 &nbsp;: où vous envoyer vos propositions&nbsp;?
               </span>
             </h2>
-            <p className="mt-3 text-pretty text-center text-[0.98rem] font-normal leading-snug text-zinc-500 sm:text-base">
+            )}
+            <p className={`${taDesk ? "" : "mt-3 "}text-pretty text-center text-[0.98rem] font-normal leading-snug text-zinc-500 sm:text-base`}>
               Un courtier partenaire vous contacte pour vous les présenter.
-              S’il existe une offre plus avantageuse pour votre profil,{" "}
-              <strong className="font-bold">il vous la trouve</strong>. Vous
-              restez libre de refuser.
+              S’il existe une offre{" "}
+              {tranches ? (
+                <strong className="font-bold text-[#9b4ff0]">
+                  plus avantageuse
+                </strong>
+              ) : (
+                "plus avantageuse"
+              )}{" "}
+              pour votre profil,{" "}
+              <strong
+                className={
+                  tranches ? "font-bold text-[#9b4ff0]" : "font-bold"
+                }
+              >
+                il vous la trouve
+              </strong>
+              . Vous restez libre de refuser.
             </p>
           </div>
         ) : null}
