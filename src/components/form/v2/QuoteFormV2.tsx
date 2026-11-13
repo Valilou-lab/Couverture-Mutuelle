@@ -75,7 +75,12 @@ function validateIdentityAndConsent(data: QuoteFormData): FieldErrors {
  * Eligibility via `/api/v2/eligibility` only; OTP + lead are local adapters
  * until Twilio / `/api/leads` / Vertikl are wired.
  */
-export function QuoteFormV2() {
+export function QuoteFormV2({
+  onFocusChange,
+}: {
+  /** Landing chrome only — does not change steps, APIs or payloads. */
+  onFocusChange?: (focused: boolean) => void;
+} = {}) {
   const formRootRef = useRef<HTMLDivElement>(null);
   const [data, setData] = useState<QuoteFormData>(initialFormData);
   const [step, setStep] = useState<V2StepId>("currentMutualTariff");
@@ -107,6 +112,9 @@ export function QuoteFormV2() {
   const questionNumber = showProgress ? progressCurrent : null;
   const formFocused = isV2FormFocusStep(step, questionNumber);
   useDevisLandingFocus(formFocused, formRootRef);
+  useEffect(() => {
+    onFocusChange?.(formFocused);
+  }, [formFocused, onFocusChange]);
 
   const patch = useCallback((partial: Partial<QuoteFormData>) => {
     setData((prev) => ({ ...prev, ...partial }));
