@@ -97,7 +97,7 @@ export function DevisLanding({
           </div>
         </div>
 
-        <TranchesAgeDesktopAside />
+        <TranchesAgeDesktopAside showBrandLogo={false} />
       </div>
 
       <div className="hidden bg-white px-6 pb-16 lg:block xl:px-10">

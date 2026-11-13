@@ -18,27 +18,34 @@ const BENEFITS = [
 ] as const;
 
 /** Desktop-only reassurance column for `/tranches-age`. */
-export function TranchesAgeDesktopAside() {
+export function TranchesAgeDesktopAside({
+  showBrandLogo = true,
+}: {
+  /** White circular brand mark (turtle logo). Hide on `/devis`. */
+  showBrandLogo?: boolean;
+} = {}) {
   return (
     <aside className="relative hidden min-h-full bg-[#6d28d9] text-white lg:block">
       <div className="sticky top-0 max-h-screen overflow-y-auto overscroll-contain px-8 py-10 xl:px-12 xl:py-12 2xl:px-14">
         <div>
-        <div className="flex justify-center pb-8 pt-1 xl:pb-10 xl:pt-2">
-          <Link
-            href="/"
-            aria-label="Couverture Mutuelle"
-            className="flex size-[8.5rem] items-center justify-center rounded-full bg-white p-5 xl:size-[9.5rem] xl:p-6"
-          >
-            <Image
-              src="/logo-couverture-mutuelle.png"
-              alt="Couverture Mutuelle"
-              width={782}
-              height={357}
-              loading="eager"
-              className="h-auto w-full"
-            />
-          </Link>
-        </div>
+        {showBrandLogo ? (
+          <div className="flex justify-center pb-8 pt-1 xl:pb-10 xl:pt-2">
+            <Link
+              href="/"
+              aria-label="Couverture Mutuelle"
+              className="flex size-[8.5rem] items-center justify-center rounded-full bg-white p-5 xl:size-[9.5rem] xl:p-6"
+            >
+              <Image
+                src="/logo-couverture-mutuelle.png"
+                alt="Couverture Mutuelle"
+                width={782}
+                height={357}
+                loading="eager"
+                className="h-auto w-full"
+              />
+            </Link>
+          </div>
+        ) : null}
         <h2 className="text-center font-extrabold leading-[1.15] tracking-[-0.03em] text-white [font-family:var(--font-inter-tranches),ui-sans-serif,sans-serif] text-[clamp(1.7rem,2.4vw,2.45rem)]">
           En 1 minute, obtenez gratuitement&nbsp;:
         </h2>
