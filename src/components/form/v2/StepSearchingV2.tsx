@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getMascotPoseSrc } from "@/components/form/mascotGuideConfig";
 import { FormNavigation } from "@/components/form/FormNavigation";
 import { SENIOR_ERROR } from "@/components/form/seniorForm";
 
@@ -56,19 +55,9 @@ export function StepSearchingV2({
         Nous vérifions quels organismes correspondent à votre profil.
       </p>
 
-      <div className="relative mx-auto mt-5 flex w-full max-w-[14rem] items-center justify-center sm:mt-6 sm:max-w-[16rem]">
-        {/* eslint-disable-next-line @next/next/no-img-element -- mascot PNG */}
-        <img
-          src={getMascotPoseSrc("travaille")}
-          alt=""
-          className="form-mascot-pose form-mascot-searching block h-auto w-full select-none drop-shadow-[0_12px_20px_rgba(15,15,20,0.16)]"
-          draggable={false}
-        />
-      </div>
-
       <p
         key={STATUS_LINES[statusIndex]}
-        className="form-mascot-pop mt-5 text-[1rem] font-semibold text-[#3b0764]"
+        className="mt-5 text-[1rem] font-semibold text-[#3b0764]"
       >
         {STATUS_LINES[statusIndex]}
       </p>

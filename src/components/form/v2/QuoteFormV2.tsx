@@ -13,7 +13,6 @@ import {
   COVERED_PERSONS,
   initialFormData,
   type CoveredPersonId,
-  type FormStepId,
   type QuoteFormData,
 } from "@/components/form/types";
 import {
@@ -28,7 +27,6 @@ import {
   V2_EMAIL_INVALID_MESSAGE,
 } from "./emailValidation";
 import { FormBackButton } from "@/components/form/FormBackButton";
-import { FormMascotBubble } from "@/components/form/FormMascotBubble";
 import { StepCoveredPersons } from "@/components/form/StepCoveredPersons";
 import { StepProfessionalStatusV2 } from "./StepProfessionalStatusV2";
 import { StepCurrentMutualTariff } from "@/components/form/StepCurrentMutualTariff";
@@ -451,23 +449,10 @@ export function QuoteFormV2({
     </div>
   );
 
-  const mascotStep: FormStepId =
-    step === "searching" || step === "eligiblePartners"
-      ? "analyzing"
-      : step === "phoneVerify"
-        ? "contact"
-        : step;
-
   return (
     <SeniorFormContext.Provider value>
       <RedesignFormContext.Provider value>
         <div ref={formRootRef} className="w-full scroll-mt-24">
-        <FormMascotBubble
-          step={mascotStep}
-          isFirstStep={step === "currentMutualTariff"}
-          firstName={data.firstName}
-          devisContact={step === "contact"}
-        />
         <div
           id="formulaire-devis"
           className="relative overflow-hidden rounded-[28px] border border-[#ddd6fe] bg-white shadow-[0_10px_30px_-18px_rgba(98,41,208,0.45)]"
