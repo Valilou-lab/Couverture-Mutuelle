@@ -13,6 +13,7 @@ import {
   COVERED_PERSONS,
   initialFormData,
   type CoveredPersonId,
+  type FormStepId,
   type QuoteFormData,
 } from "@/components/form/types";
 import {
