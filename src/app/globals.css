@@ -707,6 +707,38 @@ body {
   }
 }
 
+/* /devis desktop only — make choice + CTA buttons clearly clickable on hover. */
+@media (hover: hover) and (pointer: fine) and (min-width: 1024px) {
+  .lp-devis #formulaire-devis button[aria-pressed] {
+    transition:
+      background-color 160ms ease,
+      border-color 160ms ease,
+      box-shadow 160ms ease,
+      transform 160ms ease,
+      filter 160ms ease;
+  }
+
+  .lp-devis #formulaire-devis button[aria-pressed="false"]:hover:not(:disabled) {
+    border-color: #7c3aed !important;
+    background-color: #f5f3ff !important;
+    box-shadow: 0 12px 28px -14px rgba(98, 41, 208, 0.5) !important;
+    transform: translateY(-1px);
+  }
+
+  .lp-devis #formulaire-devis button[aria-pressed="true"]:hover:not(:disabled) {
+    border-color: #6d28d9 !important;
+    background-color: #ede9fe !important;
+    box-shadow: 0 10px 22px -14px rgba(98, 41, 208, 0.4) !important;
+  }
+
+  .lp-devis #formulaire-devis button.bg-brand:hover:not(:disabled),
+  .lp-devis #formulaire-devis button.bg-\[\#9b4ff0\]:hover:not(:disabled) {
+    filter: brightness(1.08);
+    box-shadow: 0 16px 36px -12px rgba(109, 40, 217, 0.65) !important;
+    transform: translateY(-1px);
+  }
+}
+
 /* Same HTML on mobile: hide desktop-only form chrome from the first paint. */
 @media (max-width: 1023px) {
   .lp-v2-type #formulaire-devis .form-intro-bar,

@@ -23,5 +23,5 @@ export const metadata: Metadata = {
 };
 
 export default function DevisPage() {
-  return <DevisLanding className={`${inter.variable} lp-v2-type`} />;
+  return <DevisLanding className={`${inter.variable} lp-v2-type lp-devis`} />;
 }
