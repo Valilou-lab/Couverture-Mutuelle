@@ -38,8 +38,9 @@ export function TranchesAgeDesktopAside({
           fully visible in one screen (no cut-off).
         */}
         <div className="sticky top-0 flex min-h-screen max-h-screen flex-col overflow-y-auto overscroll-contain px-8 py-9 xl:px-10 xl:py-11 2xl:px-12 2xl:py-12">
-          <div className="mx-auto flex w-[min(100%,85%)] flex-1 flex-col justify-between gap-8 xl:gap-10">
-            <div>
+          <div className="mx-auto flex w-[min(100%,85%)] flex-1 flex-col gap-8 xl:gap-10">
+            {/* Center benefits in the free space above the founder block. */}
+            <div className="flex flex-1 flex-col justify-center">
               <h2 className="text-center font-extrabold leading-[1.15] tracking-[-0.03em] text-white [font-family:var(--font-inter-tranches),ui-sans-serif,sans-serif] text-[clamp(1.55rem,2.2vw,2.25rem)]">
                 En 1 minute, obtenez gratuitement&nbsp;:
               </h2>
@@ -69,7 +70,7 @@ export function TranchesAgeDesktopAside({
               </ul>
             </div>
 
-            <div className="pb-1">
+            <div className="shrink-0 pb-1">
               <div className="mb-6 h-px bg-white/70 xl:mb-7" />
               <h3 className="text-center text-[0.95rem] font-extrabold leading-snug tracking-[-0.02em] text-white xl:text-[1.02rem]">
                 Qui est derrière Couverture Mutuelle&nbsp;?
