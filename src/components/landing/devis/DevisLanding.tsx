@@ -59,7 +59,7 @@ export function DevisLanding({
       }`}
     >
       <div className="lg:grid lg:grid-cols-2 lg:items-stretch">
-        <div className="min-w-0 lg:bg-white">
+        <div className="min-w-0 lg:flex lg:min-h-screen lg:flex-col lg:bg-white">
           <div className="lg:hidden">
             <div className="bg-white">
               <SeniorHeader bordered={false} logoCentered showWhatsApp={false} />
@@ -91,7 +91,7 @@ export function DevisLanding({
             </div>
           </section>
 
-          <div className="hidden bg-white px-4 pb-6 pt-4 lg:block xl:px-8">
+          <div className="hidden bg-white px-4 pb-8 pt-6 lg:mt-auto lg:block xl:px-8 xl:pb-10">
             <HomeFormTrustButtons />
             <HomeHowItWorksSchema headingId="comment-ca-se-passe-schema-desktop" />
           </div>
