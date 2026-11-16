@@ -1,13 +1,24 @@
 export type EligiblePartner = {
   id: string;
   name: string;
+  /** Vertikl buyer UUID when eligibility comes from precheck. */
+  vertiklBuyerId?: string;
 };
+
+export type EligibilityStatus =
+  | "reserved"
+  | "no_eligible_partner"
+  | "technical_error";
 
 export type EligibilityResponse = {
   eligible: boolean;
+  status?: EligibilityStatus;
   partners: EligiblePartner[];
-  /** Opaque server proof — required later by `/api/v2/leads`. */
-  eligibilityToken: string;
+  /** Opaque server proof — required later by `/api/v2/leads`. Null when none. */
+  eligibilityToken: string | null;
+  expiresAt?: string;
+  precheckId?: string;
+  reason?: string;
 };
 
 /** Criteria sent to `/api/v2/eligibility` — no commercial rules in the front. */
@@ -15,6 +26,7 @@ export type EligibilityRequestPayload = {
   healthInsuranceGoal: string;
   coveredPersons: string;
   professionalStatus: string;
+  alreadyInsured: string;
   birthDate: string;
   postalCode: string;
   city: string;
@@ -23,8 +35,11 @@ export type EligibilityRequestPayload = {
 };
 
 export type EligibilityClientResult = {
+  status: EligibilityStatus;
   partners: EligiblePartner[];
-  eligibilityToken: string;
+  eligibilityToken: string | null;
+  expiresAt?: string;
+  reason?: string;
 };
 
 export type V2StepId =

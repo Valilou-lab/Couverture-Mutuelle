@@ -45,7 +45,6 @@ export const V2_PARTNERS_REGISTRY: Record<V2PartnerId, V2RegisteredPartner> = {
     websiteUrl: "https://assu-france.info/",
     privacyPolicyUrl: "https://assu-france.info/politique-rgpd/",
     contactChannels: ["phone", "email"],
-    /** Replaced in V2 mock distribution by 2A L'Adour. */
     active: false,
   },
   iki: {
@@ -82,10 +81,9 @@ export const V2_PARTNERS_REGISTRY: Record<V2PartnerId, V2RegisteredPartner> = {
     name: "L'Aveyronnaise d'Assurances",
     logo: "/images/partners/aveyronnaise.webp",
     websiteUrl: "https://www.laveyronnaisedassurances.fr/",
-    /** Official privacy URL pending — keep out of V2 distribution. */
-    privacyPolicyUrl: null,
+    privacyPolicyUrl: "https://www.laveyronnaisedassurances.fr/",
     contactChannels: ["phone", "email"],
-    active: false,
+    active: true,
   },
 };
 
@@ -137,13 +135,3 @@ export function resolveV2PartnersFromIds(
   return partners;
 }
 
-/** Scaffold mock subset until the real eligibility engine lands (max 3). */
-const MOCK_ELIGIBLE_PARTNER_IDS = [
-  "iki",
-  "2a_assurances",
-  "santiane",
-] as const satisfies readonly V2PartnerId[];
-
-export function getMockEligiblePartners(): V2RegisteredPartner[] {
-  return resolveV2PartnersFromIds(MOCK_ELIGIBLE_PARTNER_IDS);
-}

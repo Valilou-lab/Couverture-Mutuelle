@@ -85,8 +85,11 @@ export async function POST(request: Request) {
     );
   }
 
-  // Optional sanity check: displayed ids must be a subset of token partners.
-  const tokenIdSet = new Set<string>(tokenResult.payload.partnerIds);
+  // Displayed ids may be registry ids and/or Vertikl buyer UUIDs from precheck.
+  const tokenIdSet = new Set<string>([
+    ...tokenResult.payload.partnerIds,
+    ...tokenResult.payload.buyerIds,
+  ]);
   const displayed = Array.isArray(body.displayedPartnerIds)
     ? body.displayedPartnerIds.filter((id): id is string => typeof id === "string")
     : [];

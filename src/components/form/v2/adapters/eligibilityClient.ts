@@ -17,7 +17,7 @@ export class EligibilityClientError extends Error {
 
 /**
  * Front → `/api/v2/eligibility` only.
- * No commercial rules; displays whatever partners (+ token) the API returns.
+ * No Vertikl URL / API key in the browser.
  */
 export async function fetchEligiblePartners(
   payload: EligibilityRequestPayload,
@@ -28,11 +28,25 @@ export async function fetchEligiblePartners(
     body: JSON.stringify(payload),
   });
 
-  if (!response.ok) {
+  let json: EligibilityResponse | null = null;
+  try {
+    json = (await response.json()) as EligibilityResponse;
+  } catch {
+    json = null;
+  }
+
+  if (response.status === 503 || json?.status === "technical_error") {
     throw new EligibilityClientError();
   }
 
-  const json = (await response.json()) as EligibilityResponse;
+  if (!response.ok && response.status !== 200) {
+    throw new EligibilityClientError();
+  }
+
+  if (!json) {
+    throw new EligibilityClientError();
+  }
+
   const partners = Array.isArray(json.partners)
     ? json.partners.filter(
         (p): p is EligiblePartner =>
@@ -40,12 +54,24 @@ export async function fetchEligiblePartners(
       )
     : [];
 
+  if (json.status === "no_eligible_partner" || partners.length === 0) {
+    return {
+      status: "no_eligible_partner",
+      partners: [],
+      eligibilityToken: null,
+      reason: json.reason,
+    };
+  }
+
   if (typeof json.eligibilityToken !== "string" || !json.eligibilityToken) {
     throw new EligibilityClientError();
   }
 
   return {
+    status: "reserved",
     partners,
     eligibilityToken: json.eligibilityToken,
+    expiresAt: json.expiresAt,
+    reason: json.reason,
   };
 }

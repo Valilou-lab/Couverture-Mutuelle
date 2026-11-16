@@ -10,8 +10,9 @@ import {
 } from "@/components/form/seniorForm";
 import { buildV2PartnerConsentText } from "@/lib/v2/consent";
 import {
+  getV2PartnerById,
   getV2PartnerPrivacyPolicyUrl,
-  resolveV2PartnersFromIds,
+  isV2PartnerDistributable,
 } from "@/lib/v2/partners-registry";
 import type { EligiblePartner } from "./v2Types";
 import { getV2PartnerLogoSrc } from "./v2Partners";
@@ -50,25 +51,35 @@ export function StepEligiblePartnersV2({
   onConfirm,
 }: Props) {
   const inputClass = useFormInputClass();
-  // Drop any id that is not distributable in the allowlist (defense in depth).
-  const safePartners = resolveV2PartnersFromIds(partners.map((p) => p.id));
+  // Partners come exclusively from Vertikl precheck (via /api/v2/eligibility).
+  // Registry only enriches logo / privacy when the buyer is mapped.
+  const displayPartners = partners.map((partner) => {
+    const registered = getV2PartnerById(partner.id);
+    const distributable =
+      registered && isV2PartnerDistributable(registered) ? registered : null;
+    return {
+      id: partner.id,
+      name: distributable?.name ?? partner.name,
+      logoSrc: getV2PartnerLogoSrc(partner.id, partner.name),
+      privacyUrl: getV2PartnerPrivacyPolicyUrl(partner.id),
+    };
+  });
 
   // Display-only preview: same template as the server. Authoritative text is
   // rebuilt in `/api/v2/leads` from the allowlist + eligibility token.
-  const consentText = buildV2PartnerConsentText(safePartners);
-  const privacyPartners = safePartners.filter(
-    (partner) => partner.privacyPolicyUrl,
-  );
+  const consentText = buildV2PartnerConsentText(displayPartners);
+  const privacyPartners = displayPartners.filter((partner) => partner.privacyUrl);
 
   const dossierReady =
+    displayPartners.length > 0 &&
     Boolean(data.firstName.trim()) &&
     Boolean(data.lastName.trim()) &&
     Boolean(data.consent);
 
   const gridCols =
-    safePartners.length <= 1
+    displayPartners.length <= 1
       ? "grid-cols-1 max-w-[11rem] mx-auto"
-      : safePartners.length === 2
+      : displayPartners.length === 2
         ? "grid-cols-2"
         : "grid-cols-3";
 
@@ -78,15 +89,15 @@ export function StepEligiblePartnersV2({
         Ces organismes peuvent vous proposer des devis
       </h2>
 
-      {safePartners.length === 0 ? (
+      {displayPartners.length === 0 ? (
         <p className="mt-5 rounded-[18px] border border-[#ddd6fe] bg-[#f5f0ff] px-4 py-4 text-center text-[0.98rem] text-[#3b0764]">
           Aucun partenaire éligible pour le moment.
         </p>
       ) : (
         <ul className={`mt-5 grid gap-2 sm:gap-3 ${gridCols}`}>
-          {safePartners.map((partner) => {
-            const logoSrc = getV2PartnerLogoSrc(partner.id, partner.name);
-            const privacyUrl = getV2PartnerPrivacyPolicyUrl(partner.id);
+          {displayPartners.map((partner) => {
+            const logoSrc = partner.logoSrc;
+            const privacyUrl = partner.privacyUrl;
             return (
               <li
                 key={partner.id}
@@ -217,7 +228,7 @@ export function StepEligiblePartnersV2({
               <p className="mt-2 text-[0.8125rem] leading-snug text-zinc-500">
                 Politiques de protection des données&nbsp;:{" "}
                 {privacyPartners.map((partner, index) => {
-                  const href = partner.privacyPolicyUrl!;
+                  const href = partner.privacyUrl!;
                   return (
                     <span key={partner.id}>
                       {index > 0 ? " · " : null}

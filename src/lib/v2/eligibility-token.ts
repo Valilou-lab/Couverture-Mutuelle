@@ -2,19 +2,21 @@ import type { V2PartnerId } from "./partners-registry";
 import { isV2PartnerId } from "./partners-registry";
 
 /**
- * Eligibility proof linking criteria → eligible partners → expiry.
+ * Eligibility proof linking Vertikl precheck → buyers → expiry.
  * Scaffold: opaque base64 JSON (NOT cryptographically signed).
- * Replace `createV2EligibilityToken` / `verifyV2EligibilityToken` with HMAC/JWT later.
+ * Expiry follows Vertikl `expires_at` (reservation window), not a fixed 30 min TTL.
  */
 
-export const V2_ELIGIBILITY_TOKEN_TTL_MS = 30 * 60 * 1000;
-
 export type V2EligibilityTokenPayload = {
-  v: 1;
+  v: 2;
   issuedAt: string;
+  /** Vertikl reservation expiry (ISO). */
   expiresAt: string;
+  precheckId: string;
+  /** Exact Vertikl buyer UUIDs announced to the prospect (order preserved). */
+  buyerIds: string[];
+  /** Mapped registry ids only (subset). */
   partnerIds: V2PartnerId[];
-  /** Stable fingerprint of criteria used for this eligibility decision. */
   criteriaFingerprint: string;
 };
 
@@ -49,22 +51,28 @@ export function fingerprintEligibilityCriteria(
 }
 
 export function createV2EligibilityToken(input: {
+  precheckId: string;
+  expiresAt: string;
+  buyerIds: readonly string[];
   partnerIds: readonly string[];
   criteria: Record<string, unknown>;
   now?: Date;
-  ttlMs?: number;
 }): string {
   const now = input.now ?? new Date();
-  const ttl = input.ttlMs ?? V2_ELIGIBILITY_TOKEN_TTL_MS;
   const partnerIds = input.partnerIds.filter(isV2PartnerId);
+  const buyerIds = input.buyerIds
+    .map((id) => id.trim())
+    .filter((id) => id.length > 0);
   const payload: V2EligibilityTokenPayload = {
-    v: 1,
+    v: 2,
     issuedAt: now.toISOString(),
-    expiresAt: new Date(now.getTime() + ttl).toISOString(),
+    expiresAt: input.expiresAt,
+    precheckId: input.precheckId.trim(),
+    buyerIds,
     partnerIds,
     criteriaFingerprint: fingerprintEligibilityCriteria(input.criteria),
   };
-  return `v2e1.${toBase64Url(JSON.stringify(payload))}`;
+  return `v2e2.${toBase64Url(JSON.stringify(payload))}`;
 }
 
 export type V2EligibilityTokenVerifyResult =
@@ -79,23 +87,27 @@ export function verifyV2EligibilityToken(
     return { ok: false, reason: "empty" };
   }
   const trimmed = token.trim();
-  if (!trimmed.startsWith("v2e1.")) {
+  if (!trimmed.startsWith("v2e2.")) {
     return { ok: false, reason: "malformed" };
   }
   try {
-    const raw = fromBase64Url(trimmed.slice("v2e1.".length));
+    const raw = fromBase64Url(trimmed.slice("v2e2.".length));
     const parsed = JSON.parse(raw) as Partial<V2EligibilityTokenPayload>;
     if (
-      parsed.v !== 1 ||
+      parsed.v !== 2 ||
       typeof parsed.issuedAt !== "string" ||
       typeof parsed.expiresAt !== "string" ||
+      typeof parsed.precheckId !== "string" ||
       typeof parsed.criteriaFingerprint !== "string" ||
+      !Array.isArray(parsed.buyerIds) ||
       !Array.isArray(parsed.partnerIds)
     ) {
       return { ok: false, reason: "malformed" };
     }
-    const partnerIds = parsed.partnerIds.filter(isV2PartnerId);
-    if (partnerIds.length === 0) {
+    const buyerIds = parsed.buyerIds.filter(
+      (id): id is string => typeof id === "string" && id.trim().length > 0,
+    );
+    if (buyerIds.length === 0 || !parsed.precheckId.trim()) {
       return { ok: false, reason: "malformed" };
     }
     if (Date.parse(parsed.expiresAt) <= now.getTime()) {
@@ -104,10 +116,12 @@ export function verifyV2EligibilityToken(
     return {
       ok: true,
       payload: {
-        v: 1,
+        v: 2,
         issuedAt: parsed.issuedAt,
         expiresAt: parsed.expiresAt,
-        partnerIds,
+        precheckId: parsed.precheckId,
+        buyerIds,
+        partnerIds: parsed.partnerIds.filter(isV2PartnerId),
         criteriaFingerprint: parsed.criteriaFingerprint,
       },
     };
