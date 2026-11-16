@@ -50,6 +50,9 @@ export type V2LeadErrorResponse = {
     | "MAPPING_FAILED"
     | "SERVER_MISCONFIGURED"
     | "LEAD_SUBMISSION_FAILED";
+  /** Vertikl failureMessage / HTTP diagnostic when available. */
+  detail?: string;
+  httpStatus?: number | null;
 };
 
 /** @deprecated Use V2LeadSuccessResponse — kept for older clients during deploy. */

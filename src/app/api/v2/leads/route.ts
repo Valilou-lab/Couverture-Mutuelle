@@ -397,7 +397,21 @@ export async function POST(request: NextRequest) {
   });
 
   if (!result.ok) {
-    return failure(502, "LEAD_SUBMISSION_FAILED", "LEAD_SUBMISSION_FAILED");
+    // Surface Vertikl's diagnostic (masked from PII) so Network tab / UI can show why.
+    const detail = result.failureMessage || `HTTP_${result.httpStatus ?? "unknown"}`;
+    return NextResponse.json(
+      {
+        success: false,
+        error: "LEAD_SUBMISSION_FAILED",
+        code: "LEAD_SUBMISSION_FAILED",
+        detail,
+        httpStatus: result.httpStatus,
+      } satisfies V2LeadErrorResponse & {
+        detail?: string;
+        httpStatus?: number | null;
+      },
+      { status: 502 },
+    );
   }
 
   const consent = buildV2ConsentRecord(partners, consentAt.toISOString());

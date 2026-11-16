@@ -70,10 +70,20 @@ export async function submitV2Lead(input: {
   }
 
   if (!response.ok || !payload || payload.success !== true) {
-    const message =
-      payload && "error" in payload && typeof payload.error === "string"
-        ? payload.error
-        : SUBMIT_ERROR;
+    const errPayload =
+      payload && "success" in payload && payload.success === false
+        ? payload
+        : null;
+    const detail =
+      errPayload && typeof errPayload.detail === "string"
+        ? errPayload.detail
+        : null;
+    const code =
+      errPayload && typeof errPayload.error === "string"
+        ? errPayload.error
+        : null;
+    // Prefer Vertikl diagnostic when present (e.g. "Lead non valide.").
+    const message = detail || code || SUBMIT_ERROR;
     throw new V2LeadClientError(message);
   }
 
