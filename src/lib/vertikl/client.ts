@@ -52,6 +52,13 @@ export type SendLeadToVertiklOptions = {
   precheckId?: string;
   /** Exact buyer UUIDs announced to the prospect during precheck. */
   buyerIds?: readonly string[];
+  /**
+   * ISO-8601 timestamp of nominative partner consent collection.
+   * Must match the moment recorded in fields.consent_datetime when possible.
+   */
+  consentCollectedAt?: string;
+  /** Optional internal consent proof reference — omit when unknown. */
+  proofRef?: string;
 };
 
 export async function sendLeadToVertikl(
@@ -103,15 +110,31 @@ export async function sendLeadToVertikl(
   const buyerIds = (options?.buyerIds ?? [])
     .map((id) => id.trim())
     .filter((id) => id.length > 0);
+  const consentCollectedAt = options?.consentCollectedAt?.trim() || "";
+  const proofRef = options?.proofRef?.trim() || "";
+
+  // Vertikl reservation confirm contract: consent.buyer_ids (not root buyer_ids).
+  const consent =
+    buyerIds.length > 0 && consentCollectedAt
+      ? {
+          buyer_ids: buyerIds,
+          collected_at: consentCollectedAt,
+          ...(proofRef ? { proof_ref: proofRef } : {}),
+        }
+      : undefined;
 
   const payload: VertiklLeadPayload & {
     precheck_id?: string;
-    buyer_ids?: string[];
+    consent?: {
+      buyer_ids: string[];
+      collected_at: string;
+      proof_ref?: string;
+    };
   } = {
     campaignId: resolvedCampaignId,
     fields,
     ...(precheckId ? { precheck_id: precheckId } : {}),
-    ...(buyerIds.length > 0 ? { buyer_ids: buyerIds } : {}),
+    ...(consent ? { consent } : {}),
   };
 
   const sentFieldNames = Object.keys(fields).sort();
@@ -122,7 +145,9 @@ export async function sendLeadToVertikl(
     mode: getApiMode(),
     sentFieldNames,
     precheckId: precheckId || null,
-    buyerIds,
+    consentBuyerIds: consent?.buyer_ids ?? [],
+    consentCollectedAt: consent?.collected_at ?? null,
+    hasConsentProofRef: Boolean(consent?.proof_ref),
     hasConsentWhatsapp: Object.prototype.hasOwnProperty.call(
       fields,
       "consent_whatsapp",
@@ -140,10 +165,13 @@ export async function sendLeadToVertikl(
     });
 
     let body: VertiklTestResponse | null = null;
+    let rawBody: unknown = null;
     try {
-      body = (await response.json()) as VertiklTestResponse;
+      rawBody = (await response.json()) as unknown;
+      body = rawBody as VertiklTestResponse;
     } catch {
       body = null;
+      rawBody = null;
     }
 
     const { returnedFieldNames, consentWhatsappReturned } =
@@ -155,6 +183,26 @@ export async function sendLeadToVertikl(
 
     const ok = response.ok && body?.success === true;
 
+    // TEMP diagnostic — redact PII if present in returned fields.
+    const safeRaw =
+      rawBody && typeof rawBody === "object"
+        ? (() => {
+            const clone = JSON.parse(JSON.stringify(rawBody)) as Record<
+              string,
+              unknown
+            >;
+            const maybeFields = clone.fields;
+            if (maybeFields && typeof maybeFields === "object") {
+              const f = maybeFields as Record<string, unknown>;
+              if (typeof f.email === "string") f.email = "[redacted]";
+              if (typeof f.phone === "string") f.phone = "[redacted]";
+              if (typeof f.first_name === "string") f.first_name = "[redacted]";
+              if (typeof f.last_name === "string") f.last_name = "[redacted]";
+            }
+            return clone;
+          })()
+        : rawBody;
+
     console.info("[vertikl] response", {
       endpoint,
       campaignId: resolvedCampaignId,
@@ -163,6 +211,8 @@ export async function sendLeadToVertikl(
       failureMessage: failureMessage ?? null,
       returnedFieldNames,
       consentWhatsappReturned,
+      // TEMP: full Vertikl body (PII redacted) to diagnose 422s
+      rawBody: safeRaw,
     });
 
     if (!ok) {

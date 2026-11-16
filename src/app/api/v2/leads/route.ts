@@ -40,7 +40,10 @@ import { resolveV2PartnersFromIds } from "@/lib/v2/partners-registry";
 import { buildVertiklFields } from "@/lib/vertikl/build-payload";
 import { sendLeadToVertikl } from "@/lib/vertikl/client";
 import { VertiklMappingError } from "@/lib/vertikl/mappers";
-import { requiresSmsPhoneVerification } from "@/lib/vertikl/normalize";
+import {
+  formatVertiklDateTime,
+  requiresSmsPhoneVerification,
+} from "@/lib/vertikl/normalize";
 import { V2_VERTIKL_CAMPAIGN_ID } from "@/lib/vertikl/precheck";
 import {
   isAcquisitionChannel,
@@ -245,7 +248,7 @@ function scheduleMetaLead(
 /**
  * V2 final acquire for `/devis`.
  * Front → OTP Twilio proof → this route → Vertikl POST /api/leads
- * with precheck_id + buyer_ids from the eligibility reservation.
+ * with precheck_id + consent.{buyer_ids, collected_at} from the eligibility reservation.
  */
 export async function POST(request: NextRequest) {
   if (!process.env.VERTIKL_API_KEY?.trim()) {
@@ -353,7 +356,9 @@ export async function POST(request: NextRequest) {
     acquisition: sanitizeAcquisition(body.meta.acquisition),
   };
 
+  // Single consent clock for fields.consent_datetime + consent.collected_at.
   const consentAt = new Date();
+  const consentCollectedAt = `${formatVertiklDateTime(consentAt)}Z`;
   const consentText = buildV2PartnerConsentText(partners);
   const ipAddress = getClientIp(request);
   const userAgent = request.headers.get("user-agent")?.trim() || undefined;
@@ -382,9 +387,21 @@ export async function POST(request: NextRequest) {
 
   scheduleMetaLead(request, form, meta, body.metaTracking);
 
+  console.info("[api/v2/leads] acquire payload shape", {
+    campaignId: V2_VERTIKL_CAMPAIGN_ID,
+    precheckId: tokenResult.payload.precheckId,
+    expiresAt: tokenResult.payload.expiresAt,
+    consentBuyerIds: tokenResult.payload.buyerIds,
+    consentCollectedAt,
+    hasConsentProofRef: false,
+    fieldKeys: Object.keys(fields).sort(),
+  });
+
   const result = await sendLeadToVertikl(fields, V2_VERTIKL_CAMPAIGN_ID, {
     precheckId: tokenResult.payload.precheckId,
     buyerIds: tokenResult.payload.buyerIds,
+    consentCollectedAt,
+    // proof_ref omitted until we have a Vertikl-approved internal reference.
   });
 
   console.info("[api/v2/leads] vertikl result", {
@@ -393,7 +410,7 @@ export async function POST(request: NextRequest) {
     failureMessage: result.failureMessage,
     campaignId: V2_VERTIKL_CAMPAIGN_ID,
     precheckId: tokenResult.payload.precheckId,
-    buyerIds: tokenResult.payload.buyerIds,
+    consentBuyerIds: tokenResult.payload.buyerIds,
   });
 
   if (!result.ok) {
