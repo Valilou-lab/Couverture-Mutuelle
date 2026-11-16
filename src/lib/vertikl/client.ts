@@ -47,9 +47,17 @@ function summarizeReturnedFields(
   return { returnedFieldNames, consentWhatsappReturned };
 }
 
+export type SendLeadToVertiklOptions = {
+  /** Vertikl reservation id from precheck — required to confirm a reserved sale. */
+  precheckId?: string;
+  /** Exact buyer UUIDs announced to the prospect during precheck. */
+  buyerIds?: readonly string[];
+};
+
 export async function sendLeadToVertikl(
   fields: VertiklLeadFields,
   campaignId: string,
+  options?: SendLeadToVertiklOptions,
 ): Promise<SendLeadResult> {
   const apiKey = process.env.VERTIKL_API_KEY?.trim();
   if (!apiKey) {
@@ -91,9 +99,19 @@ export async function sendLeadToVertikl(
     };
   }
 
-  const payload: VertiklLeadPayload = {
+  const precheckId = options?.precheckId?.trim() || "";
+  const buyerIds = (options?.buyerIds ?? [])
+    .map((id) => id.trim())
+    .filter((id) => id.length > 0);
+
+  const payload: VertiklLeadPayload & {
+    precheck_id?: string;
+    buyer_ids?: string[];
+  } = {
     campaignId: resolvedCampaignId,
     fields,
+    ...(precheckId ? { precheck_id: precheckId } : {}),
+    ...(buyerIds.length > 0 ? { buyer_ids: buyerIds } : {}),
   };
 
   const sentFieldNames = Object.keys(fields).sort();
@@ -103,6 +121,8 @@ export async function sendLeadToVertikl(
     campaignId: resolvedCampaignId,
     mode: getApiMode(),
     sentFieldNames,
+    precheckId: precheckId || null,
+    buyerIds,
     hasConsentWhatsapp: Object.prototype.hasOwnProperty.call(
       fields,
       "consent_whatsapp",

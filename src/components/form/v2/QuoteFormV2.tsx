@@ -47,8 +47,12 @@ import {
 } from "./v2Types";
 import { useDevisLandingFocus } from "./useDevisLandingFocus";
 import { fetchEligiblePartners } from "./adapters/eligibilityClient";
-import { verifyOtpLocally } from "./adapters/otpClient";
-import { submitV2LeadScaffold } from "./adapters/leadClient";
+import {
+  OtpClientError,
+  startPhoneOtp,
+  verifyPhoneOtp,
+} from "./adapters/otpClient";
+import { submitV2Lead } from "./adapters/leadClient";
 import { StepContactV2 } from "./StepContactV2";
 import { StepSearchingV2 } from "./StepSearchingV2";
 import { StepEligiblePartnersV2 } from "./StepEligiblePartnersV2";
@@ -71,8 +75,7 @@ function validateIdentityAndConsent(data: QuoteFormData): FieldErrors {
 
 /**
  * Production-bound V2 quote form for `/devis`.
- * Eligibility via `/api/v2/eligibility` only; OTP + lead are local adapters
- * until Twilio / `/api/leads` / Vertikl are wired.
+ * Eligibility → Vertikl precheck; OTP → Twilio; final submit → Vertikl acquire.
  */
 export function QuoteFormV2({
   onFocusChange,
@@ -81,6 +84,7 @@ export function QuoteFormV2({
   onFocusChange?: (focused: boolean) => void;
 } = {}) {
   const formRootRef = useRef<HTMLDivElement>(null);
+  const otpSendLock = useRef(false);
   const [data, setData] = useState<QuoteFormData>(initialFormData);
   const [step, setStep] = useState<V2StepId>("currentMutualTariff");
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -92,7 +96,11 @@ export function QuoteFormV2({
   );
   const [eligibilityToken, setEligibilityToken] = useState<string | null>(null);
   const [otpVerifying, setOtpVerifying] = useState(false);
+  const [otpSending, setOtpSending] = useState(false);
   const [otpError, setOtpError] = useState<string | null>(null);
+  const [otpStatus, setOtpStatus] = useState<string | null>(null);
+  const [phoneProofReady, setPhoneProofReady] = useState(false);
+  const [resendCooldownSec, setResendCooldownSec] = useState(0);
 
   const questionStepIndex = V2_QUESTION_STEPS.indexOf(step);
   const showProgress = questionStepIndex >= 0;
@@ -258,13 +266,25 @@ export function QuoteFormV2({
     [data, goTo, isAdvancing, isCheckingEligibility, patch],
   );
 
+  const startResendCooldown = useCallback(() => {
+    setResendCooldownSec(30);
+  }, []);
+
+  useEffect(() => {
+    if (resendCooldownSec <= 0) return;
+    const id = window.setTimeout(() => {
+      setResendCooldownSec((sec) => Math.max(0, sec - 1));
+    }, 1000);
+    return () => window.clearTimeout(id);
+  }, [resendCooldownSec]);
+
   const submitV2Dossier = useCallback(async () => {
     if (!eligibilityToken) {
       throw new Error(
         "Preuve d’éligibilité manquante. Relancez la vérification des offres.",
       );
     }
-    await submitV2LeadScaffold({
+    await submitV2Lead({
       data,
       partners: eligiblePartners,
       eligibilityToken,
@@ -272,8 +292,33 @@ export function QuoteFormV2({
     goTo("confirmation");
   }, [data, eligibilityToken, eligiblePartners, goTo]);
 
+  const sendPhoneOtp = useCallback(async () => {
+    if (otpSendLock.current || otpSending) return false;
+    otpSendLock.current = true;
+    setOtpSending(true);
+    setOtpError(null);
+    setOtpStatus("Envoi du code…");
+    try {
+      await startPhoneOtp(data.phone);
+      setOtpStatus("Code envoyé par SMS");
+      startResendCooldown();
+      return true;
+    } catch (error) {
+      setOtpStatus(null);
+      setOtpError(
+        error instanceof OtpClientError
+          ? error.message
+          : "Nous n’avons pas pu vérifier votre numéro pour le moment. Merci de réessayer.",
+      );
+      return false;
+    } finally {
+      setOtpSending(false);
+      otpSendLock.current = false;
+    }
+  }, [data.phone, otpSending, startResendCooldown]);
+
   const confirmDossier = useCallback(() => {
-    if (otpVerifying) return;
+    if (otpVerifying || otpSending) return;
     const stepErrors = validateIdentityAndConsent(data);
     if (Object.keys(stepErrors).length > 0) {
       setErrors(stepErrors);
@@ -298,17 +343,30 @@ export function QuoteFormV2({
       })();
       return;
     }
+    setPhoneProofReady(false);
+    setOtpError(null);
     goTo("phoneVerify");
-  }, [data, goTo, otpVerifying, submitV2Dossier]);
+    void sendPhoneOtp();
+  }, [
+    data,
+    goTo,
+    otpSending,
+    otpVerifying,
+    sendPhoneOtp,
+    submitV2Dossier,
+  ]);
 
   const confirmOtp = useCallback(
     async (code: string) => {
-      if (otpVerifying) return;
+      if (otpVerifying || otpSending) return;
       setOtpError(null);
       setOtpVerifying(true);
       try {
-        // Local OTP scaffold — later: /api/verify/start|check (Main), then lead.
-        await verifyOtpLocally(code);
+        if (!phoneProofReady) {
+          await verifyPhoneOtp(data.phone, code);
+          setPhoneProofReady(true);
+          setOtpStatus("Numéro vérifié ✓");
+        }
         await submitV2Dossier();
       } catch (error) {
         setOtpError(
@@ -320,7 +378,13 @@ export function QuoteFormV2({
         setOtpVerifying(false);
       }
     },
-    [otpVerifying, submitV2Dossier],
+    [
+      data.phone,
+      otpSending,
+      otpVerifying,
+      phoneProofReady,
+      submitV2Dossier,
+    ],
   );
 
   const skipStepScrollOnMount = useRef(true);
@@ -432,11 +496,22 @@ export function QuoteFormV2({
         <StepPhoneVerifyV2
           phone={data.phone}
           verifying={otpVerifying}
+          sending={otpSending}
           errorMessage={otpError}
+          statusMessage={otpStatus}
+          resendCooldownSec={resendCooldownSec}
           onConfirm={(code) => {
             void confirmOtp(code);
           }}
-          onEditPhone={() => goTo("contact")}
+          onResend={() => {
+            void sendPhoneOtp();
+          }}
+          onEditPhone={() => {
+            setPhoneProofReady(false);
+            setOtpError(null);
+            setOtpStatus(null);
+            goTo("contact");
+          }}
         />
       ) : null}
 
@@ -462,7 +537,12 @@ export function QuoteFormV2({
             {step !== "confirmation" && canGoBack ? (
               <FormBackButton
                 onBack={goBack}
-                disabled={isAdvancing || isCheckingEligibility || otpVerifying}
+                disabled={
+                  isAdvancing ||
+                  isCheckingEligibility ||
+                  otpVerifying ||
+                  otpSending
+                }
                 label="Étape précédente"
                 className="absolute left-1.5 top-1.5 z-20 sm:left-2.5 sm:top-2"
               />

@@ -6,31 +6,40 @@ import { useFormInputClass } from "@/components/form/seniorForm";
 type Props = {
   phone: string;
   verifying: boolean;
+  sending?: boolean;
   errorMessage: string | null;
+  statusMessage?: string | null;
+  resendCooldownSec?: number;
   onConfirm: (code: string) => void;
+  onResend: () => void;
   onEditPhone: () => void;
 };
 
 /**
- * V2 OTP screen — scaffold only (local adapter).
- * No Twilio / `/api/verify` calls. Presentation aligned with main LP.
+ * V2 OTP screen — Twilio Verify via Main `/api/verify/*`.
  */
 export function StepPhoneVerifyV2({
   phone,
   verifying,
+  sending = false,
   errorMessage,
+  statusMessage = null,
+  resendCooldownSec = 0,
   onConfirm,
+  onResend,
   onEditPhone,
 }: Props) {
   const [code, setCode] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
   const inputClass = useFormInputClass();
+  const busy = verifying || sending;
 
   useEffect(() => {
     inputRef.current?.focus();
   }, []);
 
-  const canSubmit = /^\d{6}$/.test(code) && !verifying;
+  const canSubmit = /^\d{6}$/.test(code) && !busy;
+  const canResend = !busy && resendCooldownSec <= 0;
 
   return (
     <div>
@@ -59,7 +68,7 @@ export function StepPhoneVerifyV2({
         pattern="[0-9]*"
         maxLength={6}
         value={code}
-        disabled={verifying}
+        disabled={busy}
         onChange={(event) => {
           setCode(event.target.value.replace(/\D/g, "").slice(0, 6));
         }}
@@ -70,6 +79,10 @@ export function StepPhoneVerifyV2({
         }}
         className={`${inputClass} text-center text-[1.75rem] font-extrabold tracking-[0.35em] text-[#3b0764]`}
       />
+
+      {statusMessage ? (
+        <p className="mt-2 text-center text-sm text-zinc-600">{statusMessage}</p>
+      ) : null}
 
       {errorMessage ? (
         <p className="mt-2 text-center text-sm text-error" role="alert">
@@ -91,7 +104,19 @@ export function StepPhoneVerifyV2({
       <div className="mt-4 flex flex-col items-center gap-2 text-sm">
         <button
           type="button"
-          disabled={verifying}
+          disabled={!canResend}
+          onClick={onResend}
+          className="text-[#3b0764] underline underline-offset-2 disabled:cursor-not-allowed disabled:text-zinc-400 disabled:no-underline"
+        >
+          {sending
+            ? "Envoi du code…"
+            : resendCooldownSec > 0
+              ? `Renvoyer le code (${resendCooldownSec}s)`
+              : "Renvoyer le code"}
+        </button>
+        <button
+          type="button"
+          disabled={busy}
           onClick={onEditPhone}
           className="text-zinc-600 underline underline-offset-2 disabled:opacity-50"
         >

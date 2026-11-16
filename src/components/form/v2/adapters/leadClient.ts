@@ -1,21 +1,25 @@
-import { getStoredAcquisition } from "@/lib/acquisition";
+import { getStoredAcquisition, getCurrentConsentLandingPageUrl } from "@/lib/acquisition";
+import { pushLeadCompletedToDataLayer } from "@/lib/gtm-consent";
+import {
+  prepareMetaLeadTracking,
+  trackMetaLeadPixel,
+} from "@/lib/meta/pixel";
 import type { QuoteFormData } from "@/components/form/types";
-import type { V2LeadRequestBody, V2LeadScaffoldResponse } from "@/lib/v2/lead-types";
+import type {
+  V2LeadErrorResponse,
+  V2LeadRequestBody,
+  V2LeadSuccessResponse,
+} from "@/lib/v2/lead-types";
 import type { EligiblePartner } from "../v2Types";
 
 /**
- * V2 lead adapter → `POST /api/v2/leads` (scaffold).
- *
- * Reuses Main acquisition first-touch via `getStoredAcquisition()`.
- * Does NOT call `/api/leads`, Vertikl, or Meta Lead/CAPI.
- *
- * Later wiring (same pattern as QuoteForm, on `/api/v2/leads`):
- * prepareMetaLeadTracking → POST with event_id → success → Pixel + lead_completed.
+ * V2 lead adapter → `POST /api/v2/leads`
+ * After OTP proof cookie is set (or landline skip), acquires the Vertikl lead.
  */
 
 export type V2LeadClientResult = {
   ok: true;
-  mode: "scaffold";
+  mode: "vertikl";
 };
 
 export class V2LeadClientError extends Error {
@@ -25,23 +29,29 @@ export class V2LeadClientError extends Error {
   }
 }
 
-export async function submitV2LeadScaffold(input: {
+const SUBMIT_ERROR =
+  "Impossible d’enregistrer le dossier pour le moment. Merci de réessayer.";
+
+export async function submitV2Lead(input: {
   data: QuoteFormData;
   partners: EligiblePartner[];
   eligibilityToken: string;
 }): Promise<V2LeadClientResult> {
   const stored = getStoredAcquisition();
+  const metaTracking = prepareMetaLeadTracking();
 
   const body: V2LeadRequestBody = {
     form: input.data,
     meta: {
       landingPageUrl: stored.landingPageUrl,
+      consentLandingPageUrl: getCurrentConsentLandingPageUrl(),
       referrer: stored.referrer,
       acquisition: stored.acquisition,
     },
     eligibilityToken: input.eligibilityToken,
     displayedPartnerIds: input.partners.map((partner) => partner.id),
     partnerConsentGiven: Boolean(input.data.consent),
+    metaTracking,
   };
 
   const response = await fetch("/api/v2/leads", {
@@ -50,22 +60,28 @@ export async function submitV2LeadScaffold(input: {
     body: JSON.stringify(body),
   });
 
-  let payload: V2LeadScaffoldResponse | { success?: false; error?: string } | null =
-    null;
+  let payload: V2LeadSuccessResponse | V2LeadErrorResponse | null = null;
   try {
-    payload = (await response.json()) as V2LeadScaffoldResponse;
+    payload = (await response.json()) as
+      | V2LeadSuccessResponse
+      | V2LeadErrorResponse;
   } catch {
     payload = null;
   }
 
-  if (!response.ok || payload?.success !== true) {
+  if (!response.ok || !payload || payload.success !== true) {
     const message =
       payload && "error" in payload && typeof payload.error === "string"
         ? payload.error
-        : "Impossible d’enregistrer le dossier pour le moment.";
+        : SUBMIT_ERROR;
     throw new V2LeadClientError(message);
   }
 
-  // Intentionally no prepareMetaLeadTracking / Pixel Lead / lead_completed here.
-  return { ok: true, mode: "scaffold" };
+  pushLeadCompletedToDataLayer();
+  trackMetaLeadPixel(metaTracking);
+
+  return { ok: true, mode: "vertikl" };
 }
+
+/** @deprecated Use submitV2Lead */
+export const submitV2LeadScaffold = submitV2Lead;

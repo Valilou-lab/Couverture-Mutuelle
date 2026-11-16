@@ -1,21 +1,23 @@
 import type { QuoteFormData } from "@/components/form/types";
+import type { MetaLeadTracking } from "@/lib/meta/events";
 import type { AcquisitionParams } from "@/lib/vertikl/types";
 import type { V2ConsentRecord } from "./consent";
 
 /**
- * Client → `POST /api/v2/leads` body (scaffold contract).
- * Mirrors Main's acquisition/meta shape so the future route can reuse
- * `buildVertiklFields` / Meta / campaign libs without changing `/api/leads`.
+ * Client → `POST /api/v2/leads` body.
+ * Mirrors Main acquisition/meta shape so the route can reuse
+ * `buildVertiklFields` / Meta / Twilio proof without changing `/api/leads`.
  */
 export type V2LeadRequestBody = {
   form: Partial<QuoteFormData>;
   /** First-touch acquisition from `getStoredAcquisition()` — never re-derived. */
   meta: {
     landingPageUrl: string;
+    consentLandingPageUrl?: string;
     referrer: string;
     acquisition: AcquisitionParams;
   };
-  /** Opaque proof from `/api/v2/eligibility` (signed later). */
+  /** Opaque proof from `/api/v2/eligibility`. */
   eligibilityToken: string;
   /**
    * Partner ids the UI showed. Server ignores inventable names and re-resolves
@@ -24,12 +26,13 @@ export type V2LeadRequestBody = {
   displayedPartnerIds: string[];
   /** Checkbox must be true; text is rebuilt server-side. */
   partnerConsentGiven: boolean;
+  /** Shared Pixel/CAPI event_id (optional). */
+  metaTracking?: MetaLeadTracking;
 };
 
-export type V2LeadScaffoldResponse = {
+export type V2LeadSuccessResponse = {
   success: true;
-  mode: "scaffold";
-  /** Server-authoritative consent snapshot (no Vertikl / CAPI yet). */
+  mode: "vertikl";
   consent: V2ConsentRecord;
 };
 
@@ -42,5 +45,12 @@ export type V2LeadErrorResponse = {
     | "ELIGIBILITY_TOKEN_INVALID"
     | "ELIGIBILITY_TOKEN_EXPIRED"
     | "PARTNERS_MISMATCH"
-    | "SCAFFOLD_ONLY";
+    | "PHONE_NOT_VERIFIED"
+    | "VALIDATION_FAILED"
+    | "MAPPING_FAILED"
+    | "SERVER_MISCONFIGURED"
+    | "LEAD_SUBMISSION_FAILED";
 };
+
+/** @deprecated Use V2LeadSuccessResponse — kept for older clients during deploy. */
+export type V2LeadScaffoldResponse = V2LeadSuccessResponse;

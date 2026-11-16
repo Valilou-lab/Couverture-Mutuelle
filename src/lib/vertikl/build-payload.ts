@@ -34,6 +34,14 @@ export type BuildVertiklFieldsInput = {
   consentAt: Date;
   /** Allowlisted consent variant shown to the visitor (default: legacy text). */
   consentVariant?: ConsentVariantId;
+  /**
+   * Optional override for dynamic partner consent (e.g. /devis V2).
+   * When set, replaces the variant opt-in text/version sent to Vertikl.
+   */
+  consentOptinOverride?: {
+    optinText: string;
+    optinTextVersion: string;
+  };
   ipAddress?: string;
   userAgent?: string;
 };
@@ -117,9 +125,14 @@ export function buildVertiklFields(
     consent_expiration_date: consentExpiration,
     consent_channels: [...consentVariant.channels],
     consent_landing_page_version: LANDING_PAGE_VERSION,
-    consent_optin_text: ikiOptin?.optinText ?? consentVariant.optinText,
+    consent_optin_text:
+      input.consentOptinOverride?.optinText ??
+      ikiOptin?.optinText ??
+      consentVariant.optinText,
     consent_optin_text_version:
-      ikiOptin?.optinTextVersion ?? consentVariant.optinTextVersion,
+      input.consentOptinOverride?.optinTextVersion ??
+      ikiOptin?.optinTextVersion ??
+      consentVariant.optinTextVersion,
     consent_legal_notice_version: LEGAL_NOTICE_VERSION,
     consent_source: CONSENT_SOURCE,
     consent_status: CONSENT_STATUS_ACTIVE,
