@@ -1,8 +1,10 @@
 import "server-only";
 
 import { randomUUID } from "crypto";
-
-const VERTIKL_BASE_URL = "https://ebre.vertikl.app";
+import {
+  buildVertiklRuntimeDiag,
+  resolveVertiklPrecheckEndpoint,
+} from "@/lib/vertikl/fields-snapshot";
 
 /** Couverture Mutuelle V2 campaign — acquire after consent. */
 export const V2_VERTIKL_CAMPAIGN_ID =
@@ -91,15 +93,21 @@ export async function runVertiklPrecheck(input: {
   }
 
   const idempotencyKey = input.idempotencyKey?.trim() || randomUUID();
-  const endpoint = `${VERTIKL_BASE_URL}/api/leads/precheck`;
+  const endpoint = resolveVertiklPrecheckEndpoint();
+  const runtime = buildVertiklRuntimeDiag({
+    campaignId: V2_VERTIKL_CAMPAIGN_ID,
+    kind: "precheck",
+  });
   const payload = {
     campaignId: V2_VERTIKL_CAMPAIGN_ID,
     fields: input.fields,
   };
 
   console.info("[vertikl/precheck] request", {
-    endpoint,
-    campaignId: V2_VERTIKL_CAMPAIGN_ID,
+    endpoint: runtime.endpoint,
+    campaignId: runtime.campaignId,
+    vertiklApiMode: runtime.vertiklApiMode,
+    apiKey: runtime.apiKey,
     idempotencyKey,
     fieldKeys: Object.keys(input.fields).sort(),
   });

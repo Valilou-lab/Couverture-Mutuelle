@@ -1,5 +1,9 @@
 import type { V2PartnerId } from "./partners-registry";
 import { isV2PartnerId } from "./partners-registry";
+import {
+  isSafeFieldsSnapshot,
+  type SafeFieldsSnapshot,
+} from "@/lib/vertikl/fields-snapshot";
 
 /**
  * Eligibility proof linking Vertikl precheck → buyers → expiry.
@@ -18,6 +22,11 @@ export type V2EligibilityTokenPayload = {
   /** Mapped registry ids only (subset). */
   partnerIds: V2PartnerId[];
   criteriaFingerprint: string;
+  /**
+   * TEMP diagnostic — SAFE Vertikl precheck fields snapshot.
+   * Carried in the token so acquire can compare across Vercel isolates.
+   */
+  fieldsSnap?: SafeFieldsSnapshot;
 };
 
 function toBase64Url(value: string): string {
@@ -56,6 +65,8 @@ export function createV2EligibilityToken(input: {
   buyerIds: readonly string[];
   partnerIds: readonly string[];
   criteria: Record<string, unknown>;
+  /** TEMP SAFE precheck fields snapshot for serverless compare. */
+  fieldsSnap?: SafeFieldsSnapshot;
   now?: Date;
 }): string {
   const now = input.now ?? new Date();
@@ -71,6 +82,7 @@ export function createV2EligibilityToken(input: {
     buyerIds,
     partnerIds,
     criteriaFingerprint: fingerprintEligibilityCriteria(input.criteria),
+    ...(input.fieldsSnap ? { fieldsSnap: input.fieldsSnap } : {}),
   };
   return `v2e2.${toBase64Url(JSON.stringify(payload))}`;
 }
@@ -123,6 +135,9 @@ export function verifyV2EligibilityToken(
         buyerIds,
         partnerIds: parsed.partnerIds.filter(isV2PartnerId),
         criteriaFingerprint: parsed.criteriaFingerprint,
+        ...(isSafeFieldsSnapshot(parsed.fieldsSnap)
+          ? { fieldsSnap: parsed.fieldsSnap }
+          : {}),
       },
     };
   } catch {

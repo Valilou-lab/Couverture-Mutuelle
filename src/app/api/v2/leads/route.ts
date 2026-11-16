@@ -39,6 +39,12 @@ import type {
 import { resolveV2PartnersFromIds } from "@/lib/v2/partners-registry";
 import { buildVertiklFields } from "@/lib/vertikl/build-payload";
 import { sendLeadToVertikl } from "@/lib/vertikl/client";
+import {
+  buildSafeFieldsSnapshot,
+  buildVertiklRuntimeDiag,
+  compareFieldsSnapshots,
+  getPrecheckFieldsSnapshot,
+} from "@/lib/vertikl/fields-snapshot";
 import { VertiklMappingError } from "@/lib/vertikl/mappers";
 import {
   formatVertiklDateTime,
@@ -387,10 +393,68 @@ export async function POST(request: NextRequest) {
 
   scheduleMetaLead(request, form, meta, body.metaTracking);
 
+  const precheckId = tokenResult.payload.precheckId;
+  const submitAt = new Date().toISOString();
+  const reservationExpired =
+    Date.parse(tokenResult.payload.expiresAt) <= Date.now();
+  const acquireFieldsSnap = buildSafeFieldsSnapshot(
+    fields as Record<string, unknown>,
+    precheckId,
+  );
+  // Prefer token-embedded snapshot (Vercel) over same-process Map (local).
+  const precheckFieldsSnap =
+    tokenResult.payload.fieldsSnap ?? getPrecheckFieldsSnapshot(precheckId);
+  const fieldsCompare = precheckFieldsSnap
+    ? compareFieldsSnapshots(precheckFieldsSnap, acquireFieldsSnap)
+    : null;
+  const runtime = buildVertiklRuntimeDiag({
+    campaignId: V2_VERTIKL_CAMPAIGN_ID,
+    kind: "acquire",
+  });
+
+  console.info("[api/v2/leads] acquire fields SAFE snapshot", {
+    precheckId,
+    expiresAt: tokenResult.payload.expiresAt,
+    submitAt,
+    reservationExpired,
+    endpoint: runtime.endpoint,
+    vertiklApiMode: runtime.vertiklApiMode,
+    campaignId: runtime.campaignId,
+    apiKey: runtime.apiKey,
+    snapshotSource: tokenResult.payload.fieldsSnap
+      ? "eligibility_token"
+      : precheckFieldsSnap
+        ? "process_memory"
+        : "missing",
+    keys: acquireFieldsSnap.keys,
+    entries: acquireFieldsSnap.entries,
+    emailFp: acquireFieldsSnap.emailFp,
+    phoneFp: acquireFieldsSnap.phoneFp,
+  });
+
+  console.info("[api/v2/leads] fields compare precheck vs acquire", {
+    precheckId,
+    submitAt,
+    expiresAt: tokenResult.payload.expiresAt,
+    reservationExpired,
+    endpoint: runtime.endpoint,
+    vertiklApiMode: runtime.vertiklApiMode,
+    campaignId: runtime.campaignId,
+    apiKey: runtime.apiKey,
+    snapshotFound: Boolean(precheckFieldsSnap),
+    PRECHECK_ONLY: fieldsCompare?.PRECHECK_ONLY ?? null,
+    ACQUIRE_ONLY: fieldsCompare?.ACQUIRE_ONLY ?? null,
+    DIFFERENT_VALUES: fieldsCompare?.DIFFERENT_VALUES ?? null,
+    MATCHING: fieldsCompare?.MATCHING ?? null,
+    precheckKeys: fieldsCompare?.precheckKeys ?? null,
+    acquireKeys: fieldsCompare?.acquireKeys ?? null,
+  });
+
   console.info("[api/v2/leads] acquire payload shape", {
     campaignId: V2_VERTIKL_CAMPAIGN_ID,
-    precheckId: tokenResult.payload.precheckId,
+    precheckId,
     expiresAt: tokenResult.payload.expiresAt,
+    submitAt,
     consentBuyerIds: tokenResult.payload.buyerIds,
     consentCollectedAt,
     hasConsentProofRef: false,
@@ -398,7 +462,7 @@ export async function POST(request: NextRequest) {
   });
 
   const result = await sendLeadToVertikl(fields, V2_VERTIKL_CAMPAIGN_ID, {
-    precheckId: tokenResult.payload.precheckId,
+    precheckId,
     buyerIds: tokenResult.payload.buyerIds,
     consentCollectedAt,
     // proof_ref omitted until we have a Vertikl-approved internal reference.
@@ -409,8 +473,13 @@ export async function POST(request: NextRequest) {
     httpStatus: result.httpStatus,
     failureMessage: result.failureMessage,
     campaignId: V2_VERTIKL_CAMPAIGN_ID,
-    precheckId: tokenResult.payload.precheckId,
+    precheckId,
+    submitAt,
+    endpoint: runtime.endpoint,
+    vertiklApiMode: runtime.vertiklApiMode,
+    apiKey: runtime.apiKey,
     consentBuyerIds: tokenResult.payload.buyerIds,
+    fieldsCompare,
   });
 
   if (!result.ok) {
@@ -423,9 +492,18 @@ export async function POST(request: NextRequest) {
         code: "LEAD_SUBMISSION_FAILED",
         detail,
         httpStatus: result.httpStatus,
+        // TEMP diagnostic — SAFE fields diff for this precheck_id
+        fieldsCompare,
+        reservationExpired,
+        precheckKeys: fieldsCompare?.precheckKeys ?? null,
+        acquireKeys: fieldsCompare?.acquireKeys ?? null,
       } satisfies V2LeadErrorResponse & {
         detail?: string;
         httpStatus?: number | null;
+        fieldsCompare?: typeof fieldsCompare;
+        reservationExpired?: boolean;
+        precheckKeys?: string[] | null;
+        acquireKeys?: string[] | null;
       },
       { status: 502 },
     );

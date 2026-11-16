@@ -1,5 +1,10 @@
 import "server-only";
 
+import {
+  fingerprintVertiklApiKey,
+  getVertiklApiMode,
+  resolveVertiklAcquireEndpoint,
+} from "@/lib/vertikl/fields-snapshot";
 import type {
   SendLeadResult,
   VertiklLeadFields,
@@ -7,27 +12,18 @@ import type {
   VertiklTestResponse,
 } from "./types";
 
-const VERTIKL_BASE_URL = "https://ebre.vertikl.app";
-
-function getApiMode(): string {
-  return (process.env.VERTIKL_API_MODE ?? "test").trim().toLowerCase();
-}
-
 /**
  * Resolve Vertikl endpoint from VERTIKL_API_MODE.
  * Default remains "test" when the env var is absent.
  */
 function resolveEndpoint(): string {
-  const mode = getApiMode();
-  if (mode === "test") {
-    return `${VERTIKL_BASE_URL}/api/leads/test`;
+  const mode = getVertiklApiMode();
+  if (mode !== "test" && mode !== "production") {
+    throw new Error(
+      `Invalid VERTIKL_API_MODE="${mode}". Use "test" or "production".`,
+    );
   }
-  if (mode === "production") {
-    return `${VERTIKL_BASE_URL}/api/leads`;
-  }
-  throw new Error(
-    `Invalid VERTIKL_API_MODE="${mode}". Use "test" or "production".`,
-  );
+  return resolveVertiklAcquireEndpoint(mode);
 }
 
 function summarizeReturnedFields(
@@ -142,7 +138,8 @@ export async function sendLeadToVertikl(
   console.info("[vertikl] submitting lead", {
     endpoint,
     campaignId: resolvedCampaignId,
-    mode: getApiMode(),
+    vertiklApiMode: getVertiklApiMode(),
+    apiKey: fingerprintVertiklApiKey(apiKey),
     sentFieldNames,
     precheckId: precheckId || null,
     consentBuyerIds: consent?.buyer_ids ?? [],
@@ -206,6 +203,9 @@ export async function sendLeadToVertikl(
     console.info("[vertikl] response", {
       endpoint,
       campaignId: resolvedCampaignId,
+      vertiklApiMode: getVertiklApiMode(),
+      apiKey: fingerprintVertiklApiKey(apiKey),
+      precheckId: precheckId || null,
       httpStatus: response.status,
       success: ok,
       failureMessage: failureMessage ?? null,

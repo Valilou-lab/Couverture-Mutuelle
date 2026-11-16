@@ -11,7 +11,14 @@ import {
   frenchDateToIso,
   toInternationalFrenchPhone,
 } from "@/lib/vertikl/normalize";
-import { runVertiklPrecheck } from "@/lib/vertikl/precheck";
+import {
+  buildVertiklRuntimeDiag,
+  storePrecheckFieldsSnapshot,
+} from "@/lib/vertikl/fields-snapshot";
+import {
+  runVertiklPrecheck,
+  V2_VERTIKL_CAMPAIGN_ID,
+} from "@/lib/vertikl/precheck";
 import { isValidFrenchPostalCode } from "@/lib/location-service";
 import type {
   CoveredPersonId,
@@ -177,6 +184,29 @@ export async function POST(request: Request) {
     .map((buyer) => buyer.partnerId)
     .filter((id): id is NonNullable<typeof id> => Boolean(id));
 
+  // TEMP diagnostic — SAFE fields snapshot tied to this precheck_id.
+  // Also embedded in the eligibility token for Vercel serverless compare.
+  const precheckFieldsSnap = storePrecheckFieldsSnapshot(
+    precheck.precheckId,
+    fields as Record<string, unknown>,
+  );
+  const runtime = buildVertiklRuntimeDiag({
+    campaignId: V2_VERTIKL_CAMPAIGN_ID,
+    kind: "precheck",
+  });
+  console.info("[api/v2/eligibility] precheck fields SAFE snapshot", {
+    precheckId: precheck.precheckId,
+    expiresAt: precheck.expiresAt,
+    endpoint: runtime.endpoint,
+    vertiklApiMode: runtime.vertiklApiMode,
+    campaignId: runtime.campaignId,
+    apiKey: runtime.apiKey,
+    keys: precheckFieldsSnap.keys,
+    entries: precheckFieldsSnap.entries,
+    emailFp: precheckFieldsSnap.emailFp,
+    phoneFp: precheckFieldsSnap.phoneFp,
+  });
+
   console.info("[api/v2/eligibility] reserved", {
     precheckId: precheck.precheckId,
     expiresAt: precheck.expiresAt,
@@ -191,6 +221,7 @@ export async function POST(request: Request) {
     buyerIds: mappedBuyers.map((buyer) => buyer.vertiklBuyerId),
     partnerIds: mappedPartnerIds,
     criteria,
+    fieldsSnap: precheckFieldsSnap,
   });
 
   return NextResponse.json({
