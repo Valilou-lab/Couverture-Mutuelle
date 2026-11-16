@@ -70,15 +70,12 @@ function withCalculatorDefaults(
   calculator: {
     birthDate: string;
     postalCode: string;
-    city: string;
   },
 ): QuoteFormData {
   return {
     ...base,
     birthDate: calculator.birthDate,
     postalCode: calculator.postalCode,
-    city: calculator.city,
-    citiesOptions: calculator.city ? [calculator.city] : [],
   };
 }
 
@@ -111,7 +108,7 @@ export function SavingsQuoteForm() {
 
   useEffect(() => {
     setData((current) => withCalculatorDefaults(current, calculator));
-  }, [calculator.birthDate, calculator.city, calculator.postalCode]);
+  }, [calculator.birthDate, calculator.postalCode]);
 
   const clearTimers = useCallback(() => {
     timers.current.forEach((id) => window.clearTimeout(id));

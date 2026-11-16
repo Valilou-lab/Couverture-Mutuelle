@@ -231,6 +231,7 @@ export function QuoteFormV2({
           healthInsuranceGoal: data.healthInsuranceGoal,
           coveredPersons: data.coveredPersons,
           professionalStatus: data.professionalStatus,
+          alreadyInsured: data.alreadyInsured,
           birthDate: data.birthDate,
           postalCode: data.postalCode,
           city: data.city,
@@ -336,11 +337,6 @@ export function QuoteFormV2({
     (postalCode: string) => patch({ postalCode }),
     [patch],
   );
-  const setCitiesOptions = useCallback(
-    (citiesOptions: string[]) => patch({ citiesOptions }),
-    [patch],
-  );
-  const setCity = useCallback((city: string) => patch({ city }), [patch]);
 
   const stepContent = (
     <div key={step} className="form-step-enter">
@@ -397,8 +393,6 @@ export function QuoteFormV2({
           hidePostalCode={false}
           onChangeBirthDate={(birthDate) => patch({ birthDate })}
           onPostalCode={setPostalCode}
-          onCitiesLoaded={setCitiesOptions}
-          onCity={setCity}
           onNext={goNextFromBirthAndPostal}
         />
       ) : null}

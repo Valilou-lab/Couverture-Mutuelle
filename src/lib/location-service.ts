@@ -1,15 +1,7 @@
 /**
- * Location helpers for postal-code → city lookup.
- * Pure TypeScript — no React / JSX.
- * Browser callers hit same-origin /api/communes (server proxies geo + fallback).
+ * Postal-code helpers — format / French validity only.
+ * No remote city lookup (removed for latency & reliability).
  */
-
-export type CityLookupResult =
-  | { status: "idle" }
-  | { status: "loading" }
-  | { status: "empty"; message: string }
-  | { status: "error"; message: string }
-  | { status: "success"; cities: string[] };
 
 /** Keep digits only, max 5 characters. */
 export function normalizePostalCode(raw: string): string {
@@ -21,57 +13,24 @@ export function isCompletePostalCode(postalCode: string): boolean {
 }
 
 /**
- * Fetches commune names for a French postal code.
- * Call only when `isCompletePostalCode(postalCode)` is true.
+ * Offline check that a 5-digit code matches French postal ranges
+ * (métropole 01–95, Corse 20xxx, DOM-TOM 971–978 / 984–989).
+ * Does not call any external API.
  */
-export async function fetchCitiesByPostalCode(
-  postalCode: string,
-  signal?: AbortSignal,
-): Promise<string[]> {
-  if (!isCompletePostalCode(postalCode)) {
-    return [];
+export function isValidFrenchPostalCode(postalCode: string): boolean {
+  if (!isCompletePostalCode(postalCode)) return false;
+
+  // Corse (2A / 2B) — 20000 + 201xx / 202xx
+  if (postalCode.startsWith("20")) {
+    return postalCode === "20000" || /^20[12]\d{2}$/.test(postalCode);
   }
 
-  const url = `/api/communes?codePostal=${encodeURIComponent(postalCode)}`;
-  const response = await fetch(url, { signal });
-
-  if (!response.ok) {
-    throw new Error("location-lookup-failed");
+  // DOM-TOM
+  if (postalCode.startsWith("97") || postalCode.startsWith("98")) {
+    return /^(?:97[1-8]|98[4-9])\d{2}$/.test(postalCode);
   }
 
-  const payload = (await response.json()) as { cities?: unknown };
-  if (!Array.isArray(payload.cities)) {
-    throw new Error("location-lookup-failed");
-  }
-
-  return payload.cities.filter(
-    (city): city is string => typeof city === "string" && city.length > 0,
-  );
-}
-
-export function resolveCitySelection(cities: string[]): {
-  city: string;
-  result: CityLookupResult;
-} {
-  if (cities.length === 0) {
-    return {
-      city: "",
-      result: {
-        status: "empty",
-        message: "Aucune ville trouvée pour ce code postal.",
-      },
-    };
-  }
-
-  if (cities.length === 1) {
-    return {
-      city: cities[0],
-      result: { status: "success", cities },
-    };
-  }
-
-  return {
-    city: "",
-    result: { status: "success", cities },
-  };
+  const dept = Number.parseInt(postalCode.slice(0, 2), 10);
+  // Départements métropolitains 01–19 et 21–95 (20 = Corse, 96 inexistant)
+  return dept >= 1 && dept <= 95 && dept !== 20;
 }

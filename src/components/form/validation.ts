@@ -14,6 +14,10 @@ import {
   getDeclaredAgeError,
   isSyntheticAgeBirthDate,
 } from "@/lib/age-to-birth-date";
+import {
+  isCompletePostalCode,
+  isValidFrenchPostalCode,
+} from "@/lib/location-service";
 
 export type FieldErrors = Partial<Record<keyof QuoteFormData, string>>;
 
@@ -254,12 +258,10 @@ function validateOwnBirthDate(data: QuoteFormData): FieldErrors {
 
 function validatePostalCodeFields(data: QuoteFormData): FieldErrors {
   const errors: FieldErrors = {};
-  if (!/^\d{5}$/.test(data.postalCode)) {
+  if (!isCompletePostalCode(data.postalCode)) {
     errors.postalCode = "Saisissez un code postal à 5 chiffres.";
-  } else if (data.citiesOptions.length > 0 && !data.city) {
-    errors.city = "Sélectionnez votre ville.";
-  } else if (!data.city) {
-    errors.city = "Nous n’avons pas trouvé de ville pour ce code postal.";
+  } else if (!isValidFrenchPostalCode(data.postalCode)) {
+    errors.postalCode = "Saisissez un code postal français valide.";
   }
   return errors;
 }

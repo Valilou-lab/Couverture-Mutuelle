@@ -148,7 +148,6 @@ function applyCalculatorDefaults(
   calculator: {
     birthDate: string;
     postalCode: string;
-    city: string;
   },
   options: { skipBirthDate: boolean; skipPostalCode: boolean },
 ): QuoteFormData {
@@ -160,12 +159,6 @@ function applyCalculatorDefaults(
     postalCode: options.skipPostalCode
       ? calculator.postalCode
       : current.postalCode,
-    city: options.skipPostalCode ? calculator.city : current.city,
-    citiesOptions: options.skipPostalCode
-      ? calculator.city
-        ? [calculator.city]
-        : current.citiesOptions
-      : current.citiesOptions,
   };
 }
 
@@ -344,7 +337,6 @@ export function QuoteForm({
     );
   }, [
     calculator.birthDate,
-    calculator.city,
     calculator.postalCode,
     skipBirthDate,
     skipPostalCode,
@@ -409,11 +401,6 @@ export function QuoteForm({
     (postalCode: string) => patch({ postalCode }),
     [patch],
   );
-  const setCitiesOptions = useCallback(
-    (citiesOptions: string[]) => patch({ citiesOptions }),
-    [patch],
-  );
-  const setCity = useCallback((city: string) => patch({ city }), [patch]);
 
   const goTo = useCallback((next: FormStepId) => {
     setErrors({});
@@ -870,8 +857,6 @@ export function QuoteForm({
           hidePostalCode={skipPostalCode}
           onChangeBirthDate={(birthDate) => patch({ birthDate })}
           onPostalCode={setPostalCode}
-          onCitiesLoaded={setCitiesOptions}
-          onCity={setCity}
           onNext={goNext}
         />
       ) : null}
@@ -900,8 +885,6 @@ export function QuoteForm({
           errors={errors}
           disabled={isAdvancing}
           onPostalCode={setPostalCode}
-          onCitiesLoaded={setCitiesOptions}
-          onCity={setCity}
           onNext={goNext}
         />
       ) : null}

@@ -2,7 +2,6 @@
 
 import type { QuoteFormData } from "@/components/form/types";
 import { FormNavigation } from "@/components/form/FormNavigation";
-import { useCommuneLookup } from "@/components/form/useCommuneLookup";
 import {
   validateStep,
   type FieldErrors,
@@ -15,12 +14,12 @@ import {
   useQuestionTitleClass,
   useSeniorForm,
 } from "@/components/form/seniorForm";
+import { normalizePostalCode } from "@/lib/location-service";
 import {
   formatV2BirthDateInput,
   getV2BirthDateInputError,
   isV2BirthDateCompleteAndValid,
 } from "./birthDateInput";
-import { SingleCityConfirmedV2 } from "./SingleCityConfirmedV2";
 
 type Props = {
   data: QuoteFormData;
@@ -30,8 +29,6 @@ type Props = {
   hidePostalCode?: boolean;
   onChangeBirthDate: (value: string) => void;
   onPostalCode: (value: string) => void;
-  onCitiesLoaded: (cities: string[]) => void;
-  onCity: (value: string) => void;
   onNext: () => void;
 };
 
@@ -47,8 +44,6 @@ export function StepBirthAndPostalV2({
   hidePostalCode = false,
   onChangeBirthDate,
   onPostalCode,
-  onCitiesLoaded,
-  onCity,
   onNext,
 }: Props) {
   const senior = useSeniorForm();
@@ -62,28 +57,19 @@ export function StepBirthAndPostalV2({
     : "block text-sm font-medium text-foreground";
   const inputClass = senior ? formInputClass || SENIOR_INPUT : undefined;
   const errorClass = senior ? SENIOR_ERROR : "mt-2 text-sm text-error";
-  const lookup = useCommuneLookup(
-    hidePostalCode ? "" : data.postalCode,
-    onCitiesLoaded,
-    onCity,
-  );
 
   const birthInputError = hideOwnBirthDate
     ? null
     : getV2BirthDateInputError(data.birthDate);
 
-  const stepErrors = validateStep("birthAndPostal", data);
+  const stepErrors: FieldErrors = { ...validateStep("birthAndPostal", data) };
+  if (hideOwnBirthDate) delete stepErrors.birthDate;
+  if (hidePostalCode) delete stepErrors.postalCode;
+
   const stepIncomplete =
     Object.keys(stepErrors).length > 0 ||
     Boolean(birthInputError) ||
     (!hideOwnBirthDate && !isV2BirthDateCompleteAndValid(data.birthDate));
-
-  function handlePostalCodeChange(value: string) {
-    const next = value.replace(/\D/g, "").slice(0, 5);
-    onPostalCode(next);
-    onCitiesLoaded([]);
-    onCity("");
-  }
 
   return (
     <div>
@@ -142,7 +128,9 @@ export function StepBirthAndPostalV2({
               placeholder={senior ? "Ex. 13006" : "75001"}
               value={data.postalCode}
               disabled={disabled}
-              onChange={(event) => handlePostalCodeChange(event.target.value)}
+              onChange={(event) =>
+                onPostalCode(normalizePostalCode(event.target.value))
+              }
               className={
                 senior
                   ? inputClass
@@ -152,64 +140,6 @@ export function StepBirthAndPostalV2({
             {errors.postalCode ? (
               <p className={errorClass} role="alert">
                 {errors.postalCode}
-              </p>
-            ) : null}
-
-            {lookup.status === "loading" ? (
-              <p
-                className={`mt-3 text-zinc-500 ${senior ? "text-base" : "text-sm"}`}
-              >
-                Recherche de la ville…
-              </p>
-            ) : null}
-
-            {lookup.status === "error" ? (
-              <p
-                className={
-                  senior ? `${SENIOR_ERROR} mt-3` : "mt-3 text-sm text-error"
-                }
-                role="alert"
-              >
-                {lookup.message}
-              </p>
-            ) : null}
-
-            {data.citiesOptions.length > 1 ? (
-              <div className="mt-3">
-                <label
-                  htmlFor="v2-city"
-                  className={senior ? SENIOR_LABEL : "block text-sm font-medium"}
-                >
-                  Ville
-                </label>
-                <select
-                  id="v2-city"
-                  value={data.city}
-                  disabled={disabled}
-                  onChange={(event) => onCity(event.target.value)}
-                  className={
-                    senior
-                      ? inputClass
-                      : "mt-2 w-full rounded-2xl border-2 border-[#c4b5fd] bg-white px-4 py-3.5 text-base outline-none ring-brand/30 focus:border-brand focus:ring-2"
-                  }
-                >
-                  <option value="">Sélectionnez votre ville</option>
-                  {data.citiesOptions.map((city) => (
-                    <option key={city} value={city}>
-                      {city}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            ) : null}
-
-            {data.citiesOptions.length === 1 && data.city ? (
-              <SingleCityConfirmedV2 city={data.city} />
-            ) : null}
-
-            {errors.city ? (
-              <p className={errorClass} role="alert">
-                {errors.city}
               </p>
             ) : null}
           </div>

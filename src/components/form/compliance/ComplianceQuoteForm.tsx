@@ -274,11 +274,6 @@ export function ComplianceQuoteForm() {
     (postalCode: string) => patch({ postalCode }),
     [patch],
   );
-  const setCitiesOptions = useCallback(
-    (citiesOptions: string[]) => patch({ citiesOptions }),
-    [patch],
-  );
-  const setCity = useCallback((city: string) => patch({ city }), [patch]);
 
   const stepContent = (
     <div key={step} className="form-step-enter">
@@ -335,8 +330,6 @@ export function ComplianceQuoteForm() {
           hidePostalCode={false}
           onChangeBirthDate={(birthDate) => patch({ birthDate })}
           onPostalCode={setPostalCode}
-          onCitiesLoaded={setCitiesOptions}
-          onCity={setCity}
           onNext={goNextFromBirthAndPostal}
         />
       ) : null}

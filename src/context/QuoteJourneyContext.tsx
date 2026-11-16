@@ -19,6 +19,7 @@ import {
   type CalculatorLeadFields,
 } from "@/lib/quote-lead";
 import type { CompleteSavingsLead } from "@/lib/savings-lead";
+import { isValidFrenchPostalCode } from "@/lib/location-service";
 
 export const MUTUAL_TENURES = [
   { id: "moins-2-ans", label: "Moins de 2 ans" },
@@ -194,11 +195,13 @@ export function QuoteJourneyProvider({ children }: { children: ReactNode }) {
     isValidBirthDate(calculator.birthDate) &&
     isEligibleBirthDate(calculator.birthDate);
 
-  const hasLocationFromCalculator =
-    /^\d{5}$/.test(calculator.postalCode) && Boolean(calculator.city.trim());
+  const hasLocationFromCalculator = isValidFrenchPostalCode(
+    calculator.postalCode,
+  );
 
   const isCalculatorComplete =
     hasBirthDateFromCalculator &&
+    hasLocationFromCalculator &&
     isValidMonthlyBudget(calculator.monthlyBudget) &&
     Boolean(calculator.mutualTenure) &&
     Boolean(calculator.protectionLevel);

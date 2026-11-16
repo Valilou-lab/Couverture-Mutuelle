@@ -4,6 +4,7 @@ import type {
   ProtectionLevelId,
 } from "@/context/QuoteJourneyContext";
 import type { CalculatorEstimateSnapshot } from "@/lib/quote-lead";
+import { isValidFrenchPostalCode } from "@/lib/location-service";
 
 const STORAGE_KEY = "cm-savings-journey-v1";
 
@@ -49,8 +50,7 @@ export function isSavingsJourneyReady(snapshot: {
   return Boolean(
     snapshot.estimate &&
       snapshot.calculator.birthDate &&
-      snapshot.calculator.postalCode &&
-      snapshot.calculator.city &&
+      isValidFrenchPostalCode(snapshot.calculator.postalCode) &&
       snapshot.calculator.monthlyBudget &&
       snapshot.calculator.mutualTenure &&
       snapshot.calculator.protectionLevel,
