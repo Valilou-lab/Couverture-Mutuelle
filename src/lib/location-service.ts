@@ -1,6 +1,7 @@
 /**
  * Location helpers for postal-code → city lookup.
  * Pure TypeScript — no React / JSX.
+ * Browser callers hit same-origin /api/communes (server proxies geo + fallback).
  */
 
 export type CityLookupResult =
@@ -9,12 +10,6 @@ export type CityLookupResult =
   | { status: "empty"; message: string }
   | { status: "error"; message: string }
   | { status: "success"; cities: string[] };
-
-type CommuneResponse = {
-  nom: string;
-};
-
-const GEO_API_BASE = "https://geo.api.gouv.fr/communes";
 
 /** Keep digits only, max 5 characters. */
 export function normalizePostalCode(raw: string): string {
@@ -37,17 +32,21 @@ export async function fetchCitiesByPostalCode(
     return [];
   }
 
-  const url = `${GEO_API_BASE}?codePostal=${encodeURIComponent(postalCode)}&fields=nom`;
+  const url = `/api/communes?codePostal=${encodeURIComponent(postalCode)}`;
   const response = await fetch(url, { signal });
 
   if (!response.ok) {
     throw new Error("location-lookup-failed");
   }
 
-  const communes = (await response.json()) as CommuneResponse[];
-  return Array.from(
-    new Set(communes.map((item) => item.nom).filter(Boolean)),
-  ).sort((a, b) => a.localeCompare(b, "fr"));
+  const payload = (await response.json()) as { cities?: unknown };
+  if (!Array.isArray(payload.cities)) {
+    throw new Error("location-lookup-failed");
+  }
+
+  return payload.cities.filter(
+    (city): city is string => typeof city === "string" && city.length > 0,
+  );
 }
 
 export function resolveCitySelection(cities: string[]): {

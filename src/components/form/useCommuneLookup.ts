@@ -1,10 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-
-type CommuneResponse = {
-  nom: string;
-};
+import { fetchCitiesByPostalCode } from "@/lib/location-service";
 
 export type CommuneLookupState =
   | { status: "idle" }
@@ -12,8 +9,15 @@ export type CommuneLookupState =
   | { status: "error"; message: string }
   | { status: "success" };
 
+function isAbortError(error: unknown): boolean {
+  return (
+    (error instanceof DOMException && error.name === "AbortError") ||
+    (error instanceof Error && error.name === "AbortError")
+  );
+}
+
 /**
- * geo.api.gouv.fr lookup — same behaviour as the standalone postal-code step.
+ * Postal → city lookup via same-origin /api/communes.
  */
 export function useCommuneLookup(
   postalCode: string,
@@ -37,18 +41,11 @@ export function useCommuneLookup(
       setLookup({ status: "loading" });
 
       try {
-        const response = await fetch(
-          `https://geo.api.gouv.fr/communes?codePostal=${postalCode}&fields=nom`,
-          { signal: controller.signal },
+        const cities = await fetchCitiesByPostalCode(
+          postalCode,
+          controller.signal,
         );
-        if (!response.ok) throw new Error("lookup-failed");
-
-        const communes = (await response.json()) as CommuneResponse[];
         if (cancelled || currentRequest !== requestId.current) return;
-
-        const cities = Array.from(
-          new Set(communes.map((item) => item.nom).filter(Boolean)),
-        ).sort((a, b) => a.localeCompare(b, "fr"));
 
         onCitiesLoaded(cities);
 
@@ -70,9 +67,7 @@ export function useCommuneLookup(
         onCity("");
         setLookup({ status: "success" });
       } catch (error: unknown) {
-        if (error instanceof DOMException && error.name === "AbortError") {
-          return;
-        }
+        if (isAbortError(error)) return;
         if (cancelled || currentRequest !== requestId.current) return;
         onCitiesLoaded([]);
         onCity("");
