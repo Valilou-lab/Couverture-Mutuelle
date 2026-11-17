@@ -47,26 +47,31 @@ export type V2StepId =
   | "coveredPersons"
   | "professionalStatus"
   | "birthAndPostal"
-  | "contact"
+  | "identity"
+  | "email"
+  | "phone"
   | "searching"
   | "eligiblePartners"
   | "phoneVerify"
   | "confirmation";
 
-/** Questions 1–5 (progress bar). */
+/** Questions 1–7 (progress bar) — email then phone, separate. */
 export const V2_QUESTION_STEPS: V2StepId[] = [
   "currentMutualTariff",
   "coveredPersons",
   "professionalStatus",
   "birthAndPostal",
-  "contact",
+  "identity",
+  "email",
+  "phone",
 ];
 
+/** Phone → SMS verify (mobile) → buyer precheck → partners → confirmation. */
 export const V2_FLOW_STEPS: V2StepId[] = [
   ...V2_QUESTION_STEPS,
+  "phoneVerify",
   "searching",
   "eligiblePartners",
-  "phoneVerify",
   "confirmation",
 ];
 
@@ -75,7 +80,7 @@ export const ELIGIBILITY_MIN_LOADING_MS = 4000;
 
 /**
  * True from question 2 through the end of the V2 flow.
- * Used by `/devis` to hide landing content below the form.
+ * Used by `/devis` to drop the hero title and free space for form reassurance.
  */
 export function isV2FormFocusStep(
   step: V2StepId,

@@ -60,25 +60,35 @@ export function DevisLanding({
     >
       <div className="lg:grid lg:grid-cols-2 lg:items-stretch">
         <div className="min-w-0 lg:flex lg:min-h-screen lg:flex-col lg:bg-white">
-          <div className="lg:hidden">
-            <div className="bg-white">
-              <SeniorHeader bordered={false} logoCentered showWhatsApp={false} />
-              <div className="mx-auto w-full max-w-[640px] px-4 min-[700px]:max-w-[1000px]">
-                <HomeHeroTitles className="pb-2" />
-              </div>
+          <div className="bg-white">
+            <SeniorHeader
+              bordered={false}
+              logoCentered={!formFocused}
+              showWhatsApp={false}
+              showAudienceBadge={!formFocused}
+              funnelChrome={formFocused}
+            />
+            <div className="lg:hidden">
+              {!formFocused ? (
+                <div className="mx-auto w-full max-w-[640px] px-4 min-[700px]:max-w-[1000px]">
+                  <HomeHeroTitles className="pb-2" />
+                </div>
+              ) : null}
             </div>
           </div>
 
-          <div className="hidden bg-white px-6 pb-3 pt-8 text-center lg:block xl:px-10 xl:pt-10">
-            <h1 className={DESKTOP_H1}>
-              <span className="block text-zinc-900">
-                Le bon tarif pour votre mutuelle
-              </span>
-              <span className="block text-[#9b4ff0]">
-                sans perdre les garanties qui comptent
-              </span>
-            </h1>
-          </div>
+          {!formFocused ? (
+            <div className="hidden bg-white px-6 pb-3 pt-4 text-center lg:block xl:px-10 xl:pt-5">
+              <h1 className={DESKTOP_H1}>
+                <span className="block text-zinc-900">
+                  Le bon tarif pour votre mutuelle
+                </span>
+                <span className="block text-[#9b4ff0]">
+                  sans perdre les garanties qui comptent
+                </span>
+              </h1>
+            </div>
+          ) : null}
 
           <section className="bg-[#ede9fe]">
             <div className="mx-auto w-full max-w-[640px] px-4 min-[700px]:max-w-[1000px] lg:max-w-[34rem] lg:px-6 lg:pt-1">
@@ -106,13 +116,11 @@ export function DevisLanding({
       </div>
 
       <div className="lg:hidden">
-        <HomeLpBelowForm />
-        {!formFocused ? (
-          <div className="mx-auto w-full max-w-[640px] px-4 pb-12 min-[700px]:max-w-[1000px]">
-            <RacFaq items={FAQ} />
-            <RacCta label="MON DEVIS GRATUIT" />
-          </div>
-        ) : null}
+        <HomeLpBelowForm showPartnerCarousel={false} />
+        <div className="mx-auto w-full max-w-[640px] px-4 pb-12 min-[700px]:max-w-[1000px]">
+          <RacFaq headingId="faq-titre-mobile" items={FAQ} />
+          <RacCta label="MON DEVIS GRATUIT" />
+        </div>
       </div>
 
       <SeniorFooter />

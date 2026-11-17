@@ -1,4 +1,8 @@
 import { Check } from "lucide-react";
+import {
+  formatGoogleRatingScore,
+  formatGoogleReviewCount,
+} from "@/lib/google-business-rating";
 
 const HEADER_POINTS = [
   {
@@ -57,7 +61,9 @@ function Stars({ className }: { className: string }) {
   );
 }
 
-/** Google rating under the homepage form. */
+/**
+ * Google rating under the form — real fiche figures, text only (no outbound link).
+ */
 export function HomeFormTrustButtons({
   onPhoto = false,
 }: {
@@ -73,7 +79,9 @@ export function HomeFormTrustButtons({
     >
       <Stars className={onPhoto ? "text-white" : "text-[#f4b400]"} />
       <span>
-        <strong className="font-extrabold">4,8/5</strong> avis Google
+        <strong className="font-extrabold">{formatGoogleRatingScore()}</strong>
+        {" · "}
+        {formatGoogleReviewCount()} Google
       </span>
     </p>
   );

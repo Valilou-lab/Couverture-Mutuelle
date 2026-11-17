@@ -9,8 +9,11 @@ export const V2_CANONICAL_CONSUMER_DOMAINS = [
   "gmail.com",
   "googlemail.com",
   "hotmail.com",
+  "hotmail.fr",
   "outlook.com",
+  "outlook.fr",
   "live.com",
+  "live.fr",
   "msn.com",
   "yahoo.com",
   "yahoo.fr",
@@ -28,7 +31,7 @@ export const V2_CANONICAL_CONSUMER_DOMAINS = [
 
 /**
  * Explicit typo / wrong-TLD → suggested canonical domain.
- * Includes gmaill.fr, hotmail.fr (not in our consumer referential), etc.
+ * Note: hotmail.fr / outlook.fr / live.fr are real Microsoft FR domains — not typos.
  */
 export const V2_DOMAIN_TYPO_SUGGESTIONS: Record<string, string> = {
   // Gmail
@@ -53,15 +56,12 @@ export const V2_DOMAIN_TYPO_SUGGESTIONS: Record<string, string> = {
   "hotmail.con": "hotmail.com",
   "hotmail.co": "hotmail.com",
   "hotmail.cm": "hotmail.com",
-  "hotmail.fr": "hotmail.com",
   "outlok.com": "outlook.com",
   "outllook.com": "outlook.com",
   "outllok.com": "outlook.com",
   "outlook.con": "outlook.com",
   "outlook.co": "outlook.com",
   "outlook.cm": "outlook.com",
-  "outlook.fr": "outlook.com",
-  "live.fr": "live.com",
   "live.con": "live.com",
   "msn.con": "msn.com",
   "msn.fr": "msn.com",

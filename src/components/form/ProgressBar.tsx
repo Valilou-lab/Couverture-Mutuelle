@@ -29,14 +29,6 @@ export function ProgressBar({
         ? "linear-gradient(105deg, #7c3aed 0%, #9333ea 30%, #d946ef 65%, #f472b6 100%)"
         : "linear-gradient(105deg, #6d28d9 0%, #a855f7 25%, #d946ef 55%, #f472b6 80%, #fb7185 100%)";
 
-  const lastQuestionNote =
-    display === "percent" || safeCurrent !== safeTotal ? null : (
-      <p className="mt-2 text-balance text-center text-[0.9rem] font-medium leading-snug text-zinc-600 sm:text-[0.95rem]">
-        Vos données sont précieuses et seront utilisées uniquement pour vos
-        devis
-      </p>
-    );
-
   if (display === "percent") {
     return (
       <div>
@@ -94,7 +86,6 @@ export function ProgressBar({
             <span className={`${labelClass} w-full text-white`}>{label}</span>
           </div>
         </div>
-        {lastQuestionNote}
       </div>
     );
   }
@@ -124,7 +115,6 @@ export function ProgressBar({
           Question {safeCurrent} / {safeTotal}
         </span>
       </div>
-      {lastQuestionNote}
     </div>
   );
 }

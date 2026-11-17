@@ -3,11 +3,7 @@
 import { FormNavigation } from "@/components/form/FormNavigation";
 import type { QuoteFormData } from "@/components/form/types";
 import type { FieldErrors } from "@/components/form/validation";
-import {
-  SENIOR_ERROR,
-  SENIOR_LABEL,
-  useFormInputClass,
-} from "@/components/form/seniorForm";
+import { SENIOR_ERROR } from "@/components/form/seniorForm";
 import { buildV2PartnerConsentText } from "@/lib/v2/consent";
 import {
   getV2PartnerById,
@@ -40,8 +36,8 @@ function PartnerOfferBadge() {
 }
 
 /**
- * Post-eligibility: partners from API response + identity + dynamic consent.
- * Displays only what `/api/v2/eligibility` returned; privacy URLs from registry.
+ * Post-eligibility: partners from API response + dynamic consent only.
+ * Prénom / nom are collected earlier; privacy URLs from registry.
  */
 export function StepEligiblePartnersV2({
   partners,
@@ -50,7 +46,6 @@ export function StepEligiblePartnersV2({
   onPatch,
   onConfirm,
 }: Props) {
-  const inputClass = useFormInputClass();
   // Partners come exclusively from Vertikl precheck (via /api/v2/eligibility).
   // Registry only enriches logo / privacy when the buyer is mapped.
   const displayPartners = partners.map((partner) => {
@@ -71,10 +66,7 @@ export function StepEligiblePartnersV2({
   const privacyPartners = displayPartners.filter((partner) => partner.privacyUrl);
 
   const dossierReady =
-    displayPartners.length > 0 &&
-    Boolean(data.firstName.trim()) &&
-    Boolean(data.lastName.trim()) &&
-    Boolean(data.consent);
+    displayPartners.length > 0 && Boolean(data.consent);
 
   const gridCols =
     displayPartners.length <= 1
@@ -174,43 +166,6 @@ export function StepEligiblePartnersV2({
         On finalise&nbsp;!
       </h3>
 
-      <div className="mt-4 grid grid-cols-2 gap-3">
-        <div>
-          <label htmlFor="v2-firstName" className={SENIOR_LABEL}>
-            Prénom
-          </label>
-          <input
-            id="v2-firstName"
-            autoComplete="given-name"
-            value={data.firstName}
-            onChange={(event) => onPatch({ firstName: event.target.value })}
-            className={inputClass}
-          />
-          {errors.firstName ? (
-            <p className={SENIOR_ERROR} role="alert">
-              {errors.firstName}
-            </p>
-          ) : null}
-        </div>
-        <div>
-          <label htmlFor="v2-lastName" className={SENIOR_LABEL}>
-            Nom
-          </label>
-          <input
-            id="v2-lastName"
-            autoComplete="family-name"
-            value={data.lastName}
-            onChange={(event) => onPatch({ lastName: event.target.value })}
-            className={inputClass}
-          />
-          {errors.lastName ? (
-            <p className={SENIOR_ERROR} role="alert">
-              {errors.lastName}
-            </p>
-          ) : null}
-        </div>
-      </div>
-
       <div className="mt-4 rounded-[18px] border-2 border-[#ddd6fe] bg-[#f5f0ff] p-4 text-[0.98rem] leading-relaxed text-foreground">
         <div className="flex items-start gap-3">
           <input
@@ -274,8 +229,7 @@ export function StepEligiblePartnersV2({
       />
       {!dossierReady ? (
         <p className="mt-2 text-center text-[0.8125rem] leading-snug text-zinc-500">
-          Indiquez votre prénom, votre nom, puis acceptez le consentement pour
-          activer le bouton.
+          Acceptez le consentement pour activer le bouton.
         </p>
       ) : null}
     </div>

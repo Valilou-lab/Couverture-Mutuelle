@@ -79,9 +79,9 @@ export function HomeLanding({
     >
       <div className="lg:grid lg:grid-cols-2 lg:items-stretch">
         <div className="min-w-0 lg:bg-white">
-          <div className="lg:hidden">
-            <div className="bg-white">
-              <SeniorHeader bordered={false} logoCentered showWhatsApp={false} />
+          <div className="bg-white">
+            <SeniorHeader bordered={false} logoCentered showWhatsApp={false} />
+            <div className="lg:hidden">
               <div className="mx-auto w-full max-w-[640px] px-4 min-[700px]:max-w-[1000px]">
                 <HomeHeroTitles
                   className={desktopBlurBackdrop ? "pb-2" : undefined}
@@ -90,7 +90,7 @@ export function HomeLanding({
             </div>
           </div>
 
-          <div className="hidden bg-white px-6 pb-3 pt-8 text-center lg:block xl:px-10 xl:pt-10">
+          <div className="hidden bg-white px-6 pb-3 pt-4 text-center lg:block xl:px-10 xl:pt-5">
             <h1 className={DESKTOP_H1}>
               <span className="block text-zinc-900">
                 Le bon tarif pour votre mutuelle

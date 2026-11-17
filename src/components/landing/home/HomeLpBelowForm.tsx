@@ -56,6 +56,8 @@ type HomeLpBelowFormProps = {
   quotesTitle?: string;
   quotesText?: string;
   signText?: ReactNode;
+  /** Homepage keeps the logo marquee; `/devis` mobile can hide it. */
+  showPartnerCarousel?: boolean;
 };
 
 /**
@@ -67,6 +69,7 @@ export function HomeLpBelowForm({
   quotesTitle,
   quotesText,
   signText,
+  showPartnerCarousel = true,
 }: HomeLpBelowFormProps = {}) {
   return (
     <>
@@ -101,7 +104,7 @@ export function HomeLpBelowForm({
             JE COMPARE
           </a>
         </div>
-        <SeniorPartners carousel />
+        {showPartnerCarousel ? <SeniorPartners carousel /> : null}
       </div>
     </>
   );

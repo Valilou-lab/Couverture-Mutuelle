@@ -1,5 +1,9 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
+import {
+  PHONE_VERIFY_COOKIE,
+  verifyPhoneProofToken,
+} from "@/lib/phone-verify-proof";
 import { createV2EligibilityToken } from "@/lib/v2/eligibility-token";
 import { mapVertiklBuyerToDisplay } from "@/lib/v2/vertikl-buyer-map";
 import {
@@ -9,6 +13,7 @@ import {
 } from "@/lib/vertikl/mappers";
 import {
   frenchDateToIso,
+  requiresSmsPhoneVerification,
   toInternationalFrenchPhone,
 } from "@/lib/vertikl/normalize";
 import {
@@ -43,7 +48,7 @@ type EligibilityBody = {
  * V2 eligibility for `/devis`.
  * Front → this route → Vertikl precheck. Never expose Vertikl to the browser.
  */
-export async function POST(request: Request) {
+export async function POST(request: NextRequest) {
   let body: EligibilityBody = {};
   try {
     body = (await request.json()) as EligibilityBody;
@@ -74,6 +79,25 @@ export async function POST(request: Request) {
       },
       { status: 400 },
     );
+  }
+
+  // Same gate as /api/v2/leads: 06/07 require a signed OTP proof bound to this phone.
+  // Landlines bypass. verifyPhoneProofToken rejects number A cookie used with number B.
+  if (requiresSmsPhoneVerification(phone)) {
+    const phoneProof = request.cookies.get(PHONE_VERIFY_COOKIE)?.value;
+    if (!verifyPhoneProofToken(phoneProof, phone)) {
+      console.info("[api/v2/eligibility] phone not verified");
+      return NextResponse.json(
+        {
+          eligible: false,
+          status: "technical_error",
+          partners: [],
+          eligibilityToken: null,
+          reason: "phone_not_verified",
+        },
+        { status: 403 },
+      );
+    }
   }
 
   const fields: {

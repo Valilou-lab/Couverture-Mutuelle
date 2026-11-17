@@ -7,7 +7,6 @@ import {
   useRef,
   useState,
 } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import {
   COVERED_PERSONS,
@@ -28,6 +27,7 @@ import {
   V2_EMAIL_INVALID_MESSAGE,
 } from "./emailValidation";
 import { FormBackButton } from "@/components/form/FormBackButton";
+import { ProgressBar } from "@/components/form/ProgressBar";
 import { StepCoveredPersons } from "@/components/form/StepCoveredPersons";
 import { StepProfessionalStatusV2 } from "./StepProfessionalStatusV2";
 import { StepCurrentMutualTariff } from "@/components/form/StepCurrentMutualTariff";
@@ -53,7 +53,12 @@ import {
   verifyPhoneOtp,
 } from "./adapters/otpClient";
 import { submitV2Lead } from "./adapters/leadClient";
-import { StepContactV2 } from "./StepContactV2";
+import { StepEmailV2 } from "./StepEmailV2";
+import { StepPhoneV2 } from "./StepPhoneV2";
+import {
+  StepIdentityV2,
+  validateV2IdentityNames,
+} from "./StepIdentityV2";
 import { StepSearchingV2 } from "./StepSearchingV2";
 import { StepEligiblePartnersV2 } from "./StepEligiblePartnersV2";
 import { StepPhoneVerifyV2 } from "./StepPhoneVerifyV2";
@@ -63,8 +68,9 @@ const ADVANCE_DELAY_MS = 320;
 const ELIGIBILITY_ERROR =
   "Impossible de vérifier vos offres pour le moment. Merci de réessayer.";
 
-function validateIdentityAndConsent(data: QuoteFormData): FieldErrors {
+function validateConsentOnly(data: QuoteFormData): FieldErrors {
   const errors: FieldErrors = {};
+  // Safety net — names are collected on the earlier identity step.
   if (!data.firstName.trim()) errors.firstName = "Indiquez votre prénom.";
   if (!data.lastName.trim()) errors.lastName = "Indiquez votre nom.";
   if (!data.consent) {
@@ -85,6 +91,8 @@ export function QuoteFormV2({
 } = {}) {
   const formRootRef = useRef<HTMLDivElement>(null);
   const otpSendLock = useRef(false);
+  /** Sync lock — React state alone cannot block autofill + button double fire. */
+  const otpVerifyLock = useRef(false);
   const [data, setData] = useState<QuoteFormData>(initialFormData);
   const [step, setStep] = useState<V2StepId>("currentMutualTariff");
   const [errors, setErrors] = useState<FieldErrors>({});
@@ -107,8 +115,8 @@ export function QuoteFormV2({
   const flowIndex = V2_FLOW_STEPS.indexOf(step);
   const canGoBack =
     step !== "confirmation" &&
-    step !== "phoneVerify" &&
     !(step === "searching" && isCheckingEligibility) &&
+    !(step === "phoneVerify" && (otpVerifying || otpSending)) &&
     flowIndex > 0;
 
   const progressCurrent = useMemo(() => {
@@ -145,13 +153,26 @@ export function QuoteFormV2({
   const goBack = useCallback(() => {
     if (isAdvancing || isCheckingEligibility || otpVerifying) return;
     if (step === "eligiblePartners" || step === "searching") {
-      goTo("contact");
+      goTo(
+        requiresSmsPhoneVerification(data.phone) ? "phoneVerify" : "phone",
+      );
+      return;
+    }
+    if (step === "phoneVerify") {
+      goTo("phone");
       return;
     }
     const idx = V2_FLOW_STEPS.indexOf(step);
     if (idx <= 0) return;
     goTo(V2_FLOW_STEPS[idx - 1]!);
-  }, [goTo, isAdvancing, isCheckingEligibility, otpVerifying, step]);
+  }, [
+    data.phone,
+    goTo,
+    isAdvancing,
+    isCheckingEligibility,
+    otpVerifying,
+    step,
+  ]);
 
   const advanceAfterDelay = useCallback(
     (next: V2StepId) => {
@@ -191,8 +212,25 @@ export function QuoteFormV2({
       return;
     }
     setErrors({});
-    advanceAfterDelay("contact");
+    advanceAfterDelay("identity");
   }, [advanceAfterDelay, data, isAdvancing]);
+
+  const goNextFromIdentity = useCallback(() => {
+    if (isAdvancing) return;
+    const stepErrors = validateV2IdentityNames(data);
+    if (Object.keys(stepErrors).length > 0) {
+      setErrors(stepErrors);
+      return;
+    }
+    setErrors({});
+    advanceAfterDelay("email");
+  }, [advanceAfterDelay, data, isAdvancing]);
+
+  const goNextFromEmail = useCallback(() => {
+    if (isAdvancing) return;
+    setErrors({});
+    advanceAfterDelay("phone");
+  }, [advanceAfterDelay, isAdvancing]);
 
   const checkEligibility = useCallback(
     async (options?: { skipFieldValidation?: boolean }) => {
@@ -317,48 +355,95 @@ export function QuoteFormV2({
     }
   }, [data.phone, otpSending, startResendCooldown]);
 
-  const confirmDossier = useCallback(() => {
-    if (otpVerifying || otpSending) return;
-    const stepErrors = validateIdentityAndConsent(data);
+  /** After phone: SMS OTP for mobiles, else buyer precheck directly. */
+  const goNextFromPhone = useCallback(() => {
+    if (isAdvancing || isCheckingEligibility || otpSending || otpVerifying) {
+      return;
+    }
+
+    const stepErrors = validateV2EmailPhone(data);
     if (Object.keys(stepErrors).length > 0) {
       setErrors(stepErrors);
       return;
     }
-    if (!requiresSmsPhoneVerification(data.phone)) {
-      void (async () => {
-        setOtpError(null);
-        setOtpVerifying(true);
-        try {
-          await submitV2Dossier();
-        } catch (error) {
-          setErrors({
-            consent:
-              error instanceof Error
-                ? error.message
-                : "Impossible d’enregistrer le dossier pour le moment.",
-          });
-        } finally {
-          setOtpVerifying(false);
-        }
-      })();
+
+    const phoneE164 = normalizeV2PhoneToE164(data.phone);
+    if (!phoneE164) {
+      setErrors({
+        phone: "Veuillez saisir un numéro de téléphone valide.",
+      });
       return;
     }
-    setPhoneProofReady(false);
-    setOtpError(null);
-    goTo("phoneVerify");
-    void sendPhoneOtp();
+    if (phoneE164 !== data.phone.trim()) {
+      patch({ phone: phoneE164 });
+    }
+
+    if (requiresSmsPhoneVerification(phoneE164)) {
+      setPhoneProofReady(false);
+      setOtpError(null);
+      setOtpStatus(null);
+      goTo("phoneVerify");
+      void sendPhoneOtp();
+      return;
+    }
+
+    void checkEligibility({ skipFieldValidation: true });
   }, [
+    checkEligibility,
     data,
     goTo,
+    isAdvancing,
+    isCheckingEligibility,
     otpSending,
     otpVerifying,
+    patch,
     sendPhoneOtp,
+  ]);
+
+  /** Partners consent → acquire (phone already verified earlier when required). */
+  const confirmDossier = useCallback(() => {
+    if (otpVerifying || otpSending || isCheckingEligibility) return;
+    const stepErrors = validateConsentOnly(data);
+    if (Object.keys(stepErrors).length > 0) {
+      setErrors(stepErrors);
+      return;
+    }
+    void (async () => {
+      setOtpError(null);
+      setOtpVerifying(true);
+      try {
+        await submitV2Dossier();
+      } catch (error) {
+        setErrors({
+          consent:
+            error instanceof Error
+              ? error.message
+              : "Impossible d’enregistrer le dossier pour le moment.",
+        });
+      } finally {
+        setOtpVerifying(false);
+      }
+    })();
+  }, [
+    data,
+    isCheckingEligibility,
+    otpSending,
+    otpVerifying,
     submitV2Dossier,
   ]);
 
+  /** SMS OK (server Twilio) → show status → buyer precheck once. */
   const confirmOtp = useCallback(
     async (code: string) => {
-      if (otpVerifying || otpSending) return;
+      if (
+        otpVerifyLock.current ||
+        otpVerifying ||
+        otpSending ||
+        isCheckingEligibility
+      ) {
+        return;
+      }
+      otpVerifyLock.current = true;
       setOtpError(null);
       setOtpVerifying(true);
       try {
@@ -366,24 +451,32 @@ export function QuoteFormV2({
           await verifyPhoneOtp(data.phone, code);
           setPhoneProofReady(true);
           setOtpStatus("Numéro vérifié ✓");
+          // Brief pause so the success state is visible before searching.
+          await new Promise<void>((resolve) => {
+            window.setTimeout(resolve, 650);
+          });
         }
-        await submitV2Dossier();
+        setOtpVerifying(false);
+        await checkEligibility({ skipFieldValidation: true });
       } catch (error) {
+        setPhoneProofReady(false);
         setOtpError(
           error instanceof Error
             ? error.message
             : "Saisissez un code à 6 chiffres.",
         );
-      } finally {
         setOtpVerifying(false);
+      } finally {
+        otpVerifyLock.current = false;
       }
     },
     [
+      checkEligibility,
       data.phone,
+      isCheckingEligibility,
       otpSending,
       otpVerifying,
       phoneProofReady,
-      submitV2Dossier,
     ],
   );
 
@@ -461,15 +554,38 @@ export function QuoteFormV2({
         />
       ) : null}
 
-      {step === "contact" ? (
-        <StepContactV2
+      {step === "identity" ? (
+        <StepIdentityV2
           data={data}
           errors={errors}
-          disabled={isAdvancing || isCheckingEligibility}
+          disabled={isAdvancing}
           onPatch={patch}
-          onNext={() => {
-            void checkEligibility();
-          }}
+          onNext={goNextFromIdentity}
+        />
+      ) : null}
+
+      {step === "email" ? (
+        <StepEmailV2
+          data={data}
+          errors={errors}
+          disabled={isAdvancing}
+          onPatch={patch}
+          onNext={goNextFromEmail}
+        />
+      ) : null}
+
+      {step === "phone" ? (
+        <StepPhoneV2
+          data={data}
+          errors={errors}
+          disabled={
+            isAdvancing ||
+            isCheckingEligibility ||
+            otpSending ||
+            otpVerifying
+          }
+          onPatch={patch}
+          onNext={goNextFromPhone}
         />
       ) : null}
 
@@ -510,7 +626,7 @@ export function QuoteFormV2({
             setPhoneProofReady(false);
             setOtpError(null);
             setOtpStatus(null);
-            goTo("contact");
+            goTo("phone");
           }}
         />
       ) : null}
@@ -547,17 +663,32 @@ export function QuoteFormV2({
                 className="absolute left-1.5 top-1.5 z-20 sm:left-2.5 sm:top-2"
               />
             ) : null}
+            {showProgress ? (
+              <ProgressBar
+                current={progressCurrent}
+                total={V2_QUESTION_STEPS.length}
+              />
+            ) : null}
             {stepContent}
 
             <p className="flex items-center justify-center gap-2 text-[0.95rem] text-zinc-600">
-              <Image
-                src="/images/Pictos/picto-securite-donnees.png"
-                alt=""
-                width={22}
-                height={20}
-                className="h-5 w-[22px] shrink-0 object-contain"
-              />
-              Vos données sont sécurisées
+              <span
+                aria-hidden="true"
+                className="inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-[3px] border border-emerald-600 bg-emerald-600 text-white"
+              >
+                <svg
+                  viewBox="0 0 16 16"
+                  className="h-2.5 w-2.5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  <path d="M3.5 8.5 6.5 11.5 12.5 4.5" />
+                </svg>
+              </span>
+              Personne ne vous appelle sans votre accord
             </p>
 
             {step === "confirmation" ? (
