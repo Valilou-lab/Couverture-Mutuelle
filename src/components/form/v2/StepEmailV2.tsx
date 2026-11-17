@@ -51,6 +51,9 @@ export function StepEmailV2({
   const [emailUi, setEmailUi] = useState<EmailUiState>({ status: "idle" });
   const [emailTouched, setEmailTouched] = useState(false);
   const verifySeq = useRef(0);
+  /** Shared in-flight MX check — Continuer awaits blur's promise instead of no-op. */
+  const verifyPromiseRef = useRef<Promise<boolean> | null>(null);
+  const nextLock = useRef(false);
 
   const emailTrimmed = data.email.trim();
   const clientIssue = getV2EmailClientIssue(data.email);
@@ -89,35 +92,44 @@ export function StepEmailV2({
     });
   }, [emailTrimmed]);
 
-  async function runServerValidation(email: string): Promise<boolean> {
+  function runServerValidation(email: string): Promise<boolean> {
     const seq = ++verifySeq.current;
     setEmailUi({ status: "verifying" });
 
-    try {
-      const result = await validateV2EmailOnServer(email);
-      if (seq !== verifySeq.current) return false;
+    const promise = (async (): Promise<boolean> => {
+      try {
+        const result = await validateV2EmailOnServer(email);
+        if (seq !== verifySeq.current) return false;
 
-      if (result.ok) {
-        setEmailUi({ status: "ok", email });
-        return true;
+        if (result.ok) {
+          setEmailUi({ status: "ok", email });
+          return true;
+        }
+
+        setEmailUi({
+          status: "error",
+          email,
+          message: result.message || V2_EMAIL_INVALID_MESSAGE,
+          ...(result.suggestion ? { suggestion: result.suggestion } : {}),
+        });
+        return false;
+      } catch {
+        if (seq !== verifySeq.current) return false;
+        setEmailUi({
+          status: "error",
+          email,
+          message: V2_EMAIL_INVALID_MESSAGE,
+        });
+        return false;
+      } finally {
+        if (verifySeq.current === seq) {
+          verifyPromiseRef.current = null;
+        }
       }
+    })();
 
-      setEmailUi({
-        status: "error",
-        email,
-        message: result.message || V2_EMAIL_INVALID_MESSAGE,
-        ...(result.suggestion ? { suggestion: result.suggestion } : {}),
-      });
-      return false;
-    } catch {
-      if (seq !== verifySeq.current) return false;
-      setEmailUi({
-        status: "error",
-        email,
-        message: V2_EMAIL_INVALID_MESSAGE,
-      });
-      return false;
-    }
+    verifyPromiseRef.current = promise;
+    return promise;
   }
 
   async function handleEmailBlur() {
@@ -125,6 +137,7 @@ export function StepEmailV2({
     const issue = getV2EmailClientIssue(data.email);
     if (issue) {
       verifySeq.current += 1;
+      verifyPromiseRef.current = null;
       setEmailUi({
         status: "error",
         email: emailTrimmed,
@@ -136,7 +149,7 @@ export function StepEmailV2({
 
     if (!emailTrimmed) return;
     if (emailUi.status === "ok" && emailUi.email === emailTrimmed) return;
-    if (emailUi.status === "verifying") return;
+    if (emailUi.status === "verifying" && verifyPromiseRef.current) return;
 
     await runServerValidation(emailTrimmed);
   }
@@ -145,6 +158,7 @@ export function StepEmailV2({
     onPatch({ email: nextEmail });
     setEmailTouched(true);
     verifySeq.current += 1;
+    verifyPromiseRef.current = null;
     setEmailUi({ status: "idle" });
 
     void (async () => {
@@ -163,6 +177,7 @@ export function StepEmailV2({
   }
 
   async function handleNext() {
+    if (nextLock.current || disabled) return;
     setEmailTouched(true);
 
     const issue = getV2EmailClientIssue(data.email);
@@ -176,13 +191,23 @@ export function StepEmailV2({
       return;
     }
 
-    if (emailServerOk) {
-      onNext();
-      return;
-    }
+    if (!emailTrimmed) return;
 
-    const ok = await runServerValidation(emailTrimmed);
-    if (ok) onNext();
+    nextLock.current = true;
+    try {
+      if (emailServerOk) {
+        onNext();
+        return;
+      }
+
+      // Blur may already be validating — await that promise (don't require a 2nd click).
+      const ok = verifyPromiseRef.current
+        ? await verifyPromiseRef.current
+        : await runServerValidation(emailTrimmed);
+      if (ok) onNext();
+    } finally {
+      nextLock.current = false;
+    }
   }
 
   return (
@@ -252,23 +277,31 @@ export function StepEmailV2({
         ) : null}
       </div>
 
-      <FormNavigation
-        onNext={() => {
-          void handleNext();
+      {/*
+        preventDefault on mousedown: clicking Continuer while the email input is
+        focused would otherwise blur → start MX check → disable the button before
+        click fires, forcing a second press.
+      */}
+      <div
+        onMouseDown={(event) => {
+          if ((event.target as HTMLElement).closest("button")) {
+            event.preventDefault();
+          }
         }}
-        nextLabel={
-          disabled || emailUi.status === "verifying"
-            ? "Vérification…"
-            : "Continuer"
-        }
-        disabled={disabled || emailUi.status === "verifying"}
-        canContinue={
-          !disabled &&
-          emailUi.status !== "verifying" &&
-          Boolean(emailTrimmed) &&
-          !clientIssue
-        }
-      />
+      >
+        <FormNavigation
+          onNext={() => {
+            void handleNext();
+          }}
+          nextLabel={
+            disabled || emailUi.status === "verifying"
+              ? "Vérification…"
+              : "Continuer"
+          }
+          disabled={disabled}
+          canContinue={!disabled && Boolean(emailTrimmed) && !clientIssue}
+        />
+      </div>
 
       <p className="mt-3 text-center text-[0.75rem] leading-snug text-zinc-500 sm:text-[0.78rem]">
         Couverture Mutuelle (VALEADATA SL) traite vos données pour vous
