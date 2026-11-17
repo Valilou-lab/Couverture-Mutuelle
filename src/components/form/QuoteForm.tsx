@@ -501,6 +501,7 @@ export function QuoteForm({
       const metaTracking = metaLeadTrackingRef.current;
       const response = await fetch("/api/leads", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           form:
@@ -580,6 +581,7 @@ export function QuoteForm({
     try {
       const response = await fetch("/api/verify/start", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone: data.phone }),
       });
@@ -664,6 +666,7 @@ export function QuoteForm({
         if (!phoneProofReady) {
           const response = await fetch("/api/verify/check", {
             method: "POST",
+            credentials: "include",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ phone: data.phone, code }),
           });

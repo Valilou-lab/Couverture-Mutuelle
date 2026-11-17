@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import {
   PHONE_VERIFY_COOKIE,
+  normalizePhoneForProof,
   verifyPhoneProofToken,
 } from "@/lib/phone-verify-proof";
 import { createV2EligibilityToken } from "@/lib/v2/eligibility-token";
@@ -14,7 +15,6 @@ import {
 import {
   frenchDateToIso,
   requiresSmsPhoneVerification,
-  toInternationalFrenchPhone,
 } from "@/lib/vertikl/normalize";
 import {
   buildVertiklRuntimeDiag,
@@ -58,7 +58,8 @@ export async function POST(request: NextRequest) {
 
   const email = typeof body.email === "string" ? body.email.trim() : "";
   const phoneRaw = typeof body.phone === "string" ? body.phone.trim() : "";
-  const phone = toInternationalFrenchPhone(phoneRaw) || phoneRaw;
+  // Same normalizer as createPhoneVerifyProof / verifyPhoneProofToken (06 ↔ +336).
+  const phone = normalizePhoneForProof(phoneRaw) || phoneRaw;
 
   console.info("[api/v2/eligibility] request received", {
     hasEmail: Boolean(email),
@@ -85,7 +86,14 @@ export async function POST(request: NextRequest) {
   // Landlines bypass. verifyPhoneProofToken rejects number A cookie used with number B.
   if (requiresSmsPhoneVerification(phone)) {
     const phoneProof = request.cookies.get(PHONE_VERIFY_COOKIE)?.value;
-    if (!verifyPhoneProofToken(phoneProof, phone)) {
+    const phoneVerified = verifyPhoneProofToken(phoneProof, phone);
+    console.info("[api/v2/eligibility] phone proof gate", {
+      required: true,
+      hasCookie: Boolean(phoneProof),
+      phoneVerified,
+      phonePrefix: phone.slice(0, 6),
+    });
+    if (!phoneVerified) {
       console.info("[api/v2/eligibility] phone not verified");
       return NextResponse.json(
         {

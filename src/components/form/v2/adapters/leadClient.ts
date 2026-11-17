@@ -54,8 +54,10 @@ export async function submitV2Lead(input: {
     metaTracking,
   };
 
+  // credentials:include — send HttpOnly `cm_phone_verified` with the acquire call
   const response = await fetch("/api/v2/leads", {
     method: "POST",
+    credentials: "include",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(body),
   });

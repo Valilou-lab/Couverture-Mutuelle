@@ -22,8 +22,13 @@ export class EligibilityClientError extends Error {
 export async function fetchEligiblePartners(
   payload: EligibilityRequestPayload,
 ): Promise<EligibilityClientResult> {
+  // TEMP diagnostic — remove after OTP→precheck bug is confirmed.
+  console.info("PRECHECK_PAYLOAD", payload);
+
+  // credentials:include — must send HttpOnly `cm_phone_verified` set by /api/verify/check
   const response = await fetch("/api/v2/eligibility", {
     method: "POST",
+    credentials: "include",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
   });
@@ -35,11 +40,29 @@ export async function fetchEligiblePartners(
     json = null;
   }
 
+  console.info("PRECHECK_RESPONSE", {
+    httpStatus: response.status,
+    ok: response.ok,
+    body: json,
+  });
+
   if (response.status === 503 || json?.status === "technical_error") {
+    console.error("PRECHECK_ERROR", {
+      httpStatus: response.status,
+      reason: json?.reason ?? null,
+      status: json?.status ?? null,
+      message: ELIGIBILITY_ERROR,
+    });
     throw new EligibilityClientError();
   }
 
   if (!response.ok && response.status !== 200) {
+    console.error("PRECHECK_ERROR", {
+      httpStatus: response.status,
+      reason: json?.reason ?? null,
+      status: json?.status ?? null,
+      message: ELIGIBILITY_ERROR,
+    });
     throw new EligibilityClientError();
   }
 

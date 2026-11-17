@@ -143,6 +143,8 @@ export function QuoteFormV2({
   }, []);
 
   const goTo = useCallback((next: V2StepId) => {
+    // TEMP diagnostic — step transitions around OTP → precheck.
+    console.info("V2_STEP_GOTO", { next });
     setStep(next);
     setErrors({});
     setEligibilityError(null);
@@ -233,10 +235,22 @@ export function QuoteFormV2({
   }, [advanceAfterDelay, isAdvancing]);
 
   const checkEligibility = useCallback(
-    async (options?: { skipFieldValidation?: boolean }) => {
-      if (isCheckingEligibility || isAdvancing) return;
+    async (options?: {
+      skipFieldValidation?: boolean;
+      /** Exact E.164 from OTP proof — avoids 06 vs +336 mismatch with the cookie. */
+      phoneOverride?: string;
+    }) => {
+      if (isCheckingEligibility || isAdvancing) {
+        console.warn("PRECHECK_START skipped", {
+          isCheckingEligibility,
+          isAdvancing,
+        });
+        return;
+      }
 
-      const phoneE164 = normalizeV2PhoneToE164(data.phone);
+      const phoneE164 =
+        normalizeV2PhoneToE164(options?.phoneOverride || data.phone) ||
+        (options?.phoneOverride?.trim() || null);
 
       if (!options?.skipFieldValidation) {
         const stepErrors = validateV2EmailPhone(data);
@@ -285,6 +299,25 @@ export function QuoteFormV2({
           email: data.email,
         };
 
+        // TEMP diagnostic — state at precheck (names are acquire-only, not in payload).
+        console.info("PRECHECK_START", {
+          skipFieldValidation: Boolean(options?.skipFieldValidation),
+          state: {
+            firstName: data.firstName,
+            lastName: data.lastName,
+            email: data.email,
+            phone: data.phone,
+            phoneE164,
+            birthDate: data.birthDate,
+            postalCode: data.postalCode,
+            city: data.city,
+            coveredPersons: data.coveredPersons,
+            professionalStatus: data.professionalStatus,
+            alreadyInsured: data.alreadyInsured,
+            healthInsuranceGoal: data.healthInsuranceGoal,
+          },
+        });
+
         const [result] = await Promise.all([
           fetchEligiblePartners(payload),
           new Promise<void>((resolve) => {
@@ -295,7 +328,14 @@ export function QuoteFormV2({
         setEligiblePartners(result.partners);
         setEligibilityToken(result.eligibilityToken);
         goTo("eligiblePartners");
-      } catch {
+      } catch (error) {
+        console.error("PRECHECK_ERROR", {
+          caughtInCheckEligibility: true,
+          error:
+            error instanceof Error
+              ? { name: error.name, message: error.message }
+              : error,
+        });
         setEligibilityError(ELIGIBILITY_ERROR);
       } finally {
         setIsCheckingEligibility(false);
@@ -432,7 +472,7 @@ export function QuoteFormV2({
     submitV2Dossier,
   ]);
 
-  /** SMS OK (server Twilio) → show status → buyer precheck once. */
+  /** SMS OK (server Twilio) → cookie set → buyer precheck with same E.164. */
   const confirmOtp = useCallback(
     async (code: string) => {
       if (
@@ -441,24 +481,51 @@ export function QuoteFormV2({
         otpSending ||
         isCheckingEligibility
       ) {
+        console.warn("OTP_CONFIRM skipped", {
+          lock: otpVerifyLock.current,
+          otpVerifying,
+          otpSending,
+          isCheckingEligibility,
+        });
         return;
       }
       otpVerifyLock.current = true;
       setOtpError(null);
       setOtpVerifying(true);
+      let verifiedPhoneE164 =
+        normalizeV2PhoneToE164(data.phone) || data.phone.trim();
       try {
         if (!phoneProofReady) {
-          await verifyPhoneOtp(data.phone, code);
+          const otpResult = await verifyPhoneOtp(data.phone, code);
+          verifiedPhoneE164 = otpResult.phoneE164;
+          // Keep form state aligned with the phone bound into cm_phone_verified.
+          if (verifiedPhoneE164 !== data.phone.trim()) {
+            patch({ phone: verifiedPhoneE164 });
+          }
           setPhoneProofReady(true);
           setOtpStatus("Numéro vérifié ✓");
           // Brief pause so the success state is visible before searching.
+          // Cookie from Set-Cookie is available to the next credentialed fetch.
           await new Promise<void>((resolve) => {
             window.setTimeout(resolve, 650);
           });
+        } else {
+          console.info("OTP_SUCCESS skipped_verify_phoneProofReady_already_true");
         }
         setOtpVerifying(false);
-        await checkEligibility({ skipFieldValidation: true });
+        await checkEligibility({
+          skipFieldValidation: true,
+          phoneOverride: verifiedPhoneE164,
+        });
       } catch (error) {
+        console.error("OTP_OR_PRECHECK_CATCH_IN_CONFIRM_OTP", {
+          stepWillStayOrReturn: "phoneVerify (no goTo in this catch)",
+          phoneProofReadyReset: true,
+          error:
+            error instanceof Error
+              ? { name: error.name, message: error.message }
+              : error,
+        });
         setPhoneProofReady(false);
         setOtpError(
           error instanceof Error
@@ -476,6 +543,7 @@ export function QuoteFormV2({
       isCheckingEligibility,
       otpSending,
       otpVerifying,
+      patch,
       phoneProofReady,
     ],
   );

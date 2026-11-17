@@ -5,6 +5,7 @@ import { toInternationalFrenchPhone } from "@/lib/vertikl/normalize";
 
 export const PHONE_VERIFY_COOKIE = "cm_phone_verified";
 const PROOF_TTL_MS = 15 * 60 * 1000;
+const PROOF_TTL_SEC = 15 * 60;
 const MIN_SECRET_LENGTH = 32;
 
 type ProofPayload = {
@@ -53,10 +54,19 @@ function sign(payloadB64: string, key: string): string {
   return b64url(createHmac("sha256", key).update(payloadB64).digest());
 }
 
+/** Canonical E.164 used for both signing and verifying the OTP proof. */
+export function normalizePhoneForProof(phoneRaw: string): string | null {
+  return toInternationalFrenchPhone(phoneRaw.trim());
+}
+
 /** Build a short-lived signed proof bound to an E.164 phone number. */
-export function createPhoneVerifyProof(phoneE164: string): string | null {
+export function createPhoneVerifyProof(phoneRaw: string): string | null {
   const key = getPhoneVerifySigningKey();
   if (!key) return null;
+
+  const phoneE164 = normalizePhoneForProof(phoneRaw);
+  if (!phoneE164) return null;
+
   const payload: ProofPayload = {
     p: phoneE164,
     e: Date.now() + PROOF_TTL_MS,
@@ -68,6 +78,7 @@ export function createPhoneVerifyProof(phoneE164: string): string | null {
 /**
  * Validates the proof and ensures it matches the submitted phone number.
  * A different number after OTP approval always fails.
+ * Both sides are normalized with the same E.164 helper (06… / +336… / spaces).
  */
 export function verifyPhoneProofToken(
   token: string | undefined,
@@ -76,7 +87,7 @@ export function verifyPhoneProofToken(
   const key = getPhoneVerifySigningKey();
   if (!key || !token) return false;
 
-  const phoneE164 = toInternationalFrenchPhone(phoneRaw);
+  const phoneE164 = normalizePhoneForProof(phoneRaw);
   if (!phoneE164) return false;
 
   const parts = token.split(".");
@@ -99,7 +110,9 @@ export function verifyPhoneProofToken(
     if (typeof payload.p !== "string" || typeof payload.e !== "number") {
       return false;
     }
-    if (payload.p !== phoneE164) return false;
+    // Re-normalize stored phone in case an older proof used a slightly different form.
+    const proofPhone = normalizePhoneForProof(payload.p) ?? payload.p;
+    if (proofPhone !== phoneE164) return false;
     if (Date.now() > payload.e) return false;
     return true;
   } catch {
@@ -107,19 +120,56 @@ export function verifyPhoneProofToken(
   }
 }
 
-export function phoneVerifyCookieOptions(maxAgeSec = 900) {
+/**
+ * Cookie attributes for `cm_phone_verified`.
+ * - Path=/ so /api/verify/check → /api/v2/eligibility share it
+ * - HttpOnly (not readable by JS)
+ * - SameSite=Lax (same-site fetch POST includes it)
+ * - Secure on HTTPS / production / Vercel
+ * - TTL 15 minutes
+ */
+export function phoneVerifyCookieOptions(
+  maxAgeSec: number = PROOF_TTL_SEC,
+  overrides?: { secure?: boolean },
+) {
+  const secure =
+    overrides?.secure ??
+    (process.env.NODE_ENV === "production" || process.env.VERCEL === "1");
+
   return {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    httpOnly: true as const,
+    secure,
     sameSite: "lax" as const,
-    path: "/",
+    path: "/" as const,
     maxAge: maxAgeSec,
   };
 }
 
+/** Resolve Secure from the incoming request (x-forwarded-proto on Vercel). */
+export function phoneVerifySecureFromRequest(request: Request): boolean {
+  const proto = request.headers.get("x-forwarded-proto")?.split(",")[0]?.trim();
+  if (proto === "https") return true;
+  if (proto === "http") {
+    // Local http — allow non-Secure so the browser stores the cookie.
+    return false;
+  }
+  try {
+    if (new URL(request.url).protocol === "https:") return true;
+  } catch {
+    // ignore
+  }
+  return (
+    process.env.NODE_ENV === "production" || process.env.VERCEL === "1"
+  );
+}
+
 /** Clear the OTP proof cookie after a successful lead submission. */
 export function clearPhoneVerifyCookie(
-  response: { cookies: { set: (name: string, value: string, options: object) => void } },
+  response: {
+    cookies: {
+      set: (name: string, value: string, options: object) => void;
+    };
+  },
 ) {
   response.cookies.set(PHONE_VERIFY_COOKIE, "", {
     ...phoneVerifyCookieOptions(0),

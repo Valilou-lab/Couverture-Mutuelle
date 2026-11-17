@@ -3,6 +3,7 @@ import {
   PHONE_VERIFY_COOKIE,
   createPhoneVerifyProof,
   phoneVerifyCookieOptions,
+  phoneVerifySecureFromRequest,
 } from "@/lib/phone-verify-proof";
 import { checkTwilioSmsVerification } from "@/lib/twilio/verify";
 
@@ -54,10 +55,25 @@ export async function POST(request: Request) {
     );
   }
 
+  const secure = phoneVerifySecureFromRequest(request);
+  const cookieOptions = phoneVerifyCookieOptions(900, { secure });
+
   const response = NextResponse.json({
     success: true,
     status: "approved",
+    /** Canonical E.164 bound into the cookie — client must reuse this for eligibility. */
+    phoneE164: result.phoneE164,
   });
-  response.cookies.set(PHONE_VERIFY_COOKIE, proof, phoneVerifyCookieOptions());
+  response.cookies.set(PHONE_VERIFY_COOKIE, proof, cookieOptions);
+
+  console.info("[api/verify/check] proof cookie set", {
+    phonePrefix: result.phoneE164.slice(0, 6),
+    secure: cookieOptions.secure,
+    sameSite: cookieOptions.sameSite,
+    path: cookieOptions.path,
+    maxAge: cookieOptions.maxAge,
+    httpOnly: cookieOptions.httpOnly,
+  });
+
   return response;
 }

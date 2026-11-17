@@ -5,12 +5,16 @@
  * Cookie proof `cm_phone_verified` is set by `/api/verify/check`.
  */
 
+import { normalizeV2PhoneToE164 } from "@/lib/v2/phone";
+
 export type OtpStartResult = {
   ok: true;
 };
 
 export type OtpVerifyResult = {
   ok: true;
+  /** Canonical E.164 stored in the proof cookie — reuse for eligibility/leads. */
+  phoneE164: string;
 };
 
 export class OtpClientError extends Error {
@@ -23,11 +27,16 @@ export class OtpClientError extends Error {
   }
 }
 
+/** Same-origin credentialed fetch so Set-Cookie / Cookie round-trip works. */
+const CREDENTIALED: RequestCredentials = "include";
+
 export async function startPhoneOtp(phone: string): Promise<OtpStartResult> {
+  const phoneE164 = normalizeV2PhoneToE164(phone) || phone.trim();
   const response = await fetch("/api/verify/start", {
     method: "POST",
+    credentials: CREDENTIALED,
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ phone }),
+    body: JSON.stringify({ phone: phoneE164 }),
   });
 
   const payload = (await response.json().catch(() => null)) as {
@@ -65,18 +74,33 @@ export async function verifyPhoneOtp(
     throw new OtpClientError("Saisissez un code à 6 chiffres.", "INVALID_CODE");
   }
 
+  // Always send E.164 so the cookie proof and later eligibility share one form.
+  const phoneE164 = normalizeV2PhoneToE164(phone);
+  if (!phoneE164) {
+    throw new OtpClientError(
+      "Merci de renseigner un numéro valide.",
+      "INVALID_PHONE",
+    );
+  }
+
   const response = await fetch("/api/verify/check", {
     method: "POST",
+    credentials: CREDENTIALED,
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ phone, code }),
+    body: JSON.stringify({ phone: phoneE164, code }),
   });
 
   const payload = (await response.json().catch(() => null)) as {
     success?: boolean;
     error?: string;
+    phoneE164?: string;
   } | null;
 
   if (!response.ok || payload?.success !== true) {
+    console.error("OTP_CHECK_FAILED", {
+      httpStatus: response.status,
+      error: payload?.error ?? null,
+    });
     if (payload?.error === "CODE_EXPIRED") {
       throw new OtpClientError(
         "Ce code a expiré. Demandez-en un nouveau.",
@@ -98,5 +122,15 @@ export async function verifyPhoneOtp(
     );
   }
 
-  return { ok: true };
+  const verifiedPhone =
+    typeof payload?.phoneE164 === "string" && payload.phoneE164.startsWith("+33")
+      ? payload.phoneE164
+      : phoneE164;
+
+  console.info("OTP_SUCCESS", {
+    httpStatus: response.status,
+    phonePrefix: verifiedPhone.slice(0, 6),
+  });
+
+  return { ok: true, phoneE164: verifiedPhone };
 }
