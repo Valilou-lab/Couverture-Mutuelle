@@ -631,7 +631,12 @@ export function QuoteFormV2({
         />
       ) : null}
 
-      {step === "confirmation" ? <StepConfirmationV2 /> : null}
+      {step === "confirmation" ? (
+        <StepConfirmationV2
+          firstName={data.firstName}
+          partners={eligiblePartners}
+        />
+      ) : null}
     </div>
   );
 

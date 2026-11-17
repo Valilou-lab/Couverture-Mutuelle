@@ -17,6 +17,13 @@ export type V2PartnerId =
   | "2a_assurances"
   | "aveyronnaise";
 
+export type V2PartnerGoogleRating = {
+  rating: number;
+  reviewCount: number;
+  /** ISO date of last manual sync from Google Business Profile. */
+  syncedAt: string;
+};
+
 export type V2RegisteredPartner = {
   id: V2PartnerId;
   name: string;
@@ -26,6 +33,18 @@ export type V2RegisteredPartner = {
   privacyPolicyUrl: string | null;
   contactChannels: V2PartnerContactChannel[];
   active: boolean;
+  /**
+   * Optional landline shown on the /devis confirmation screen.
+   * When missing, the card shows logo + name only (no « Enregistrer »).
+   */
+  confirmationPhoneDisplay?: string;
+  /** E.164 or national digits for tel: / vCard — required with display. */
+  confirmationPhoneTel?: string;
+  /**
+   * Google Business Profile figures — display only, never link out.
+   * Omit when the fiche is missing or unreliable.
+   */
+  googleRating?: V2PartnerGoogleRating;
 };
 
 export const V2_PARTNERS_REGISTRY: Record<V2PartnerId, V2RegisteredPartner> = {
@@ -37,6 +56,11 @@ export const V2_PARTNERS_REGISTRY: Record<V2PartnerId, V2RegisteredPartner> = {
     privacyPolicyUrl: "https://www.santiane.fr/politique-de-confidentialite",
     contactChannels: ["phone", "email"],
     active: true,
+    googleRating: {
+      rating: 4.5,
+      reviewCount: 5932,
+      syncedAt: "2026-11-17",
+    },
   },
   assu_france: {
     id: "assu_france",
@@ -56,6 +80,11 @@ export const V2_PARTNERS_REGISTRY: Record<V2PartnerId, V2RegisteredPartner> = {
       "https://iki-assurances.fr/politique-de-protection-des-donnees",
     contactChannels: ["phone", "email"],
     active: true,
+    googleRating: {
+      rating: 4.8,
+      reviewCount: 2541,
+      syncedAt: "2026-11-17",
+    },
   },
   skarlett: {
     id: "skarlett",
@@ -65,6 +94,11 @@ export const V2_PARTNERS_REGISTRY: Record<V2PartnerId, V2RegisteredPartner> = {
     privacyPolicyUrl: "https://www.skarlett.fr/politique-de-confidentialite1",
     contactChannels: ["phone", "email"],
     active: true,
+    googleRating: {
+      rating: 4.7,
+      reviewCount: 355,
+      syncedAt: "2026-11-17",
+    },
   },
   "2a_assurances": {
     id: "2a_assurances",
@@ -75,6 +109,12 @@ export const V2_PARTNERS_REGISTRY: Record<V2PartnerId, V2RegisteredPartner> = {
     privacyPolicyUrl: "https://2a-assurances.fr/politique-de-confidentialite/",
     contactChannels: ["phone", "email"],
     active: true,
+    // Google Knowledge Graph /g/11b75dszgc — Biarritz, 2a-assurances.fr
+    googleRating: {
+      rating: 4.1,
+      reviewCount: 661,
+      syncedAt: "2026-11-17",
+    },
   },
   aveyronnaise: {
     id: "aveyronnaise",
@@ -84,6 +124,11 @@ export const V2_PARTNERS_REGISTRY: Record<V2PartnerId, V2RegisteredPartner> = {
     privacyPolicyUrl: "https://www.laveyronnaisedassurances.fr/",
     contactChannels: ["phone", "email"],
     active: true,
+    googleRating: {
+      rating: 4.8,
+      reviewCount: 37,
+      syncedAt: "2026-11-17",
+    },
   },
 };
 
@@ -117,6 +162,36 @@ export function getV2PartnerPrivacyPolicyUrl(id: string): string | null {
   const partner = getV2PartnerById(id);
   if (!partner || !isV2PartnerDistributable(partner)) return null;
   return partner.privacyPolicyUrl;
+}
+
+/** Confirmation callback number, only when both display + tel are set. */
+export function getV2PartnerConfirmationPhone(
+  id: string,
+): { display: string; tel: string } | null {
+  const partner = getV2PartnerById(id);
+  if (!partner) return null;
+  const display = partner.confirmationPhoneDisplay?.trim();
+  const tel = partner.confirmationPhoneTel?.trim();
+  if (!display || !tel) return null;
+  return { display, tel };
+}
+
+/** Google rating for display-only trust (never linked). */
+export function getV2PartnerGoogleRating(
+  id: string,
+): V2PartnerGoogleRating | null {
+  return getV2PartnerById(id)?.googleRating ?? null;
+}
+
+/** French compact label, e.g. "4,5/5 · 5 932 avis". */
+export function formatV2PartnerGoogleRating(
+  rating: V2PartnerGoogleRating,
+): string {
+  const score = Number.isInteger(rating.rating)
+    ? String(rating.rating)
+    : rating.rating.toFixed(1).replace(".", ",");
+  const count = new Intl.NumberFormat("fr-FR").format(rating.reviewCount);
+  return `${score}/5 · ${count} avis`;
 }
 
 /** Resolve allowlisted distributable partners; unknown / inactive ids are dropped. */

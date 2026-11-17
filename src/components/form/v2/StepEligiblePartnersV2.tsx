@@ -4,13 +4,14 @@ import { FormNavigation } from "@/components/form/FormNavigation";
 import type { QuoteFormData } from "@/components/form/types";
 import type { FieldErrors } from "@/components/form/validation";
 import { SENIOR_ERROR } from "@/components/form/seniorForm";
-import { buildV2PartnerConsentText } from "@/lib/v2/consent";
+import { buildV2BrokerCountCopy } from "@/lib/v2/consent";
 import {
   getV2PartnerById,
   getV2PartnerPrivacyPolicyUrl,
   isV2PartnerDistributable,
 } from "@/lib/v2/partners-registry";
 import type { EligiblePartner } from "./v2Types";
+import { PartnerGoogleRating } from "./PartnerGoogleRating";
 import { getV2PartnerLogoSrc } from "./v2Partners";
 
 type Props = {
@@ -37,7 +38,7 @@ function PartnerOfferBadge() {
 
 /**
  * Post-eligibility: partners from API response + dynamic consent only.
- * Prénom / nom are collected earlier; privacy URLs from registry.
+ * All wording follows the real precheck partner count.
  */
 export function StepEligiblePartnersV2({
   partners,
@@ -60,77 +61,107 @@ export function StepEligiblePartnersV2({
     };
   });
 
+  const brokerCount = displayPartners.length;
   // Display-only preview: same template as the server. Authoritative text is
   // rebuilt in `/api/v2/leads` from the allowlist + eligibility token.
-  const consentText = buildV2PartnerConsentText(displayPartners);
+  const copy = buildV2BrokerCountCopy(brokerCount);
   const privacyPartners = displayPartners.filter((partner) => partner.privacyUrl);
 
-  const dossierReady =
-    displayPartners.length > 0 && Boolean(data.consent);
+  const dossierReady = brokerCount > 0 && Boolean(data.consent);
 
   const gridCols =
-    displayPartners.length <= 1
+    brokerCount <= 1
       ? "grid-cols-1 max-w-[11rem] mx-auto"
-      : displayPartners.length === 2
+      : brokerCount === 2
         ? "grid-cols-2"
         : "grid-cols-3";
+
+  if (brokerCount === 0) {
+    return (
+      <div className="text-center">
+        <h2 className="text-balance font-poppins text-[1.3rem] font-extrabold leading-tight tracking-[-0.02em] text-[#3b0764] sm:text-[1.5rem]">
+          Nous n’avons pas trouvé de partenaire disponible pour votre profil
+          pour le moment.
+        </h2>
+        <p className="mx-auto mt-4 max-w-md text-[0.98rem] leading-snug text-zinc-600 sm:text-[1.02rem]">
+          Vous avez probablement déjà des devis en cours. Vous pouvez nous
+          contacter à nouveau plus tard si vous n’avez pas encore trouvé la
+          mutuelle idéale.
+        </p>
+        <a
+          href="https://www.instagram.com/couverturemutuelle?exln=OXN2c25waWhtNjVl"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="mt-6 inline-flex items-center justify-center gap-2.5 rounded-full border border-[#ddd6fe] bg-[#f5f0ff] px-5 py-3 text-[0.95rem] font-semibold text-[#3b0764] transition hover:border-brand/40 hover:bg-[#efe8ff]"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            className="h-5 w-5 shrink-0"
+            aria-hidden="true"
+            fill="currentColor"
+          >
+            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0 1.621c-3.155 0-3.523.012-4.767.069-2.57.117-3.763 1.295-3.88 3.88-.057 1.243-.068 1.61-.068 4.767s.011 3.524.069 4.768c.117 2.579 1.304 3.762 3.88 3.879 1.243.058 1.61.07 4.766.07 3.156 0 3.523-.012 4.768-.07 2.572-.117 3.762-1.297 3.879-3.88.057-1.242.069-1.609.069-4.767s-.012-3.524-.07-4.768c-.116-2.577-1.3-3.762-3.879-3.879-1.243-.057-1.61-.068-4.766-.068zm0 2.916a5.3 5.3 0 1 1 0 10.6 5.3 5.3 0 0 1 0-10.6zm0 1.621a3.679 3.679 0 1 0 0 7.358 3.679 3.679 0 0 0 0-7.358zm5.404-.956a1.24 1.24 0 1 1 0 2.48 1.24 1.24 0 0 1 0-2.48z" />
+          </svg>
+          Suivre Couverture Mutuelle sur Instagram
+        </a>
+      </div>
+    );
+  }
 
   return (
     <div>
       <h2 className="text-balance text-center font-poppins text-[1.3rem] font-extrabold leading-tight tracking-[-0.02em] text-[#3b0764] sm:text-[1.5rem]">
-        Ces organismes peuvent vous proposer des devis
+        {copy.title}
       </h2>
 
-      {displayPartners.length === 0 ? (
-        <p className="mt-5 rounded-[18px] border border-[#ddd6fe] bg-[#f5f0ff] px-4 py-4 text-center text-[0.98rem] text-[#3b0764]">
-          Aucun partenaire éligible pour le moment.
-        </p>
-      ) : (
-        <ul className={`mt-5 grid gap-2 sm:gap-3 ${gridCols}`}>
-          {displayPartners.map((partner) => {
-            const logoSrc = partner.logoSrc;
-            const privacyUrl = partner.privacyUrl;
-            return (
-              <li
-                key={partner.id}
-                className="flex flex-col rounded-[18px] border border-[#ddd6fe] bg-white px-2 py-2.5 shadow-[0_6px_18px_-14px_rgba(98,41,208,0.22)] sm:px-3 sm:py-3"
-              >
-                <div className="flex h-12 items-center justify-center sm:h-14">
-                  {logoSrc ? (
-                    // eslint-disable-next-line @next/next/no-img-element -- partner logos
-                    <img
-                      src={logoSrc}
-                      alt={partner.name}
-                      className="h-full w-full object-contain"
-                      draggable={false}
-                    />
-                  ) : (
-                    <p className="text-center font-poppins text-[0.8rem] font-semibold leading-tight text-[#3b0764] sm:text-sm">
-                      {partner.name}
-                    </p>
-                  )}
-                </div>
+      <p className="mx-auto mt-3 max-w-md text-center text-[0.95rem] leading-snug text-zinc-600 sm:text-[1rem]">
+        {copy.intro}
+      </p>
+      <ul className={`mt-5 grid gap-2 sm:gap-3 ${gridCols}`}>
+        {displayPartners.map((partner) => {
+          const logoSrc = partner.logoSrc;
+          const privacyUrl = partner.privacyUrl;
+          return (
+            <li
+              key={partner.id}
+              className="flex flex-col rounded-[18px] border border-[#ddd6fe] bg-white px-2 py-2.5 shadow-[0_6px_18px_-14px_rgba(98,41,208,0.22)] sm:px-3 sm:py-3"
+            >
+              <div className="flex h-12 items-center justify-center sm:h-14">
                 {logoSrc ? (
-                  <p className="mt-1.5 text-center font-poppins text-[0.72rem] font-semibold leading-tight text-[#3b0764] sm:text-[0.8rem]">
+                  // eslint-disable-next-line @next/next/no-img-element -- partner logos
+                  <img
+                    src={logoSrc}
+                    alt={partner.name}
+                    className="h-full w-full object-contain"
+                    draggable={false}
+                  />
+                ) : (
+                  <p className="text-center font-poppins text-[0.8rem] font-semibold leading-tight text-[#3b0764] sm:text-sm">
                     {partner.name}
                   </p>
-                ) : null}
-                <PartnerOfferBadge />
-                {privacyUrl ? (
-                  <a
-                    href={privacyUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="mt-2 text-center text-[0.65rem] font-medium text-zinc-500 underline-offset-2 hover:text-brand hover:underline sm:text-[0.7rem]"
-                  >
-                    Protection de vos données&nbsp;↗
-                  </a>
-                ) : null}
-              </li>
-            );
-          })}
-        </ul>
-      )}
+                )}
+              </div>
+              {logoSrc ? (
+                <p className="mt-1.5 text-center font-poppins text-[0.72rem] font-semibold leading-tight text-[#3b0764] sm:text-[0.8rem]">
+                  {partner.name}
+                </p>
+              ) : null}
+              <PartnerGoogleRating partnerId={partner.id} />
+              <PartnerOfferBadge />
+              {privacyUrl ? (
+                <a
+                  href={privacyUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 text-center text-[0.65rem] font-medium text-zinc-500 underline-offset-2 hover:text-brand hover:underline sm:text-[0.7rem]"
+                >
+                  Protection de vos données&nbsp;↗
+                </a>
+              ) : null}
+            </li>
+          );
+        })}
+      </ul>
 
       <div className="mt-5 flex gap-3 rounded-[18px] border border-[#ddd6fe] bg-[#f5f0ff] px-3.5 py-3.5 text-left sm:px-4">
         <span
@@ -155,18 +186,12 @@ export function StepEligiblePartnersV2({
             Vous gardez le contrôle
           </p>
           <p className="mt-1 text-[0.85rem] leading-snug text-zinc-600 sm:text-[0.9rem]">
-            Vos coordonnées seront transmises uniquement aux organismes affichés
-            ci-dessus. Vos données sont sécurisées et utilisées uniquement dans
-            le cadre de votre comparatif de mutuelle.
+            {copy.footer}
           </p>
         </div>
       </div>
 
-      <h3 className="mt-5 text-center font-poppins text-[1.2rem] font-extrabold tracking-[-0.02em] text-[#3b0764] sm:text-[1.3rem]">
-        On finalise&nbsp;!
-      </h3>
-
-      <div className="mt-4 rounded-[18px] border-2 border-[#ddd6fe] bg-[#f5f0ff] p-4 text-[0.98rem] leading-relaxed text-foreground">
+      <div className="mt-5 rounded-[18px] border-2 border-[#ddd6fe] bg-[#f5f0ff] p-4 text-[0.98rem] leading-relaxed text-foreground">
         <div className="flex items-start gap-3">
           <input
             id="v2-consent-opt-in"
@@ -177,7 +202,7 @@ export function StepEligiblePartnersV2({
           />
           <div className="min-w-0">
             <label htmlFor="v2-consent-opt-in" className="cursor-pointer">
-              {consentText}
+              {copy.consent}
             </label>
             {privacyPartners.length > 0 ? (
               <p className="mt-2 text-[0.8125rem] leading-snug text-zinc-500">
@@ -223,7 +248,7 @@ export function StepEligiblePartnersV2({
 
       <FormNavigation
         onNext={onConfirm}
-        nextLabel="Envoyer"
+        nextLabel={copy.cta}
         disabled={!dossierReady}
         canContinue={dossierReady}
       />
