@@ -101,15 +101,13 @@ export function DevisLanding({
             </div>
           </section>
 
-          <div className="hidden bg-white pb-8 pt-6 lg:mt-auto lg:block">
-            {/* Same horizontal rail as the form (lg:max-w-[34rem]) — content flush left, not floating center. */}
-            <div className="mx-auto w-full max-w-[34rem] px-6 xl:px-6">
-              <HomeFormTrustButtons align="left" />
-              <HomeHowItWorksSchema
-                headingId="comment-ca-se-passe-schema-desktop"
-                align="left"
-              />
-            </div>
+          <div className="hidden bg-white px-6 pb-8 pt-6 lg:mt-auto lg:block xl:px-10">
+            {/* Flush left of the column — no mx-auto / centered rail. */}
+            <HomeFormTrustButtons align="left" />
+            <HomeHowItWorksSchema
+              headingId="comment-ca-se-passe-schema-desktop"
+              align="left"
+            />
           </div>
         </div>
 

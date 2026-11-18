@@ -163,7 +163,7 @@ export function HomeHowItWorksSchema({
       aria-labelledby={headingId}
       className={
         left
-          ? "max-w-[34rem] px-1 pb-1 pt-5"
+          ? "mr-auto w-full max-w-[36rem] pb-1 pt-5"
           : "mx-auto max-w-[34rem] px-1 pb-1 pt-5"
       }
     >
