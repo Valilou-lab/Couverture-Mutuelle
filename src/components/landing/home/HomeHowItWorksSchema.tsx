@@ -144,6 +144,8 @@ type HomeHowItWorksSchemaProps = {
   signText?: ReactNode;
   /** Unique heading id when the schema is also rendered in a desktop column. */
   headingId?: string;
+  /** Desktop /devis left column: flush left under the form. */
+  align?: "center" | "left";
 };
 
 /** Compact 3-step schema — just under the homepage form, on the pastel band. */
@@ -153,15 +155,23 @@ export function HomeHowItWorksSchema({
   quotesText = "par un courtier partenaire",
   signText,
   headingId = "comment-ca-se-passe-schema",
+  align = "center",
 }: HomeHowItWorksSchemaProps = {}) {
+  const left = align === "left";
   return (
     <section
       aria-labelledby={headingId}
-      className="mx-auto max-w-[34rem] px-1 pb-1 pt-5"
+      className={
+        left
+          ? "max-w-[34rem] px-1 pb-1 pt-5"
+          : "mx-auto max-w-[34rem] px-1 pb-1 pt-5"
+      }
     >
       <h2
         id={headingId}
-        className="text-center font-poppins text-[1.2rem] font-extrabold leading-snug tracking-[-0.02em] text-[#3b0764] sm:text-[1.35rem]"
+        className={`${
+          left ? "text-left" : "text-center"
+        } font-poppins text-[1.2rem] font-extrabold leading-snug tracking-[-0.02em] text-[#3b0764] sm:text-[1.35rem]`}
       >
         Comment ça se passe&nbsp;?
       </h2>

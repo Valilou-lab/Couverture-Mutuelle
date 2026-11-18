@@ -66,15 +66,22 @@ function Stars({ className }: { className: string }) {
  */
 export function HomeFormTrustButtons({
   onPhoto = false,
+  align = "center",
 }: {
   onPhoto?: boolean;
+  /** Desktop /devis left column: flush left reads better than floating center. */
+  align?: "center" | "left";
 } = {}) {
+  const row =
+    align === "left"
+      ? "flex items-center justify-start gap-2"
+      : "mx-auto flex items-center justify-center gap-2";
   return (
     <p
       className={
         onPhoto
-          ? "mx-auto flex items-center justify-center gap-2 text-[0.98rem] font-semibold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.65)] sm:text-[1.05rem]"
-          : "mx-auto flex items-center justify-center gap-2 text-[0.98rem] font-semibold text-[#3b0764] sm:text-[1.05rem]"
+          ? `${row} text-[0.98rem] font-semibold text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.65)] sm:text-[1.05rem]`
+          : `${row} text-[0.98rem] font-semibold text-[#3b0764] sm:text-[1.05rem]`
       }
     >
       <Stars className={onPhoto ? "text-white" : "text-[#f4b400]"} />
