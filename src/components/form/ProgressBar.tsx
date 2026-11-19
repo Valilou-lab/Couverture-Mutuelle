@@ -1,5 +1,6 @@
 "use client";
 
+import { Timer } from "lucide-react";
 import { useSeniorForm } from "./seniorForm";
 
 type ProgressBarProps = {
@@ -10,6 +11,19 @@ type ProgressBarProps = {
   /** Right-side duration on the percent bar. Default « 1 minute ». */
   durationLabel?: string;
 };
+
+function DurationBadge({ label }: { label: string }) {
+  return (
+    <p className="inline-flex items-center gap-1 text-[0.95rem] font-extrabold tabular-nums text-[#ff2d8f]">
+      <Timer
+        className="h-3.5 w-3.5 shrink-0"
+        strokeWidth={2.5}
+        aria-hidden
+      />
+      <span>{label}</span>
+    </p>
+  );
+}
 
 export function ProgressBar({
   current,
@@ -36,9 +50,7 @@ export function ProgressBar({
           <p className="text-[0.95rem] font-bold tabular-nums text-brand">
             {safeCurrent}/{safeTotal}
           </p>
-          <p className="text-[0.95rem] font-medium text-zinc-400">
-            {durationLabel}
-          </p>
+          <DurationBadge label={durationLabel} />
         </div>
         <div
           className="h-1.5 overflow-hidden rounded-full bg-white"
@@ -63,6 +75,9 @@ export function ProgressBar({
       "pointer-events-none absolute inset-y-0 left-0 flex items-center justify-center text-[0.95rem] font-bold tabular-nums";
     return (
       <div>
+        <div className="mb-1.5 flex items-center justify-end">
+          <DurationBadge label={durationLabel} />
+        </div>
         <div
           className="relative h-8 overflow-hidden rounded-full bg-brand-soft"
           role="progressbar"
@@ -92,6 +107,9 @@ export function ProgressBar({
 
   return (
     <div className="mb-4 lg:mb-4">
+      <div className="mb-1.5 flex items-center justify-end">
+        <DurationBadge label={durationLabel} />
+      </div>
       <div
         className="relative h-7 overflow-hidden rounded-full bg-brand-soft shadow-inner sm:h-8 lg:h-6"
         role="progressbar"

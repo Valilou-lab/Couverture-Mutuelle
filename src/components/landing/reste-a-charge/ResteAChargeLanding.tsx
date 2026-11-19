@@ -13,8 +13,9 @@ import { TikTokFunnelTracker } from "@/components/landing/tiktok/TikTokFunnelTra
 import { RacPageTitle } from "./ResteAChargeHero";
 import { RacCta, RacFaq } from "./ResteAChargeSections";
 
+/** RAC title is two long lines — keep it smaller than home/devis so Q1 + Google fit. */
 const DESKTOP_H1 =
-  "mx-auto font-extrabold leading-[1.12] tracking-[-0.03em] [font-family:var(--font-inter-tranches),ui-sans-serif,sans-serif] text-[clamp(2.25rem,3vw,3rem)]";
+  "mx-auto max-w-[26rem] font-extrabold leading-[1.12] tracking-[-0.03em] [font-family:var(--font-inter-tranches),ui-sans-serif,sans-serif] text-[clamp(1.2rem,1.45vw,1.45rem)]";
 
 function isPastFirstQuestion(
   step: FormStepId,
@@ -67,7 +68,7 @@ export function ResteAChargeLanding({
                 </div>
               </div>
             </div>
-            <div className="hidden px-6 pb-3 pt-4 text-center lg:block xl:px-10 xl:pt-5">
+            <div className="hidden px-6 pb-1.5 pt-1.5 text-center lg:block xl:px-10">
               <h1 className={DESKTOP_H1}>
                 <RacPageTitle />
               </h1>
@@ -75,10 +76,10 @@ export function ResteAChargeLanding({
           </div>
 
           <section className="bg-white">
-            <div className="lg:mx-auto lg:max-w-[34rem] lg:px-6 lg:pt-1">
+            <div className="lg:mx-auto lg:max-w-[34rem] lg:px-6">
               <div
                 id="devis"
-                className="mx-auto w-full max-w-[560px] scroll-mt-4 px-4 pb-5 pt-4 lg:max-w-none lg:px-0 lg:pb-4 lg:pt-5"
+                className="mx-auto w-full max-w-[560px] scroll-mt-4 px-4 pb-5 pt-4 lg:max-w-none lg:px-0 lg:pb-2 lg:pt-1.5"
               >
                 <TikTokFunnelTracker />
                 <SeniorQuoteForm

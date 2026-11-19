@@ -818,6 +818,7 @@ export function QuoteFormV2({
               <ProgressBar
                 current={progressCurrent}
                 total={V2_QUESTION_STEPS.length}
+                durationLabel="1 minute"
               />
             ) : null}
             {stepContent}

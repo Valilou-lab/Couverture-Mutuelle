@@ -242,7 +242,7 @@ export function QuoteForm({
   careNeedsTitle = "Qu’est-ce qui compte le plus pour vous dans votre mutuelle ?",
   coveredPersonsTitle = "Qui doit-être assuré ?",
   firstStep = "currentMutualTariff",
-  firstStepIntro = "Votre devis en 1 minute",
+  firstStepIntro = "",
   firstStepNote,
   introBarStyle = "soft",
   redesignVisual,
@@ -994,9 +994,7 @@ export function QuoteForm({
               current={progressCurrent}
               total={progressTotal}
               display="percent"
-              durationLabel={
-                askCareNeedsFirst ? "2 minutes" : undefined
-              }
+              durationLabel="1 minute"
             />
           </div>
         ) : null}

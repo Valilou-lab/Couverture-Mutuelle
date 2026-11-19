@@ -25,6 +25,8 @@ type LpV2SplitShellProps = {
   mobileBelow: ReactNode;
   /** From question 2 onward — hide jumping « Comment ça se passe ». */
   showHowItWorks?: boolean;
+  /** Tighter title + form spacing (RAC long H1). */
+  compactChrome?: boolean;
 };
 
 /**
@@ -42,6 +44,7 @@ export function LpV2SplitShell({
   desktopCtaLabel,
   mobileBelow,
   showHowItWorks = true,
+  compactChrome = false,
 }: LpV2SplitShellProps) {
   return (
     <div
@@ -66,14 +69,27 @@ export function LpV2SplitShell({
                 {mobileTitle}
               </div>
             </div>
-            <div className="hidden px-6 pb-3 pt-4 text-center lg:block xl:px-10 xl:pt-5">
+            <div
+              className={
+                compactChrome
+                  ? "hidden px-6 pb-1.5 pt-1.5 text-center lg:block xl:px-10"
+                  : "hidden px-6 pb-3 pt-4 text-center lg:block xl:px-10 xl:pt-5"
+              }
+            >
               {desktopTitle}
             </div>
           </div>
 
           <section className="bg-white">
             <div className="mx-auto w-full max-w-[640px] px-4 min-[900px]:max-w-[1100px] lg:max-w-[34rem] lg:px-6 lg:pt-1">
-              <div id="devis" className="scroll-mt-4 pb-5 pt-4 lg:pb-4 lg:pt-5">
+              <div
+                id="devis"
+                className={
+                  compactChrome
+                    ? "scroll-mt-4 pb-5 pt-4 lg:pb-2 lg:pt-1.5"
+                    : "scroll-mt-4 pb-5 pt-4 lg:pb-4 lg:pt-5"
+                }
+              >
                 {form}
               </div>
             </div>

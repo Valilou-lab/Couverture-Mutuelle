@@ -386,23 +386,21 @@ export function ComplianceQuoteForm() {
         id="formulaire-devis"
         className="relative scroll-mt-24 overflow-hidden rounded-[28px] border border-[#ddd6fe] bg-white shadow-[0_10px_30px_-18px_rgba(98,41,208,0.45)]"
       >
-        <div className="grid grid-cols-[44px_1fr_44px] items-center border-b border-brand-muted bg-[#ddd6fe] px-2 py-3.5">
+        <div
+          className={`relative grid gap-4 px-4 pb-4 min-[760px]:px-7 min-[760px]:pb-5 ${
+            canGoBack
+              ? "pt-12 min-[760px]:pt-[3.25rem]"
+              : "pt-[18px] min-[760px]:pt-[22px]"
+          }`}
+        >
           {canGoBack ? (
             <FormBackButton
               onBack={goBack}
               disabled={isAdvancing || isCheckingEligibility || otpVerifying}
               label="Étape précédente"
+              className="absolute left-1.5 top-1.5 z-20 sm:left-2.5 sm:top-2"
             />
-          ) : (
-            <span aria-hidden="true" />
-          )}
-          <p className="text-balance text-center font-poppins text-[1.25rem] font-extrabold leading-tight tracking-[-0.02em] text-[#3b0764] sm:text-[1.7rem]">
-            Votre devis en 1 minute
-          </p>
-          <span aria-hidden="true" />
-        </div>
-
-        <div className="grid gap-4 px-4 pb-4 pt-[18px] min-[760px]:px-7 min-[760px]:pb-5 min-[760px]:pt-[22px]">
+          ) : null}
           {showProgress ? (
             <ProgressBar
               current={progressCurrent}

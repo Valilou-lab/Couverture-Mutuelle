@@ -13,7 +13,7 @@ import { TikTokFunnelTracker } from "@/components/landing/tiktok/TikTokFunnelTra
 import { LpV2SplitShell } from "./LpV2SplitShell";
 
 const DESKTOP_H1 =
-  "mx-auto font-extrabold leading-[1.12] tracking-[-0.03em] [font-family:var(--font-inter-tranches),ui-sans-serif,sans-serif] text-[clamp(2.25rem,3vw,3rem)]";
+  "mx-auto max-w-[26rem] font-extrabold leading-[1.12] tracking-[-0.03em] [font-family:var(--font-inter-tranches),ui-sans-serif,sans-serif] text-[clamp(1.2rem,1.45vw,1.45rem)]";
 
 function isPastFirstQuestion(
   step: FormStepId,
@@ -70,6 +70,7 @@ export function ResteAChargeV2Landing({
       desktopFaq={<RacFaq headingId="faq-titre-desktop" />}
       desktopCtaLabel="DEVIS GRATUIT"
       showHowItWorks={!formFocused}
+      compactChrome
       mobileBelow={
         <>
           <HomeLpBelowForm

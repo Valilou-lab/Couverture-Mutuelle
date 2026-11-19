@@ -17,8 +17,6 @@ const SENIOR_FORM_FUNNEL = {
   onSubmitSuccess: trackTikTokSubmitForm,
 } as const;
 
-const DEFAULT_INTRO = "Votre devis en 1 minute";
-
 type SeniorQuoteFormProps = {
   onStepChange?: (step: FormStepId, questionNumber: number | null) => void;
   /** Defaults to `"senior"`. Pass `"iki"` on the IKI LP for dual opt-ins. */
@@ -50,21 +48,13 @@ export function SeniorQuoteForm({
   onStepChange,
   consentVariant = "senior",
   redesignIntro = false,
-  firstStepIntro,
+  firstStepIntro = "",
   askAgeInsteadOfBirthDate = false,
   askCareNeedsFirst = false,
   lpV2Desktop = false,
   splitContact,
 }: SeniorQuoteFormProps = {}) {
   const visualRedesign = redesignIntro === true || redesignIntro === "mobile";
-  const intro =
-    firstStepIntro !== undefined
-      ? firstStepIntro
-      : consentVariant === "iki"
-        ? ""
-        : askCareNeedsFirst
-          ? "Votre devis en 2 minutes"
-          : DEFAULT_INTRO;
 
   return (
     <LpV2DesktopFormContext.Provider value={lpV2Desktop}>
@@ -77,7 +67,7 @@ export function SeniorQuoteForm({
               ? "careNeeds"
               : "currentMutualTariff"
         }
-        firstStepIntro={intro}
+        firstStepIntro={firstStepIntro}
         introBarFromLg={visualRedesign}
         askAgeInsteadOfBirthDate={askAgeInsteadOfBirthDate}
         askCareNeedsFirst={askCareNeedsFirst}
