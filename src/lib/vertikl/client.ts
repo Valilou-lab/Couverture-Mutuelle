@@ -161,21 +161,34 @@ export async function sendLeadToVertikl(
       body: JSON.stringify(payload),
     });
 
+    const responseText = await response.text();
     let body: VertiklTestResponse | null = null;
     let rawBody: unknown = null;
     try {
-      rawBody = (await response.json()) as unknown;
+      rawBody = responseText ? (JSON.parse(responseText) as unknown) : null;
       body = rawBody as VertiklTestResponse;
     } catch {
       body = null;
-      rawBody = null;
+      rawBody = responseText || null;
     }
 
     const { returnedFieldNames, consentWhatsappReturned } =
       summarizeReturnedFields(body?.fields ?? null);
 
+    const vertiklMessage =
+      body && typeof body === "object"
+        ? typeof (body as { message?: unknown }).message === "string"
+          ? (body as { message: string }).message.trim()
+          : null
+        : null;
+    const vertiklErrorFlag =
+      body && typeof body === "object"
+        ? (body as { error?: unknown }).error
+        : undefined;
+
     const failureMessage =
       body?.failureMessage?.trim() ||
+      vertiklMessage ||
       (!response.ok ? `HTTP_${response.status}` : null);
 
     const ok = response.ok && body?.success === true;
@@ -200,6 +213,14 @@ export async function sendLeadToVertikl(
           })()
         : rawBody;
 
+    const usefulHeaders: Record<string, string | null> = {
+      "content-type": response.headers.get("content-type"),
+      "x-request-id":
+        response.headers.get("x-request-id") ||
+        response.headers.get("x-vercel-id") ||
+        response.headers.get("cf-ray"),
+    };
+
     console.info("[vertikl] response", {
       endpoint,
       campaignId: resolvedCampaignId,
@@ -209,11 +230,30 @@ export async function sendLeadToVertikl(
       httpStatus: response.status,
       success: ok,
       failureMessage: failureMessage ?? null,
+      vertiklMessage,
+      vertiklErrorFlag: vertiklErrorFlag ?? null,
       returnedFieldNames,
       consentWhatsappReturned,
-      // TEMP: full Vertikl body (PII redacted) to diagnose 422s
+      responseHeaders: usefulHeaders,
+      // TEMP: full Vertikl body (PII redacted) / raw text to diagnose 422s
       rawBody: safeRaw,
+      rawBodyText:
+        typeof rawBody === "string"
+          ? rawBody.slice(0, 4000)
+          : responseText.slice(0, 4000),
     });
+
+    if (!response.ok) {
+      console.error("VERTIKL_ACQUIRE_ERROR_BODY", {
+        httpStatus: response.status,
+        responseHeaders: usefulHeaders,
+        body: safeRaw,
+        bodyText: responseText.slice(0, 4000),
+        failureMessage,
+        precheckId: precheckId || null,
+        consentBuyerIds: consent?.buyer_ids ?? [],
+      });
+    }
 
     if (!ok) {
       return {
@@ -222,6 +262,8 @@ export async function sendLeadToVertikl(
         failureMessage: failureMessage || "LEAD_SUBMISSION_FAILED",
         returnedFieldNames,
         consentWhatsappReturned,
+        vertiklBody: safeRaw,
+        vertiklHeaders: usefulHeaders,
       };
     }
 

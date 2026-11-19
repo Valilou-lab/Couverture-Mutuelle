@@ -9,7 +9,6 @@ import {
   RacCta,
   RacFaq,
 } from "@/components/landing/reste-a-charge/ResteAChargeSections";
-import { SeniorHeader } from "@/components/landing/senior/SeniorHeader";
 import { TikTokFunnelTracker } from "@/components/landing/tiktok/TikTokFunnelTracker";
 import { LpV2SplitShell } from "./LpV2SplitShell";
 
@@ -62,12 +61,7 @@ export function HomeV2Landing({ className }: { className?: string } = {}) {
   return (
     <LpV2SplitShell
       className={className}
-      mobileHeader={
-        <SeniorHeader bordered={false} logoCentered showWhatsApp={false} />
-      }
-      mobileTitle={
-        <HomeHeroTitles className="pb-2" />
-      }
+      mobileTitle={<HomeHeroTitles className="pb-2" />}
       desktopTitle={
         <h1 className={DESKTOP_H1}>
           <span className="block text-zinc-900">
@@ -93,7 +87,7 @@ export function HomeV2Landing({ className }: { className?: string } = {}) {
       desktopCtaLabel="DEVIS GRATUIT"
       mobileBelow={
         <>
-          <HomeLpBelowForm />
+          <HomeLpBelowForm howItWorksPastel />
           {!formFocused ? (
             <div className="mx-auto w-full max-w-[640px] px-4 pb-12 min-[700px]:max-w-[1000px]">
               <RacFaq items={HOME_FAQ} />

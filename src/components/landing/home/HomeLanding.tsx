@@ -51,7 +51,7 @@ function isPastFirstQuestion(
 
 /**
  * `/` and `/tiktok`: own copy + questionnaire + mobile.
- * Desktop (`lg`) matches the validated `/tranches-age` two-column composition.
+ * Desktop (`lg`) matches `/devis` chrome (pastel header, white form, pastel how-it-works).
  * One quote form in the DOM.
  */
 export function HomeLanding({
@@ -79,8 +79,14 @@ export function HomeLanding({
     >
       <div className="lg:grid lg:grid-cols-2 lg:items-stretch">
         <div className="min-w-0 lg:bg-white">
-          <div className="bg-white">
-            <SeniorHeader bordered={false} logoCentered showWhatsApp={false} />
+          <div className="bg-[#ede9fe]">
+            <SeniorHeader
+              bordered={false}
+              logoCentered
+              showWhatsApp={false}
+              showLogo={false}
+              backgroundClassName="bg-transparent"
+            />
             <div className="lg:hidden">
               <div className="mx-auto w-full max-w-[640px] px-4 min-[700px]:max-w-[1000px]">
                 <HomeHeroTitles
@@ -88,24 +94,23 @@ export function HomeLanding({
                 />
               </div>
             </div>
+            <div className="hidden px-6 pb-3 pt-4 text-center lg:block xl:px-10 xl:pt-5">
+              <h1 className={DESKTOP_H1}>
+                <span className="block text-zinc-900">
+                  Le bon tarif pour votre mutuelle
+                </span>
+                <span className="block text-[#9b4ff0]">
+                  sans perdre les garanties qui comptent
+                </span>
+              </h1>
+            </div>
           </div>
 
-          <div className="hidden bg-white px-6 pb-3 pt-4 text-center lg:block xl:px-10 xl:pt-5">
-            <h1 className={DESKTOP_H1}>
-              <span className="block text-zinc-900">
-                Le bon tarif pour votre mutuelle
-              </span>
-              <span className="block text-[#9b4ff0]">
-                sans perdre les garanties qui comptent
-              </span>
-            </h1>
-          </div>
-
-          <section className="bg-[#ede9fe]">
+          <section className="bg-white">
             <div className="mx-auto w-full max-w-[640px] px-4 min-[700px]:max-w-[1000px] lg:max-w-[34rem] lg:px-6 lg:pt-1">
               <div
                 id="devis"
-                className="mx-auto w-full max-w-[560px] scroll-mt-4 pb-5 pt-4 lg:max-w-none lg:pb-8 lg:pt-5"
+                className="mx-auto w-full max-w-[560px] scroll-mt-4 pb-5 pt-4 lg:max-w-none lg:pb-4 lg:pt-5"
               >
                 <TikTokFunnelTracker />
                 <SeniorQuoteForm
@@ -118,8 +123,10 @@ export function HomeLanding({
             </div>
           </section>
 
-          <div className="hidden bg-white px-4 pb-6 pt-4 lg:block xl:px-8">
+          <div className="hidden bg-white px-4 pb-2 pt-2 lg:block xl:px-8">
             <HomeFormTrustButtons />
+          </div>
+          <div className="hidden bg-[#ede9fe] px-4 pb-6 pt-0 lg:block xl:px-8">
             <HomeHowItWorksSchema headingId="comment-ca-se-passe-schema-desktop" />
           </div>
         </div>
@@ -133,7 +140,7 @@ export function HomeLanding({
       </div>
 
       <div className="lg:hidden">
-        <HomeLpBelowForm />
+        <HomeLpBelowForm howItWorksPastel />
         {!formFocused ? (
           <div className="mx-auto w-full max-w-[640px] px-4 pb-12 min-[700px]:max-w-[1000px]">
             <RacFaq items={FAQ} />

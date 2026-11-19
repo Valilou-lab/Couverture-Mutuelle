@@ -116,14 +116,14 @@ export function TranchesAgeDesktopAside({
 
   return (
     <aside className="relative hidden min-h-full bg-[#6d28d9] text-white lg:block">
-      <div className="sticky top-0 max-h-screen overflow-y-auto overscroll-contain px-8 py-10 xl:px-12 xl:py-12 2xl:px-14">
-        <div>
+      <div className="sticky top-0 flex min-h-screen max-h-screen flex-col overflow-y-auto overscroll-contain px-8 pb-8 pt-5 xl:px-12 xl:pb-10 xl:pt-6 2xl:px-14">
+        <div className="shrink-0">
           {showBrandLogo ? (
-            <div className="flex justify-center pb-8 pt-1 xl:pb-10 xl:pt-2">
+            <div className="flex justify-center pb-3">
               <Link
                 href="/"
                 aria-label="Couverture Mutuelle"
-                className="flex size-[8.5rem] items-center justify-center rounded-full bg-white p-5 xl:size-[9.5rem] xl:p-6"
+                className="flex size-[6.25rem] items-center justify-center rounded-full bg-white p-3 xl:size-[7rem] xl:p-3.5"
               >
                 <Image
                   src="/logo-couverture-mutuelle.png"
@@ -139,7 +139,7 @@ export function TranchesAgeDesktopAside({
           <h2 className="text-center font-extrabold leading-[1.15] tracking-[-0.03em] text-white [font-family:var(--font-inter-tranches),ui-sans-serif,sans-serif] text-[clamp(1.7rem,2.4vw,2.45rem)]">
             En 1 minute, obtenez gratuitement&nbsp;:
           </h2>
-          <ul className="mt-8 grid gap-6 xl:mt-10 xl:gap-7">
+          <ul className="mt-[4.5rem] grid gap-5 xl:mt-20 xl:gap-6">
             {BENEFITS.map((item) => (
               <li key={item.title} className="flex items-start gap-3.5 xl:gap-4">
                 <span className="mt-0.5 inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white xl:h-11 xl:w-11">
@@ -162,7 +162,7 @@ export function TranchesAgeDesktopAside({
           </ul>
         </div>
 
-        <div className="mt-5">
+        <div className="mt-auto shrink-0 pt-10 xl:pt-12">
           <div className="mb-5 h-px bg-white/70" />
           <h3 className="text-center text-[1rem] font-extrabold leading-snug tracking-[-0.02em] text-white xl:text-[1.08rem]">
             Qui est derrière Couverture Mutuelle&nbsp;?

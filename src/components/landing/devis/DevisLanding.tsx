@@ -59,59 +59,60 @@ export function DevisLanding({
       }`}
     >
       <div className="lg:grid lg:grid-cols-2 lg:items-stretch">
-        <div className="min-w-0 lg:flex lg:min-h-screen lg:flex-col lg:bg-white">
-          <div className="bg-white">
+        <div className="min-w-0 lg:bg-white">
+          <div className={formFocused ? "bg-white" : "bg-[#ede9fe]"}>
             <SeniorHeader
               bordered={false}
               logoCentered={!formFocused}
               showWhatsApp={false}
               showAudienceBadge={!formFocused}
               funnelChrome={formFocused}
+              showLogo={false}
+              backgroundClassName={
+                formFocused ? "bg-white" : "bg-transparent"
+              }
             />
-            <div className="lg:hidden">
-              {!formFocused ? (
+            {!formFocused ? (
+              <div className="lg:hidden">
                 <div className="mx-auto w-full max-w-[640px] px-4 min-[700px]:max-w-[1000px]">
                   <HomeHeroTitles className="pb-2" />
                 </div>
-              ) : null}
-            </div>
+              </div>
+            ) : null}
+            {!formFocused ? (
+              <div className="hidden px-6 pb-3 pt-4 text-center lg:block xl:px-10 xl:pt-5">
+                <h1 className={DESKTOP_H1}>
+                  <span className="block text-zinc-900">
+                    Le bon tarif pour votre mutuelle
+                  </span>
+                  <span className="block text-[#9b4ff0]">
+                    sans perdre les garanties qui comptent
+                  </span>
+                </h1>
+              </div>
+            ) : null}
           </div>
 
-          {!formFocused ? (
-            <div className="hidden bg-white px-6 pb-3 pt-4 text-center lg:block xl:px-10 xl:pt-5">
-              <h1 className={DESKTOP_H1}>
-                <span className="block text-zinc-900">
-                  Le bon tarif pour votre mutuelle
-                </span>
-                <span className="block text-[#9b4ff0]">
-                  sans perdre les garanties qui comptent
-                </span>
-              </h1>
-            </div>
-          ) : null}
-
-          <section className="bg-[#ede9fe]">
+          <section className="bg-white">
             <div className="mx-auto w-full max-w-[640px] px-4 min-[700px]:max-w-[1000px] lg:max-w-[34rem] lg:px-6 lg:pt-1">
               <div
                 id="devis"
-                className="mx-auto w-full max-w-[560px] scroll-mt-4 pb-5 pt-4 lg:max-w-none lg:pb-8 lg:pt-5"
+                className="mx-auto w-full max-w-[560px] scroll-mt-4 pb-5 pt-4 lg:max-w-none lg:pb-4 lg:pt-5"
               >
                 <QuoteFormV2 onFocusChange={onFocusChange} />
               </div>
             </div>
           </section>
 
-          <div className="hidden bg-white px-6 pb-8 pt-6 lg:mt-auto lg:block xl:px-10">
-            {/* Flush left of the column — no mx-auto / centered rail. */}
-            <HomeFormTrustButtons align="left" />
-            <HomeHowItWorksSchema
-              headingId="comment-ca-se-passe-schema-desktop"
-              align="left"
-            />
+          <div className="hidden bg-white px-4 pb-2 pt-2 lg:block xl:px-8">
+            <HomeFormTrustButtons />
+          </div>
+          <div className="hidden bg-[#ede9fe] px-4 pb-6 pt-0 lg:block xl:px-8">
+            <HomeHowItWorksSchema headingId="comment-ca-se-passe-schema-desktop" />
           </div>
         </div>
 
-        <TranchesAgeDesktopAside showBrandLogo={false} spacious />
+        <TranchesAgeDesktopAside />
       </div>
 
       <div className="hidden bg-white px-6 pb-16 lg:block xl:px-10">
@@ -120,7 +121,10 @@ export function DevisLanding({
       </div>
 
       <div className="lg:hidden">
-        <HomeLpBelowForm showPartnerCarousel={false} />
+        <HomeLpBelowForm
+          showPartnerCarousel={false}
+          howItWorksPastel
+        />
         <div className="mx-auto w-full max-w-[640px] px-4 pb-12 min-[700px]:max-w-[1000px]">
           <RacFaq headingId="faq-titre-mobile" items={FAQ} />
           <RacCta label="MON DEVIS GRATUIT" />

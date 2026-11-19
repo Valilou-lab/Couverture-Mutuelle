@@ -234,19 +234,30 @@ export function QuoteFormV2({
     advanceAfterDelay("phone");
   }, [advanceAfterDelay, isAdvancing]);
 
+  const eligibilityInFlightRef = useRef(false);
+  const lastEligibilityTokenRef = useRef<string | null>(null);
+  const eligibilityCallSeqRef = useRef(0);
+
   const checkEligibility = useCallback(
     async (options?: {
       skipFieldValidation?: boolean;
       /** Exact E.164 from OTP proof — avoids 06 vs +336 mismatch with the cookie. */
       phoneOverride?: string;
     }) => {
-      if (isCheckingEligibility || isAdvancing) {
+      if (
+        eligibilityInFlightRef.current ||
+        isCheckingEligibility ||
+        isAdvancing
+      ) {
         console.warn("PRECHECK_START skipped", {
+          eligibilityInFlight: eligibilityInFlightRef.current,
           isCheckingEligibility,
           isAdvancing,
         });
         return;
       }
+      eligibilityInFlightRef.current = true;
+      const callSeq = ++eligibilityCallSeqRef.current;
 
       const phoneE164 =
         normalizeV2PhoneToE164(options?.phoneOverride || data.phone) ||
@@ -255,11 +266,13 @@ export function QuoteFormV2({
       if (!options?.skipFieldValidation) {
         const stepErrors = validateV2EmailPhone(data);
         if (Object.keys(stepErrors).length > 0) {
+          eligibilityInFlightRef.current = false;
           setErrors(stepErrors);
           return;
         }
 
         if (!phoneE164) {
+          eligibilityInFlightRef.current = false;
           setErrors({
             phone: "Veuillez saisir un numéro de téléphone valide.",
           });
@@ -268,6 +281,7 @@ export function QuoteFormV2({
 
         const emailCheck = await validateV2EmailOnServer(data.email);
         if (!emailCheck.ok) {
+          eligibilityInFlightRef.current = false;
           setErrors({
             email: emailCheck.message || V2_EMAIL_INVALID_MESSAGE,
           });
@@ -282,6 +296,13 @@ export function QuoteFormV2({
       setErrors({});
       setEligibilityError(null);
       setEligiblePartners([]);
+      // TEMP diagnostic — clear prior reservation before a new Vertikl precheck.
+      console.info("PRECHECK_TOKEN_CLEARED", {
+        callSeq,
+        previousTokenPresent: Boolean(lastEligibilityTokenRef.current),
+        at: new Date().toISOString(),
+      });
+      lastEligibilityTokenRef.current = null;
       setEligibilityToken(null);
       goTo("searching");
       setIsCheckingEligibility(true);
@@ -301,7 +322,9 @@ export function QuoteFormV2({
 
         // TEMP diagnostic — state at precheck (names are acquire-only, not in payload).
         console.info("PRECHECK_START", {
+          callSeq,
           skipFieldValidation: Boolean(options?.skipFieldValidation),
+          at: new Date().toISOString(),
           state: {
             firstName: data.firstName,
             lastName: data.lastName,
@@ -325,11 +348,29 @@ export function QuoteFormV2({
           }),
         ]);
 
+        // Stale response: a newer checkEligibility started after this one.
+        if (callSeq !== eligibilityCallSeqRef.current) {
+          console.warn("PRECHECK_STALE_RESPONSE_IGNORED", {
+            callSeq,
+            latestCallSeq: eligibilityCallSeqRef.current,
+            at: new Date().toISOString(),
+          });
+          return;
+        }
+
+        lastEligibilityTokenRef.current = result.eligibilityToken;
         setEligiblePartners(result.partners);
         setEligibilityToken(result.eligibilityToken);
+        console.info("PRECHECK_TOKEN_SET", {
+          callSeq,
+          tokenPresent: Boolean(result.eligibilityToken),
+          partnerCount: result.partners.length,
+          at: new Date().toISOString(),
+        });
         goTo("eligiblePartners");
       } catch (error) {
         console.error("PRECHECK_ERROR", {
+          callSeq,
           caughtInCheckEligibility: true,
           error:
             error instanceof Error
@@ -338,7 +379,10 @@ export function QuoteFormV2({
         });
         setEligibilityError(ELIGIBILITY_ERROR);
       } finally {
-        setIsCheckingEligibility(false);
+        if (callSeq === eligibilityCallSeqRef.current) {
+          eligibilityInFlightRef.current = false;
+          setIsCheckingEligibility(false);
+        }
       }
     },
     [data, goTo, isAdvancing, isCheckingEligibility, patch],
@@ -362,6 +406,40 @@ export function QuoteFormV2({
         "Preuve d’éligibilité manquante. Relancez la vérification des offres.",
       );
     }
+    // TEMP diagnostic — confirm submit uses the same token as last precheck.
+    let tokenMeta: Record<string, unknown> | null = null;
+    try {
+      if (eligibilityToken.startsWith("v2e2.")) {
+        const raw = JSON.parse(
+          atob(eligibilityToken.slice(5).replace(/-/g, "+").replace(/_/g, "/")),
+        ) as {
+          precheckId?: string;
+          issuedAt?: string;
+          expiresAt?: string;
+          buyerIds?: string[];
+        };
+        const now = Date.now();
+        const issuedMs = raw.issuedAt ? Date.parse(raw.issuedAt) : NaN;
+        tokenMeta = {
+          precheckId: raw.precheckId ?? null,
+          issuedAt: raw.issuedAt ?? null,
+          expiresAt: raw.expiresAt ?? null,
+          buyerIds: raw.buyerIds ?? null,
+          elapsedSinceIssuedMs: Number.isFinite(issuedMs)
+            ? now - issuedMs
+            : null,
+          sameAsLastTokenRef:
+            lastEligibilityTokenRef.current === eligibilityToken,
+          callSeq: eligibilityCallSeqRef.current,
+        };
+      }
+    } catch {
+      tokenMeta = { decodeError: true };
+    }
+    console.info("SUBMIT_RESERVATION_STATE", {
+      at: new Date().toISOString(),
+      tokenMeta,
+    });
     await submitV2Lead({
       data,
       partners: eligiblePartners,

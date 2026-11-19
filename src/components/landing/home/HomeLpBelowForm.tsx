@@ -58,6 +58,10 @@ type HomeLpBelowFormProps = {
   signText?: ReactNode;
   /** Homepage keeps the logo marquee; `/devis` mobile can hide it. */
   showPartnerCarousel?: boolean;
+  /**
+   * `/devis`: Google avis stay on white; « Comment ça se passe » sits on pastel.
+   */
+  howItWorksPastel?: boolean;
 };
 
 /**
@@ -70,18 +74,35 @@ export function HomeLpBelowForm({
   quotesText,
   signText,
   showPartnerCarousel = true,
+  howItWorksPastel = false,
 }: HomeLpBelowFormProps = {}) {
   return (
     <>
-      <div className="bg-white px-4 pb-4 pt-4">
-        <HomeFormTrustButtons />
-        <HomeHowItWorksSchema
-          needsText={needsText}
-          quotesTitle={quotesTitle}
-          quotesText={quotesText}
-          signText={signText}
-        />
-      </div>
+      {howItWorksPastel ? (
+        <>
+          <div className="bg-white px-4 pb-2 pt-4">
+            <HomeFormTrustButtons />
+          </div>
+          <div className="bg-[#ede9fe] px-4 pb-4 pt-2">
+            <HomeHowItWorksSchema
+              needsText={needsText}
+              quotesTitle={quotesTitle}
+              quotesText={quotesText}
+              signText={signText}
+            />
+          </div>
+        </>
+      ) : (
+        <div className="bg-white px-4 pb-4 pt-4">
+          <HomeFormTrustButtons />
+          <HomeHowItWorksSchema
+            needsText={needsText}
+            quotesTitle={quotesTitle}
+            quotesText={quotesText}
+            signText={signText}
+          />
+        </div>
+      )}
       <section className="relative overflow-hidden lg:hidden">
         <Image
           src="/images/hero-couple-cour.jpg"

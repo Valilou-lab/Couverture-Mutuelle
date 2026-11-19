@@ -46,10 +46,7 @@ import {
   getPrecheckFieldsSnapshot,
 } from "@/lib/vertikl/fields-snapshot";
 import { VertiklMappingError } from "@/lib/vertikl/mappers";
-import {
-  formatVertiklDateTime,
-  requiresSmsPhoneVerification,
-} from "@/lib/vertikl/normalize";
+import { requiresSmsPhoneVerification } from "@/lib/vertikl/normalize";
 import { V2_VERTIKL_CAMPAIGN_ID } from "@/lib/vertikl/precheck";
 import {
   isAcquisitionChannel,
@@ -363,8 +360,9 @@ export async function POST(request: NextRequest) {
   };
 
   // Single consent clock for fields.consent_datetime + consent.collected_at.
+  // collected_at must be full ISO-8601 with milliseconds (Vertikl prod).
   const consentAt = new Date();
-  const consentCollectedAt = `${formatVertiklDateTime(consentAt)}Z`;
+  const consentCollectedAt = consentAt.toISOString();
   const consentText = buildV2PartnerConsentText(partners);
   const ipAddress = getClientIp(request);
   const userAgent = request.headers.get("user-agent")?.trim() || undefined;
@@ -395,8 +393,37 @@ export async function POST(request: NextRequest) {
 
   const precheckId = tokenResult.payload.precheckId;
   const submitAt = new Date().toISOString();
+  const tokenIssuedAt = tokenResult.payload.issuedAt;
+  const tokenExpiresAt = tokenResult.payload.expiresAt;
+  const issuedAtMs = Date.parse(tokenIssuedAt);
+  const expiresAtMs = Date.parse(tokenExpiresAt);
+  const submitAtMs = Date.parse(submitAt);
+  const elapsedSincePrecheckMs = Number.isFinite(issuedAtMs)
+    ? submitAtMs - issuedAtMs
+    : null;
+  const remainingTtlMs = Number.isFinite(expiresAtMs)
+    ? expiresAtMs - submitAtMs
+    : null;
   const reservationExpired =
-    Date.parse(tokenResult.payload.expiresAt) <= Date.now();
+    Number.isFinite(expiresAtMs) && expiresAtMs <= submitAtMs;
+
+  console.info("VERTIKL_ACQUIRE_RESERVATION_STATE", {
+    precheckId,
+    tokenIssuedAt,
+    tokenExpiresAt,
+    submitAt,
+    elapsedSincePrecheckMs,
+    elapsedSincePrecheckSeconds:
+      elapsedSincePrecheckMs != null
+        ? Math.round(elapsedSincePrecheckMs / 1000)
+        : null,
+    remainingTtlMs,
+    remainingTtlSeconds:
+      remainingTtlMs != null ? Math.round(remainingTtlMs / 1000) : null,
+    reservationExpired,
+    consentBuyerIds: tokenResult.payload.buyerIds,
+    campaignId: V2_VERTIKL_CAMPAIGN_ID,
+  });
   const acquireFieldsSnap = buildSafeFieldsSnapshot(
     fields as Record<string, unknown>,
     precheckId,
@@ -461,6 +488,27 @@ export async function POST(request: NextRequest) {
     fieldKeys: Object.keys(fields).sort(),
   });
 
+  // TEMP diagnostic — plain-language compare for Vertikl 422 triage
+  console.info("FIELDS_COMPARE_PLAIN", {
+    precheckId,
+    phoneFpMatch:
+      precheckFieldsSnap && acquireFieldsSnap
+        ? precheckFieldsSnap.phoneFp === acquireFieldsSnap.phoneFp
+        : null,
+    emailFpMatch:
+      precheckFieldsSnap && acquireFieldsSnap
+        ? precheckFieldsSnap.emailFp === acquireFieldsSnap.emailFp
+        : null,
+    precheckPhoneFp: precheckFieldsSnap?.phoneFp ?? null,
+    acquirePhoneFp: acquireFieldsSnap.phoneFp,
+    reservedBuyerIds: tokenResult.payload.buyerIds,
+    submitConsentBuyerIds: tokenResult.payload.buyerIds,
+    identical: fieldsCompare?.MATCHING ?? null,
+    different: fieldsCompare?.DIFFERENT_VALUES ?? null,
+    absentAtPrecheckPresentAtSubmit: fieldsCompare?.ACQUIRE_ONLY ?? null,
+    presentAtPrecheckAbsentAtSubmit: fieldsCompare?.PRECHECK_ONLY ?? null,
+  });
+
   const result = await sendLeadToVertikl(fields, V2_VERTIKL_CAMPAIGN_ID, {
     precheckId,
     buyerIds: tokenResult.payload.buyerIds,
@@ -480,6 +528,12 @@ export async function POST(request: NextRequest) {
     apiKey: runtime.apiKey,
     consentBuyerIds: tokenResult.payload.buyerIds,
     fieldsCompare,
+    ...(!result.ok
+      ? {
+          vertiklBody: result.vertiklBody ?? null,
+          vertiklHeaders: result.vertiklHeaders ?? null,
+        }
+      : {}),
   });
 
   if (!result.ok) {
@@ -492,11 +546,13 @@ export async function POST(request: NextRequest) {
         code: "LEAD_SUBMISSION_FAILED",
         detail,
         httpStatus: result.httpStatus,
-        // TEMP diagnostic — SAFE fields diff for this precheck_id
+        // TEMP diagnostic — SAFE fields diff + Vertikl raw error body
         fieldsCompare,
         reservationExpired,
         precheckKeys: fieldsCompare?.precheckKeys ?? null,
         acquireKeys: fieldsCompare?.acquireKeys ?? null,
+        vertiklBody: result.vertiklBody ?? null,
+        vertiklHeaders: result.vertiklHeaders ?? null,
       } satisfies V2LeadErrorResponse & {
         detail?: string;
         httpStatus?: number | null;
@@ -504,6 +560,8 @@ export async function POST(request: NextRequest) {
         reservationExpired?: boolean;
         precheckKeys?: string[] | null;
         acquireKeys?: string[] | null;
+        vertiklBody?: unknown;
+        vertiklHeaders?: Record<string, string | null> | null;
       },
       { status: 502 },
     );

@@ -131,16 +131,46 @@ export async function runVertiklPrecheck(input: {
       body = null;
     }
 
+    const precheckId =
+      typeof body?.precheck_id === "string" ? body.precheck_id : null;
+    const expiresAt =
+      typeof body?.expires_at === "string" ? body.expires_at : null;
+    const reservedAt = new Date().toISOString();
+    const expiresAtMs = expiresAt ? Date.parse(expiresAt) : NaN;
+    const ttlMs = Number.isFinite(expiresAtMs)
+      ? expiresAtMs - Date.parse(reservedAt)
+      : null;
+
     console.info("[vertikl/precheck] response", {
       httpStatus,
       status: body?.status ?? null,
       reason: typeof body?.reason === "string" ? body.reason : null,
       buyerCount: Array.isArray(body?.buyers) ? body.buyers.length : null,
-      precheckId:
-        typeof body?.precheck_id === "string" ? body.precheck_id : null,
-      expiresAt:
-        typeof body?.expires_at === "string" ? body.expires_at : null,
+      precheckId,
+      expiresAt,
+      reservedAt,
+      ttlMs,
+      campaignId: runtime.campaignId,
+      apiKey: runtime.apiKey,
+      // TEMP: full Vertikl precheck body for reservation diagnosis
+      rawBody: body,
     });
+
+    if (body?.status === "RESERVED") {
+      console.info("VERTIKL_PRECHECK_RESERVED", {
+        precheckId,
+        reservedAt,
+        expiresAt,
+        ttlMs,
+        ttlSeconds: ttlMs != null ? Math.round(ttlMs / 1000) : null,
+        buyers: parseBuyers(body.buyers),
+        campaignId: runtime.campaignId,
+        apiKey: runtime.apiKey,
+        idempotencyKey,
+        httpStatus,
+        rawBody: body,
+      });
+    }
 
     if (httpStatus === 503) {
       return {

@@ -136,6 +136,9 @@ export type SendLeadResult =
       failureMessage: string;
       returnedFieldNames: string[];
       consentWhatsappReturned: boolean | null;
+      /** TEMP diagnostic — Vertikl error body (PII redacted when object). */
+      vertiklBody?: unknown;
+      vertiklHeaders?: Record<string, string | null>;
     };
 
 export const ACQUISITION_CHANNELS = [

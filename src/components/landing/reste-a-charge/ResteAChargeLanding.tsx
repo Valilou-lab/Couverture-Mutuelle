@@ -14,7 +14,7 @@ const DESKTOP_H1 =
 
 /**
  * `/reste-a-charge`: own copy + care-needs questionnaire + mobile.
- * Desktop (`lg`) matches the validated `/tranches-age` two-column composition.
+ * Desktop (`lg`) matches `/devis` chrome (pastel header, white form, pastel how-it-works).
  * One quote form in the DOM.
  */
 export function ResteAChargeLanding({
@@ -24,37 +24,41 @@ export function ResteAChargeLanding({
 } = {}) {
   return (
     <div
-      className={`flex min-h-0 flex-1 flex-col bg-surface text-[18px] leading-[1.55] text-foreground${
+      className={`flex min-h-0 flex-1 flex-col bg-white text-[18px] leading-[1.55] text-foreground${
         className ? ` ${className}` : ""
       }`}
     >
       <div className="lg:grid lg:grid-cols-2 lg:items-stretch">
         <div className="min-w-0 lg:bg-white">
-          <div className="lg:hidden">
-            <SeniorHeader bordered={false} logoCentered showWhatsApp={false} />
-          </div>
-
-          <div className="bg-white lg:hidden">
-            <div className="mx-auto w-full max-w-[640px] px-4 min-[700px]:max-w-[1000px]">
-              <div className="mx-auto grid max-w-[760px] pb-2 pt-2 text-center">
-                <h1 className="text-[29px] font-extrabold leading-[1.15] tracking-[-0.02em] [font-family:var(--font-inter-tranches),ui-sans-serif,sans-serif]">
-                  <RacPageTitle />
-                </h1>
+          <div className="bg-[#ede9fe]">
+            <SeniorHeader
+              bordered={false}
+              logoCentered
+              showWhatsApp={false}
+              showLogo={false}
+              backgroundClassName="bg-transparent"
+            />
+            <div className="lg:hidden">
+              <div className="mx-auto w-full max-w-[640px] px-4 min-[700px]:max-w-[1000px]">
+                <div className="mx-auto grid max-w-[760px] pb-2 pt-2 text-center">
+                  <h1 className="text-[29px] font-extrabold leading-[1.15] tracking-[-0.02em] [font-family:var(--font-inter-tranches),ui-sans-serif,sans-serif]">
+                    <RacPageTitle />
+                  </h1>
+                </div>
               </div>
+            </div>
+            <div className="hidden px-6 pb-3 pt-4 text-center lg:block xl:px-10 xl:pt-5">
+              <h1 className={DESKTOP_H1}>
+                <RacPageTitle />
+              </h1>
             </div>
           </div>
 
-          <div className="hidden bg-white px-6 pb-3 pt-8 text-center lg:block xl:px-10 xl:pt-10">
-            <h1 className={DESKTOP_H1}>
-              <RacPageTitle />
-            </h1>
-          </div>
-
-          <section className="bg-[#ede9fe]">
+          <section className="bg-white">
             <div className="lg:mx-auto lg:max-w-[34rem] lg:px-6 lg:pt-1">
               <div
                 id="devis"
-                className="mx-auto w-full max-w-[560px] scroll-mt-4 px-4 pb-5 pt-4 lg:max-w-none lg:px-0 lg:pb-8 lg:pt-5"
+                className="mx-auto w-full max-w-[560px] scroll-mt-4 px-4 pb-5 pt-4 lg:max-w-none lg:px-0 lg:pb-4 lg:pt-5"
               >
                 <TikTokFunnelTracker />
                 <SeniorQuoteForm
@@ -66,8 +70,10 @@ export function ResteAChargeLanding({
             </div>
           </section>
 
-          <div className="hidden bg-white px-4 pb-6 pt-4 lg:block xl:px-8">
+          <div className="hidden bg-white px-4 pb-2 pt-2 lg:block xl:px-8">
             <HomeFormTrustButtons />
+          </div>
+          <div className="hidden bg-[#ede9fe] px-4 pb-6 pt-0 lg:block xl:px-8">
             <HomeHowItWorksSchema
               headingId="comment-ca-se-passe-schema-desktop"
               needsText="en 2 minutes"
@@ -84,7 +90,7 @@ export function ResteAChargeLanding({
       </div>
 
       <div className="lg:hidden">
-        <HomeLpBelowForm needsText="en 2 minutes" />
+        <HomeLpBelowForm needsText="en 2 minutes" howItWorksPastel />
         <div className="mx-auto w-full max-w-[640px] px-4 pb-12 min-[700px]:max-w-[1000px]">
           <RacFaq />
           <RacCta label="MON DEVIS GRATUIT" />

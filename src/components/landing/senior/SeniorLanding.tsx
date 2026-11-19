@@ -40,56 +40,70 @@ const SCHEMA_COPY = {
   signText: "Nous nous occupons des démarches de résiliation",
 } as const;
 
+const DESKTOP_H1 =
+  "mx-auto font-extrabold leading-[1.12] tracking-[-0.03em] [font-family:var(--font-inter-tranches),ui-sans-serif,sans-serif] text-[clamp(2.25rem,3vw,3rem)]";
+
 type SeniorLandingProps = {
   /** Extra classes (used by `/tranches-age` for the Inter type scale). */
   className?: string;
 };
 
-/** /tranches-age: validated mobile template, two-column desktop from `lg`. One form. */
+/**
+ * `/tranches-age` (+ `/tranches-age-2`): validated questionnaire + two-column desktop.
+ * Chrome aligned with `/devis` (pastel header, white form, pastel how-it-works).
+ */
 export function SeniorLanding({ className }: SeniorLandingProps = {}) {
   return (
     <div
-      className={`flex min-h-0 flex-1 flex-col bg-surface text-[18px] leading-[1.55] text-foreground${
+      className={`flex min-h-0 flex-1 flex-col bg-white text-[18px] leading-[1.55] text-foreground${
         className ? ` ${className}` : ""
       }`}
     >
       <div className="lg:grid lg:grid-cols-2 lg:items-stretch">
         <div className="min-w-0 lg:bg-white">
-          <div className="lg:hidden">
-            <SeniorHeader bordered={false} logoCentered showWhatsApp={false} />
-          </div>
-
-          <div className="bg-white lg:hidden">
-            <div className="mx-auto w-full max-w-[640px] px-4 min-[700px]:max-w-[1000px]">
-              <div className="mx-auto grid max-w-[760px] pb-2 pt-2 text-center">
-                <h1 className="text-[clamp(1.4rem,7.2vw,1.8125rem)] font-extrabold leading-[1.15] tracking-[-0.02em] [font-family:var(--font-inter-tranches),ui-sans-serif,sans-serif] [text-size-adjust:100%]">
-                  <span className="block whitespace-nowrap text-zinc-900">
-                    Quel tarif pour votre âge&nbsp;?
-                  </span>
-                  <span className="block text-[#9b4ff0]">
-                    <span className="block whitespace-nowrap">Recevez vos</span>
-                    <span className="block whitespace-nowrap">
-                      propositions gratuitement
+          <div className="bg-[#ede9fe]">
+            <SeniorHeader
+              bordered={false}
+              logoCentered
+              showWhatsApp={false}
+              showLogo={false}
+              backgroundClassName="bg-transparent"
+            />
+            <div className="lg:hidden">
+              <div className="mx-auto w-full max-w-[640px] px-4 min-[700px]:max-w-[1000px]">
+                <div className="mx-auto grid max-w-[760px] pb-2 pt-2 text-center">
+                  <h1 className="text-[clamp(1.4rem,7.2vw,1.8125rem)] font-extrabold leading-[1.15] tracking-[-0.02em] [font-family:var(--font-inter-tranches),ui-sans-serif,sans-serif] [text-size-adjust:100%]">
+                    <span className="block whitespace-nowrap text-zinc-900">
+                      Quel tarif pour votre âge&nbsp;?
                     </span>
-                  </span>
-                </h1>
+                    <span className="block text-[#9b4ff0]">
+                      <span className="block whitespace-nowrap">Recevez vos</span>
+                      <span className="block whitespace-nowrap">
+                        propositions gratuitement
+                      </span>
+                    </span>
+                  </h1>
+                </div>
               </div>
             </div>
-          </div>
-          <div className="hidden bg-white px-6 pb-3 pt-8 text-center lg:block xl:px-10 xl:pt-10">
-            <h1 className="mx-auto font-extrabold leading-[1.12] tracking-[-0.03em] [font-family:var(--font-inter-tranches),ui-sans-serif,sans-serif] text-[clamp(2.25rem,3vw,3rem)]">
-              <span className="block text-zinc-900">
-                Quel tarif pour votre âge&nbsp;?
-              </span>
-              <span className="block text-[#9b4ff0]">
-                Recevez vos propositions gratuitement
-              </span>
-            </h1>
+            <div className="hidden px-6 pb-3 pt-4 text-center lg:block xl:px-10 xl:pt-5">
+              <h1 className={DESKTOP_H1}>
+                <span className="block text-zinc-900">
+                  Quel tarif pour votre âge&nbsp;?
+                </span>
+                <span className="block text-[#9b4ff0]">
+                  Recevez vos propositions gratuitement
+                </span>
+              </h1>
+            </div>
           </div>
 
-          <section className="bg-[#ede9fe]">
+          <section className="bg-white">
             <div className="mx-auto w-full max-w-[640px] px-4 min-[900px]:max-w-[1100px] lg:max-w-[34rem] lg:px-6 lg:pt-1">
-              <div id="devis" className="scroll-mt-4 pb-5 pt-4 lg:pb-8 lg:pt-5">
+              <div
+                id="devis"
+                className="scroll-mt-4 pb-5 pt-4 lg:pb-4 lg:pt-5"
+              >
                 <TikTokFunnelTracker />
                 <SeniorQuoteForm
                   redesignIntro="mobile"
@@ -99,8 +113,10 @@ export function SeniorLanding({ className }: SeniorLandingProps = {}) {
             </div>
           </section>
 
-          <div className="hidden bg-white px-4 pb-6 pt-4 lg:block xl:px-8">
+          <div className="hidden bg-white px-4 pb-2 pt-2 lg:block xl:px-8">
             <HomeFormTrustButtons />
+          </div>
+          <div className="hidden bg-[#ede9fe] px-4 pb-6 pt-0 lg:block xl:px-8">
             <HomeHowItWorksSchema
               headingId="comment-ca-se-passe-schema-desktop"
               needsText={SCHEMA_COPY.needsText}
@@ -125,6 +141,7 @@ export function SeniorLanding({ className }: SeniorLandingProps = {}) {
           quotesTitle={SCHEMA_COPY.quotesTitle}
           quotesText={SCHEMA_COPY.quotesText}
           signText={SCHEMA_COPY.signText}
+          howItWorksPastel
         />
         <div className="mx-auto w-full max-w-[640px] px-4 pb-12 min-[700px]:max-w-[1000px]">
           <RacFaq items={TRANCHES_FAQ} />
