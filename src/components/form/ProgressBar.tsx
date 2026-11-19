@@ -74,12 +74,9 @@ export function ProgressBar({
     const labelClass =
       "pointer-events-none absolute inset-y-0 left-0 flex items-center justify-center text-[0.95rem] font-bold tabular-nums";
     return (
-      <div>
-        <div className="mb-1.5 flex items-center justify-end">
-          <DurationBadge label={durationLabel} />
-        </div>
+      <div className="flex items-center gap-2.5">
         <div
-          className="relative h-8 overflow-hidden rounded-full bg-brand-soft"
+          className="relative h-8 min-w-0 flex-1 overflow-hidden rounded-full bg-brand-soft"
           role="progressbar"
           aria-valuenow={safeCurrent}
           aria-valuemin={1}
@@ -101,17 +98,15 @@ export function ProgressBar({
             <span className={`${labelClass} w-full text-white`}>{label}</span>
           </div>
         </div>
+        <DurationBadge label={durationLabel} />
       </div>
     );
   }
 
   return (
-    <div className="mb-4 lg:mb-4">
-      <div className="mb-1.5 flex items-center justify-end">
-        <DurationBadge label={durationLabel} />
-      </div>
+    <div className="mb-4 flex items-center gap-2.5 lg:mb-4">
       <div
-        className="relative h-7 overflow-hidden rounded-full bg-brand-soft shadow-inner sm:h-8 lg:h-6"
+        className="relative h-7 min-w-0 flex-1 overflow-hidden rounded-full bg-brand-soft shadow-inner sm:h-8 lg:h-6"
         role="progressbar"
         aria-valuenow={safeCurrent}
         aria-valuemin={1}
@@ -133,6 +128,7 @@ export function ProgressBar({
           Question {safeCurrent} / {safeTotal}
         </span>
       </div>
+      <DurationBadge label={durationLabel} />
     </div>
   );
 }

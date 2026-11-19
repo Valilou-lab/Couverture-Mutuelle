@@ -25,6 +25,8 @@ type SeniorHeaderProps = {
   showLogo?: boolean;
   /** Header surface — parent may paint pastel; default solid white. */
   backgroundClassName?: string;
+  /** Tighter vertical padding around the badge-only header (`/devis`). */
+  compact?: boolean;
 };
 
 function AudienceBadge() {
@@ -52,6 +54,7 @@ export function SeniorHeader({
   funnelChrome = false,
   showLogo = true,
   backgroundClassName = "bg-white",
+  compact = false,
 }: SeniorHeaderProps = {}) {
   const withWhatsApp = showWhatsApp && !funnelChrome;
   const showBadge = showAudienceBadge && !funnelChrome;
@@ -101,7 +104,9 @@ export function SeniorHeader({
             centeredWithWhatsApp
               ? "mx-auto grid max-w-[640px] grid-cols-[1fr_auto_1fr] items-center gap-2 px-4 py-2 lg:max-w-[84rem] lg:px-10 lg:py-1.5"
               : badgeOnlyCentered
-                ? "mx-auto flex max-w-[640px] justify-center px-4 py-3.5 lg:max-w-[84rem] lg:px-10 lg:py-4"
+                ? compact
+                  ? "mx-auto flex max-w-[640px] justify-center px-4 py-2 lg:max-w-[84rem] lg:px-10 lg:py-2"
+                  : "mx-auto flex max-w-[640px] justify-center px-4 py-3.5 lg:max-w-[84rem] lg:px-10 lg:py-4"
                 : logoCentered
                   ? "mx-auto flex max-w-[640px] flex-col items-center gap-2 px-4 py-2 lg:max-w-[84rem] lg:px-10 lg:py-2"
                   : withWhatsApp

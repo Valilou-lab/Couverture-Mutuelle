@@ -35,8 +35,9 @@ const FAQ = [
   },
 ] as const;
 
+/** Compact so Q1 + Google avis fit above the fold on typical laptop viewports. */
 const DESKTOP_H1 =
-  "mx-auto font-extrabold leading-[1.12] tracking-[-0.03em] [font-family:var(--font-inter-tranches),ui-sans-serif,sans-serif] text-[clamp(2.25rem,3vw,3rem)]";
+  "mx-auto max-w-[26rem] font-extrabold leading-[1.12] tracking-[-0.03em] [font-family:var(--font-inter-tranches),ui-sans-serif,sans-serif] text-[clamp(1.35rem,1.7vw,1.7rem)]";
 
 /**
  * `/devis`: homepage `/` chrome (mobile + desktop) with QuoteFormV2 inside.
@@ -68,6 +69,7 @@ export function DevisLanding({
               showAudienceBadge={!formFocused}
               funnelChrome={formFocused}
               showLogo={false}
+              compact={!formFocused}
               backgroundClassName={
                 formFocused ? "bg-white" : "bg-transparent"
               }
@@ -80,7 +82,7 @@ export function DevisLanding({
               </div>
             ) : null}
             {!formFocused ? (
-              <div className="hidden px-6 pb-3 pt-4 text-center lg:block xl:px-10 xl:pt-5">
+              <div className="hidden px-6 pb-1 pt-1 text-center lg:block xl:px-10">
                 <h1 className={DESKTOP_H1}>
                   <span className="block text-zinc-900">
                     Le bon tarif pour votre mutuelle
@@ -94,17 +96,17 @@ export function DevisLanding({
           </div>
 
           <section className="bg-white">
-            <div className="mx-auto w-full max-w-[640px] px-4 min-[700px]:max-w-[1000px] lg:max-w-[34rem] lg:px-6 lg:pt-1">
+            <div className="mx-auto w-full max-w-[640px] px-4 min-[700px]:max-w-[1000px] lg:max-w-[34rem] lg:px-6">
               <div
                 id="devis"
-                className="mx-auto w-full max-w-[560px] scroll-mt-4 pb-5 pt-4 lg:max-w-none lg:pb-4 lg:pt-5"
+                className="mx-auto w-full max-w-[560px] scroll-mt-4 pb-5 pt-4 lg:max-w-none lg:pb-2 lg:pt-1.5"
               >
                 <QuoteFormV2 onFocusChange={onFocusChange} />
               </div>
             </div>
           </section>
 
-          <div className="hidden bg-white px-4 pb-2 pt-2 lg:block xl:px-8">
+          <div className="hidden bg-white px-4 pb-1.5 pt-1 lg:block xl:px-8">
             <HomeFormTrustButtons />
           </div>
           {!formFocused ? (
