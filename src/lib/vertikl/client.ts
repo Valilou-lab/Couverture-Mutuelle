@@ -175,14 +175,17 @@ export async function sendLeadToVertikl(
       summarizeReturnedFields(body?.fields ?? null);
 
     const vertiklMessage =
-      body && typeof body === "object"
-        ? typeof (body as { message?: unknown }).message === "string"
-          ? (body as { message: string }).message.trim()
-          : null
+      typeof rawBody === "object" &&
+      rawBody !== null &&
+      "message" in rawBody &&
+      typeof rawBody.message === "string"
+        ? rawBody.message.trim()
         : null;
     const vertiklErrorFlag =
-      body && typeof body === "object"
-        ? (body as { error?: unknown }).error
+      typeof rawBody === "object" &&
+      rawBody !== null &&
+      "error" in rawBody
+        ? rawBody.error
         : undefined;
 
     const failureMessage =
