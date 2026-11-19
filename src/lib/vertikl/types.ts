@@ -78,27 +78,13 @@ export type VertiklLeadFields = {
   professional_statut?: VertiklProfessionalStatut;
   /** Optional — omitted when the care-priorities step is hidden. */
   priority_care?: VertiklPriorityCare[];
-  consent_whatsapp: boolean;
   /**
    * IKI LP only — second independent opt-in (partenaires Couverture Mutuelle).
    * Always `true` or `false` on IKI payloads; never omitted.
    */
   consent_partners_cm?: boolean;
+  /** Only consent_* field sent on Vertikl fields; V2 proof is root `consent`. */
   consent_given: boolean;
-  consent_campaign: string;
-  consent_datetime: string;
-  consent_expiration_date: string;
-  consent_channels: VertiklConsentChannel[];
-  consent_ip_address?: string;
-  consent_landing_page_url?: string;
-  consent_landing_page_version: string;
-  consent_optin_text: string;
-  consent_optin_text_version: string;
-  consent_legal_notice_version: string;
-  consent_referrer?: string;
-  consent_user_agent?: string;
-  consent_source: string;
-  consent_status: "actif" | "retire" | "expire";
   /** Optional — selected tariff range id (legacy / calculator). */
   cost_health?: VertiklCostHealth;
   /**
@@ -195,7 +181,7 @@ export type LeadSubmissionMeta = {
   landingPageUrl?: string;
   /**
    * Page where the prospect consents and submits (submit-time).
-   * Prefer origin+pathname; used for Vertikl consent_landing_page_url only.
+   * Kept for Meta / routing; no longer mapped into Vertikl fields.
    */
   consentLandingPageUrl?: string;
   referrer?: string;

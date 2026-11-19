@@ -25,11 +25,7 @@ import {
   clearPhoneVerifyCookie,
   verifyPhoneProofToken,
 } from "@/lib/phone-verify-proof";
-import {
-  buildV2ConsentRecord,
-  buildV2PartnerConsentText,
-  V2_PARTNER_CONSENT_VERSION,
-} from "@/lib/v2/consent";
+import { buildV2ConsentRecord } from "@/lib/v2/consent";
 import { verifyV2EligibilityToken } from "@/lib/v2/eligibility-token";
 import type {
   V2LeadErrorResponse,
@@ -359,11 +355,9 @@ export async function POST(request: NextRequest) {
     acquisition: sanitizeAcquisition(body.meta.acquisition),
   };
 
-  // Single consent clock for fields.consent_datetime + consent.collected_at.
-  // collected_at must be full ISO-8601 with milliseconds (Vertikl prod).
+  // Consent clock for root consent.collected_at (ISO-8601 with ms — Vertikl prod).
   const consentAt = new Date();
   const consentCollectedAt = consentAt.toISOString();
-  const consentText = buildV2PartnerConsentText(partners);
   const ipAddress = getClientIp(request);
   const userAgent = request.headers.get("user-agent")?.trim() || undefined;
 
@@ -373,10 +367,6 @@ export async function POST(request: NextRequest) {
       form,
       meta,
       consentAt,
-      consentOptinOverride: {
-        optinText: consentText,
-        optinTextVersion: V2_PARTNER_CONSENT_VERSION,
-      },
       ipAddress,
       userAgent,
     });

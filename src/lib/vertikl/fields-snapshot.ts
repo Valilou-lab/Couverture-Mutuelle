@@ -14,7 +14,6 @@ const PII_KEYS = new Set([
   "consent_user_agent",
   "consent_landing_page_url",
   "consent_referrer",
-  "consent_optin_text",
 ]);
 
 export type SafeFieldEntry = {

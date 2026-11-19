@@ -50,7 +50,6 @@ export type SendLeadToVertiklOptions = {
   buyerIds?: readonly string[];
   /**
    * ISO-8601 timestamp of nominative partner consent collection.
-   * Must match the moment recorded in fields.consent_datetime when possible.
    */
   consentCollectedAt?: string;
   /** Optional internal consent proof reference — omit when unknown. */
@@ -145,9 +144,9 @@ export async function sendLeadToVertikl(
     consentBuyerIds: consent?.buyer_ids ?? [],
     consentCollectedAt: consent?.collected_at ?? null,
     hasConsentProofRef: Boolean(consent?.proof_ref),
-    hasConsentWhatsapp: Object.prototype.hasOwnProperty.call(
+    hasConsentGiven: Object.prototype.hasOwnProperty.call(
       fields,
-      "consent_whatsapp",
+      "consent_given",
     ),
   });
 

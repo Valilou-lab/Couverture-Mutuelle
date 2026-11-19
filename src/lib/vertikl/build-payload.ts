@@ -1,14 +1,5 @@
 import type { QuoteFormData } from "@/components/form/types";
-import {
-  buildIkiConsentOptinText,
-  CONSENT_CAMPAIGN,
-  CONSENT_VARIANTS,
-  type ConsentVariantId,
-  CONSENT_SOURCE,
-  CONSENT_STATUS_ACTIVE,
-  LANDING_PAGE_VERSION,
-  LEGAL_NOTICE_VERSION,
-} from "@/lib/consent";
+import { type ConsentVariantId } from "@/lib/consent";
 import {
   mapCostHealth,
   mapCurrentlyInsured,
@@ -20,29 +11,22 @@ import {
   mapProfessionalStatut,
   VertiklMappingError,
 } from "./mappers";
-import {
-  addMonthsUtc,
-  formatVertiklDateTime,
-  frenchDateToIso,
-  toInternationalFrenchPhone,
-} from "./normalize";
+import { frenchDateToIso, toInternationalFrenchPhone } from "./normalize";
 import type { LeadSubmissionMeta, VertiklLeadFields } from "./types";
 
 export type BuildVertiklFieldsInput = {
   form: QuoteFormData;
   meta?: LeadSubmissionMeta;
+  /**
+   * Consent collection clock (kept for callers that sync with
+   * root `consent.collected_at`). No longer mapped into fields.*.
+   */
   consentAt: Date;
   /** Allowlisted consent variant shown to the visitor (default: legacy text). */
   consentVariant?: ConsentVariantId;
-  /**
-   * Optional override for dynamic partner consent (e.g. /devis V2).
-   * When set, replaces the variant opt-in text/version sent to Vertikl.
-   */
-  consentOptinOverride?: {
-    optinText: string;
-    optinTextVersion: string;
-  };
+  /** Kept for callers; no longer mapped into Vertikl fields. */
   ipAddress?: string;
+  /** Kept for callers; no longer mapped into Vertikl fields. */
   userAgent?: string;
 };
 
@@ -65,7 +49,7 @@ export function normalizeConsentLandingPageUrl(raw: string): string {
 export function buildVertiklFields(
   input: BuildVertiklFieldsInput,
 ): VertiklLeadFields {
-  const { form, meta, consentAt, ipAddress, userAgent } = input;
+  const { form, meta } = input;
 
   if (form.consent !== true) {
     throw new VertiklMappingError("consent must be true before building payload.");
@@ -93,16 +77,7 @@ export function buildVertiklFields(
   }
 
   const consentVariantId = input.consentVariant ?? "default";
-  const consentVariant = CONSENT_VARIANTS[consentVariantId];
   const ikiPartnerConsent = form.partnerConsent === true;
-  const ikiOptin =
-    consentVariantId === "iki"
-      ? buildIkiConsentOptinText(ikiPartnerConsent)
-      : null;
-  const consentDatetime = formatVertiklDateTime(consentAt);
-  const consentExpiration = formatVertiklDateTime(
-    addMonthsUtc(consentAt, 12),
-  );
 
   const fields: VertiklLeadFields = {
     first_name: form.firstName.trim(),
@@ -113,29 +88,10 @@ export function buildVertiklFields(
     postal_code: form.postalCode.trim(),
     currently_insured: mapCurrentlyInsured(form.alreadyInsured),
     people_to_cover: mapPeopleToCover(form.coveredPersons),
-    consent_whatsapp: consentVariant.whatsapp
-      ? Boolean(form.whatsappAvailable)
-      : false,
     ...(consentVariantId === "iki"
       ? { consent_partners_cm: ikiPartnerConsent }
       : {}),
     consent_given: true,
-    consent_campaign: CONSENT_CAMPAIGN,
-    consent_datetime: consentDatetime,
-    consent_expiration_date: consentExpiration,
-    consent_channels: [...consentVariant.channels],
-    consent_landing_page_version: LANDING_PAGE_VERSION,
-    consent_optin_text:
-      input.consentOptinOverride?.optinText ??
-      ikiOptin?.optinText ??
-      consentVariant.optinText,
-    consent_optin_text_version:
-      input.consentOptinOverride?.optinTextVersion ??
-      ikiOptin?.optinTextVersion ??
-      consentVariant.optinTextVersion,
-    consent_legal_notice_version: LEGAL_NOTICE_VERSION,
-    consent_source: CONSENT_SOURCE,
-    consent_status: CONSENT_STATUS_ACTIVE,
   };
 
   const gender = mapGender(form.civility);
@@ -175,28 +131,9 @@ export function buildVertiklFields(
     fields.health_insurance_goal = healthGoal;
   }
 
-  if (ipAddress) {
-    fields.consent_ip_address = ipAddress;
-  }
-
-  // Consent proof = submit-time page; first-touch stays on meta.landingPageUrl for routing.
-  const consentPageRaw =
-    meta?.consentLandingPageUrl?.trim() || meta?.landingPageUrl?.trim() || "";
-  const landingUrl = consentPageRaw
-    ? normalizeConsentLandingPageUrl(consentPageRaw)
-    : "";
-  if (landingUrl) {
-    fields.consent_landing_page_url = landingUrl;
-  }
-
-  const referrer = meta?.referrer?.trim();
-  if (referrer) {
-    fields.consent_referrer = referrer;
-  }
-
-  if (userAgent) {
-    fields.consent_user_agent = userAgent;
-  }
+  // Consent metadata (ip, landing url, referrer, ua, optin text, channels, …)
+  // is intentionally omitted from fields — only consent_given stays.
+  // V2 acquire proof uses root consent.{buyer_ids, collected_at}.
 
   const timeInsured = mapInsurerTenure(meta?.calculator?.insurerTenure);
   if (timeInsured) {
@@ -212,7 +149,6 @@ export function buildVertiklFields(
   // currently_insured comes from LP Q1 (alreadyInsured oui/non).
   // priority_care is omitted when unanswered (step can be hidden).
   // health_scheme is optional on Vertikl and no longer collected.
-  // WhatsApp is ONLY consent_whatsapp — never added to consent_channels.
   // IKI partner opt-in is consent_partners_cm (boolean from the 2nd checkbox).
   // Acquisition (utm_*, fbclid, gclid) not mapped to Vertikl fields yet.
 
