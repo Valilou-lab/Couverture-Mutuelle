@@ -1,3 +1,7 @@
+"use client";
+
+import { useCallback, useState } from "react";
+import type { FormStepId } from "@/components/form/types";
 import { SeniorQuoteForm } from "@/components/form/SeniorQuoteForm";
 import { HomeFormTrustButtons } from "@/components/landing/home/HomeFormTrustButtons";
 import { HomeHowItWorksSchema } from "@/components/landing/home/HomeHowItWorksSchema";
@@ -43,6 +47,14 @@ const SCHEMA_COPY = {
 const DESKTOP_H1 =
   "mx-auto font-extrabold leading-[1.12] tracking-[-0.03em] [font-family:var(--font-inter-tranches),ui-sans-serif,sans-serif] text-[clamp(2.25rem,3vw,3rem)]";
 
+function isPastFirstQuestion(
+  step: FormStepId,
+  questionNumber: number | null,
+): boolean {
+  if (step === "analyzing" || step === "confirmation") return true;
+  return questionNumber != null && questionNumber >= 2;
+}
+
 type SeniorLandingProps = {
   /** Extra classes (used by `/tranches-age` for the Inter type scale). */
   className?: string;
@@ -53,6 +65,14 @@ type SeniorLandingProps = {
  * Chrome aligned with `/devis` (pastel header, white form, pastel how-it-works).
  */
 export function SeniorLanding({ className }: SeniorLandingProps = {}) {
+  const [formFocused, setFormFocused] = useState(false);
+  const onStepChange = useCallback(
+    (step: FormStepId, questionNumber: number | null) => {
+      setFormFocused(isPastFirstQuestion(step, questionNumber));
+    },
+    [],
+  );
+
   return (
     <div
       className={`flex min-h-0 flex-1 flex-col bg-white text-[18px] leading-[1.55] text-foreground${
@@ -108,6 +128,7 @@ export function SeniorLanding({ className }: SeniorLandingProps = {}) {
                 <SeniorQuoteForm
                   redesignIntro="mobile"
                   askAgeInsteadOfBirthDate
+                  onStepChange={onStepChange}
                 />
               </div>
             </div>
@@ -116,15 +137,17 @@ export function SeniorLanding({ className }: SeniorLandingProps = {}) {
           <div className="hidden bg-white px-4 pb-2 pt-2 lg:block xl:px-8">
             <HomeFormTrustButtons />
           </div>
-          <div className="hidden bg-[#ede9fe] px-4 pb-6 pt-0 lg:block xl:px-8">
-            <HomeHowItWorksSchema
-              headingId="comment-ca-se-passe-schema-desktop"
-              needsText={SCHEMA_COPY.needsText}
-              quotesTitle={SCHEMA_COPY.quotesTitle}
-              quotesText={SCHEMA_COPY.quotesText}
-              signText={SCHEMA_COPY.signText}
-            />
-          </div>
+          {!formFocused ? (
+            <div className="hidden bg-[#ede9fe] px-4 pb-6 pt-0 lg:block xl:px-8">
+              <HomeHowItWorksSchema
+                headingId="comment-ca-se-passe-schema-desktop"
+                needsText={SCHEMA_COPY.needsText}
+                quotesTitle={SCHEMA_COPY.quotesTitle}
+                quotesText={SCHEMA_COPY.quotesText}
+                signText={SCHEMA_COPY.signText}
+              />
+            </div>
+          ) : null}
         </div>
 
         <TranchesAgeDesktopAside />
@@ -142,6 +165,7 @@ export function SeniorLanding({ className }: SeniorLandingProps = {}) {
           quotesText={SCHEMA_COPY.quotesText}
           signText={SCHEMA_COPY.signText}
           howItWorksPastel
+          showHowItWorks={!formFocused}
         />
         <div className="mx-auto w-full max-w-[640px] px-4 pb-12 min-[700px]:max-w-[1000px]">
           <RacFaq items={TRANCHES_FAQ} />

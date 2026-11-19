@@ -23,6 +23,8 @@ type LpV2SplitShellProps = {
   desktopFaq: ReactNode;
   desktopCtaLabel: string;
   mobileBelow: ReactNode;
+  /** From question 2 onward — hide jumping « Comment ça se passe ». */
+  showHowItWorks?: boolean;
 };
 
 /**
@@ -39,6 +41,7 @@ export function LpV2SplitShell({
   desktopFaq,
   desktopCtaLabel,
   mobileBelow,
+  showHowItWorks = true,
 }: LpV2SplitShellProps) {
   return (
     <div
@@ -79,15 +82,17 @@ export function LpV2SplitShell({
           <div className="hidden bg-white px-4 pb-2 pt-2 lg:block xl:px-8">
             <HomeFormTrustButtons />
           </div>
-          <div className="hidden bg-[#ede9fe] px-4 pb-6 pt-0 lg:block xl:px-8">
-            <HomeHowItWorksSchema
-              headingId="comment-ca-se-passe-schema-desktop"
-              needsText={schemaCopy?.needsText}
-              quotesTitle={schemaCopy?.quotesTitle}
-              quotesText={schemaCopy?.quotesText}
-              signText={schemaCopy?.signText}
-            />
-          </div>
+          {showHowItWorks ? (
+            <div className="hidden bg-[#ede9fe] px-4 pb-6 pt-0 lg:block xl:px-8">
+              <HomeHowItWorksSchema
+                headingId="comment-ca-se-passe-schema-desktop"
+                needsText={schemaCopy?.needsText}
+                quotesTitle={schemaCopy?.quotesTitle}
+                quotesText={schemaCopy?.quotesText}
+                signText={schemaCopy?.signText}
+              />
+            </div>
+          ) : null}
         </div>
 
         <TranchesAgeDesktopAside />

@@ -126,9 +126,11 @@ export function HomeLanding({
           <div className="hidden bg-white px-4 pb-2 pt-2 lg:block xl:px-8">
             <HomeFormTrustButtons />
           </div>
-          <div className="hidden bg-[#ede9fe] px-4 pb-6 pt-0 lg:block xl:px-8">
-            <HomeHowItWorksSchema headingId="comment-ca-se-passe-schema-desktop" />
-          </div>
+          {!formFocused ? (
+            <div className="hidden bg-[#ede9fe] px-4 pb-6 pt-0 lg:block xl:px-8">
+              <HomeHowItWorksSchema headingId="comment-ca-se-passe-schema-desktop" />
+            </div>
+          ) : null}
         </div>
 
         <TranchesAgeDesktopAside />
@@ -140,7 +142,7 @@ export function HomeLanding({
       </div>
 
       <div className="lg:hidden">
-        <HomeLpBelowForm howItWorksPastel />
+        <HomeLpBelowForm howItWorksPastel showHowItWorks={!formFocused} />
         {!formFocused ? (
           <div className="mx-auto w-full max-w-[640px] px-4 pb-12 min-[700px]:max-w-[1000px]">
             <RacFaq items={FAQ} />

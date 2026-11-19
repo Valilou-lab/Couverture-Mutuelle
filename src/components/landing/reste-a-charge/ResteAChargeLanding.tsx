@@ -1,3 +1,7 @@
+"use client";
+
+import { useCallback, useState } from "react";
+import type { FormStepId } from "@/components/form/types";
 import { SeniorQuoteForm } from "@/components/form/SeniorQuoteForm";
 import { SeniorFooter } from "@/components/landing/senior/SeniorFooter";
 import { SeniorHeader } from "@/components/landing/senior/SeniorHeader";
@@ -12,6 +16,14 @@ import { RacCta, RacFaq } from "./ResteAChargeSections";
 const DESKTOP_H1 =
   "mx-auto font-extrabold leading-[1.12] tracking-[-0.03em] [font-family:var(--font-inter-tranches),ui-sans-serif,sans-serif] text-[clamp(2.25rem,3vw,3rem)]";
 
+function isPastFirstQuestion(
+  step: FormStepId,
+  questionNumber: number | null,
+): boolean {
+  if (step === "analyzing" || step === "confirmation") return true;
+  return questionNumber != null && questionNumber >= 2;
+}
+
 /**
  * `/reste-a-charge`: own copy + care-needs questionnaire + mobile.
  * Desktop (`lg`) matches `/devis` chrome (pastel header, white form, pastel how-it-works).
@@ -22,6 +34,14 @@ export function ResteAChargeLanding({
 }: {
   className?: string;
 } = {}) {
+  const [formFocused, setFormFocused] = useState(false);
+  const onStepChange = useCallback(
+    (step: FormStepId, questionNumber: number | null) => {
+      setFormFocused(isPastFirstQuestion(step, questionNumber));
+    },
+    [],
+  );
+
   return (
     <div
       className={`flex min-h-0 flex-1 flex-col bg-white text-[18px] leading-[1.55] text-foreground${
@@ -65,6 +85,7 @@ export function ResteAChargeLanding({
                   redesignIntro="mobile"
                   askCareNeedsFirst
                   lpV2Desktop
+                  onStepChange={onStepChange}
                 />
               </div>
             </div>
@@ -73,12 +94,14 @@ export function ResteAChargeLanding({
           <div className="hidden bg-white px-4 pb-2 pt-2 lg:block xl:px-8">
             <HomeFormTrustButtons />
           </div>
-          <div className="hidden bg-[#ede9fe] px-4 pb-6 pt-0 lg:block xl:px-8">
-            <HomeHowItWorksSchema
-              headingId="comment-ca-se-passe-schema-desktop"
-              needsText="en 2 minutes"
-            />
-          </div>
+          {!formFocused ? (
+            <div className="hidden bg-[#ede9fe] px-4 pb-6 pt-0 lg:block xl:px-8">
+              <HomeHowItWorksSchema
+                headingId="comment-ca-se-passe-schema-desktop"
+                needsText="en 2 minutes"
+              />
+            </div>
+          ) : null}
         </div>
 
         <TranchesAgeDesktopAside />
@@ -90,7 +113,11 @@ export function ResteAChargeLanding({
       </div>
 
       <div className="lg:hidden">
-        <HomeLpBelowForm needsText="en 2 minutes" howItWorksPastel />
+        <HomeLpBelowForm
+          needsText="en 2 minutes"
+          howItWorksPastel
+          showHowItWorks={!formFocused}
+        />
         <div className="mx-auto w-full max-w-[640px] px-4 pb-12 min-[700px]:max-w-[1000px]">
           <RacFaq />
           <RacCta label="MON DEVIS GRATUIT" />

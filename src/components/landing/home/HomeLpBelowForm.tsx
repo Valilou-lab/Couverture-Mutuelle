@@ -62,6 +62,8 @@ type HomeLpBelowFormProps = {
    * `/devis`: Google avis stay on white; « Comment ça se passe » sits on pastel.
    */
   howItWorksPastel?: boolean;
+  /** From question 2 onward — hide the jumping how-it-works band. */
+  showHowItWorks?: boolean;
 };
 
 /**
@@ -75,6 +77,7 @@ export function HomeLpBelowForm({
   signText,
   showPartnerCarousel = true,
   howItWorksPastel = false,
+  showHowItWorks = true,
 }: HomeLpBelowFormProps = {}) {
   return (
     <>
@@ -83,24 +86,28 @@ export function HomeLpBelowForm({
           <div className="bg-white px-4 pb-2 pt-4">
             <HomeFormTrustButtons />
           </div>
-          <div className="bg-[#ede9fe] px-4 pb-4 pt-2">
+          {showHowItWorks ? (
+            <div className="bg-[#ede9fe] px-4 pb-4 pt-2">
+              <HomeHowItWorksSchema
+                needsText={needsText}
+                quotesTitle={quotesTitle}
+                quotesText={quotesText}
+                signText={signText}
+              />
+            </div>
+          ) : null}
+        </>
+      ) : (
+        <div className="bg-white px-4 pb-4 pt-4">
+          <HomeFormTrustButtons />
+          {showHowItWorks ? (
             <HomeHowItWorksSchema
               needsText={needsText}
               quotesTitle={quotesTitle}
               quotesText={quotesText}
               signText={signText}
             />
-          </div>
-        </>
-      ) : (
-        <div className="bg-white px-4 pb-4 pt-4">
-          <HomeFormTrustButtons />
-          <HomeHowItWorksSchema
-            needsText={needsText}
-            quotesTitle={quotesTitle}
-            quotesText={quotesText}
-            signText={signText}
-          />
+          ) : null}
         </div>
       )}
       <section className="relative overflow-hidden lg:hidden">

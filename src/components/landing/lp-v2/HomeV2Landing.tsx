@@ -85,9 +85,13 @@ export function HomeV2Landing({ className }: { className?: string } = {}) {
       }
       desktopFaq={<RacFaq headingId="faq-titre-desktop" items={HOME_FAQ} />}
       desktopCtaLabel="DEVIS GRATUIT"
+      showHowItWorks={!formFocused}
       mobileBelow={
         <>
-          <HomeLpBelowForm howItWorksPastel />
+          <HomeLpBelowForm
+            howItWorksPastel
+            showHowItWorks={!formFocused}
+          />
           {!formFocused ? (
             <div className="mx-auto w-full max-w-[640px] px-4 pb-12 min-[700px]:max-w-[1000px]">
               <RacFaq items={HOME_FAQ} />
