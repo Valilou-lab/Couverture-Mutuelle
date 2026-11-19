@@ -1,7 +1,11 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import { Check } from "lucide-react";
 import {
   formatGoogleRatingScore,
   formatGoogleReviewCount,
+  GOOGLE_BUSINESS_RATING_FALLBACK,
 } from "@/lib/google-business-rating";
 
 const HEADER_POINTS = [
@@ -61,8 +65,14 @@ function Stars({ className }: { className: string }) {
   );
 }
 
+type LiveRating = {
+  rating: number;
+  reviewCount: number;
+};
+
 /**
  * Google rating under the form — real fiche figures, text only (no outbound link).
+ * Hydrates from /api/google-business-rating (Places API when configured).
  */
 export function HomeFormTrustButtons({
   onPhoto = false,
@@ -72,6 +82,46 @@ export function HomeFormTrustButtons({
   /** Desktop /devis left column: flush left reads better than floating center. */
   align?: "center" | "left";
 } = {}) {
+  const [live, setLive] = useState<LiveRating>({
+    rating: GOOGLE_BUSINESS_RATING_FALLBACK.rating,
+    reviewCount: GOOGLE_BUSINESS_RATING_FALLBACK.reviewCount,
+  });
+
+  useEffect(() => {
+    let cancelled = false;
+    const ctrl = new AbortController();
+
+    fetch("/api/google-business-rating", {
+      signal: ctrl.signal,
+      cache: "default",
+    })
+      .then(async (res) => {
+        if (!res.ok) return null;
+        return (await res.json()) as {
+          rating?: number;
+          reviewCount?: number;
+        };
+      })
+      .then((data) => {
+        if (cancelled || !data) return;
+        if (
+          typeof data.rating !== "number" ||
+          typeof data.reviewCount !== "number"
+        ) {
+          return;
+        }
+        setLive({ rating: data.rating, reviewCount: data.reviewCount });
+      })
+      .catch(() => {
+        /* keep fallback */
+      });
+
+    return () => {
+      cancelled = true;
+      ctrl.abort();
+    };
+  }, []);
+
   const row =
     align === "left"
       ? "flex items-center justify-start gap-2"
@@ -86,9 +136,11 @@ export function HomeFormTrustButtons({
     >
       <Stars className={onPhoto ? "text-white" : "text-[#f4b400]"} />
       <span>
-        <strong className="font-extrabold">{formatGoogleRatingScore()}</strong>
+        <strong className="font-extrabold">
+          {formatGoogleRatingScore(live.rating)}
+        </strong>
         {" · "}
-        {formatGoogleReviewCount()} Google
+        {formatGoogleReviewCount(live.reviewCount)} Google
       </span>
     </p>
   );
