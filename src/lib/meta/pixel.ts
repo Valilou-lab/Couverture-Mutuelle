@@ -15,7 +15,8 @@ import {
 } from "@/lib/cookie-consent";
 import {
   createMetaEventId,
-  META_CUSTOM_EVENTS,
+  isMetaCustomEvent,
+  metaNumberedStepEvent,
   type MetaCustomData,
   type MetaLeadTracking,
   type MetaRelayedEventName,
@@ -144,7 +145,7 @@ function firePixel(
   customData?: MetaCustomData,
 ): void {
   if (!ensureMetaPixel()) return;
-  const method = META_CUSTOM_EVENTS.has(eventName) ? "trackCustom" : "track";
+  const method = isMetaCustomEvent(eventName) ? "trackCustom" : "track";
   window.fbq!(method, eventName, customData ?? {}, { eventID: eventId });
 }
 
@@ -193,7 +194,11 @@ export function trackMetaFormStart(): void {
 
 /** step_key is the internal step id (e.g. "coveredPersons") — never an answer. */
 export function trackMetaFormStep(stepNumber: number, stepKey: string): void {
-  trackMetaEvent("FormStep", { step_number: stepNumber, step_key: stepKey });
+  const customData = { step_number: stepNumber, step_key: stepKey };
+  trackMetaEvent("FormStep", customData);
+  // FormStep_1, FormStep_2… so each question shows as its own row in Events Manager.
+  const numbered = metaNumberedStepEvent(stepNumber);
+  if (numbered) trackMetaEvent(numbered, customData);
 }
 
 /**

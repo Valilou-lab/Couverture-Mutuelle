@@ -6,10 +6,30 @@
 
 /** Browser events relayed to /api/meta/events (Lead is sent from /api/leads). */
 export const META_RELAYED_EVENTS = ["PageView", "FormStart", "FormStep"] as const;
-export type MetaRelayedEventName = (typeof META_RELAYED_EVENTS)[number];
+
+/** One event per question (FormStep_1, FormStep_2…), sent next to FormStep. */
+export const META_MAX_NUMBERED_STEP = 20;
+export type MetaNumberedStepEventName = `FormStep_${number}`;
+const NUMBERED_STEP_PATTERN = /^FormStep_([1-9]|1[0-9]|20)$/;
+
+export type MetaRelayedEventName =
+  | (typeof META_RELAYED_EVENTS)[number]
+  | MetaNumberedStepEventName;
 
 /** Events registered as custom events (fbq trackCustom). */
 export const META_CUSTOM_EVENTS = new Set<string>(["FormStart", "FormStep"]);
+
+export function isMetaCustomEvent(eventName: string): boolean {
+  return META_CUSTOM_EVENTS.has(eventName) || NUMBERED_STEP_PATTERN.test(eventName);
+}
+
+export function metaNumberedStepEvent(
+  stepNumber: number,
+): MetaNumberedStepEventName | null {
+  if (!Number.isInteger(stepNumber) || stepNumber < 1) return null;
+  if (stepNumber > META_MAX_NUMBERED_STEP) return null;
+  return `FormStep_${stepNumber}`;
+}
 
 export type MetaCustomData = {
   step_number?: number;
@@ -39,7 +59,8 @@ const STEP_KEY_PATTERN = /^[A-Za-z]{1,40}$/;
 export function isMetaRelayedEvent(value: unknown): value is MetaRelayedEventName {
   return (
     typeof value === "string" &&
-    (META_RELAYED_EVENTS as readonly string[]).includes(value)
+    ((META_RELAYED_EVENTS as readonly string[]).includes(value) ||
+      NUMBERED_STEP_PATTERN.test(value))
   );
 }
 
