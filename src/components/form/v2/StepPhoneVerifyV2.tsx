@@ -90,11 +90,23 @@ export function StepPhoneVerifyV2({
 
     const store = getWebOtpStore();
     const supported = "OTPCredential" in window;
-    const supportedLine = `WEBOTP_SUPPORTED: ${supported}`;
+    const inIframe = window.top !== window.self;
+    const originLines = [
+      `WEBOTP_SUPPORTED: ${supported}`,
+      `href: ${window.location.href}`,
+      `origin: ${window.location.origin}`,
+      `hostname: ${window.location.hostname}`,
+      `top===self: ${window.top === window.self}`,
+      `visibilityState: ${document.visibilityState}`,
+      `SMS domain must match: @${window.location.hostname} #CODE`,
+      inIframe
+        ? `iframe: YES — SMS must include @${window.location.hostname} #CODE AND @${window.location.origin} #CODE (iframe WebOTP syntax)`
+        : `iframe: NO`,
+    ].join("\n");
 
     if (!supported) {
-      store.lastDebug = supportedLine;
-      setWebotpDebug(supportedLine);
+      store.lastDebug = originLines;
+      setWebotpDebug(originLines);
       if (!store.smsRequested) {
         store.smsRequested = true;
         onReadyForSmsRef.current();
@@ -104,7 +116,7 @@ export function StepPhoneVerifyV2({
 
     if (!store.started) {
       store.started = true;
-      store.lastDebug = `${supportedLine}\nWEBOTP_WAITING`;
+      store.lastDebug = `${originLines}\nWEBOTP_WAITING`;
       const ac = new AbortController();
       // Intentionally no cleanup abort — isolates whether Chrome returns otp.code.
       store.promise = navigator.credentials.get({
@@ -115,9 +127,12 @@ export function StepPhoneVerifyV2({
         store.smsRequested = true;
         onReadyForSmsRef.current();
       }
+    } else if (!store.lastDebug.includes("hostname:")) {
+      // Remount before SUCCESS/ERROR — refresh origin lines, keep waiting status.
+      store.lastDebug = `${originLines}\nWEBOTP_WAITING`;
     }
 
-    setWebotpDebug(store.lastDebug || `${supportedLine}\nWEBOTP_WAITING`);
+    setWebotpDebug(store.lastDebug || `${originLines}\nWEBOTP_WAITING`);
 
     const promise = store.promise;
     if (!promise) return;
@@ -127,7 +142,7 @@ export function StepPhoneVerifyV2({
         const cred = otp as (Credential & { code?: string }) | null;
         const raw = cred?.code;
         const line = `SUCCESS: ${raw ?? "NO_CODE"}`;
-        store.lastDebug = `${supportedLine}\n${line}`;
+        store.lastDebug = `${originLines}\n${line}`;
         setWebotpDebug(store.lastDebug);
         if (raw) {
           const next = String(raw).replace(/\D/g, "").slice(0, 6);
@@ -142,7 +157,7 @@ export function StepPhoneVerifyV2({
         const name = err instanceof Error ? err.name : "Unknown";
         const message = err instanceof Error ? err.message : String(err);
         const line = `ERROR: ${name} - ${message}`;
-        store.lastDebug = `${supportedLine}\n${line}`;
+        store.lastDebug = `${originLines}\n${line}`;
         setWebotpDebug(store.lastDebug);
       });
   }, []);
