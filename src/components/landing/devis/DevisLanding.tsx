@@ -59,9 +59,16 @@ export function DevisLanding({
         className ? ` ${className}` : ""
       }`}
     >
-      <div className="lg:grid lg:grid-cols-2 lg:items-stretch">
-        <div className="min-w-0 lg:bg-white">
-          <div className={formFocused ? "bg-white" : "bg-[#ede9fe]"}>
+      <div className="lg:grid lg:min-h-screen lg:grid-cols-2 lg:items-stretch">
+        {/*
+          Desktop left column fills the viewport: title stays top,
+          form+Google avis center in the white band, « Comment ça se passe »
+          pins to the bottom edge of the screen.
+        */}
+        <div className="min-w-0 lg:flex lg:min-h-screen lg:flex-col lg:bg-white">
+          <div
+            className={`shrink-0 ${formFocused ? "bg-white" : "bg-[#ede9fe]"}`}
+          >
             <SeniorHeader
               bordered={false}
               logoCentered={!formFocused}
@@ -95,7 +102,7 @@ export function DevisLanding({
             ) : null}
           </div>
 
-          <section className="bg-white">
+          <section className="bg-white lg:flex lg:flex-1 lg:flex-col lg:justify-center">
             <div className="mx-auto w-full max-w-[640px] px-4 min-[700px]:max-w-[1000px] lg:max-w-[34rem] lg:px-6">
               <div
                 id="devis"
@@ -103,14 +110,14 @@ export function DevisLanding({
               >
                 <QuoteFormV2 onFocusChange={onFocusChange} />
               </div>
+              <div className="hidden pb-2 pt-1 lg:block">
+                <HomeFormTrustButtons />
+              </div>
             </div>
           </section>
 
-          <div className="hidden bg-white px-4 pb-1.5 pt-1 lg:block xl:px-8">
-            <HomeFormTrustButtons />
-          </div>
           {!formFocused ? (
-            <div className="hidden bg-[#ede9fe] px-4 pb-6 pt-0 lg:block xl:px-8">
+            <div className="mt-auto hidden shrink-0 bg-[#ede9fe] px-4 pb-5 pt-1 lg:block xl:px-8">
               <HomeHowItWorksSchema headingId="comment-ca-se-passe-schema-desktop" />
             </div>
           ) : null}
