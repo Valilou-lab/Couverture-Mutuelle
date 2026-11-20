@@ -12,29 +12,39 @@ type Props = {
   resendCooldownSec?: number;
   onConfirm: (code: string) => void;
   /**
-   * Fired after the WebOTP listener is armed (or immediately if unsupported).
-   * Parent must send the SMS from here — never before — so Android can bind
-   * the message to the pending `navigator.credentials.get()`.
+   * Fired once after the minimal WebOTP get() is armed (or immediately if
+   * unsupported). Parent sends the SMS from here.
    */
   onReadyForSms: () => void;
   onEditPhone: () => void;
 };
 
-type OtpCredentialLike = Credential & { code: string };
+/** TEMP — one shared get() across React Strict Mode remounts. */
+type WebOtpProbeStore = {
+  started: boolean;
+  smsRequested: boolean;
+  promise: Promise<Credential | null> | null;
+  lastDebug: string;
+};
 
-function isOtpCredential(value: Credential | null): value is OtpCredentialLike {
-  return Boolean(
-    value &&
-      typeof value === "object" &&
-      "code" in value &&
-      typeof (value as OtpCredentialLike).code === "string",
-  );
+const WEBOTP_STORE_KEY = "__cm_webotp_minimal_store";
+
+function getWebOtpStore(): WebOtpProbeStore {
+  const w = window as Window & { [WEBOTP_STORE_KEY]?: WebOtpProbeStore };
+  if (!w[WEBOTP_STORE_KEY]) {
+    w[WEBOTP_STORE_KEY] = {
+      started: false,
+      smsRequested: false,
+      promise: null,
+      lastDebug: "",
+    };
+  }
+  return w[WEBOTP_STORE_KEY];
 }
 
 /**
  * V2 OTP screen — Twilio Verify via Main `/api/verify/*`.
- * Mobile autofill: autocomplete=one-time-code (iOS) + WebOTP (Android/Chrome).
- * Auto-submits when 6 digits are present; manual button remains as fallback.
+ * TEMP: minimal WebOTP diagnostic with on-screen debug (no DevTools needed).
  */
 export function StepPhoneVerifyV2({
   phone,
@@ -48,8 +58,7 @@ export function StepPhoneVerifyV2({
   onEditPhone,
 }: Props) {
   const [code, setCode] = useState("");
-  /** Bump to re-arm WebOTP (resend). */
-  const [listenNonce, setListenNonce] = useState(0);
+  const [webotpDebug, setWebotpDebug] = useState("…");
   const inputRef = useRef<HTMLInputElement>(null);
   const submittedCodeRef = useRef<string | null>(null);
   const onConfirmRef = useRef(onConfirm);
@@ -69,111 +78,76 @@ export function StepPhoneVerifyV2({
     inputRef.current?.focus();
   }, []);
 
-  // Allow retry with the same digits after a failed check.
   useEffect(() => {
     if (errorMessage) {
       submittedCodeRef.current = null;
     }
   }, [errorMessage]);
 
-  // WebOTP API (Android Chrome) — arm listener BEFORE parent sends SMS.
+  // TEMP minimal WebOTP probe — ONE get(), no re-arm, no cleanup abort.
   useEffect(() => {
     if (typeof window === "undefined") return;
 
-    let cancelled = false;
-    const ac = new AbortController();
-    const supported =
-      "OTPCredential" in window &&
-      typeof navigator.credentials?.get === "function";
+    const store = getWebOtpStore();
+    const supported = "OTPCredential" in window;
+    const supportedLine = `WEBOTP_SUPPORTED: ${supported}`;
 
-    console.info("WEBOTP_START", {
-      listenNonce,
-      supported,
-      aborted: ac.signal.aborted,
-    });
-
-    void (async () => {
-      if (!supported) {
-        console.info("WEBOTP_ERROR", { reason: "unsupported" });
-        if (!cancelled) onReadyForSmsRef.current();
-        return;
+    if (!supported) {
+      store.lastDebug = supportedLine;
+      setWebotpDebug(supportedLine);
+      if (!store.smsRequested) {
+        store.smsRequested = true;
+        onReadyForSmsRef.current();
       }
+      return;
+    }
 
-      // Start listening first, then ask parent to send the SMS.
-      const pending = navigator.credentials.get({
+    if (!store.started) {
+      store.started = true;
+      store.lastDebug = `${supportedLine}\nWEBOTP_WAITING`;
+      const ac = new AbortController();
+      // Intentionally no cleanup abort — isolates whether Chrome returns otp.code.
+      store.promise = navigator.credentials.get({
         otp: { transport: ["sms"] },
         signal: ac.signal,
       } as CredentialRequestOptions);
-
-      if (!cancelled) onReadyForSmsRef.current();
-
-      try {
-        const credential = await pending;
-        console.info("WEBOTP_SUCCESS", {
-          cancelled,
-          aborted: ac.signal.aborted,
-          type: credential?.type ?? null,
-          hasCode:
-            Boolean(credential) &&
-            typeof credential === "object" &&
-            "code" in credential,
-        });
-
-        if (cancelled || ac.signal.aborted) {
-          console.info("WEBOTP_ERROR", {
-            reason: "resolved_after_cancel",
-            cancelled,
-            aborted: ac.signal.aborted,
-          });
-          return;
-        }
-
-        if (!isOtpCredential(credential)) {
-          console.info("WEBOTP_ERROR", {
-            reason: "not_otp_credential",
-            credential,
-          });
-          return;
-        }
-
-        const rawCode = credential.code;
-        console.info("WEBOTP_CODE", {
-          rawCode,
-          length: rawCode.length,
-        });
-
-        const next = rawCode.replace(/\D/g, "").slice(0, 6);
-        if (!next) {
-          console.info("WEBOTP_ERROR", {
-            reason: "empty_digits_after_normalize",
-            rawCode,
-          });
-          return;
-        }
-
-        // Controlled React state — same path as manual typing.
-        setCode(next);
-      } catch (err) {
-        const name = err instanceof Error ? err.name : undefined;
-        const message = err instanceof Error ? err.message : String(err);
-        console.info("WEBOTP_ERROR", {
-          name,
-          message,
-          cancelled,
-          aborted: ac.signal.aborted,
-        });
+      if (!store.smsRequested) {
+        store.smsRequested = true;
+        onReadyForSmsRef.current();
       }
-    })();
+    }
 
-    return () => {
-      cancelled = true;
-      // Only abort on real unmount / re-arm — not on parent otpSending toggles
-      // (this effect does not depend on sending/verifying).
-      ac.abort();
-    };
-  }, [listenNonce]);
+    setWebotpDebug(store.lastDebug || `${supportedLine}\nWEBOTP_WAITING`);
 
-  // Auto-verify as soon as 6 digits are present (WebOTP or manual).
+    const promise = store.promise;
+    if (!promise) return;
+
+    promise
+      .then((otp) => {
+        const cred = otp as (Credential & { code?: string }) | null;
+        const raw = cred?.code;
+        const line = `SUCCESS: ${raw ?? "NO_CODE"}`;
+        store.lastDebug = `${supportedLine}\n${line}`;
+        setWebotpDebug(store.lastDebug);
+        if (raw) {
+          const next = String(raw).replace(/\D/g, "").slice(0, 6);
+          setCode(next);
+          if (/^\d{6}$/.test(next)) {
+            submittedCodeRef.current = next;
+            onConfirmRef.current(next);
+          }
+        }
+      })
+      .catch((err: unknown) => {
+        const name = err instanceof Error ? err.name : "Unknown";
+        const message = err instanceof Error ? err.message : String(err);
+        const line = `ERROR: ${name} - ${message}`;
+        store.lastDebug = `${supportedLine}\n${line}`;
+        setWebotpDebug(store.lastDebug);
+      });
+  }, []);
+
+  // Manual entry auto-verify only (WebOTP calls onConfirm directly above).
   useEffect(() => {
     if (busy) return;
     if (!/^\d{6}$/.test(code)) return;
@@ -188,18 +162,9 @@ export function StepPhoneVerifyV2({
 
   function handleManualConfirm() {
     if (!canSubmit) return;
-    // Same guard as autofill effect — blocks autofill + click double fire.
     if (submittedCodeRef.current === code) return;
     submittedCodeRef.current = code;
     onConfirm(code);
-  }
-
-  function handleResend() {
-    if (!canResend) return;
-    submittedCodeRef.current = null;
-    setCode("");
-    // Re-arm WebOTP, then effect calls onReadyForSms → parent sends SMS.
-    setListenNonce((n) => n + 1);
   }
 
   return (
@@ -246,6 +211,14 @@ export function StepPhoneVerifyV2({
         aria-describedby="v2-phone-otp-help"
       />
 
+      {/* TEMP WebOTP on-screen debug — remove after Android probe */}
+      <pre
+        className="mt-3 overflow-x-auto rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-left text-[0.75rem] font-mono leading-relaxed text-amber-950 whitespace-pre-wrap"
+        data-testid="webotp-debug"
+      >
+        {webotpDebug}
+      </pre>
+
       <p
         id="v2-phone-otp-help"
         className="mt-2 text-center text-xs leading-snug text-zinc-500 sm:text-sm"
@@ -279,7 +252,10 @@ export function StepPhoneVerifyV2({
         <button
           type="button"
           disabled={!canResend}
-          onClick={handleResend}
+          onClick={() => {
+            // TEMP: resend SMS only — do not re-arm WebOTP during this probe.
+            onReadyForSms();
+          }}
           className="text-[#3b0764] underline underline-offset-2 disabled:cursor-not-allowed disabled:text-zinc-400 disabled:no-underline"
         >
           {sending
