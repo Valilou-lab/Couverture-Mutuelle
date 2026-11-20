@@ -11,7 +11,12 @@ type Props = {
   statusMessage?: string | null;
   resendCooldownSec?: number;
   onConfirm: (code: string) => void;
-  onResend: () => void;
+  /**
+   * Fired after the WebOTP listener is armed (or immediately if unsupported).
+   * Parent must send the SMS from here — never before — so Android can bind
+   * the message to the pending `navigator.credentials.get()`.
+   */
+  onReadyForSms: () => void;
   onEditPhone: () => void;
 };
 
@@ -39,19 +44,26 @@ export function StepPhoneVerifyV2({
   statusMessage = null,
   resendCooldownSec = 0,
   onConfirm,
-  onResend,
+  onReadyForSms,
   onEditPhone,
 }: Props) {
   const [code, setCode] = useState("");
+  /** Bump to re-arm WebOTP (resend). */
+  const [listenNonce, setListenNonce] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const submittedCodeRef = useRef<string | null>(null);
   const onConfirmRef = useRef(onConfirm);
+  const onReadyForSmsRef = useRef(onReadyForSms);
   const inputClass = useFormInputClass();
   const busy = verifying || sending;
 
   useEffect(() => {
     onConfirmRef.current = onConfirm;
   }, [onConfirm]);
+
+  useEffect(() => {
+    onReadyForSmsRef.current = onReadyForSms;
+  }, [onReadyForSms]);
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -64,37 +76,104 @@ export function StepPhoneVerifyV2({
     }
   }, [errorMessage]);
 
-  // WebOTP API (Android Chrome) — falls back silently when unavailable.
+  // WebOTP API (Android Chrome) — arm listener BEFORE parent sends SMS.
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (!("OTPCredential" in window)) return;
-    if (typeof navigator.credentials?.get !== "function") return;
 
+    let cancelled = false;
     const ac = new AbortController();
+    const supported =
+      "OTPCredential" in window &&
+      typeof navigator.credentials?.get === "function";
+
+    console.info("WEBOTP_START", {
+      listenNonce,
+      supported,
+      aborted: ac.signal.aborted,
+    });
 
     void (async () => {
+      if (!supported) {
+        console.info("WEBOTP_ERROR", { reason: "unsupported" });
+        if (!cancelled) onReadyForSmsRef.current();
+        return;
+      }
+
+      // Start listening first, then ask parent to send the SMS.
+      const pending = navigator.credentials.get({
+        otp: { transport: ["sms"] },
+        signal: ac.signal,
+      } as CredentialRequestOptions);
+
+      if (!cancelled) onReadyForSmsRef.current();
+
       try {
-        const credential = await navigator.credentials.get({
-          otp: { transport: ["sms"] },
-          signal: ac.signal,
-        } as CredentialRequestOptions);
+        const credential = await pending;
+        console.info("WEBOTP_SUCCESS", {
+          cancelled,
+          aborted: ac.signal.aborted,
+          type: credential?.type ?? null,
+          hasCode:
+            Boolean(credential) &&
+            typeof credential === "object" &&
+            "code" in credential,
+        });
 
-        if (ac.signal.aborted || !isOtpCredential(credential)) return;
+        if (cancelled || ac.signal.aborted) {
+          console.info("WEBOTP_ERROR", {
+            reason: "resolved_after_cancel",
+            cancelled,
+            aborted: ac.signal.aborted,
+          });
+          return;
+        }
 
-        const next = credential.code.replace(/\D/g, "").slice(0, 6);
-        if (!next) return;
+        if (!isOtpCredential(credential)) {
+          console.info("WEBOTP_ERROR", {
+            reason: "not_otp_credential",
+            credential,
+          });
+          return;
+        }
+
+        const rawCode = credential.code;
+        console.info("WEBOTP_CODE", {
+          rawCode,
+          length: rawCode.length,
+        });
+
+        const next = rawCode.replace(/\D/g, "").slice(0, 6);
+        if (!next) {
+          console.info("WEBOTP_ERROR", {
+            reason: "empty_digits_after_normalize",
+            rawCode,
+          });
+          return;
+        }
+
+        // Controlled React state — same path as manual typing.
         setCode(next);
-      } catch {
-        // User cancel / unsupported / timeout — manual entry remains available.
+      } catch (err) {
+        const name = err instanceof Error ? err.name : undefined;
+        const message = err instanceof Error ? err.message : String(err);
+        console.info("WEBOTP_ERROR", {
+          name,
+          message,
+          cancelled,
+          aborted: ac.signal.aborted,
+        });
       }
     })();
 
     return () => {
+      cancelled = true;
+      // Only abort on real unmount / re-arm — not on parent otpSending toggles
+      // (this effect does not depend on sending/verifying).
       ac.abort();
     };
-  }, []);
+  }, [listenNonce]);
 
-  // Auto-verify as soon as 6 digits are present (autofill or manual).
+  // Auto-verify as soon as 6 digits are present (WebOTP or manual).
   useEffect(() => {
     if (busy) return;
     if (!/^\d{6}$/.test(code)) return;
@@ -113,6 +192,14 @@ export function StepPhoneVerifyV2({
     if (submittedCodeRef.current === code) return;
     submittedCodeRef.current = code;
     onConfirm(code);
+  }
+
+  function handleResend() {
+    if (!canResend) return;
+    submittedCodeRef.current = null;
+    setCode("");
+    // Re-arm WebOTP, then effect calls onReadyForSms → parent sends SMS.
+    setListenNonce((n) => n + 1);
   }
 
   return (
@@ -192,7 +279,7 @@ export function StepPhoneVerifyV2({
         <button
           type="button"
           disabled={!canResend}
-          onClick={onResend}
+          onClick={handleResend}
           className="text-[#3b0764] underline underline-offset-2 disabled:cursor-not-allowed disabled:text-zinc-400 disabled:no-underline"
         >
           {sending

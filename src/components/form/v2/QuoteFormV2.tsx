@@ -500,8 +500,9 @@ export function QuoteFormV2({
       setPhoneProofReady(false);
       setOtpError(null);
       setOtpStatus(null);
+      // SMS is sent from StepPhoneVerifyV2 via onReadyForSms — only after
+      // the WebOTP listener is armed, so Android can bind the incoming SMS.
       goTo("phoneVerify");
-      void sendPhoneOtp();
       return;
     }
 
@@ -515,7 +516,6 @@ export function QuoteFormV2({
     otpSending,
     otpVerifying,
     patch,
-    sendPhoneOtp,
   ]);
 
   /** Partners consent → acquire (phone already verified earlier when required). */
@@ -765,7 +765,7 @@ export function QuoteFormV2({
           onConfirm={(code) => {
             void confirmOtp(code);
           }}
-          onResend={() => {
+          onReadyForSms={() => {
             void sendPhoneOtp();
           }}
           onEditPhone={() => {
