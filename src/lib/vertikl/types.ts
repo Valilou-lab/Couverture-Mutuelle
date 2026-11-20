@@ -83,8 +83,8 @@ export type VertiklLeadFields = {
    * Always `true` or `false` on IKI payloads; never omitted.
    */
   consent_partners_cm?: boolean;
-  /** Only consent_* field sent on Vertikl fields; V2 proof is root `consent`. */
-  consent_given: boolean;
+  // Never send fields.consent_given — Vertikl rejects it. LP/API gate on
+  // form.consent; V2 proof is root consent.{buyer_ids, collected_at}.
   /** Optional — selected tariff range id (legacy / calculator). */
   cost_health?: VertiklCostHealth;
   /**

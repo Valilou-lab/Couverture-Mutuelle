@@ -79,6 +79,8 @@ export function buildVertiklFields(
   const consentVariantId = input.consentVariant ?? "default";
   const ikiPartnerConsent = form.partnerConsent === true;
 
+  // Do not send fields.consent_given — Vertikl rejects it. Acquire only runs
+  // after LP + API consent gates; V2 proof is root consent.{buyer_ids, collected_at}.
   const fields: VertiklLeadFields = {
     first_name: form.firstName.trim(),
     last_name: form.lastName.trim(),
@@ -91,7 +93,6 @@ export function buildVertiklFields(
     ...(consentVariantId === "iki"
       ? { consent_partners_cm: ikiPartnerConsent }
       : {}),
-    consent_given: true,
   };
 
   const gender = mapGender(form.civility);
@@ -131,8 +132,8 @@ export function buildVertiklFields(
     fields.health_insurance_goal = healthGoal;
   }
 
-  // Consent metadata (ip, landing url, referrer, ua, optin text, channels, …)
-  // is intentionally omitted from fields — only consent_given stays.
+  // Consent metadata (consent_given, ip, landing url, referrer, ua, optin
+  // text, channels, …) is intentionally omitted from fields.
   // V2 acquire proof uses root consent.{buyer_ids, collected_at}.
 
   const timeInsured = mapInsurerTenure(meta?.calculator?.insurerTenure);

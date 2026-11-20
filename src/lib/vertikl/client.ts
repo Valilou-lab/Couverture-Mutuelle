@@ -144,7 +144,8 @@ export async function sendLeadToVertikl(
     consentBuyerIds: consent?.buyer_ids ?? [],
     consentCollectedAt: consent?.collected_at ?? null,
     hasConsentProofRef: Boolean(consent?.proof_ref),
-    hasConsentGiven: Object.prototype.hasOwnProperty.call(
+    // Expected false — consent_given must stay absent from Vertikl fields.
+    hasConsentGivenField: Object.prototype.hasOwnProperty.call(
       fields,
       "consent_given",
     ),
