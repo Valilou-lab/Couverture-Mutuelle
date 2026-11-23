@@ -45,6 +45,8 @@ export type EligibilityClientResult = {
 };
 
 export type V2StepId =
+  | "careNeeds"
+  | "age"
   | "currentMutualTariff"
   | "coveredPersons"
   | "professionalStatus"
@@ -57,7 +59,14 @@ export type V2StepId =
   | "phoneVerify"
   | "confirmation";
 
-/** Questions 1–7 (progress bar) — email then phone, separate. */
+export type V2FormVariantOptions = {
+  /** `/tranches-age` — age first; DOB synthesized as 15/06/YYYY for Vertikl. */
+  askAgeInsteadOfBirthDate?: boolean;
+  /** `/reste-a-charge` — care priorities first (acquire extra `priority_care`). */
+  askCareNeedsFirst?: boolean;
+};
+
+/** Default `/devis` questions (progress bar) — email then phone, separate. */
 export const V2_QUESTION_STEPS: V2StepId[] = [
   "currentMutualTariff",
   "coveredPersons",
@@ -76,6 +85,40 @@ export const V2_FLOW_STEPS: V2StepId[] = [
   "eligiblePartners",
   "confirmation",
 ];
+
+/**
+ * Question order for a LP variant. Technical tail (OTP → precheck → consent
+ * → acquire) is always identical; only marketing-first steps differ.
+ */
+export function getV2QuestionSteps(
+  options: V2FormVariantOptions = {},
+): V2StepId[] {
+  const steps: V2StepId[] = [];
+  if (options.askCareNeedsFirst) steps.push("careNeeds");
+  if (options.askAgeInsteadOfBirthDate) steps.push("age");
+  steps.push(
+    "currentMutualTariff",
+    "coveredPersons",
+    "professionalStatus",
+    "birthAndPostal",
+    "identity",
+    "email",
+    "phone",
+  );
+  return steps;
+}
+
+export function getV2FlowSteps(
+  options: V2FormVariantOptions = {},
+): V2StepId[] {
+  return [
+    ...getV2QuestionSteps(options),
+    "phoneVerify",
+    "searching",
+    "eligiblePartners",
+    "confirmation",
+  ];
+}
 
 /** Minimum time on the searching screen even if eligibility is instant. */
 export const ELIGIBILITY_MIN_LOADING_MS = 4000;

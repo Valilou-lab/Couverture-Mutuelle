@@ -4,6 +4,14 @@ import { FormNavigation } from "@/components/form/FormNavigation";
 import type { QuoteFormData } from "@/components/form/types";
 import type { FieldErrors } from "@/components/form/validation";
 import { SENIOR_ERROR } from "@/components/form/seniorForm";
+import {
+  IKI_CONSENT_OPTIN_TEXT,
+  IKI_CONSENT_VALIDITY_TEXT,
+  IKI_PARTNER_CONSENT_OPTIN_TEXT,
+  IKI_PRIVACY_POLICY_LABEL,
+  IKI_PRIVACY_POLICY_URL,
+  type ConsentVariantId,
+} from "@/lib/consent";
 import { buildV2BrokerCountCopy } from "@/lib/v2/consent";
 import {
   getV2PartnerById,
@@ -21,6 +29,7 @@ type Props = {
   /** Final Vertikl acquire failed — show friendly copy + retry (not “no brokers”). */
   acquireError?: boolean;
   submitting?: boolean;
+  consentVariant?: Extract<ConsentVariantId, "senior" | "iki" | "default">;
   onPatch: (patch: Partial<QuoteFormData>) => void;
   onConfirm: () => void;
 };
@@ -49,9 +58,11 @@ export function StepEligiblePartnersV2({
   errors,
   acquireError = false,
   submitting = false,
+  consentVariant = "senior",
   onPatch,
   onConfirm,
 }: Props) {
+  const iki = consentVariant === "iki";
   // Partners come exclusively from Vertikl precheck (via /api/v2/eligibility).
   // Registry only enriches logo / privacy when the buyer is mapped.
   const displayPartners = partners.map((partner) => {
@@ -72,7 +83,10 @@ export function StepEligiblePartnersV2({
   const copy = buildV2BrokerCountCopy(brokerCount);
   const privacyPartners = displayPartners.filter((partner) => partner.privacyUrl);
 
-  const dossierReady = brokerCount > 0 && Boolean(data.consent);
+  const dossierReady =
+    brokerCount > 0 &&
+    Boolean(data.consent) &&
+    (!iki || Boolean(data.partnerConsent));
 
   const gridCols =
     brokerCount <= 1
@@ -197,57 +211,117 @@ export function StepEligiblePartnersV2({
       </div>
 
       <div className="mt-5 rounded-[18px] border-2 border-[#ddd6fe] bg-[#f5f0ff] p-4 text-[0.98rem] leading-relaxed text-foreground">
-        <div className="flex items-start gap-3">
-          <input
-            id="v2-consent-opt-in"
-            type="checkbox"
-            checked={data.consent}
-            onChange={(event) => onPatch({ consent: event.target.checked })}
-            className="mt-[3px] h-6 w-6 shrink-0 accent-brand"
-          />
-          <div className="min-w-0">
-            <label htmlFor="v2-consent-opt-in" className="cursor-pointer">
-              {copy.consent}
-            </label>
-            {privacyPartners.length > 0 ? (
-              <p className="mt-2 text-[0.8125rem] leading-snug text-zinc-500">
-                Politiques de protection des données&nbsp;:{" "}
-                {privacyPartners.map((partner, index) => {
-                  const href = partner.privacyUrl!;
-                  return (
-                    <span key={partner.id}>
-                      {index > 0 ? " · " : null}
-                      <a
-                        href={href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="font-medium text-zinc-600 underline underline-offset-2 hover:text-brand"
-                      >
-                        {partner.name}
-                      </a>
-                    </span>
-                  );
-                })}
-              </p>
-            ) : null}
-            <p className="mt-2 text-[0.8125rem] leading-snug text-zinc-500">
-              Consentement valable 12 mois, retirable à tout moment.{" "}
+        {iki ? (
+          <>
+            <div className="flex items-start gap-3">
+              <input
+                id="v2-consent-opt-in"
+                type="checkbox"
+                checked={data.consent}
+                onChange={(event) =>
+                  onPatch({ consent: event.target.checked })
+                }
+                className="mt-[3px] h-6 w-6 shrink-0 accent-brand"
+              />
+              <label
+                htmlFor="v2-consent-opt-in"
+                className="min-w-0 cursor-pointer"
+              >
+                {IKI_CONSENT_OPTIN_TEXT}
+              </label>
+            </div>
+            <div
+              className="my-3.5 border-t border-[#ddd6fe]"
+              aria-hidden="true"
+            />
+            <div className="flex items-start gap-3">
+              <input
+                id="v2-partner-consent-opt-in"
+                type="checkbox"
+                checked={data.partnerConsent}
+                onChange={(event) =>
+                  onPatch({ partnerConsent: event.target.checked })
+                }
+                className="mt-[3px] h-6 w-6 shrink-0 accent-brand"
+              />
+              <label
+                htmlFor="v2-partner-consent-opt-in"
+                className="min-w-0 cursor-pointer"
+              >
+                {IKI_PARTNER_CONSENT_OPTIN_TEXT}
+              </label>
+            </div>
+            <p className="mt-3 text-[0.8125rem] leading-snug text-zinc-500">
+              {IKI_CONSENT_VALIDITY_TEXT}{" "}
               <a
-                href="https://www.couverturemutuelle.fr/politique-de-confidentialite"
+                href={IKI_PRIVACY_POLICY_URL}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="underline underline-offset-2 hover:text-brand"
               >
-                Politique de confidentialité
+                {IKI_PRIVACY_POLICY_LABEL}
               </a>
               .
             </p>
+          </>
+        ) : (
+          <div className="flex items-start gap-3">
+            <input
+              id="v2-consent-opt-in"
+              type="checkbox"
+              checked={data.consent}
+              onChange={(event) => onPatch({ consent: event.target.checked })}
+              className="mt-[3px] h-6 w-6 shrink-0 accent-brand"
+            />
+            <div className="min-w-0">
+              <label htmlFor="v2-consent-opt-in" className="cursor-pointer">
+                {copy.consent}
+              </label>
+              {privacyPartners.length > 0 ? (
+                <p className="mt-2 text-[0.8125rem] leading-snug text-zinc-500">
+                  Politiques de protection des données&nbsp;:{" "}
+                  {privacyPartners.map((partner, index) => {
+                    const href = partner.privacyUrl!;
+                    return (
+                      <span key={partner.id}>
+                        {index > 0 ? " · " : null}
+                        <a
+                          href={href}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-medium text-zinc-600 underline underline-offset-2 hover:text-brand"
+                        >
+                          {partner.name}
+                        </a>
+                      </span>
+                    );
+                  })}
+                </p>
+              ) : null}
+              <p className="mt-2 text-[0.8125rem] leading-snug text-zinc-500">
+                Consentement valable 12 mois, retirable à tout moment.{" "}
+                <a
+                  href="https://www.couverturemutuelle.fr/politique-de-confidentialite"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline underline-offset-2 hover:text-brand"
+                >
+                  Politique de confidentialité
+                </a>
+                .
+              </p>
+            </div>
           </div>
-        </div>
+        )}
       </div>
       {errors.consent ? (
         <p className={SENIOR_ERROR} role="alert">
           {errors.consent}
+        </p>
+      ) : null}
+      {errors.partnerConsent ? (
+        <p className={SENIOR_ERROR} role="alert">
+          {errors.partnerConsent}
         </p>
       ) : null}
 

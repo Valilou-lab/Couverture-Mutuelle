@@ -272,6 +272,8 @@ export type ValidateStepOptions = {
    * so the final `contact` step only validates phone + consent.
    */
   contactPhoneOnly?: boolean;
+  /** `/tranches-age` V2 — DOB already synthesized from declared age. */
+  skipOwnBirthDate?: boolean;
 };
 
 export function validateStep(
@@ -314,7 +316,9 @@ export function validateStep(
       break;
 
     case "birthAndPostal":
-      Object.assign(errors, validateOwnBirthDate(data));
+      if (!options.skipOwnBirthDate) {
+        Object.assign(errors, validateOwnBirthDate(data));
+      }
       Object.assign(errors, validatePostalCodeFields(data));
       break;
 

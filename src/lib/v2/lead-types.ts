@@ -1,4 +1,5 @@
 import type { QuoteFormData } from "@/components/form/types";
+import type { ConsentVariantId } from "@/lib/consent";
 import type { MetaLeadTracking } from "@/lib/meta/events";
 import type { AcquisitionParams } from "@/lib/vertikl/types";
 import type { V2ConsentRecord } from "./consent";
@@ -26,6 +27,8 @@ export type V2LeadRequestBody = {
   displayedPartnerIds: string[];
   /** Checkbox must be true; text is rebuilt server-side. */
   partnerConsentGiven: boolean;
+  /** Allowlisted consent chrome — drives IKI `consent_partners_cm` only. */
+  consentVariant?: ConsentVariantId;
   /** Shared Pixel/CAPI event_id (optional). */
   metaTracking?: MetaLeadTracking;
 };

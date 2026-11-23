@@ -366,6 +366,13 @@ export async function POST(request: NextRequest) {
   const ipAddress = getClientIp(request);
   const userAgent = request.headers.get("user-agent")?.trim() || undefined;
 
+  const consentVariant =
+    body.consentVariant === "iki" ||
+    body.consentVariant === "senior" ||
+    body.consentVariant === "default"
+      ? body.consentVariant
+      : "senior";
+
   let fields;
   try {
     fields = buildVertiklFields({
@@ -374,6 +381,7 @@ export async function POST(request: NextRequest) {
       consentAt,
       ipAddress,
       userAgent,
+      consentVariant,
     });
   } catch (error) {
     if (error instanceof VertiklMappingError) {

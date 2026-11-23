@@ -1,10 +1,11 @@
 import { getStoredAcquisition, getCurrentConsentLandingPageUrl } from "@/lib/acquisition";
+import type { QuoteFormData } from "@/components/form/types";
+import type { ConsentVariantId } from "@/lib/consent";
 import { pushLeadCompletedToDataLayer } from "@/lib/gtm-consent";
 import {
   prepareMetaLeadTracking,
   trackMetaLeadPixel,
 } from "@/lib/meta/pixel";
-import type { QuoteFormData } from "@/components/form/types";
 import type {
   V2LeadErrorResponse,
   V2LeadRequestBody,
@@ -41,9 +42,11 @@ export async function submitV2Lead(input: {
   data: QuoteFormData;
   partners: EligiblePartner[];
   eligibilityToken: string;
+  consentVariant?: ConsentVariantId;
 }): Promise<V2LeadClientResult> {
   const stored = getStoredAcquisition();
   const metaTracking = prepareMetaLeadTracking();
+  const consentVariant = input.consentVariant ?? "senior";
 
   const body: V2LeadRequestBody = {
     form: input.data,
@@ -55,7 +58,12 @@ export async function submitV2Lead(input: {
     },
     eligibilityToken: input.eligibilityToken,
     displayedPartnerIds: input.partners.map((partner) => partner.id),
-    partnerConsentGiven: Boolean(input.data.consent),
+    // Standard V2: one broker-consent checkbox. IKI: second opt-in → partners CM.
+    partnerConsentGiven:
+      consentVariant === "iki"
+        ? Boolean(input.data.partnerConsent)
+        : Boolean(input.data.consent),
+    consentVariant,
     metaTracking,
   };
 

@@ -3,6 +3,10 @@ import { describe, it } from "node:test";
 import { initialFormData, type QuoteFormData } from "@/components/form/types";
 import { buildVertiklFields } from "@/lib/vertikl/build-payload";
 import {
+  getV2FlowSteps,
+  getV2QuestionSteps,
+} from "@/components/form/v2/v2Types";
+import {
   buildV2VertiklCoreFields,
   buildV2VertiklCoreFieldsFromForm,
   compareV2VertiklCoreFields,
@@ -121,5 +125,25 @@ describe("V2 Vertikl core fields (precheck ↔ acquire)", () => {
         }),
       /firstName/,
     );
+  });
+
+  it("keeps the same OTP→precheck→consent→acquire tail on every LP variant", () => {
+    const tails = [
+      getV2FlowSteps(),
+      getV2FlowSteps({ askAgeInsteadOfBirthDate: true }),
+      getV2FlowSteps({ askCareNeedsFirst: true }),
+    ].map((steps) =>
+      steps.slice(steps.indexOf("phoneVerify")),
+    );
+    assert.deepEqual(tails[0], [
+      "phoneVerify",
+      "searching",
+      "eligiblePartners",
+      "confirmation",
+    ]);
+    assert.deepEqual(tails[1], tails[0]);
+    assert.deepEqual(tails[2], tails[0]);
+    assert.ok(getV2QuestionSteps({ askAgeInsteadOfBirthDate: true })[0] === "age");
+    assert.ok(getV2QuestionSteps({ askCareNeedsFirst: true })[0] === "careNeeds");
   });
 });

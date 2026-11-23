@@ -11,6 +11,7 @@ import Link from "next/link";
 import {
   COVERED_PERSONS,
   initialFormData,
+  type CareNeedId,
   type CoveredPersonId,
   type FormStepId,
   type QuoteFormData,
@@ -19,6 +20,13 @@ import {
   validateStep,
   type FieldErrors,
 } from "@/components/form/validation";
+import { birthDateFromDeclaredAge } from "@/lib/age-to-birth-date";
+import type { ConsentVariantId } from "@/lib/consent";
+import {
+  trackTikTokFormStart,
+  trackTikTokFormStepCompleted,
+  trackTikTokSubmitForm,
+} from "@/lib/tiktok-funnel";
 import { normalizeV2PhoneToE164 } from "@/lib/v2/phone";
 import { requiresSmsPhoneVerification } from "@/lib/vertikl/normalize";
 import {
@@ -28,6 +36,8 @@ import {
 } from "./emailValidation";
 import { FormBackButton } from "@/components/form/FormBackButton";
 import { ProgressBar } from "@/components/form/ProgressBar";
+import { StepAge } from "@/components/form/StepAge";
+import { StepCareNeeds } from "@/components/form/StepCareNeeds";
 import { StepCoveredPersons } from "@/components/form/StepCoveredPersons";
 import { StepProfessionalStatusV2 } from "./StepProfessionalStatusV2";
 import { StepCurrentMutualTariff } from "@/components/form/StepCurrentMutualTariff";
@@ -39,10 +49,11 @@ import {
 import { scrollQuoteFormIntoView } from "@/components/form/scrollQuoteFormIntoView";
 import {
   ELIGIBILITY_MIN_LOADING_MS,
+  getV2FlowSteps,
+  getV2QuestionSteps,
   isV2FormFocusStep,
-  V2_FLOW_STEPS,
-  V2_QUESTION_STEPS,
   type EligiblePartner,
+  type V2FormVariantOptions,
   type V2StepId,
 } from "./v2Types";
 import { useDevisLandingFocus } from "./useDevisLandingFocus";
@@ -68,7 +79,10 @@ const ADVANCE_DELAY_MS = 320;
 const ELIGIBILITY_ERROR =
   "Impossible de vérifier vos offres pour le moment. Merci de réessayer.";
 
-function validateConsentOnly(data: QuoteFormData): FieldErrors {
+function validateConsentOnly(
+  data: QuoteFormData,
+  consentVariant: ConsentVariantId,
+): FieldErrors {
   const errors: FieldErrors = {};
   // Safety net — names are collected on the earlier identity step.
   if (!data.firstName.trim()) errors.firstName = "Indiquez votre prénom.";
@@ -76,25 +90,66 @@ function validateConsentOnly(data: QuoteFormData): FieldErrors {
   if (!data.consent) {
     errors.consent = "Le consentement est nécessaire pour être contacté(e).";
   }
+  if (consentVariant === "iki" && !data.partnerConsent) {
+    errors.partnerConsent =
+      "Le consentement partenaires Couverture Mutuelle est nécessaire.";
+  }
   return errors;
 }
 
+export type QuoteFormV2Props = V2FormVariantOptions & {
+  /** Landing chrome only — does not change Vertikl APIs or payloads. */
+  onFocusChange?: (focused: boolean) => void;
+  /**
+   * Legacy step callback for older landings. Prefer `onFocusChange`.
+   * `questionNumber` is 1-based among question steps (null after questions).
+   */
+  onStepChange?: (step: V2StepId, questionNumber: number | null) => void;
+  /** Defaults to senior CM consent; `"iki"` enables dual opt-ins + consent_partners_cm. */
+  consentVariant?: Extract<ConsentVariantId, "senior" | "iki" | "default">;
+  coveredPersonsTitle?: string;
+  careNeedsTitle?: string;
+  /** Progress bar duration hint — RAC uses « 2 minutes ». */
+  durationLabel?: string;
+};
+
 /**
- * Production-bound V2 quote form for `/devis`.
- * Eligibility → Vertikl precheck; OTP → Twilio; final submit → Vertikl acquire.
+ * Shared production V2 quote form (`/devis` + all CM lead LPs).
+ * OTP → Vertikl precheck → partners consent → Vertikl acquire.
+ * LP variants only change early questions / consent chrome — never Vertikl core.
  */
 export function QuoteFormV2({
   onFocusChange,
-}: {
-  /** Landing chrome only — does not change steps, APIs or payloads. */
-  onFocusChange?: (focused: boolean) => void;
-} = {}) {
+  onStepChange,
+  askAgeInsteadOfBirthDate = false,
+  askCareNeedsFirst = false,
+  consentVariant = "senior",
+  coveredPersonsTitle = "Qui doit être assuré ?",
+  careNeedsTitle = "Sur quels soins voulez-vous être mieux remboursé(e)\u00a0?",
+  durationLabel,
+}: QuoteFormV2Props = {}) {
+  const variantOptions = useMemo<V2FormVariantOptions>(
+    () => ({ askAgeInsteadOfBirthDate, askCareNeedsFirst }),
+    [askAgeInsteadOfBirthDate, askCareNeedsFirst],
+  );
+  const questionSteps = useMemo(
+    () => getV2QuestionSteps(variantOptions),
+    [variantOptions],
+  );
+  const flowSteps = useMemo(
+    () => getV2FlowSteps(variantOptions),
+    [variantOptions],
+  );
+  const progressDurationLabel =
+    durationLabel ?? (askCareNeedsFirst ? "2 minutes" : "1 minute");
+
   const formRootRef = useRef<HTMLDivElement>(null);
   const otpSendLock = useRef(false);
   /** Sync lock — React state alone cannot block autofill + button double fire. */
   const otpVerifyLock = useRef(false);
+  const funnelStartedRef = useRef(false);
   const [data, setData] = useState<QuoteFormData>(initialFormData);
-  const [step, setStep] = useState<V2StepId>("currentMutualTariff");
+  const [step, setStep] = useState<V2StepId>(() => questionSteps[0]!);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [isAdvancing, setIsAdvancing] = useState(false);
   const [isCheckingEligibility, setIsCheckingEligibility] = useState(false);
@@ -115,9 +170,9 @@ export function QuoteFormV2({
   const [phoneProofReady, setPhoneProofReady] = useState(false);
   const [resendCooldownSec, setResendCooldownSec] = useState(0);
 
-  const questionStepIndex = V2_QUESTION_STEPS.indexOf(step);
+  const questionStepIndex = questionSteps.indexOf(step);
   const showProgress = questionStepIndex >= 0;
-  const flowIndex = V2_FLOW_STEPS.indexOf(step);
+  const flowIndex = flowSteps.indexOf(step);
   const canGoBack =
     step !== "confirmation" &&
     !(step === "searching" && isCheckingEligibility) &&
@@ -125,9 +180,9 @@ export function QuoteFormV2({
     flowIndex > 0;
 
   const progressCurrent = useMemo(() => {
-    if (!showProgress) return V2_QUESTION_STEPS.length;
+    if (!showProgress) return questionSteps.length;
     return questionStepIndex + 1;
-  }, [questionStepIndex, showProgress]);
+  }, [questionStepIndex, questionSteps.length, showProgress]);
 
   const questionNumber = showProgress ? progressCurrent : null;
   const formFocused = isV2FormFocusStep(step, questionNumber);
@@ -135,6 +190,9 @@ export function QuoteFormV2({
   useEffect(() => {
     onFocusChange?.(formFocused);
   }, [formFocused, onFocusChange]);
+  useEffect(() => {
+    onStepChange?.(step, questionNumber);
+  }, [onStepChange, questionNumber, step]);
 
   const patch = useCallback((partial: Partial<QuoteFormData>) => {
     setData((prev) => ({ ...prev, ...partial }));
@@ -170,11 +228,12 @@ export function QuoteFormV2({
       goTo("phone");
       return;
     }
-    const idx = V2_FLOW_STEPS.indexOf(step);
+    const idx = flowSteps.indexOf(step);
     if (idx <= 0) return;
-    goTo(V2_FLOW_STEPS[idx - 1]!);
+    goTo(flowSteps[idx - 1]!);
   }, [
     data.phone,
+    flowSteps,
     goTo,
     isAdvancing,
     isCheckingEligibility,
@@ -196,6 +255,10 @@ export function QuoteFormV2({
   const selectAndAdvance = useCallback(
     (partial: Partial<QuoteFormData>, current: V2StepId) => {
       if (isAdvancing) return;
+      if (!funnelStartedRef.current) {
+        funnelStartedRef.current = true;
+        trackTikTokFormStart();
+      }
       const nextData = { ...data, ...partial };
       setData(nextData);
       const formStep = current as FormStepId;
@@ -205,23 +268,35 @@ export function QuoteFormV2({
         return;
       }
       setErrors({});
-      const idx = V2_QUESTION_STEPS.indexOf(current);
-      const next = V2_QUESTION_STEPS[idx + 1];
+      const idx = questionSteps.indexOf(current);
+      if (idx >= 0) trackTikTokFormStepCompleted(idx + 1, current);
+      const next = questionSteps[idx + 1];
       if (next) advanceAfterDelay(next);
     },
-    [advanceAfterDelay, data, isAdvancing],
+    [advanceAfterDelay, data, isAdvancing, questionSteps],
   );
 
   const goNextFromBirthAndPostal = useCallback(() => {
     if (isAdvancing) return;
-    const stepErrors = validateStep("birthAndPostal", data);
+    // When age was collected first, DOB is already synthesized — only postal.
+    const stepErrors = validateStep("birthAndPostal", data, {
+      skipOwnBirthDate: askAgeInsteadOfBirthDate,
+    });
     if (Object.keys(stepErrors).length > 0) {
       setErrors(stepErrors);
       return;
     }
     setErrors({});
+    const idx = questionSteps.indexOf("birthAndPostal");
+    if (idx >= 0) trackTikTokFormStepCompleted(idx + 1, "birthAndPostal");
     advanceAfterDelay("identity");
-  }, [advanceAfterDelay, data, isAdvancing]);
+  }, [
+    advanceAfterDelay,
+    askAgeInsteadOfBirthDate,
+    data,
+    isAdvancing,
+    questionSteps,
+  ]);
 
   const goNextFromIdentity = useCallback(() => {
     if (isAdvancing) return;
@@ -448,9 +523,11 @@ export function QuoteFormV2({
       data,
       partners: eligiblePartners,
       eligibilityToken,
+      consentVariant,
     });
+    trackTikTokSubmitForm();
     goTo("confirmation");
-  }, [data, eligibilityToken, eligiblePartners, goTo]);
+  }, [consentVariant, data, eligibilityToken, eligiblePartners, goTo]);
 
   const sendPhoneOtp = useCallback(async () => {
     if (otpSendLock.current || otpSending) return false;
@@ -526,7 +603,7 @@ export function QuoteFormV2({
   /** Partners consent → acquire (phone already verified earlier when required). */
   const confirmDossier = useCallback(() => {
     if (otpVerifying || otpSending || isCheckingEligibility) return;
-    const stepErrors = validateConsentOnly(data);
+    const stepErrors = validateConsentOnly(data, consentVariant);
     if (Object.keys(stepErrors).length > 0) {
       setErrors(stepErrors);
       return;
@@ -556,6 +633,7 @@ export function QuoteFormV2({
       }
     })();
   }, [
+    consentVariant,
     data,
     isCheckingEligibility,
     otpSending,
@@ -667,6 +745,44 @@ export function QuoteFormV2({
 
   const stepContent = (
     <div key={step} className="form-step-enter">
+      {step === "careNeeds" ? (
+        <StepCareNeeds
+          data={data}
+          errors={errors}
+          disabled={isAdvancing}
+          title={careNeedsTitle}
+          racOrder={askCareNeedsFirst}
+          onChange={(careNeeds: CareNeedId[]) => patch({ careNeeds })}
+          onNext={() => {
+            if (isAdvancing) return;
+            const stepErrors = validateStep("careNeeds", data);
+            if (Object.keys(stepErrors).length > 0) {
+              setErrors(stepErrors);
+              return;
+            }
+            setErrors({});
+            const idx = questionSteps.indexOf("careNeeds");
+            if (idx >= 0) trackTikTokFormStepCompleted(idx + 1, "careNeeds");
+            const next = questionSteps[idx + 1];
+            if (next) advanceAfterDelay(next);
+          }}
+        />
+      ) : null}
+
+      {step === "age" ? (
+        <StepAge
+          data={data}
+          errors={errors}
+          disabled={isAdvancing}
+          onConfirm={(age) =>
+            selectAndAdvance(
+              { birthDate: birthDateFromDeclaredAge(age) },
+              "age",
+            )
+          }
+        />
+      ) : null}
+
       {step === "currentMutualTariff" ? (
         <StepCurrentMutualTariff
           data={data}
@@ -683,7 +799,7 @@ export function QuoteFormV2({
           data={data}
           errors={errors}
           disabled={isAdvancing}
-          title="Qui doit être assuré ?"
+          title={coveredPersonsTitle}
           onSelectAndAdvance={(coveredPersons: CoveredPersonId) =>
             selectAndAdvance(
               {
@@ -716,7 +832,7 @@ export function QuoteFormV2({
           data={data}
           errors={errors}
           disabled={isAdvancing}
-          hideOwnBirthDate={false}
+          hideOwnBirthDate={askAgeInsteadOfBirthDate}
           hidePostalCode={false}
           onChangeBirthDate={(birthDate) => patch({ birthDate })}
           onPostalCode={setPostalCode}
@@ -775,6 +891,7 @@ export function QuoteFormV2({
           errors={errors}
           acquireError={acquireError}
           submitting={otpVerifying}
+          consentVariant={consentVariant}
           onPatch={(partial) => {
             setAcquireError(false);
             patch(partial);
@@ -849,8 +966,8 @@ export function QuoteFormV2({
             {showProgress ? (
               <ProgressBar
                 current={progressCurrent}
-                total={V2_QUESTION_STEPS.length}
-                durationLabel="1 minute"
+                total={questionSteps.length}
+                durationLabel={progressDurationLabel}
               />
             ) : null}
             {stepContent}
