@@ -2,17 +2,15 @@ import type { QuoteFormData } from "@/components/form/types";
 import { type ConsentVariantId } from "@/lib/consent";
 import {
   mapCostHealth,
-  mapCurrentlyInsured,
   mapGender,
   mapHealthInsuranceGoal,
   mapInsurerTenure,
-  mapPeopleToCover,
   mapPriorityCare,
-  mapProfessionalStatut,
   VertiklMappingError,
 } from "./mappers";
-import { frenchDateToIso, toInternationalFrenchPhone } from "./normalize";
+import { frenchDateToIso } from "./normalize";
 import type { LeadSubmissionMeta, VertiklLeadFields } from "./types";
+import { buildV2VertiklCoreFieldsFromForm } from "./v2-core-fields";
 
 export type BuildVertiklFieldsInput = {
   form: QuoteFormData;
@@ -55,11 +53,6 @@ export function buildVertiklFields(
     throw new VertiklMappingError("consent must be true before building payload.");
   }
 
-  const dateOfBirth = frenchDateToIso(form.birthDate);
-  if (!dateOfBirth) {
-    throw new VertiklMappingError("Invalid birthDate; expected JJ/MM/AAAA.");
-  }
-
   let partnerDateOfBirth: string | undefined;
   if (form.spouseBirthDate.trim()) {
     const partner = frenchDateToIso(form.spouseBirthDate);
@@ -71,25 +64,14 @@ export function buildVertiklFields(
     partnerDateOfBirth = partner;
   }
 
-  const phone = toInternationalFrenchPhone(form.phone);
-  if (!phone) {
-    throw new VertiklMappingError("Invalid French phone number.");
-  }
-
   const consentVariantId = input.consentVariant ?? "default";
   const ikiPartnerConsent = form.partnerConsent === true;
 
-  // Do not send fields.consent_given — Vertikl rejects it. Acquire only runs
-  // after LP + API consent gates; V2 proof is root consent.{buyer_ids, collected_at}.
+  // Same 9 core fields as Vertikl precheck (identical normalization).
+  // Do not send fields.consent_given — Vertikl rejects it.
+  const core = buildV2VertiklCoreFieldsFromForm(form);
   const fields: VertiklLeadFields = {
-    first_name: form.firstName.trim(),
-    last_name: form.lastName.trim(),
-    phone,
-    email: form.email.trim(),
-    date_of_birth: dateOfBirth,
-    postal_code: form.postalCode.trim(),
-    currently_insured: mapCurrentlyInsured(form.alreadyInsured),
-    people_to_cover: mapPeopleToCover(form.coveredPersons),
+    ...core,
     ...(consentVariantId === "iki"
       ? { consent_partners_cm: ikiPartnerConsent }
       : {}),
@@ -114,13 +96,8 @@ export function buildVertiklFields(
     fields.priority_care = mapPriorityCare(form.careNeeds);
   }
 
-  const professionalStatut = mapProfessionalStatut(form.professionalStatus);
-  if (professionalStatut) {
-    fields.professional_statut = professionalStatut;
-  }
-
   // cost_health stays optional — only set when a tariff was collected
-  // (legacy savings path / calculator). Primary LP no longer asks it.
+  // (legacy savings path / calculator). Primary LP Q1 is alreadyInsured.
   const tariffCost = mapCostHealth(form.currentMutualTariff);
   if (tariffCost !== undefined) {
     fields.cost_health = tariffCost;
@@ -144,11 +121,6 @@ export function buildVertiklFields(
   // Intentionally omitted when unanswered / not collected:
   // familyStatus, insurer, citiesOptions, civility/gender, health_scheme,
   // spouse DOB, care priorities, marital_status, number_of_children.
-  // professional_statut is mapped from professionalStatus when present.
-  // cost_health is the selected tariff enum id when present (under_60, …).
-  // health_insurance_goal is a Vertikl LIST of mapped codes (save_money, …).
-  // currently_insured comes from LP Q1 (alreadyInsured oui/non).
-  // priority_care is omitted when unanswered (step can be hidden).
   // health_scheme is optional on Vertikl and no longer collected.
   // IKI partner opt-in is consent_partners_cm (boolean from the 2nd checkbox).
   // Acquisition (utm_*, fbclid, gclid) not mapped to Vertikl fields yet.

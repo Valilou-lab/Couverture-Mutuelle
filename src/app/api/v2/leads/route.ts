@@ -45,6 +45,11 @@ import { VertiklMappingError } from "@/lib/vertikl/mappers";
 import { requiresSmsPhoneVerification } from "@/lib/vertikl/normalize";
 import { V2_VERTIKL_CAMPAIGN_ID } from "@/lib/vertikl/precheck";
 import {
+  listFieldNames,
+  splitVertiklAcquireFields,
+  V2_VERTIKL_CORE_FIELD_KEYS,
+} from "@/lib/vertikl/v2-core-fields";
+import {
   isAcquisitionChannel,
   type AcquisitionParams,
   type LeadSubmissionMeta,
@@ -467,6 +472,23 @@ export async function POST(request: NextRequest) {
     acquireKeys: fieldsCompare?.acquireKeys ?? null,
   });
 
+  const acquireSplit = splitVertiklAcquireFields(fields);
+  const coreCompare = {
+    precheckHasAllCore: Boolean(
+      precheckFieldsSnap &&
+        V2_VERTIKL_CORE_FIELD_KEYS.every((key) =>
+          precheckFieldsSnap.keys.includes(key),
+        ),
+    ),
+    acquireHasAllCore: Boolean(acquireSplit.core),
+    precheckKeyCount: precheckFieldsSnap?.keys.length ?? null,
+    expectedCoreKeyCount: V2_VERTIKL_CORE_FIELD_KEYS.length,
+    differentCoreValues:
+      fieldsCompare?.DIFFERENT_VALUES?.filter((row) =>
+        (V2_VERTIKL_CORE_FIELD_KEYS as readonly string[]).includes(row.key),
+      ) ?? [],
+  };
+
   console.info("[api/v2/leads] acquire payload shape", {
     campaignId: V2_VERTIKL_CAMPAIGN_ID,
     precheckId,
@@ -475,7 +497,15 @@ export async function POST(request: NextRequest) {
     consentBuyerIds: tokenResult.payload.buyerIds,
     consentCollectedAt,
     hasConsentProofRef: false,
-    fieldKeys: Object.keys(fields).sort(),
+    precheckFieldNames: precheckFieldsSnap?.keys ?? null,
+    acquireFieldNames: listFieldNames(fields as Record<string, unknown>),
+    expectedCoreKeys: [...V2_VERTIKL_CORE_FIELD_KEYS],
+    acquireExtraKeys: acquireSplit.extraKeys,
+    acquireUnknownKeys: acquireSplit.unknownKeys,
+    hasConsentGivenField: Object.prototype.hasOwnProperty.call(
+      fields,
+      "consent_given",
+    ),
   });
 
   // TEMP diagnostic — plain-language compare for Vertikl 422 triage
@@ -497,6 +527,7 @@ export async function POST(request: NextRequest) {
     different: fieldsCompare?.DIFFERENT_VALUES ?? null,
     absentAtPrecheckPresentAtSubmit: fieldsCompare?.ACQUIRE_ONLY ?? null,
     presentAtPrecheckAbsentAtSubmit: fieldsCompare?.PRECHECK_ONLY ?? null,
+    coreCompare,
   });
 
   const result = await sendLeadToVertikl(fields, V2_VERTIKL_CAMPAIGN_ID, {

@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
+import type {
+  CoveredPersonId,
+  ProfessionalStatusId,
+} from "@/components/form/types";
 import {
   PHONE_VERIFY_COOKIE,
   normalizePhoneForProof,
@@ -8,31 +12,26 @@ import {
 import { createV2EligibilityToken } from "@/lib/v2/eligibility-token";
 import { mapVertiklBuyerToDisplay } from "@/lib/v2/vertikl-buyer-map";
 import {
-  mapCurrentlyInsured,
-  mapPeopleToCover,
-  mapProfessionalStatut,
-} from "@/lib/vertikl/mappers";
-import {
-  frenchDateToIso,
-  requiresSmsPhoneVerification,
-} from "@/lib/vertikl/normalize";
-import {
   buildVertiklRuntimeDiag,
   storePrecheckFieldsSnapshot,
 } from "@/lib/vertikl/fields-snapshot";
+import { VertiklMappingError } from "@/lib/vertikl/mappers";
+import { requiresSmsPhoneVerification } from "@/lib/vertikl/normalize";
 import {
   runVertiklPrecheck,
   V2_VERTIKL_CAMPAIGN_ID,
 } from "@/lib/vertikl/precheck";
-import { isValidFrenchPostalCode } from "@/lib/location-service";
-import type {
-  CoveredPersonId,
-  ProfessionalStatusId,
-} from "@/components/form/types";
+import {
+  buildV2VertiklCoreFields,
+  listFieldNames,
+  V2_VERTIKL_CORE_FIELD_KEYS,
+} from "@/lib/vertikl/v2-core-fields";
 
 export const runtime = "nodejs";
 
 type EligibilityBody = {
+  firstName?: unknown;
+  lastName?: unknown;
   email?: unknown;
   phone?: unknown;
   birthDate?: unknown;
@@ -64,6 +63,10 @@ export async function POST(request: NextRequest) {
   console.info("[api/v2/eligibility] request received", {
     hasEmail: Boolean(email),
     hasPhone: Boolean(phone),
+    hasFirstName:
+      typeof body.firstName === "string" && Boolean(body.firstName.trim()),
+    hasLastName:
+      typeof body.lastName === "string" && Boolean(body.lastName.trim()),
     hasBirthDate: typeof body.birthDate === "string" && Boolean(body.birthDate),
     hasPostalCode:
       typeof body.postalCode === "string" && Boolean(body.postalCode),
@@ -108,50 +111,58 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  const fields: {
-    email: string;
-    phone: string;
-    date_of_birth?: string;
-    postal_code?: string;
-    city?: string;
-    currently_insured?: boolean;
-    people_to_cover?: string;
-    professional_statut?: string;
-  } = { email, phone };
-
-  if (typeof body.birthDate === "string") {
-    const dob = frenchDateToIso(body.birthDate);
-    if (dob) fields.date_of_birth = dob;
-  }
-  if (
-    typeof body.postalCode === "string" &&
-    isValidFrenchPostalCode(body.postalCode)
-  ) {
-    fields.postal_code = body.postalCode;
-  }
-  if (typeof body.city === "string" && body.city.trim()) {
-    fields.city = body.city.trim();
-  }
-  if (body.alreadyInsured === "oui" || body.alreadyInsured === "non") {
-    fields.currently_insured = mapCurrentlyInsured(body.alreadyInsured);
-  }
-  if (typeof body.coveredPersons === "string" && body.coveredPersons) {
-    try {
-      fields.people_to_cover = mapPeopleToCover(
-        body.coveredPersons as CoveredPersonId,
-      );
-    } catch {
-      // omit unmapped
-    }
-  }
-  if (typeof body.professionalStatus === "string" && body.professionalStatus) {
-    const mapped = mapProfessionalStatut(
-      body.professionalStatus as ProfessionalStatusId | "",
+  let fields;
+  try {
+    fields = buildV2VertiklCoreFields({
+      firstName: typeof body.firstName === "string" ? body.firstName : "",
+      lastName: typeof body.lastName === "string" ? body.lastName : "",
+      phone,
+      email,
+      birthDate: typeof body.birthDate === "string" ? body.birthDate : "",
+      postalCode: typeof body.postalCode === "string" ? body.postalCode : "",
+      alreadyInsured:
+        body.alreadyInsured === "oui" || body.alreadyInsured === "non"
+          ? body.alreadyInsured
+          : "",
+      coveredPersons:
+        typeof body.coveredPersons === "string"
+          ? (body.coveredPersons as CoveredPersonId | "")
+          : "",
+      professionalStatus:
+        typeof body.professionalStatus === "string"
+          ? (body.professionalStatus as ProfessionalStatusId | "")
+          : "",
+    });
+  } catch (error) {
+    const reason =
+      error instanceof VertiklMappingError
+        ? "invalid_qualification"
+        : "invalid_qualification";
+    console.info("[api/v2/eligibility] core fields mapping failed", {
+      reason,
+      message: error instanceof Error ? error.message : String(error),
+    });
+    return NextResponse.json(
+      {
+        eligible: false,
+        status: "technical_error",
+        partners: [],
+        eligibilityToken: null,
+        reason,
+      },
+      { status: 400 },
     );
-    if (mapped) fields.professional_statut = mapped;
   }
+
+  console.info("[api/v2/eligibility] precheck field names", {
+    fieldNames: listFieldNames(fields as Record<string, unknown>),
+    expectedCoreKeys: [...V2_VERTIKL_CORE_FIELD_KEYS],
+    coreKeyCount: V2_VERTIKL_CORE_FIELD_KEYS.length,
+  });
 
   const criteria: Record<string, unknown> = {
+    firstName: typeof body.firstName === "string" ? body.firstName : "",
+    lastName: typeof body.lastName === "string" ? body.lastName : "",
     email,
     phone,
     birthDate: typeof body.birthDate === "string" ? body.birthDate : "",

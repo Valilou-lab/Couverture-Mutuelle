@@ -5,6 +5,7 @@ import {
   buildVertiklRuntimeDiag,
   resolveVertiklPrecheckEndpoint,
 } from "@/lib/vertikl/fields-snapshot";
+import type { V2VertiklCoreFields } from "@/lib/vertikl/v2-core-fields";
 
 /** Couverture Mutuelle V2 campaign — acquire after consent. */
 export const V2_VERTIKL_CAMPAIGN_ID =
@@ -39,16 +40,8 @@ export type VertiklPrecheckResult =
   | VertiklPrecheckRefused
   | VertiklPrecheckTechnical;
 
-export type VertiklPrecheckFields = {
-  email: string;
-  phone: string;
-  date_of_birth?: string;
-  postal_code?: string;
-  city?: string;
-  currently_insured?: boolean;
-  people_to_cover?: string;
-  professional_statut?: string;
-};
+/** Exact 9 Vertikl qualification fields — see `buildV2VertiklCoreFields`. */
+export type VertiklPrecheckFields = V2VertiklCoreFields;
 
 type RawPrecheckBody = {
   status?: unknown;

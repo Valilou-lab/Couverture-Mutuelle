@@ -23,12 +23,17 @@ export type V2LeadClientResult = {
 };
 
 export class V2LeadClientError extends Error {
-  constructor(message: string) {
+  /** Vertikl / API diagnostic — logs only, never show to the prospect. */
+  readonly detail: string | null;
+
+  constructor(message: string, detail: string | null = null) {
     super(message);
     this.name = "V2LeadClientError";
+    this.detail = detail;
   }
 }
 
+/** Generic user-facing copy — never include Vertikl payload text. */
 const SUBMIT_ERROR =
   "Impossible d’enregistrer le dossier pour le moment. Merci de réessayer.";
 
@@ -84,9 +89,13 @@ export async function submitV2Lead(input: {
       errPayload && typeof errPayload.error === "string"
         ? errPayload.error
         : null;
-    // Prefer Vertikl diagnostic when present (e.g. "Lead non valide.").
-    const message = detail || code || SUBMIT_ERROR;
-    throw new V2LeadClientError(message);
+    console.error("[v2/leads] acquire failed", {
+      status: response.status,
+      code,
+      detail,
+      payload: errPayload,
+    });
+    throw new V2LeadClientError(SUBMIT_ERROR, detail || code);
   }
 
   pushLeadCompletedToDataLayer();

@@ -103,7 +103,7 @@ export async function verifyPhoneOtp(
     });
     if (payload?.error === "CODE_EXPIRED") {
       throw new OtpClientError(
-        "Ce code a expiré. Demandez-en un nouveau.",
+        "Ce code a expiré. Demandez un nouveau code pour continuer.",
         "CODE_EXPIRED",
       );
     }
@@ -112,7 +112,7 @@ export async function verifyPhoneOtp(
       payload?.error === "INVALID_CODE"
     ) {
       throw new OtpClientError(
-        "Ce code est incorrect. Vérifiez-le et réessayez.",
+        "Code incorrect. Vérifiez le SMS reçu et réessayez.",
         "INVALID_CODE",
       );
     }

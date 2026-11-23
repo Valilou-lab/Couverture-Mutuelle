@@ -18,6 +18,9 @@ type Props = {
   partners: EligiblePartner[];
   data: QuoteFormData;
   errors: FieldErrors;
+  /** Final Vertikl acquire failed — show friendly copy + retry (not “no brokers”). */
+  acquireError?: boolean;
+  submitting?: boolean;
   onPatch: (patch: Partial<QuoteFormData>) => void;
   onConfirm: () => void;
 };
@@ -44,6 +47,8 @@ export function StepEligiblePartnersV2({
   partners,
   data,
   errors,
+  acquireError = false,
+  submitting = false,
   onPatch,
   onConfirm,
 }: Props) {
@@ -246,11 +251,34 @@ export function StepEligiblePartnersV2({
         </p>
       ) : null}
 
+      {acquireError ? (
+        <div
+          className="mt-4 rounded-[18px] border border-red-200 bg-red-50 px-4 py-3.5 text-center"
+          role="alert"
+        >
+          <p className="font-poppins text-[1.02rem] font-extrabold leading-snug text-[#9f1239]">
+            Une erreur est survenue lors de l’envoi de votre demande.
+          </p>
+          <p className="mt-1.5 text-[0.95rem] leading-snug text-[#9f1239]">
+            Vos informations n’ont pas été transmises. Merci de réessayer dans
+            quelques instants.
+          </p>
+          <button
+            type="button"
+            disabled={submitting || !dossierReady}
+            onClick={onConfirm}
+            className="mt-3.5 inline-flex min-h-12 items-center justify-center rounded-full bg-[#9b4ff0] px-6 py-2.5 text-[1rem] font-extrabold text-white shadow-[0_10px_22px_-12px_rgba(155,79,240,0.55)] transition hover:bg-[#8b3de0] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {submitting ? "Envoi…" : "Réessayer"}
+          </button>
+        </div>
+      ) : null}
+
       <FormNavigation
         onNext={onConfirm}
         nextLabel={copy.cta}
-        disabled={!dossierReady}
-        canContinue={dossierReady}
+        disabled={!dossierReady || submitting}
+        canContinue={dossierReady && !submitting}
       />
       {!dossierReady ? (
         <p className="mt-2 text-center text-[0.8125rem] leading-snug text-zinc-500">

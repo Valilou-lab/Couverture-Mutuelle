@@ -8,12 +8,16 @@ type Props = {
   verifying: boolean;
   sending?: boolean;
   errorMessage: string | null;
+  /** Twilio mapped code: INVALID_CODE | CODE_EXPIRED | … */
+  errorCode?: string | null;
+  /** Changes on every reject so the input clears even if the message text is unchanged. */
+  errorNonce?: number;
   statusMessage?: string | null;
   resendCooldownSec?: number;
   onConfirm: (code: string) => void;
   /**
-   * Fired once after the minimal WebOTP get() is armed (or immediately if
-   * unsupported). Parent sends the SMS from here.
+   * Fired once after the WebOTP get() is armed (or immediately if unsupported).
+   * Parent sends the SMS from here.
    */
   onReadyForSms: () => void;
   onEditPhone: () => void;
@@ -44,13 +48,15 @@ function getWebOtpStore(): WebOtpProbeStore {
 
 /**
  * V2 OTP screen — Twilio Verify via Main `/api/verify/*`.
- * TEMP: minimal WebOTP diagnostic with on-screen debug (no DevTools needed).
+ * WebOTP is optional autofill only; wrong codes stay on this step for retry.
  */
 export function StepPhoneVerifyV2({
   phone,
   verifying,
   sending = false,
   errorMessage,
+  errorCode = null,
+  errorNonce = 0,
   statusMessage = null,
   resendCooldownSec = 0,
   onConfirm,
@@ -63,8 +69,11 @@ export function StepPhoneVerifyV2({
   const submittedCodeRef = useRef<string | null>(null);
   const onConfirmRef = useRef(onConfirm);
   const onReadyForSmsRef = useRef(onReadyForSms);
+  /** Blocks auto-verify from re-firing the same digits right after an error clear. */
+  const suppressAutoVerifyRef = useRef(false);
   const inputClass = useFormInputClass();
   const busy = verifying || sending;
+  const codeExpired = errorCode === "CODE_EXPIRED";
 
   useEffect(() => {
     onConfirmRef.current = onConfirm;
@@ -78,11 +87,19 @@ export function StepPhoneVerifyV2({
     inputRef.current?.focus();
   }, []);
 
+  // Wrong / expired code: clear field, unlock retry, refocus — never leave a stuck code.
   useEffect(() => {
-    if (errorMessage) {
-      submittedCodeRef.current = null;
-    }
-  }, [errorMessage]);
+    if (!errorMessage) return;
+    suppressAutoVerifyRef.current = true;
+    submittedCodeRef.current = null;
+    setCode("");
+    const id = window.requestAnimationFrame(() => {
+      inputRef.current?.focus();
+      // Allow the next intentional 6-digit entry to auto-verify.
+      suppressAutoVerifyRef.current = false;
+    });
+    return () => window.cancelAnimationFrame(id);
+  }, [errorMessage, errorNonce]);
 
   // TEMP minimal WebOTP probe — ONE get(), no re-arm, no cleanup abort.
   useEffect(() => {
@@ -128,7 +145,6 @@ export function StepPhoneVerifyV2({
         onReadyForSmsRef.current();
       }
     } else if (!store.lastDebug.includes("hostname:")) {
-      // Remount before SUCCESS/ERROR — refresh origin lines, keep waiting status.
       store.lastDebug = `${originLines}\nWEBOTP_WAITING`;
     }
 
@@ -144,27 +160,29 @@ export function StepPhoneVerifyV2({
         const line = `SUCCESS: ${raw ?? "NO_CODE"}`;
         store.lastDebug = `${originLines}\n${line}`;
         setWebotpDebug(store.lastDebug);
-        if (raw) {
-          const next = String(raw).replace(/\D/g, "").slice(0, 6);
-          setCode(next);
-          if (/^\d{6}$/.test(next)) {
-            submittedCodeRef.current = next;
-            onConfirmRef.current(next);
-          }
-        }
+        if (!raw) return;
+        const next = String(raw).replace(/\D/g, "").slice(0, 6);
+        if (!/^\d{6}$/.test(next)) return;
+        // Fill controlled state — same auto-verify path as manual entry.
+        suppressAutoVerifyRef.current = false;
+        submittedCodeRef.current = null;
+        setCode(next);
       })
       .catch((err: unknown) => {
-        const name = err instanceof Error ? err.name : "Unknown";
-        const message = err instanceof Error ? err.message : String(err);
-        const line = `ERROR: ${name} - ${message}`;
-        store.lastDebug = `${originLines}\n${line}`;
+        // WebOTP is optional — never block manual entry, never show tech errors.
+        console.error("WEBOTP_ERROR", {
+          name: err instanceof Error ? err.name : undefined,
+          message: err instanceof Error ? err.message : String(err),
+        });
+        store.lastDebug = `${originLines}\nWEBOTP_SKIPPED — saisie manuelle disponible`;
         setWebotpDebug(store.lastDebug);
       });
   }, []);
 
-  // Manual entry auto-verify only (WebOTP calls onConfirm directly above).
+  // Auto-verify when 6 digits are present (manual or WebOTP fill).
   useEffect(() => {
     if (busy) return;
+    if (suppressAutoVerifyRef.current) return;
     if (!/^\d{6}$/.test(code)) return;
     if (submittedCodeRef.current === code) return;
 
@@ -180,6 +198,18 @@ export function StepPhoneVerifyV2({
     if (submittedCodeRef.current === code) return;
     submittedCodeRef.current = code;
     onConfirm(code);
+  }
+
+  function handleResend() {
+    if (!canResend) return;
+    suppressAutoVerifyRef.current = true;
+    submittedCodeRef.current = null;
+    setCode("");
+    onReadyForSms();
+    window.requestAnimationFrame(() => {
+      inputRef.current?.focus();
+      suppressAutoVerifyRef.current = false;
+    });
   }
 
   return (
@@ -224,6 +254,7 @@ export function StepPhoneVerifyV2({
         }}
         className={`${inputClass} text-center text-[1.75rem] font-extrabold tracking-[0.35em] text-[#3b0764]`}
         aria-describedby="v2-phone-otp-help"
+        aria-invalid={Boolean(errorMessage)}
       />
 
       {/* TEMP WebOTP on-screen debug — remove after Android probe */}
@@ -252,6 +283,23 @@ export function StepPhoneVerifyV2({
         </p>
       ) : null}
 
+      {codeExpired ? (
+        <div className="mt-3 rounded-[16px] border border-amber-200 bg-amber-50 px-3.5 py-3 text-center">
+          <button
+            type="button"
+            disabled={!canResend}
+            onClick={handleResend}
+            className="inline-flex min-h-11 items-center justify-center rounded-full bg-[#9b4ff0] px-5 py-2 text-[0.95rem] font-extrabold text-white transition hover:bg-[#8b3de0] disabled:cursor-not-allowed disabled:opacity-60"
+          >
+            {sending
+              ? "Envoi du code…"
+              : resendCooldownSec > 0
+                ? `Renvoyer un nouveau code (${resendCooldownSec}s)`
+                : "Renvoyer un nouveau code"}
+          </button>
+        </div>
+      ) : null}
+
       <div className="mt-5">
         <button
           type="button"
@@ -264,21 +312,20 @@ export function StepPhoneVerifyV2({
       </div>
 
       <div className="mt-4 flex flex-col items-center gap-2 text-sm">
-        <button
-          type="button"
-          disabled={!canResend}
-          onClick={() => {
-            // TEMP: resend SMS only — do not re-arm WebOTP during this probe.
-            onReadyForSms();
-          }}
-          className="text-[#3b0764] underline underline-offset-2 disabled:cursor-not-allowed disabled:text-zinc-400 disabled:no-underline"
-        >
-          {sending
-            ? "Envoi du code…"
-            : resendCooldownSec > 0
-              ? `Renvoyer le code (${resendCooldownSec}s)`
-              : "Renvoyer le code"}
-        </button>
+        {!codeExpired ? (
+          <button
+            type="button"
+            disabled={!canResend}
+            onClick={handleResend}
+            className="text-[#3b0764] underline underline-offset-2 disabled:cursor-not-allowed disabled:text-zinc-400 disabled:no-underline"
+          >
+            {sending
+              ? "Envoi du code…"
+              : resendCooldownSec > 0
+                ? `Renvoyer le code (${resendCooldownSec}s)`
+                : "Renvoyer le code"}
+          </button>
+        ) : null}
         <button
           type="button"
           disabled={busy}

@@ -22,8 +22,13 @@ export class EligibilityClientError extends Error {
 export async function fetchEligiblePartners(
   payload: EligibilityRequestPayload,
 ): Promise<EligibilityClientResult> {
-  // TEMP diagnostic — remove after OTP→precheck bug is confirmed.
-  console.info("PRECHECK_PAYLOAD", payload);
+  console.info("PRECHECK_PAYLOAD", {
+    fieldNames: Object.keys(payload).sort(),
+    hasFirstName: Boolean(payload.firstName?.trim()),
+    hasLastName: Boolean(payload.lastName?.trim()),
+    hasEmail: Boolean(payload.email?.trim()),
+    hasPhone: Boolean(payload.phone?.trim()),
+  });
 
   // credentials:include — must send HttpOnly `cm_phone_verified` set by /api/verify/check
   const response = await fetch("/api/v2/eligibility", {

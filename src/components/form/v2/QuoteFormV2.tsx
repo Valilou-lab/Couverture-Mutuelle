@@ -106,7 +106,12 @@ export function QuoteFormV2({
   const [otpVerifying, setOtpVerifying] = useState(false);
   const [otpSending, setOtpSending] = useState(false);
   const [otpError, setOtpError] = useState<string | null>(null);
+  const [otpErrorCode, setOtpErrorCode] = useState<string | null>(null);
+  /** Bumps on every OTP reject so the field clears even if the message is identical. */
+  const [otpErrorNonce, setOtpErrorNonce] = useState(0);
   const [otpStatus, setOtpStatus] = useState<string | null>(null);
+  /** Friendly acquire failure on partners step — never Vertikl raw text. */
+  const [acquireError, setAcquireError] = useState(false);
   const [phoneProofReady, setPhoneProofReady] = useState(false);
   const [resendCooldownSec, setResendCooldownSec] = useState(0);
 
@@ -149,6 +154,7 @@ export function QuoteFormV2({
     setErrors({});
     setEligibilityError(null);
     setOtpError(null);
+    setOtpErrorCode(null);
     scrollQuoteFormIntoView(formRootRef.current);
   }, []);
 
@@ -309,6 +315,8 @@ export function QuoteFormV2({
 
       try {
         const payload = {
+          firstName: data.firstName,
+          lastName: data.lastName,
           healthInsuranceGoal: data.healthInsuranceGoal,
           coveredPersons: data.coveredPersons,
           professionalStatus: data.professionalStatus,
@@ -320,25 +328,21 @@ export function QuoteFormV2({
           email: data.email,
         };
 
-        // TEMP diagnostic — state at precheck (names are acquire-only, not in payload).
         console.info("PRECHECK_START", {
           callSeq,
           skipFieldValidation: Boolean(options?.skipFieldValidation),
           at: new Date().toISOString(),
-          state: {
-            firstName: data.firstName,
-            lastName: data.lastName,
-            email: data.email,
-            phone: data.phone,
-            phoneE164,
-            birthDate: data.birthDate,
-            postalCode: data.postalCode,
-            city: data.city,
-            coveredPersons: data.coveredPersons,
-            professionalStatus: data.professionalStatus,
-            alreadyInsured: data.alreadyInsured,
-            healthInsuranceGoal: data.healthInsuranceGoal,
-          },
+          payloadFieldNames: Object.keys(payload).sort(),
+          hasFirstName: Boolean(data.firstName.trim()),
+          hasLastName: Boolean(data.lastName.trim()),
+          hasEmail: Boolean(data.email.trim()),
+          hasPhone: Boolean(phoneE164 || data.phone.trim()),
+          hasBirthDate: Boolean(data.birthDate.trim()),
+          hasPostalCode: Boolean(data.postalCode.trim()),
+          hasCity: Boolean(data.city.trim()),
+          hasCoveredPersons: Boolean(data.coveredPersons),
+          hasProfessionalStatus: Boolean(data.professionalStatus),
+          hasAlreadyInsured: Boolean(data.alreadyInsured),
         });
 
         const [result] = await Promise.all([
@@ -499,6 +503,7 @@ export function QuoteFormV2({
     if (requiresSmsPhoneVerification(phoneE164)) {
       setPhoneProofReady(false);
       setOtpError(null);
+      setOtpErrorCode(null);
       setOtpStatus(null);
       // SMS is sent from StepPhoneVerifyV2 via onReadyForSms — only after
       // the WebOTP listener is armed, so Android can bind the incoming SMS.
@@ -528,16 +533,24 @@ export function QuoteFormV2({
     }
     void (async () => {
       setOtpError(null);
+      setAcquireError(false);
       setOtpVerifying(true);
       try {
         await submitV2Dossier();
       } catch (error) {
-        setErrors({
-          consent:
-            error instanceof Error
-              ? error.message
-              : "Impossible d’enregistrer le dossier pour le moment.",
+        // Technical Vertikl/API detail stays in logs only — never in the UI.
+        console.error("[v2/acquire] final acquire failed", {
+          name: error instanceof Error ? error.name : undefined,
+          message: error instanceof Error ? error.message : String(error),
+          detail:
+            error &&
+            typeof error === "object" &&
+            "detail" in error &&
+            typeof (error as { detail?: unknown }).detail === "string"
+              ? (error as { detail: string }).detail
+              : null,
         });
+        setAcquireError(true);
       } finally {
         setOtpVerifying(false);
       }
@@ -569,6 +582,7 @@ export function QuoteFormV2({
       }
       otpVerifyLock.current = true;
       setOtpError(null);
+      setOtpErrorCode(null);
       setOtpVerifying(true);
       let verifiedPhoneE164 =
         normalizeV2PhoneToE164(data.phone) || data.phone.trim();
@@ -596,20 +610,30 @@ export function QuoteFormV2({
           phoneOverride: verifiedPhoneE164,
         });
       } catch (error) {
+        // Wrong / expired OTP — stay on phoneVerify, unlock for a clean retry.
+        if (error instanceof OtpClientError) {
+          console.error("OTP_CHECK_REJECTED", {
+            code: error.code,
+            message: error.message,
+          });
+          setPhoneProofReady(false);
+          setOtpStatus(null);
+          setOtpErrorCode(error.code);
+          setOtpError(error.message);
+          setOtpErrorNonce((n) => n + 1);
+          setOtpVerifying(false);
+          return;
+        }
+
+        // OTP already approved; eligibility failed further down — don't poison OTP UX.
         console.error("OTP_OR_PRECHECK_CATCH_IN_CONFIRM_OTP", {
-          stepWillStayOrReturn: "phoneVerify (no goTo in this catch)",
-          phoneProofReadyReset: true,
+          stepWillStayOrReturn: "searching/eligibility (OTP already ok)",
+          phoneProofReadyReset: false,
           error:
             error instanceof Error
               ? { name: error.name, message: error.message }
               : error,
         });
-        setPhoneProofReady(false);
-        setOtpError(
-          error instanceof Error
-            ? error.message
-            : "Saisissez un code à 6 chiffres.",
-        );
         setOtpVerifying(false);
       } finally {
         otpVerifyLock.current = false;
@@ -749,7 +773,12 @@ export function QuoteFormV2({
           partners={eligiblePartners}
           data={data}
           errors={errors}
-          onPatch={patch}
+          acquireError={acquireError}
+          submitting={otpVerifying}
+          onPatch={(partial) => {
+            setAcquireError(false);
+            patch(partial);
+          }}
           onConfirm={confirmDossier}
         />
       ) : null}
@@ -760,6 +789,8 @@ export function QuoteFormV2({
           verifying={otpVerifying}
           sending={otpSending}
           errorMessage={otpError}
+          errorCode={otpErrorCode}
+          errorNonce={otpErrorNonce}
           statusMessage={otpStatus}
           resendCooldownSec={resendCooldownSec}
           onConfirm={(code) => {
@@ -771,6 +802,7 @@ export function QuoteFormV2({
           onEditPhone={() => {
             setPhoneProofReady(false);
             setOtpError(null);
+            setOtpErrorCode(null);
             setOtpStatus(null);
             goTo("phone");
           }}

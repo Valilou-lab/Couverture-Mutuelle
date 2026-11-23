@@ -23,6 +23,8 @@ export type EligibilityResponse = {
 
 /** Criteria sent to `/api/v2/eligibility` — no commercial rules in the front. */
 export type EligibilityRequestPayload = {
+  firstName: string;
+  lastName: string;
   healthInsuranceGoal: string;
   coveredPersons: string;
   professionalStatus: string;
