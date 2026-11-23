@@ -23,24 +23,22 @@ type Props = {
   onEditPhone: () => void;
 };
 
-/** TEMP — one shared get() across React Strict Mode remounts. */
-type WebOtpProbeStore = {
+/** One shared get() across React Strict Mode remounts. */
+type WebOtpStore = {
   started: boolean;
   smsRequested: boolean;
   promise: Promise<Credential | null> | null;
-  lastDebug: string;
 };
 
-const WEBOTP_STORE_KEY = "__cm_webotp_minimal_store";
+const WEBOTP_STORE_KEY = "__cm_webotp_store";
 
-function getWebOtpStore(): WebOtpProbeStore {
-  const w = window as Window & { [WEBOTP_STORE_KEY]?: WebOtpProbeStore };
+function getWebOtpStore(): WebOtpStore {
+  const w = window as Window & { [WEBOTP_STORE_KEY]?: WebOtpStore };
   if (!w[WEBOTP_STORE_KEY]) {
     w[WEBOTP_STORE_KEY] = {
       started: false,
       smsRequested: false,
       promise: null,
-      lastDebug: "",
     };
   }
   return w[WEBOTP_STORE_KEY];
@@ -64,7 +62,6 @@ export function StepPhoneVerifyV2({
   onEditPhone,
 }: Props) {
   const [code, setCode] = useState("");
-  const [webotpDebug, setWebotpDebug] = useState("…");
   const inputRef = useRef<HTMLInputElement>(null);
   const submittedCodeRef = useRef<string | null>(null);
   const onConfirmRef = useRef(onConfirm);
@@ -101,29 +98,23 @@ export function StepPhoneVerifyV2({
     return () => window.cancelAnimationFrame(id);
   }, [errorMessage, errorNonce]);
 
-  // TEMP minimal WebOTP probe — ONE get(), no re-arm, no cleanup abort.
+  // WebOTP: arm ONE get() before SMS, fill the input on success (no on-screen debug).
   useEffect(() => {
     if (typeof window === "undefined") return;
 
     const store = getWebOtpStore();
     const supported = "OTPCredential" in window;
-    const inIframe = window.top !== window.self;
-    const originLines = [
-      `WEBOTP_SUPPORTED: ${supported}`,
-      `href: ${window.location.href}`,
-      `origin: ${window.location.origin}`,
-      `hostname: ${window.location.hostname}`,
-      `top===self: ${window.top === window.self}`,
-      `visibilityState: ${document.visibilityState}`,
-      `SMS domain must match: @${window.location.hostname} #CODE`,
-      inIframe
-        ? `iframe: YES — SMS must include @${window.location.hostname} #CODE AND @${window.location.origin} #CODE (iframe WebOTP syntax)`
-        : `iframe: NO`,
-    ].join("\n");
+
+    if (process.env.NODE_ENV !== "production") {
+      console.info("[webotp]", {
+        supported,
+        origin: window.location.origin,
+        hostname: window.location.hostname,
+        topIsSelf: window.top === window.self,
+      });
+    }
 
     if (!supported) {
-      store.lastDebug = originLines;
-      setWebotpDebug(originLines);
       if (!store.smsRequested) {
         store.smsRequested = true;
         onReadyForSmsRef.current();
@@ -133,9 +124,8 @@ export function StepPhoneVerifyV2({
 
     if (!store.started) {
       store.started = true;
-      store.lastDebug = `${originLines}\nWEBOTP_WAITING`;
       const ac = new AbortController();
-      // Intentionally no cleanup abort — isolates whether Chrome returns otp.code.
+      // Intentionally no cleanup abort — keeps Chrome WebOTP binding stable.
       store.promise = navigator.credentials.get({
         otp: { transport: ["sms"] },
         signal: ac.signal,
@@ -144,11 +134,7 @@ export function StepPhoneVerifyV2({
         store.smsRequested = true;
         onReadyForSmsRef.current();
       }
-    } else if (!store.lastDebug.includes("hostname:")) {
-      store.lastDebug = `${originLines}\nWEBOTP_WAITING`;
     }
-
-    setWebotpDebug(store.lastDebug || `${originLines}\nWEBOTP_WAITING`);
 
     const promise = store.promise;
     if (!promise) return;
@@ -157,9 +143,9 @@ export function StepPhoneVerifyV2({
       .then((otp) => {
         const cred = otp as (Credential & { code?: string }) | null;
         const raw = cred?.code;
-        const line = `SUCCESS: ${raw ?? "NO_CODE"}`;
-        store.lastDebug = `${originLines}\n${line}`;
-        setWebotpDebug(store.lastDebug);
+        if (process.env.NODE_ENV !== "production") {
+          console.info("[webotp] success", { hasCode: Boolean(raw) });
+        }
         if (!raw) return;
         const next = String(raw).replace(/\D/g, "").slice(0, 6);
         if (!/^\d{6}$/.test(next)) return;
@@ -170,12 +156,10 @@ export function StepPhoneVerifyV2({
       })
       .catch((err: unknown) => {
         // WebOTP is optional — never block manual entry, never show tech errors.
-        console.error("WEBOTP_ERROR", {
+        console.error("[webotp] skipped", {
           name: err instanceof Error ? err.name : undefined,
           message: err instanceof Error ? err.message : String(err),
         });
-        store.lastDebug = `${originLines}\nWEBOTP_SKIPPED — saisie manuelle disponible`;
-        setWebotpDebug(store.lastDebug);
       });
   }, []);
 
@@ -256,14 +240,6 @@ export function StepPhoneVerifyV2({
         aria-describedby="v2-phone-otp-help"
         aria-invalid={Boolean(errorMessage)}
       />
-
-      {/* TEMP WebOTP on-screen debug — remove after Android probe */}
-      <pre
-        className="mt-3 overflow-x-auto rounded-lg border border-amber-300 bg-amber-50 px-3 py-2 text-left text-[0.75rem] font-mono leading-relaxed text-amber-950 whitespace-pre-wrap"
-        data-testid="webotp-debug"
-      >
-        {webotpDebug}
-      </pre>
 
       <p
         id="v2-phone-otp-help"
