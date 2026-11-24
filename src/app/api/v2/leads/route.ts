@@ -392,8 +392,6 @@ export async function POST(request: NextRequest) {
     return failure(500, "LEAD_SUBMISSION_FAILED", "LEAD_SUBMISSION_FAILED");
   }
 
-  scheduleMetaLead(request, form, meta, body.metaTracking);
-
   const precheckId = tokenResult.payload.precheckId;
   const submitAt = new Date().toISOString();
   const tokenIssuedAt = tokenResult.payload.issuedAt;
@@ -595,6 +593,10 @@ export async function POST(request: NextRequest) {
       { status: 502 },
     );
   }
+
+  // Meta « Prospect » (CAPI Lead) only once Vertikl has accepted the lead —
+  // same moment as the browser Pixel Lead (same event_id, deduplicated).
+  scheduleMetaLead(request, form, meta, body.metaTracking);
 
   const consent = buildV2ConsentRecord(partners, consentAt.toISOString());
   const response = NextResponse.json({
