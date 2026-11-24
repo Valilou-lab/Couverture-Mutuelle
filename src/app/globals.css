@@ -542,19 +542,6 @@ body {
   }
 }
 
-/* `/home-2` + `/tiktok-2` mobile — same Tahoma as V1 `/` and `/tiktok`. */
-@media (max-width: 1023px) {
-  .lp-v2-home,
-  .lp-v2-home .font-poppins,
-  .lp-v2-home .font-manrope,
-  .lp-v2-home .font-sora,
-  .lp-v2-home .font-baloo,
-  .lp-v2-home .font-nunito,
-  .lp-v2-home .font-sans {
-    font-family: Tahoma, Geneva, sans-serif;
-  }
-}
-
 /* /tranches-age — square fields, gray outline (beats Tailwind input utilities). */
 .tranches-age-type :is(input, textarea, select) {
   border-radius: 0 !important;

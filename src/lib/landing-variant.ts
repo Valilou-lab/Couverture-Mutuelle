@@ -21,13 +21,9 @@ export type LandingVariant = {
 
 const BY_PATH: Record<string, LandingVariant> = {
   "/": { lp_id: "home", lp_version: "v1" },
-  "/home-2": { lp_id: "home", lp_version: "v2" },
   "/tranches-age": { lp_id: "tranches-age", lp_version: "v1" },
-  "/tranches-age-2": { lp_id: "tranches-age", lp_version: "v2" },
   "/reste-a-charge": { lp_id: "reste-a-charge", lp_version: "v1" },
-  "/reste-a-charge-2": { lp_id: "reste-a-charge", lp_version: "v2" },
   "/tiktok": { lp_id: "tiktok", lp_version: "v1" },
-  "/tiktok-2": { lp_id: "tiktok", lp_version: "v2" },
 };
 
 function normalizePathname(pathname: string): string {

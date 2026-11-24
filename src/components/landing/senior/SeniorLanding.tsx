@@ -61,7 +61,7 @@ type SeniorLandingProps = {
 };
 
 /**
- * `/tranches-age` (+ `/tranches-age-2`): validated questionnaire + two-column desktop.
+ * `/tranches-age`: validated questionnaire + two-column desktop.
  * Chrome aligned with `/devis` (pastel header, white form, pastel how-it-works).
  */
 export function SeniorLanding({ className }: SeniorLandingProps = {}) {
