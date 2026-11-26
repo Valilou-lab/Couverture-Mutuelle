@@ -13,7 +13,10 @@ import {
   IKI_PRIVACY_POLICY_URL,
   type ConsentVariantId,
 } from "@/lib/consent";
-import { buildV2BrokerCountCopy } from "@/lib/v2/consent";
+import {
+  buildV2BrokerCountCopy,
+  buildV2PartnerConsentText,
+} from "@/lib/v2/consent";
 import {
   getV2PartnerById,
   getV2PartnerPrivacyPolicyUrl,
@@ -35,6 +38,20 @@ type Props = {
   onPatch: (patch: Partial<QuoteFormData>) => void;
   onConfirm: () => void;
 };
+
+function PartnerOfferBadge() {
+  return (
+    <p className="mt-2 flex items-start justify-center gap-1 text-center text-[0.68rem] font-semibold leading-snug text-emerald-700 sm:text-[0.75rem]">
+      <span
+        aria-hidden="true"
+        className="mt-[1px] inline-flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-[0.55rem] font-bold text-white sm:h-4 sm:w-4 sm:text-[0.625rem]"
+      >
+        ✓
+      </span>
+      <span>Peut vous proposer un devis</span>
+    </p>
+  );
+}
 
 type FunnelEvent =
   | "v2_consent_viewed"
@@ -95,6 +112,13 @@ function StepEligiblePartnersV2Redesign({
     Boolean(data.consent) &&
     (!iki || Boolean(data.partnerConsent));
 
+  const gridCols =
+    brokerCount <= 1
+      ? "grid-cols-1 max-w-[11rem] mx-auto"
+      : brokerCount === 2
+        ? "grid-cols-2"
+        : "grid-cols-3";
+
   const consentBoxRef = useRef<HTMLDivElement>(null);
   const [shakeKey, setShakeKey] = useState(0);
   const viewedRef = useRef(false);
@@ -143,10 +167,7 @@ function StepEligiblePartnersV2Redesign({
   };
 
   const hasConsentError = Boolean(errors.consent || errors.partnerConsent);
-  const headline =
-    brokerCount === 1
-      ? "1 courtier est disponible pour votre profil"
-      : `${brokerCount} courtiers sont disponibles pour votre profil`;
+  const consentText = buildV2PartnerConsentText(displayPartners);
   const ctaLabel =
     brokerCount === 1
       ? "Recevoir mon devis gratuit"
@@ -209,7 +230,12 @@ function StepEligiblePartnersV2Redesign({
         </span>
       </div>
       <h2 className="mt-2.5 text-balance text-center font-poppins text-[1.3rem] font-extrabold leading-tight tracking-[-0.02em] text-[#3b0764] sm:text-[1.5rem]">
-        {headline}
+        <span className="text-emerald-600">
+          {brokerCount === 1 ? "1 courtier" : `${brokerCount} courtiers`}
+        </span>{" "}
+        {brokerCount === 1
+          ? "est disponible pour votre profil"
+          : "sont disponibles pour votre profil"}
       </h2>
       <p className="mx-auto mt-2 max-w-md text-center text-[0.95rem] leading-snug text-zinc-600 sm:text-[1rem]">
         Plus qu’une étape&nbsp;: validez ci-dessous pour{" "}
@@ -221,44 +247,56 @@ function StepEligiblePartnersV2Redesign({
         .
       </p>
 
-      <ul className="mx-auto mt-4 flex max-w-md flex-col gap-2">
-        {displayPartners.map((partner) => (
-          <li
-            key={partner.id}
-            className="flex items-center gap-3 rounded-[14px] border border-[#ebe5fd] bg-white px-3 py-2"
-          >
-            <div className="flex h-10 w-16 shrink-0 items-center justify-center">
-              {partner.logoSrc ? (
-                // eslint-disable-next-line @next/next/no-img-element -- partner logos
-                <img
-                  src={partner.logoSrc}
-                  alt=""
-                  className="max-h-full max-w-full object-contain"
-                  draggable={false}
-                />
-              ) : (
-                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#f5f0ff] font-poppins text-sm font-bold text-[#3b0764]">
-                  {partner.name.slice(0, 2)}
-                </span>
-              )}
-            </div>
-            <div className="min-w-0 flex-1">
-              <p className="truncate font-poppins text-[0.92rem] font-semibold leading-tight text-[#3b0764]">
-                {partner.name}
-              </p>
-              <PartnerGoogleRating
-                partnerId={partner.id}
-                className="mt-0.5 flex items-center gap-1 text-[0.75rem] font-semibold leading-snug text-amber-700"
-              />
-            </div>
-          </li>
-        ))}
+      <ul className={`mt-5 grid gap-2 sm:gap-3 ${gridCols}`}>
+        {displayPartners.map((partner) => {
+          const logoSrc = partner.logoSrc;
+          const privacyUrl = partner.privacyUrl;
+          return (
+            <li
+              key={partner.id}
+              className="flex flex-col rounded-[18px] border border-[#ddd6fe] bg-white px-2 py-2.5 shadow-[0_6px_18px_-14px_rgba(98,41,208,0.22)] sm:px-3 sm:py-3"
+            >
+              <div className="flex h-12 items-center justify-center sm:h-14">
+                {logoSrc ? (
+                  // eslint-disable-next-line @next/next/no-img-element -- partner logos
+                  <img
+                    src={logoSrc}
+                    alt={partner.name}
+                    className="h-full w-full object-contain"
+                    draggable={false}
+                  />
+                ) : (
+                  <p className="text-center font-poppins text-[0.8rem] font-semibold leading-tight text-[#3b0764] sm:text-sm">
+                    {partner.name}
+                  </p>
+                )}
+              </div>
+              {logoSrc ? (
+                <p className="mt-1.5 text-center font-poppins text-[0.72rem] font-semibold leading-tight text-[#3b0764] sm:text-[0.8rem]">
+                  {partner.name}
+                </p>
+              ) : null}
+              <PartnerGoogleRating partnerId={partner.id} />
+              <PartnerOfferBadge />
+              {privacyUrl ? (
+                <a
+                  href={privacyUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-2 text-center text-[0.65rem] font-medium text-zinc-500 underline-offset-2 hover:text-brand hover:underline sm:text-[0.7rem]"
+                >
+                  Protection de vos données&nbsp;↗
+                </a>
+              ) : null}
+            </li>
+          );
+        })}
       </ul>
 
       <div
         key={shakeKey}
         ref={consentBoxRef}
-        className={`mx-auto mt-5 max-w-md scroll-mt-24 rounded-[18px] border-2 p-4 text-[0.98rem] leading-relaxed text-foreground transition-colors ${
+        className={`mt-5 scroll-mt-24 rounded-[18px] border-2 p-4 text-[0.98rem] leading-relaxed text-foreground transition-colors ${
           dossierReady
             ? "border-emerald-500 bg-emerald-50/60"
             : hasConsentError
@@ -267,8 +305,10 @@ function StepEligiblePartnersV2Redesign({
         } ${shakeKey > 0 ? "consent-shake" : ""}`}
       >
         {!dossierReady ? (
-          <p className="mb-2.5 flex items-center gap-1.5 font-poppins text-[0.88rem] font-bold text-brand">
-            <span aria-hidden="true">👉</span>
+          <p className="mb-2.5 flex items-center gap-2 font-poppins text-[0.88rem] font-bold text-brand">
+            <span aria-hidden="true" className="text-[1.6rem] leading-none">
+              👇
+            </span>
             {iki
               ? "Cochez les cases pour valider votre demande"
               : "Cochez la case pour valider votre demande"}
@@ -343,7 +383,7 @@ function StepEligiblePartnersV2Redesign({
                 htmlFor="v2-consent-opt-in"
                 className="block cursor-pointer"
               >
-                {copy.consent}
+                {consentText}
               </label>
               {privacyPartners.length > 0 ? (
                 <p className="mt-2 text-[0.8125rem] leading-snug text-zinc-500">
@@ -393,7 +433,7 @@ function StepEligiblePartnersV2Redesign({
         </p>
       ) : null}
 
-      <p className="mx-auto mt-3 flex max-w-md items-start gap-2 px-1 text-left text-[0.8rem] leading-snug text-zinc-600">
+      <p className="mt-3 flex items-start gap-2 px-1 text-left text-[0.8rem] leading-snug text-zinc-600">
         <svg
           viewBox="0 0 24 24"
           className="mt-[2px] h-3.5 w-3.5 shrink-0 text-brand"
