@@ -738,3 +738,16 @@ body {
     display: none !important;
   }
 }
+
+/* V2 consent step: nudge the consent box when the CTA is clicked unchecked. */
+@keyframes consent-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+.consent-shake {
+  animation: consent-shake 0.4s ease-in-out;
+}
+@media (prefers-reduced-motion: reduce) {
+  .consent-shake { animation: none; }
+}

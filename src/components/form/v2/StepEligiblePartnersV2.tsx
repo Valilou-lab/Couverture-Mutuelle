@@ -1,6 +1,7 @@
 "use client";
 
 import { FormNavigation } from "@/components/form/FormNavigation";
+import { useEffect, useRef, useState } from "react";
 import type { QuoteFormData } from "@/components/form/types";
 import type { FieldErrors } from "@/components/form/validation";
 import { SENIOR_ERROR } from "@/components/form/seniorForm";
@@ -34,18 +35,15 @@ type Props = {
   onConfirm: () => void;
 };
 
-function PartnerOfferBadge() {
-  return (
-    <p className="mt-2 flex items-start justify-center gap-1 text-center text-[0.68rem] font-semibold leading-snug text-emerald-700 sm:text-[0.75rem]">
-      <span
-        aria-hidden="true"
-        className="mt-[1px] inline-flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full bg-emerald-600 text-[0.55rem] font-bold text-white sm:h-4 sm:w-4 sm:text-[0.625rem]"
-      >
-        ✓
-      </span>
-      <span>Peut vous proposer un devis</span>
-    </p>
-  );
+type FunnelEvent =
+  | "v2_consent_viewed"
+  | "v2_consent_checked"
+  | "v2_cta_click_without_consent";
+
+function pushFunnelEvent(event: FunnelEvent, brokerCount: number) {
+  if (typeof window === "undefined") return;
+  if (!Array.isArray(window.dataLayer)) window.dataLayer = [];
+  window.dataLayer.push({ event, broker_count: brokerCount });
 }
 
 /**
@@ -88,12 +86,62 @@ export function StepEligiblePartnersV2({
     Boolean(data.consent) &&
     (!iki || Boolean(data.partnerConsent));
 
-  const gridCols =
-    brokerCount <= 1
-      ? "grid-cols-1 max-w-[11rem] mx-auto"
-      : brokerCount === 2
-        ? "grid-cols-2"
-        : "grid-cols-3";
+  const consentBoxRef = useRef<HTMLDivElement>(null);
+  const [shakeKey, setShakeKey] = useState(0);
+  const viewedRef = useRef(false);
+
+  // Track when the consent box actually reaches the screen (Clarity/GTM).
+  useEffect(() => {
+    const node = consentBoxRef.current;
+    if (!node || brokerCount === 0 || typeof IntersectionObserver === "undefined") {
+      return;
+    }
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (viewedRef.current) return;
+        if (entries.some((entry) => entry.isIntersecting)) {
+          viewedRef.current = true;
+          pushFunnelEvent("v2_consent_viewed", brokerCount);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.6 },
+    );
+    observer.observe(node);
+    return () => observer.disconnect();
+  }, [brokerCount]);
+
+  const handleConsentChange = (
+    key: "consent" | "partnerConsent",
+    checked: boolean,
+  ) => {
+    if (checked) pushFunnelEvent("v2_consent_checked", brokerCount);
+    onPatch({ [key]: checked });
+  };
+
+  // The CTA stays clickable: an unchecked click points the user to the box
+  // instead of leaving a greyed-out button that reads as "done".
+  const handleConfirm = () => {
+    if (!dossierReady && !submitting) {
+      pushFunnelEvent("v2_cta_click_without_consent", brokerCount);
+      setShakeKey((value) => value + 1);
+      consentBoxRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+    onConfirm();
+  };
+
+  const hasConsentError = Boolean(errors.consent || errors.partnerConsent);
+  const headline =
+    brokerCount === 1
+      ? "1 courtier est disponible pour votre profil"
+      : `${brokerCount} courtiers sont disponibles pour votre profil`;
+  const ctaLabel =
+    brokerCount === 1
+      ? "Recevoir mon devis gratuit"
+      : `Recevoir mes ${brokerCount} devis gratuits`;
 
   if (brokerCount === 0) {
     return (
@@ -129,88 +177,94 @@ export function StepEligiblePartnersV2({
 
   return (
     <div>
-      <h2 className="text-balance text-center font-poppins text-[1.3rem] font-extrabold leading-tight tracking-[-0.02em] text-[#3b0764] sm:text-[1.5rem]">
-        {copy.title}
-      </h2>
-
-      <p className="mx-auto mt-3 max-w-md text-center text-[0.95rem] leading-snug text-zinc-600 sm:text-[1rem]">
-        {copy.intro}
-      </p>
-      <ul className={`mt-5 grid gap-2 sm:gap-3 ${gridCols}`}>
-        {displayPartners.map((partner) => {
-          const logoSrc = partner.logoSrc;
-          const privacyUrl = partner.privacyUrl;
-          return (
-            <li
-              key={partner.id}
-              className="flex flex-col rounded-[18px] border border-[#ddd6fe] bg-white px-2 py-2.5 shadow-[0_6px_18px_-14px_rgba(98,41,208,0.22)] sm:px-3 sm:py-3"
-            >
-              <div className="flex h-12 items-center justify-center sm:h-14">
-                {logoSrc ? (
-                  // eslint-disable-next-line @next/next/no-img-element -- partner logos
-                  <img
-                    src={logoSrc}
-                    alt={partner.name}
-                    className="h-full w-full object-contain"
-                    draggable={false}
-                  />
-                ) : (
-                  <p className="text-center font-poppins text-[0.8rem] font-semibold leading-tight text-[#3b0764] sm:text-sm">
-                    {partner.name}
-                  </p>
-                )}
-              </div>
-              {logoSrc ? (
-                <p className="mt-1.5 text-center font-poppins text-[0.72rem] font-semibold leading-tight text-[#3b0764] sm:text-[0.8rem]">
-                  {partner.name}
-                </p>
-              ) : null}
-              <PartnerGoogleRating partnerId={partner.id} />
-              <PartnerOfferBadge />
-              {privacyUrl ? (
-                <a
-                  href={privacyUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-2 text-center text-[0.65rem] font-medium text-zinc-500 underline-offset-2 hover:text-brand hover:underline sm:text-[0.7rem]"
-                >
-                  Protection de vos données&nbsp;↗
-                </a>
-              ) : null}
-            </li>
-          );
-        })}
-      </ul>
-
-      <div className="mt-5 flex gap-3 rounded-[18px] border border-[#ddd6fe] bg-[#f5f0ff] px-3.5 py-3.5 text-left sm:px-4">
-        <span
-          aria-hidden="true"
-          className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand text-white"
+      <div className="mb-4">
+        <div className="mb-1.5 flex items-center justify-between text-[0.78rem]">
+          <span className="font-semibold text-brand">Dernière étape</span>
+          <span className="text-zinc-500">90&nbsp;%</span>
+        </div>
+        <div
+          className="h-1.5 w-full rounded-full bg-[#ede9fe]"
+          role="progressbar"
+          aria-valuenow={90}
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-label="Progression du formulaire"
         >
-          <svg
-            viewBox="0 0 24 24"
-            className="h-4 w-4"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <rect x="5" y="11" width="14" height="10" rx="2" />
-            <path d="M8 11V8a4 4 0 0 1 8 0v3" />
-          </svg>
-        </span>
-        <div className="min-w-0">
-          <p className="font-poppins text-[0.98rem] font-bold text-[#3b0764]">
-            Vous gardez le contrôle
-          </p>
-          <p className="mt-1 text-[0.85rem] leading-snug text-zinc-600 sm:text-[0.9rem]">
-            {copy.footer}
-          </p>
+          <div className="h-1.5 w-[90%] rounded-full bg-brand" />
         </div>
       </div>
 
-      <div className="mt-5 rounded-[18px] border-2 border-[#ddd6fe] bg-[#f5f0ff] p-4 text-[0.98rem] leading-relaxed text-foreground">
+      <div className="text-center">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 px-3 py-1 text-[0.8rem] font-semibold text-emerald-700">
+          <span aria-hidden="true">🎉</span> Bonne nouvelle
+        </span>
+      </div>
+      <h2 className="mt-2.5 text-balance text-center font-poppins text-[1.3rem] font-extrabold leading-tight tracking-[-0.02em] text-[#3b0764] sm:text-[1.5rem]">
+        {headline}
+      </h2>
+      <p className="mx-auto mt-2 max-w-md text-center text-[0.95rem] leading-snug text-zinc-600 sm:text-[1rem]">
+        Plus qu’une étape&nbsp;: validez ci-dessous pour{" "}
+        <strong className="font-semibold text-[#3b0764]">
+          {brokerCount === 1
+            ? "recevoir votre devis gratuit"
+            : "recevoir vos devis gratuits"}
+        </strong>
+        .
+      </p>
+
+      <ul className="mx-auto mt-4 flex max-w-md flex-col gap-2">
+        {displayPartners.map((partner) => (
+          <li
+            key={partner.id}
+            className="flex items-center gap-3 rounded-[14px] border border-[#ebe5fd] bg-white px-3 py-2"
+          >
+            <div className="flex h-10 w-16 shrink-0 items-center justify-center">
+              {partner.logoSrc ? (
+                // eslint-disable-next-line @next/next/no-img-element -- partner logos
+                <img
+                  src={partner.logoSrc}
+                  alt=""
+                  className="max-h-full max-w-full object-contain"
+                  draggable={false}
+                />
+              ) : (
+                <span className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#f5f0ff] font-poppins text-sm font-bold text-[#3b0764]">
+                  {partner.name.slice(0, 2)}
+                </span>
+              )}
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="truncate font-poppins text-[0.92rem] font-semibold leading-tight text-[#3b0764]">
+                {partner.name}
+              </p>
+              <PartnerGoogleRating
+                partnerId={partner.id}
+                className="mt-0.5 flex items-center gap-1 text-[0.75rem] font-semibold leading-snug text-amber-700"
+              />
+            </div>
+          </li>
+        ))}
+      </ul>
+
+      <div
+        key={shakeKey}
+        ref={consentBoxRef}
+        className={`mx-auto mt-5 max-w-md scroll-mt-24 rounded-[18px] border-2 p-4 text-[0.98rem] leading-relaxed text-foreground transition-colors ${
+          dossierReady
+            ? "border-emerald-500 bg-emerald-50/60"
+            : hasConsentError
+              ? "border-red-500 bg-[#f5f0ff]"
+              : "border-brand/60 bg-[#f5f0ff] ring-4 ring-brand/10"
+        } ${shakeKey > 0 ? "consent-shake" : ""}`}
+      >
+        {!dossierReady ? (
+          <p className="mb-2.5 flex items-center gap-1.5 font-poppins text-[0.88rem] font-bold text-brand">
+            <span aria-hidden="true">👉</span>
+            {iki
+              ? "Cochez les cases pour valider votre demande"
+              : "Cochez la case pour valider votre demande"}
+          </p>
+        ) : null}
         {iki ? (
           <>
             <div className="flex items-start gap-3">
@@ -219,9 +273,9 @@ export function StepEligiblePartnersV2({
                 type="checkbox"
                 checked={data.consent}
                 onChange={(event) =>
-                  onPatch({ consent: event.target.checked })
+                  handleConsentChange("consent", event.target.checked)
                 }
-                className="mt-[3px] h-6 w-6 shrink-0 accent-brand"
+                className="mt-[2px] h-7 w-7 shrink-0 cursor-pointer accent-brand"
               />
               <label
                 htmlFor="v2-consent-opt-in"
@@ -240,9 +294,9 @@ export function StepEligiblePartnersV2({
                 type="checkbox"
                 checked={data.partnerConsent}
                 onChange={(event) =>
-                  onPatch({ partnerConsent: event.target.checked })
+                  handleConsentChange("partnerConsent", event.target.checked)
                 }
-                className="mt-[3px] h-6 w-6 shrink-0 accent-brand"
+                className="mt-[2px] h-7 w-7 shrink-0 cursor-pointer accent-brand"
               />
               <label
                 htmlFor="v2-partner-consent-opt-in"
@@ -270,11 +324,16 @@ export function StepEligiblePartnersV2({
               id="v2-consent-opt-in"
               type="checkbox"
               checked={data.consent}
-              onChange={(event) => onPatch({ consent: event.target.checked })}
-              className="mt-[3px] h-6 w-6 shrink-0 accent-brand"
+              onChange={(event) =>
+                handleConsentChange("consent", event.target.checked)
+              }
+              className="mt-[2px] h-7 w-7 shrink-0 cursor-pointer accent-brand"
             />
             <div className="min-w-0">
-              <label htmlFor="v2-consent-opt-in" className="cursor-pointer">
+              <label
+                htmlFor="v2-consent-opt-in"
+                className="block cursor-pointer"
+              >
                 {copy.consent}
               </label>
               {privacyPartners.length > 0 ? (
@@ -325,6 +384,23 @@ export function StepEligiblePartnersV2({
         </p>
       ) : null}
 
+      <p className="mx-auto mt-3 flex max-w-md items-start gap-2 px-1 text-left text-[0.8rem] leading-snug text-zinc-600">
+        <svg
+          viewBox="0 0 24 24"
+          className="mt-[2px] h-3.5 w-3.5 shrink-0 text-brand"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden="true"
+        >
+          <rect x="5" y="11" width="14" height="10" rx="2" />
+          <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+        </svg>
+        {copy.footer}
+      </p>
+
       {acquireError ? (
         <div
           className="mt-4 rounded-[18px] border border-red-200 bg-red-50 px-4 py-3.5 text-center"
@@ -348,17 +424,26 @@ export function StepEligiblePartnersV2({
         </div>
       ) : null}
 
-      <FormNavigation
-        onNext={onConfirm}
-        nextLabel={copy.cta}
-        disabled={!dossierReady || submitting}
-        canContinue={dossierReady && !submitting}
-      />
-      {!dossierReady ? (
-        <p className="mt-2 text-center text-[0.8125rem] leading-snug text-zinc-500">
-          Acceptez le consentement pour activer le bouton.
+      <div className="sticky bottom-0 z-10 -mx-4 mt-4 border-t border-[#ebe5fd] bg-white/95 px-4 pb-3 pt-3 backdrop-blur sm:static sm:mx-0 sm:border-0 sm:bg-transparent sm:px-0 sm:pb-0 sm:pt-0 sm:backdrop-blur-none">
+        {!dossierReady && !acquireError ? (
+          <p className="text-center text-[0.8rem] font-medium text-amber-700">
+            <span aria-hidden="true">⚠️</span> Votre demande n’est pas encore
+            envoyée
+          </p>
+        ) : null}
+        <div className="-mt-3">
+          <FormNavigation
+            onNext={handleConfirm}
+            nextLabel={submitting ? "Envoi…" : `${ctaLabel} →`}
+            disabled={submitting}
+            canContinue
+          />
+        </div>
+        <p className="mt-2 flex items-center justify-center gap-3 text-[0.78rem] font-medium text-emerald-700">
+          <span>✓ Gratuit</span>
+          <span>✓ Sans engagement</span>
         </p>
-      ) : null}
+      </div>
     </div>
   );
 }
