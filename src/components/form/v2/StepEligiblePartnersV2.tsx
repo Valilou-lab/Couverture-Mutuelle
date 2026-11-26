@@ -21,6 +21,7 @@ import {
 } from "@/lib/v2/partners-registry";
 import type { EligiblePartner } from "./v2Types";
 import { PartnerGoogleRating } from "./PartnerGoogleRating";
+import { StepEligiblePartnersV2Legacy } from "./StepEligiblePartnersV2Legacy";
 import { getV2PartnerLogoSrc } from "./v2Partners";
 
 type Props = {
@@ -50,7 +51,15 @@ function pushFunnelEvent(event: FunnelEvent, brokerCount: number) {
  * Post-eligibility: partners from API response + dynamic consent only.
  * All wording follows the real precheck partner count.
  */
-export function StepEligiblePartnersV2({
+export function StepEligiblePartnersV2(props: Props) {
+  // /iki keeps the previous design (two consent boxes, its own A/B baseline).
+  if (props.consentVariant === "iki") {
+    return <StepEligiblePartnersV2Legacy {...props} />;
+  }
+  return <StepEligiblePartnersV2Redesign {...props} />;
+}
+
+function StepEligiblePartnersV2Redesign({
   partners,
   data,
   errors,
