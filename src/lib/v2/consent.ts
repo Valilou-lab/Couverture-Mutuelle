@@ -1,7 +1,7 @@
 import type { V2RegisteredPartner } from "./partners-registry";
 
 /** Bump when the V2 partner-consent wording template changes. */
-export const V2_PARTNER_CONSENT_VERSION = "2026-11-17.v2.partners.6";
+export const V2_PARTNER_CONSENT_VERSION = "2026-11-26.v2.partners.7";
 
 /** French list: "A", "A et B", "A, B et C". */
 export function formatPartnerNamesFr(names: string[]): string {
@@ -61,13 +61,16 @@ export function buildV2BrokerCountCopy(count: number): V2BrokerCountCopy {
 }
 
 /**
- * Canonical V2 partner consent text.
+ * Canonical V2 partner consent text — names each partner explicitly.
  * Must be generated from server-validated partners only (never free browser text).
+ * The client renders the same function so the screen matches the stored proof.
  */
 export function buildV2PartnerConsentText(
   partners: readonly { name: string }[],
 ): string {
-  return buildV2BrokerCountCopy(partners.length).consent;
+  const names = formatPartnerNamesFr(partners.map((partner) => partner.name));
+  const verb = partners.length <= 1 ? "me contacte" : "me contactent";
+  return `Je demande que ${names} ${verb} par téléphone, SMS ou e-mail pour me proposer un devis de complémentaire santé.`;
 }
 
 export type V2ConsentRecord = {
