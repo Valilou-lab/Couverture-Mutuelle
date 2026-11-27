@@ -250,7 +250,6 @@ function StepEligiblePartnersV2Redesign({
       <ul className={`mt-5 grid gap-2 sm:gap-3 ${gridCols}`}>
         {displayPartners.map((partner) => {
           const logoSrc = partner.logoSrc;
-          const privacyUrl = partner.privacyUrl;
           return (
             <li
               key={partner.id}
@@ -278,16 +277,6 @@ function StepEligiblePartnersV2Redesign({
               ) : null}
               <PartnerGoogleRating partnerId={partner.id} />
               <PartnerOfferBadge />
-              {privacyUrl ? (
-                <a
-                  href={privacyUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mt-2 text-center text-[0.65rem] font-medium text-zinc-500 underline-offset-2 hover:text-brand hover:underline sm:text-[0.7rem]"
-                >
-                  Protection de vos données&nbsp;↗
-                </a>
-              ) : null}
             </li>
           );
         })}
